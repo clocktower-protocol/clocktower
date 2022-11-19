@@ -42,7 +42,7 @@ describe("Clocktower", function(){
             await owner.sendTransaction(params);
 
             
-            await expect(
+            expect(
                 await ethers.provider.getBalance(hardhatClocktower.address)
             ).to.greaterThanOrEqual(ethers.utils.parseEther("1.0"))
         })
@@ -90,11 +90,23 @@ describe("Clocktower", function(){
         it("Should send ether to addresses", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             hardhatClocktower.checkTime();
-            await expect(
+            expect(
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
         })
-        
-
     })
+
+    
+    describe("Time Functions", function() {
+        it("Should output hours", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await expect(
+                await hardhatClocktower.hoursSinceMerge()
+            )
+        })
+    })
+    
+    
+    
+    
 })
