@@ -35,8 +35,10 @@ contract Clocktower {
 
     mapping(uint => Transaction[]) private timeBlocks;
 
-    //post merge time start block
-    uint timeStart = 100;
+    //blocks since merge
+    uint32 blockMergeTime = 15537393;
+    //seconds since merge
+    uint40 epochMergeTime = 1663263720;
 
     //variable for last checked time block
     uint lastCheckedBlock = 100;
@@ -79,11 +81,20 @@ contract Clocktower {
 
     }
 
-    //converts time to hours after 09/17/2022:1200
-    function hourNow() private view returns(uint hour){
-        hour = block.number - timeStart;
+    //converts time to hours after merge
+    function hoursSinceMerge() external view returns(uint40 hourCount){
 
-        return hour;
+        //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
+        uint40 epochTime = uint40(block.timestamp);
+        uint40 secondsSinceMerge = epochTime - epochMergeTime;
+
+        hourCount = secondsSinceMerge/60;
+
+        console.log(
+            hourCount
+        );
+
+        return hourCount;
     }
 
     //sends transaction

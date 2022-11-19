@@ -31,10 +31,11 @@ export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addTransaction(address,uint40,uint256)": FunctionFragment;
     "checkTime()": FunctionFragment;
+    "hoursSinceMerge()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "addTransaction" | "checkTime"
+    nameOrSignatureOrTopic: "addTransaction" | "checkTime" | "hoursSinceMerge"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -46,17 +47,25 @@ export interface ClocktowerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "hoursSinceMerge",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "addTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "hoursSinceMerge",
+    data: BytesLike
+  ): Result;
 
   events: {
     "CheckStatus(string)": EventFragment;
     "Status(string)": EventFragment;
-    "TransactionAdd(address,address,uint256,uint256)": EventFragment;
+    "TransactionAdd(address,address,uint40,uint256)": EventFragment;
     "TransactionSent(bool)": EventFragment;
   };
 
@@ -83,11 +92,11 @@ export type StatusEventFilter = TypedEventFilter<StatusEvent>;
 export interface TransactionAddEventObject {
   sender: string;
   receiver: string;
-  timeTrigger: BigNumber;
+  timeTrigger: number;
   payload: BigNumber;
 }
 export type TransactionAddEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
+  [string, string, number, BigNumber],
   TransactionAddEventObject
 >;
 
@@ -140,6 +149,10 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    hoursSinceMerge(
+      overrides?: CallOverrides
+    ): Promise<[number] & { hourCount: number }>;
   };
 
   addTransaction(
@@ -153,6 +166,8 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  hoursSinceMerge(overrides?: CallOverrides): Promise<number>;
+
   callStatic: {
     addTransaction(
       receiver: PromiseOrValue<string>,
@@ -162,6 +177,8 @@ export interface Clocktower extends BaseContract {
     ): Promise<void>;
 
     checkTime(overrides?: CallOverrides): Promise<void>;
+
+    hoursSinceMerge(overrides?: CallOverrides): Promise<number>;
   };
 
   filters: {
@@ -171,7 +188,7 @@ export interface Clocktower extends BaseContract {
     "Status(string)"(output?: null): StatusEventFilter;
     Status(output?: null): StatusEventFilter;
 
-    "TransactionAdd(address,address,uint256,uint256)"(
+    "TransactionAdd(address,address,uint40,uint256)"(
       sender?: null,
       receiver?: null,
       timeTrigger?: null,
@@ -199,6 +216,8 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    hoursSinceMerge(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -212,5 +231,7 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    hoursSinceMerge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

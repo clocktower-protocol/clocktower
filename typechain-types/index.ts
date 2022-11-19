@@ -2,7 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Clocktower } from "./Clocktower";
-export type { Lock } from "./Lock";
 export * as factories from "./factories";
 export { Clocktower__factory } from "./factories/Clocktower__factory";
-export { Lock__factory } from "./factories/Lock__factory";

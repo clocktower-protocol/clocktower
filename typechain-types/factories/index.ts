@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export { Clocktower__factory } from "./Clocktower__factory";
-export { Lock__factory } from "./Lock__factory";
