@@ -1,0 +1,100 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+//import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { expect } from "chai";
+import { ethers } from "hardhat";
+
+describe("Clocktower", function(){
+
+    //fixture to deploy contract
+    async function deployClocktowerFixture() {
+        const Clocktower = await ethers.getContractFactory("Clocktower");
+        const [owner, otherAccount] = await ethers.getSigners();
+
+        const hardhatClocktower = await Clocktower.deploy();
+        await hardhatClocktower.deployed();
+
+        //creates several transaactions to test transaction list
+        hardhatClocktower.addTransaction(otherAccount.address, 101, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, 101, ethers.utils.parseEther("4.0"));
+
+        //starts contract with 100 ETH
+        const params = {
+            from: owner.address,
+            to: hardhatClocktower.address,
+            value: ethers.utils.parseEther("100.0")
+        };
+        await owner.sendTransaction(params);
+
+        return { Clocktower, hardhatClocktower, owner, otherAccount } ;
+    }
+
+    //test sending ether
+    describe("Sending Ether", function() {
+        it("Should receive ether", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            const params = {
+                from: owner.address,
+                to: hardhatClocktower.address,
+                value: ethers.utils.parseEther("1.0")
+            };
+
+            await owner.sendTransaction(params);
+
+            
+            await expect(
+                await ethers.provider.getBalance(hardhatClocktower.address)
+            ).to.greaterThanOrEqual(ethers.utils.parseEther("1.0"))
+        })
+    })
+
+    //tests adding transaction
+    describe("Transactions", function(){
+        it("Should add transactions", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //Add transaction to contract
+            await expect(
+                hardhatClocktower.addTransaction(otherAccount.address, 102, 40)
+            ).to.emit(hardhatClocktower, "TransactionAdd")
+            .withArgs(owner.address, otherAccount.address, 102, 40);
+        })
+        it("Should output status", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //get status output
+            await expect(
+                hardhatClocktower.addTransaction(otherAccount.address, 102, 40)
+            ).to.emit(hardhatClocktower, "Status")
+            .withArgs("Pushed");
+        })
+        
+        
+    })
+
+    describe("Check Time", function(){
+        it("Should output transactions", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await expect(
+                hardhatClocktower.checkTime()
+            ).to.emit(hardhatClocktower, "CheckStatus")
+            .withArgs("done");
+        })
+         
+        it("Should send transactions", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await expect(
+
+                hardhatClocktower.checkTime()
+            ).to.emit(hardhatClocktower, "TransactionSent")
+            .withArgs(true);
+        }) 
+        it("Should send ether to addresses", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            hardhatClocktower.checkTime();
+            await expect(
+                await ethers.provider.getBalance(otherAccount.address)
+            ).to.greaterThan(ethers.utils.parseEther("1007.0"))
+        })
+        
+
+    })
+})
