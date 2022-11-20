@@ -12,10 +12,10 @@ contract Clocktower {
     struct Transaction {
         address sender;
         address payable receiver;
-        //these two make a unique key per transaction. So you can look it up in the map
+        //timeTrigger and arrayIndex make a unique key per transaction. So you can look it up in the map
         uint40 timeTrigger;
+        uint16 arrayIndex;
         bool sent;
-        uint arrayIndex;
         //amount of ether sent in wei
         uint payload;
     }
@@ -38,10 +38,10 @@ contract Clocktower {
     //blocks since merge
     uint32 blockMergeTime = 15537393;
     //seconds since merge
-    uint40 unixMergeTime = 1663263720;
+    uint40 unixMergeTime = 1663264750;
 
     //variable for last checked time block
-    uint lastCheckedBlock = (hoursSinceMerge(uint40(block.timestamp)) - 3);
+    uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     
     //Emits
     event TransactionAdd(address sender, address receiver, uint40 timeTrigger, uint payload);
@@ -60,9 +60,9 @@ contract Clocktower {
     //////////////////////
     
     //sets Transaction
-    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint arrayIndex, uint payload) pure  internal returns(Transaction memory _transaction){
+    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) pure  internal returns(Transaction memory _transaction){
 
-            _transaction = Transaction(sender, receiver, timeTrigger, false, arrayIndex, payload);
+            _transaction = Transaction(sender, receiver, timeTrigger, arrayIndex, false, payload);
 
             return _transaction;
 
@@ -79,21 +79,19 @@ contract Clocktower {
     //sets transaction array to transaction block map
     function setTransactionArray(Transaction[] storage transactionArray, uint40 timeTrigger) private {
         timeBlocks[timeTrigger] = transactionArray;
-        console.log(
-            "Transaction Set"
-        );
 
     }
 
     //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) public returns(uint40 hourCount){
+    function hoursSinceMerge(uint40 unixTime) public  returns(uint40 hourCount){
 
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
         //uint40 unixTime = uint40(block.timestamp);
-        uint40 secondsSinceMerge = unixTime - unixMergeTime;
+        //uint40 secondsSinceMerge = unixTime - unixMergeTime;
 
-        hourCount = secondsSinceMerge/3600;
+        //hourCount = secondsSinceMerge/3600;
+        hourCount = (unixTime - unixMergeTime)/3600;
 
 
         emit HoursCalc(true);
@@ -113,10 +111,12 @@ contract Clocktower {
                 if(transaction.receiver.send(transaction.payload)) {
                         emit TransactionSent(true);
                         
+                        
                         //updates the transaction to reflect sent status
                         transaction.sent = true; 
                         Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
                         _transactionArray[transaction.arrayIndex] = transaction;
+                        
 
                 } else {
                     //TODO: add error throw
@@ -144,7 +144,7 @@ contract Clocktower {
         _transactionArray = getTransactionArray(timeTrigger);   
         
         //gets length of array to populate arrayIndex in transaction
-        uint arrayLength = _transactionArray.length;
+        uint16 arrayLength = uint16(_transactionArray.length);
 
          //creates transaction
         Transaction memory transaction = setTransaction(sender, receiver, timeTrigger, arrayLength, payload);
@@ -164,9 +164,9 @@ contract Clocktower {
     function checkTime() public {
 
         //gets current time slot based on hour
-        uint _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
+        uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
 
-        for(uint i = lastCheckedBlock; i <= _currentTimeSlot; i++) {
+        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
             Transaction[] memory _transactionArray;
 
@@ -180,7 +180,7 @@ contract Clocktower {
             if(_transactionArray.length > 0) {
                 
                 //iterates through transaction array
-                for(uint h = 0; h <= (_transactionArray.length - 1); h++){
+                for(uint16 h = 0; h <= (_transactionArray.length - 1); h++){
 
                     //sends transactions
                     sendTransaction(_transactionArray[h]);

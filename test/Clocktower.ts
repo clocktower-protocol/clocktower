@@ -8,8 +8,9 @@ describe("Clocktower", function(){
     //sends receive time in unix epoch seconds
     let millis = Date.now();
     let currentTime = Math.floor(millis / 1000);
-
-    console.log(currentTime);
+    //hour merge occured
+    let mergeTime = 1663264750;
+    let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
@@ -67,7 +68,7 @@ describe("Clocktower", function(){
             await expect(
                 hardhatClocktower.addTransaction(otherAccount.address, hourAgo , 40)
             ).to.emit(hardhatClocktower, "TransactionAdd")
-            .withArgs(owner.address, otherAccount.address, 1580, 40);
+            .withArgs(owner.address, otherAccount.address, (hoursSinceMerge -1), 40);
         })
         it("Should output status", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
