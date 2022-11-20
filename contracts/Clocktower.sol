@@ -38,16 +38,17 @@ contract Clocktower {
     //blocks since merge
     uint32 blockMergeTime = 15537393;
     //seconds since merge
-    uint40 epochMergeTime = 1663263720;
+    uint40 unixMergeTime = 1663263720;
 
     //variable for last checked time block
-    uint lastCheckedBlock = 100;
+    uint lastCheckedBlock = (hoursSinceMerge(uint40(block.timestamp)) - 3);
     
     //Emits
     event TransactionAdd(address sender, address receiver, uint40 timeTrigger, uint payload);
     event Status(string output);
     event CheckStatus(string output2);
     event TransactionSent(bool sent);
+    event HoursCalc(bool houseSent);
 
     //functions for receiving ether
     receive() external payable{}
@@ -78,24 +79,28 @@ contract Clocktower {
     //sets transaction array to transaction block map
     function setTransactionArray(Transaction[] storage transactionArray, uint40 timeTrigger) private {
         timeBlocks[timeTrigger] = transactionArray;
+        console.log(
+            "Transaction Set"
+        );
 
     }
 
     //converts time to hours after merge
-    function hoursSinceMerge() external view returns(uint40 hourCount){
+    function hoursSinceMerge(uint40 unixTime) public returns(uint40 hourCount){
+
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
-        uint40 epochTime = uint40(block.timestamp);
-        uint40 secondsSinceMerge = epochTime - epochMergeTime;
+        //uint40 unixTime = uint40(block.timestamp);
+        uint40 secondsSinceMerge = unixTime - unixMergeTime;
 
-        hourCount = secondsSinceMerge/60;
+        hourCount = secondsSinceMerge/3600;
 
-        console.log(
-            hourCount
-        );
+
+        emit HoursCalc(true);
 
         return hourCount;
     }
+
 
     //sends transaction
     function sendTransaction(Transaction memory transaction) private {
@@ -126,8 +131,10 @@ contract Clocktower {
     
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 timeTrigger, uint payload) external {
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload) external {
         
+        //calculates hours since merge from passed unixTime
+        uint40 timeTrigger = hoursSinceMerge(unixTime);
 
         address sender = msg.sender;
         Transaction[] storage _transactionArray;
@@ -156,9 +163,10 @@ contract Clocktower {
     //checks list of blocks between now and when it was last checked
     function checkTime() public {
 
-        uint _currentBlock = 103;
+        //gets current time slot based on hour
+        uint _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
 
-        for(uint i = lastCheckedBlock; i <= _currentBlock; i++) {
+        for(uint i = lastCheckedBlock; i <= _currentTimeSlot; i++) {
 
             Transaction[] memory _transactionArray;
 
@@ -170,7 +178,6 @@ contract Clocktower {
             
             //if block has transactions add them to transaction list
             if(_transactionArray.length > 0) {
-
                 
                 //iterates through transaction array
                 for(uint h = 0; h <= (_transactionArray.length - 1); h++){

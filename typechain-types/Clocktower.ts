@@ -31,7 +31,7 @@ export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addTransaction(address,uint40,uint256)": FunctionFragment;
     "checkTime()": FunctionFragment;
-    "hoursSinceMerge()": FunctionFragment;
+    "hoursSinceMerge(uint40)": FunctionFragment;
   };
 
   getFunction(
@@ -49,7 +49,7 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "hoursSinceMerge",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
@@ -64,12 +64,14 @@ export interface ClocktowerInterface extends utils.Interface {
 
   events: {
     "CheckStatus(string)": EventFragment;
+    "HoursCalc(bool)": EventFragment;
     "Status(string)": EventFragment;
     "TransactionAdd(address,address,uint40,uint256)": EventFragment;
     "TransactionSent(bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CheckStatus"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HoursCalc"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Status"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionAdd"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionSent"): EventFragment;
@@ -81,6 +83,13 @@ export interface CheckStatusEventObject {
 export type CheckStatusEvent = TypedEvent<[string], CheckStatusEventObject>;
 
 export type CheckStatusEventFilter = TypedEventFilter<CheckStatusEvent>;
+
+export interface HoursCalcEventObject {
+  houseSent: boolean;
+}
+export type HoursCalcEvent = TypedEvent<[boolean], HoursCalcEventObject>;
+
+export type HoursCalcEventFilter = TypedEventFilter<HoursCalcEvent>;
 
 export interface StatusEventObject {
   output: string;
@@ -141,7 +150,7 @@ export interface Clocktower extends BaseContract {
   functions: {
     addTransaction(
       receiver: PromiseOrValue<string>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
+      unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -151,13 +160,14 @@ export interface Clocktower extends BaseContract {
     ): Promise<ContractTransaction>;
 
     hoursSinceMerge(
-      overrides?: CallOverrides
-    ): Promise<[number] & { hourCount: number }>;
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   addTransaction(
     receiver: PromiseOrValue<string>,
-    timeTrigger: PromiseOrValue<BigNumberish>,
+    unixTime: PromiseOrValue<BigNumberish>,
     payload: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -166,24 +176,33 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  hoursSinceMerge(overrides?: CallOverrides): Promise<number>;
+  hoursSinceMerge(
+    unixTime: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     addTransaction(
       receiver: PromiseOrValue<string>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
+      unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     checkTime(overrides?: CallOverrides): Promise<void>;
 
-    hoursSinceMerge(overrides?: CallOverrides): Promise<number>;
+    hoursSinceMerge(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
   };
 
   filters: {
     "CheckStatus(string)"(output2?: null): CheckStatusEventFilter;
     CheckStatus(output2?: null): CheckStatusEventFilter;
+
+    "HoursCalc(bool)"(houseSent?: null): HoursCalcEventFilter;
+    HoursCalc(houseSent?: null): HoursCalcEventFilter;
 
     "Status(string)"(output?: null): StatusEventFilter;
     Status(output?: null): StatusEventFilter;
@@ -208,7 +227,7 @@ export interface Clocktower extends BaseContract {
   estimateGas: {
     addTransaction(
       receiver: PromiseOrValue<string>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
+      unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -217,13 +236,16 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    hoursSinceMerge(overrides?: CallOverrides): Promise<BigNumber>;
+    hoursSinceMerge(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     addTransaction(
       receiver: PromiseOrValue<string>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
+      unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -232,6 +254,9 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    hoursSinceMerge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    hoursSinceMerge(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
   };
 }
