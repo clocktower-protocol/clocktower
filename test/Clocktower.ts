@@ -4,6 +4,8 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+//Written by Hugo Marx
+
 describe("Clocktower", function(){
 
     //sends receive time in unix epoch seconds
@@ -12,15 +14,12 @@ describe("Clocktower", function(){
     //hour merge occured
     let mergeTime = 1663264750;
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
-    
+    //eth sent
+    let eth = ethers.utils.parseEther("1.0")
+
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
-
-    console.log(
-        hoursSinceMerge
-    );
-
     
     async function moveTime(hours: number, contract: any) {
         let seconds = hours * 3600;
@@ -31,10 +30,6 @@ describe("Clocktower", function(){
         hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
         hourAgo = currentTime - 3600;
         hourAhead = currentTime + 3600;
-
-        console.log(
-        hoursSinceMerge
-        );
     }
     
 
@@ -46,9 +41,13 @@ describe("Clocktower", function(){
         const hardhatClocktower = await Clocktower.deploy();
         await hardhatClocktower.deployed();
 
+        let params2 = {
+            value: eth
+        }
+
         //creates several transaactions to test transaction list
-        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, ethers.utils.parseEther("4.0"));
-        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, params2);
+        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, params2);
 
         //starts contract with 100 ETH
         const params = {
@@ -81,7 +80,7 @@ describe("Clocktower", function(){
             
             expect(
                 await ethers.provider.getBalance(hardhatClocktower.address)
-            ).to.greaterThanOrEqual(ethers.utils.parseEther("1.0"))
+            ).to.greaterThanOrEqual(eth)
         })
     })
 
@@ -89,27 +88,35 @@ describe("Clocktower", function(){
     //tests adding transaction
     describe("Transactions", function(){
 
+        const testParams = {
+            value: eth
+        };
 
         it("Should add transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
-            console.log(
-                hoursSinceMerge
-            );
-        
             //Add transaction to contract
             await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAhead , 40)
+                hardhatClocktower.addTransaction(otherAccount.address, hourAhead ,eth , testParams)
             ).to.emit(hardhatClocktower, "TransactionAdd")
-            .withArgs(owner.address, otherAccount.address, (hoursSinceMerge + 1), 40);
+            .withArgs(owner.address, otherAccount.address, (hoursSinceMerge + 1), eth);
         })
         it("Should output status", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //get status output
             await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAhead, 40)
+                hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
             ).to.emit(hardhatClocktower, "Status")
             .withArgs("Pushed");
+        })
+        it("Should send eth with the transaction", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+           
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            await expect(
+                await ethers.provider.getBalance(hardhatClocktower.address)
+            ).to.equals(ethers.utils.parseEther("103.0"))
+
         })
         
         
