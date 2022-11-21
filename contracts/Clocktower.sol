@@ -68,6 +68,11 @@ contract Clocktower {
         return address(this).balance;
     }
     //////////////////////
+
+    //gets time
+    function getTime() external view returns (uint) {
+        return block.timestamp;
+    }
     
     //sets Transaction
     function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) pure  internal returns(Transaction memory _transaction){
@@ -147,7 +152,7 @@ contract Clocktower {
     function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
 
         //require transactions to be in the future
-        //require(unixTime > block.timestamp);
+        require(unixTime > block.timestamp);
         //require sent ETH to be higher than payload * fee
         //require(payload >= (msg.value * fee));
 
