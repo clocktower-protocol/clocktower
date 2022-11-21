@@ -1,4 +1,5 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 //import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
@@ -14,6 +15,7 @@ describe("Clocktower", function(){
     
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
+    let hourAhead = currentTime + 3600;
 
     //fixture to deploy contract
     async function deployClocktowerFixture() {
@@ -24,8 +26,8 @@ describe("Clocktower", function(){
         await hardhatClocktower.deployed();
 
         //creates several transaactions to test transaction list
-        hardhatClocktower.addTransaction(otherAccount.address, hourAgo, ethers.utils.parseEther("4.0"));
-        hardhatClocktower.addTransaction(otherAccount.address, hourAgo, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, currentTime, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, currentTime, ethers.utils.parseEther("4.0"));
 
         //starts contract with 100 ETH
         const params = {
@@ -34,6 +36,9 @@ describe("Clocktower", function(){
             value: ethers.utils.parseEther("100.0")
         };
         await owner.sendTransaction(params);
+
+        //forwards the chain ahead in time two hours
+        await time.increase(7200);
 
         return { Clocktower, hardhatClocktower, owner, otherAccount } ;
     }
@@ -66,15 +71,15 @@ describe("Clocktower", function(){
         
             //Add transaction to contract
             await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAgo , 40)
+                hardhatClocktower.addTransaction(otherAccount.address, hourAhead , 40)
             ).to.emit(hardhatClocktower, "TransactionAdd")
-            .withArgs(owner.address, otherAccount.address, (hoursSinceMerge -1), 40);
+            .withArgs(owner.address, otherAccount.address, (hoursSinceMerge + 1), 40);
         })
         it("Should output status", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //get status output
             await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAgo, 40)
+                hardhatClocktower.addTransaction(otherAccount.address, hourAhead, 40)
             ).to.emit(hardhatClocktower, "Status")
             .withArgs("Pushed");
         })

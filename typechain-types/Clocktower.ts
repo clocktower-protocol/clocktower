@@ -66,16 +66,20 @@ export interface ClocktowerInterface extends utils.Interface {
   events: {
     "CheckStatus(string)": EventFragment;
     "HoursCalc(bool)": EventFragment;
+    "ReceiveETH(address,uint256)": EventFragment;
     "Status(string)": EventFragment;
     "TransactionAdd(address,address,uint40,uint256)": EventFragment;
     "TransactionSent(bool)": EventFragment;
+    "UnknownFunction(string)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CheckStatus"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "HoursCalc"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ReceiveETH"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Status"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionAdd"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionSent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UnknownFunction"): EventFragment;
 }
 
 export interface CheckStatusEventObject {
@@ -91,6 +95,17 @@ export interface HoursCalcEventObject {
 export type HoursCalcEvent = TypedEvent<[boolean], HoursCalcEventObject>;
 
 export type HoursCalcEventFilter = TypedEventFilter<HoursCalcEvent>;
+
+export interface ReceiveETHEventObject {
+  user: string;
+  amount: BigNumber;
+}
+export type ReceiveETHEvent = TypedEvent<
+  [string, BigNumber],
+  ReceiveETHEventObject
+>;
+
+export type ReceiveETHEventFilter = TypedEventFilter<ReceiveETHEvent>;
 
 export interface StatusEventObject {
   output: string;
@@ -121,6 +136,16 @@ export type TransactionSentEvent = TypedEvent<
 >;
 
 export type TransactionSentEventFilter = TypedEventFilter<TransactionSentEvent>;
+
+export interface UnknownFunctionEventObject {
+  output3: string;
+}
+export type UnknownFunctionEvent = TypedEvent<
+  [string],
+  UnknownFunctionEventObject
+>;
+
+export type UnknownFunctionEventFilter = TypedEventFilter<UnknownFunctionEvent>;
 
 export interface Clocktower extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -205,6 +230,12 @@ export interface Clocktower extends BaseContract {
     "HoursCalc(bool)"(houseSent?: null): HoursCalcEventFilter;
     HoursCalc(houseSent?: null): HoursCalcEventFilter;
 
+    "ReceiveETH(address,uint256)"(
+      user?: null,
+      amount?: null
+    ): ReceiveETHEventFilter;
+    ReceiveETH(user?: null, amount?: null): ReceiveETHEventFilter;
+
     "Status(string)"(output?: null): StatusEventFilter;
     Status(output?: null): StatusEventFilter;
 
@@ -223,6 +254,9 @@ export interface Clocktower extends BaseContract {
 
     "TransactionSent(bool)"(sent?: null): TransactionSentEventFilter;
     TransactionSent(sent?: null): TransactionSentEventFilter;
+
+    "UnknownFunction(string)"(output3?: null): UnknownFunctionEventFilter;
+    UnknownFunction(output3?: null): UnknownFunctionEventFilter;
   };
 
   estimateGas: {
