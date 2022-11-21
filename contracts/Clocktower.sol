@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+//Written by Hugo Marx
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
@@ -69,7 +70,7 @@ contract Clocktower {
     }
     //////////////////////
 
-    //gets time
+    //gets time TESTING FUNCTION
     function getTime() external view returns (uint) {
         return block.timestamp;
     }
@@ -154,7 +155,7 @@ contract Clocktower {
         //require transactions to be in the future
         require(unixTime > block.timestamp);
         //require sent ETH to be higher than payload * fee
-        //require(payload >= (msg.value * fee));
+        require(payload >= (msg.value * fee), "Not enough ETH sent with transaction");
 
         //TODO: receive eth from user
         
