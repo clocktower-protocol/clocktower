@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -152,7 +153,7 @@ export interface Clocktower extends BaseContract {
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     checkTime(
@@ -169,7 +170,7 @@ export interface Clocktower extends BaseContract {
     receiver: PromiseOrValue<string>,
     unixTime: PromiseOrValue<BigNumberish>,
     payload: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   checkTime(
@@ -229,7 +230,7 @@ export interface Clocktower extends BaseContract {
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     checkTime(
@@ -247,7 +248,7 @@ export interface Clocktower extends BaseContract {
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     checkTime(

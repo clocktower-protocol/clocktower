@@ -16,7 +16,7 @@ contract Clocktower {
         uint40 timeTrigger;
         uint16 arrayIndex;
         bool sent;
-        //amount of ether sent in wei
+        //amount of ether sent in wei (in 64 bit uint for gas efficiency)
         uint payload;
     }
 
@@ -40,7 +40,11 @@ contract Clocktower {
     //seconds since merge
     uint40 unixMergeTime = 1663264750;
 
+    //TODO: set fee
+    uint fee = 1;
+
     //variable for last checked time block
+    //uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     
     //Emits
@@ -49,10 +53,16 @@ contract Clocktower {
     event CheckStatus(string output2);
     event TransactionSent(bool sent);
     event HoursCalc(bool houseSent);
+    event UnknownFunction(string output3);
+    event ReceiveETH(address user, uint amount);
 
     //functions for receiving ether
-    receive() external payable{}
-    fallback() external payable{}
+    receive() external payable{
+        emit ReceiveETH(msg.sender, msg.value);
+    }
+    fallback() external payable{
+        emit UnknownFunction("Unknown function");
+    }
 
     function getBalance() internal view returns (uint){
         return address(this).balance;
@@ -87,10 +97,7 @@ contract Clocktower {
 
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
-        //uint40 unixTime = uint40(block.timestamp);
-        //uint40 secondsSinceMerge = unixTime - unixMergeTime;
 
-        //hourCount = secondsSinceMerge/3600;
         hourCount = (unixTime - unixMergeTime)/3600;
 
 
@@ -103,35 +110,48 @@ contract Clocktower {
     //sends transaction
     function sendTransaction(Transaction memory transaction) private {
 
-        //checks if contract has enough eth
-        if(getBalance() > transaction.payload) {
-                //TODO: add check if sender has enough in account
+        //checks contract has enough ETH
+        require(getBalance() > transaction.payload);
+        //checks transaction goes through
+        require(transaction.receiver.send(transaction.payload));
 
+         //updates the transaction to reflect sent status
+        transaction.sent = true; 
+        Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
+        _transactionArray[transaction.arrayIndex] = transaction;
 
-                if(transaction.receiver.send(transaction.payload)) {
-                        emit TransactionSent(true);
+        emit TransactionSent(true);
+
+        /*
+        if(transaction.receiver.send(transaction.payload)) {
+             emit TransactionSent(true);
                         
                         
-                        //updates the transaction to reflect sent status
-                        transaction.sent = true; 
-                        Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
-                        _transactionArray[transaction.arrayIndex] = transaction;
+            //updates the transaction to reflect sent status
+            transaction.sent = true; 
+            Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
+            _transactionArray[transaction.arrayIndex] = transaction;
                         
 
-                } else {
-                    //TODO: add error throw
-                    emit TransactionSent(false);
-                }
-        }else {
+        } else {
             //TODO: add error throw
             emit TransactionSent(false);
         }
+        */
+       
     }
 
     
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload) external {
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
+
+        //require transactions to be in the future
+        require(unixTime > block.timestamp);
+        //require sent ETH to be higher than payload * fee
+        //require(payload >= (msg.value * fee));
+
+        //TODO: receive eth from user
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
@@ -166,7 +186,9 @@ contract Clocktower {
         //gets current time slot based on hour
         uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
 
-        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
+        require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
+
+        for(uint i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
             Transaction[] memory _transactionArray;
 
@@ -180,7 +202,7 @@ contract Clocktower {
             if(_transactionArray.length > 0) {
                 
                 //iterates through transaction array
-                for(uint16 h = 0; h <= (_transactionArray.length - 1); h++){
+                for(uint h = 0; h <= (_transactionArray.length - 1); h++){
 
                     //sends transactions
                     sendTransaction(_transactionArray[h]);
@@ -189,10 +211,8 @@ contract Clocktower {
             }
         }
 
-    }
-
-    //gets block number based on timestamp
-    function getBlockFromTime(uint _timestamp) internal {
+        //updates lastCheckedTimeSlot
+        lastCheckedTimeSlot = _currentTimeSlot;
 
     }
 }
