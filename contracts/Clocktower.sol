@@ -33,7 +33,7 @@ contract Clocktower {
     //This makes it very fast to look up transactions by time.
     //Map of arrays of transaction structs keyed to block number send time
 
-    mapping(uint => Transaction[]) private timeBlocks;
+    mapping(uint => Transaction[]) private timeMap;
 
     //blocks since merge
     uint32 blockMergeTime = 15537393;
@@ -81,14 +81,14 @@ contract Clocktower {
     //gets transaction array from block
     function getTransactionArray(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
 
-       return timeBlocks[timeTrigger];
+       return timeMap[timeTrigger];
 
     }
 
     
     //sets transaction array to transaction block map
     function setTransactionArray(Transaction[] storage transactionArray, uint40 timeTrigger) private {
-        timeBlocks[timeTrigger] = transactionArray;
+        timeMap[timeTrigger] = transactionArray;
 
     }
 
@@ -117,7 +117,7 @@ contract Clocktower {
 
          //updates the transaction to reflect sent status
         transaction.sent = true; 
-        Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
+        Transaction[] memory _transactionArray = timeMap[transaction.timeTrigger];
         _transactionArray[transaction.arrayIndex] = transaction;
 
         emit TransactionSent(true);
@@ -147,7 +147,7 @@ contract Clocktower {
     function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
 
         //require transactions to be in the future
-        require(unixTime > block.timestamp);
+        //require(unixTime > block.timestamp);
         //require sent ETH to be higher than payload * fee
         //require(payload >= (msg.value * fee));
 
@@ -195,7 +195,7 @@ contract Clocktower {
             emit CheckStatus("done");
             
             //gets transaction array per block
-            _transactionArray = timeBlocks[i];
+            _transactionArray = timeMap[i];
 
             
             //if block has transactions add them to transaction list
