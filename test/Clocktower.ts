@@ -17,6 +17,27 @@ describe("Clocktower", function(){
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
 
+    console.log(
+        hoursSinceMerge
+    );
+
+    
+    async function moveTime(hours: number, contract: any) {
+        let seconds = hours * 3600;
+        await time.increase(seconds);
+
+        //resets time variables tests
+        currentTime = Number(await contract.getTime())
+        hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
+        hourAgo = currentTime - 3600;
+        hourAhead = currentTime + 3600;
+
+        console.log(
+        hoursSinceMerge
+        );
+    }
+    
+
     //fixture to deploy contract
     async function deployClocktowerFixture() {
         const Clocktower = await ethers.getContractFactory("Clocktower");
@@ -26,8 +47,8 @@ describe("Clocktower", function(){
         await hardhatClocktower.deployed();
 
         //creates several transaactions to test transaction list
-        hardhatClocktower.addTransaction(otherAccount.address, currentTime, ethers.utils.parseEther("4.0"));
-        hardhatClocktower.addTransaction(otherAccount.address, currentTime, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, ethers.utils.parseEther("4.0"));
+        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, ethers.utils.parseEther("4.0"));
 
         //starts contract with 100 ETH
         const params = {
@@ -37,8 +58,9 @@ describe("Clocktower", function(){
         };
         await owner.sendTransaction(params);
 
-        //forwards the chain ahead in time two hours
-        await time.increase(7200);
+        //moves time 2 hours
+        await moveTime(2, hardhatClocktower);
+
 
         return { Clocktower, hardhatClocktower, owner, otherAccount } ;
     }
@@ -66,8 +88,14 @@ describe("Clocktower", function(){
     
     //tests adding transaction
     describe("Transactions", function(){
+
+
         it("Should add transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            console.log(
+                hoursSinceMerge
+            );
         
             //Add transaction to contract
             await expect(
