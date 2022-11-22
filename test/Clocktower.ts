@@ -119,6 +119,18 @@ describe("Clocktower", function(){
 
         })
         
+        it("Should Get Account", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture)
+            
+
+            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            expect(
+                 (await hardhatClocktower.getAccount(owner.address)).accountAddress
+            ).to.equal(owner.address)
+        
+        })
+        
+        
         
     })
     

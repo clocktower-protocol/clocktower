@@ -17,8 +17,17 @@ contract Clocktower {
         uint40 timeTrigger;
         uint16 arrayIndex;
         bool sent;
-        //amount of ether sent in wei (in 64 bit uint for gas efficiency)
+        //amount of ether sent in wei
         uint payload;
+    }
+
+    //acount struct
+    struct Account {
+        address accountAddress;
+        //string description;
+        bool exists;
+        Transaction[] transactions;
+        uint balance;
     }
 
     //global struct for Watchers
@@ -27,8 +36,8 @@ contract Clocktower {
 
     }
 
-    //TODO: create senderaccount balance map
-
+    //Account map
+    mapping(address => Account) private accountMap;
 
     //Initialize an array of transactions keyed to uint blocknumber.
     //This makes it very fast to look up transactions by time.
@@ -56,6 +65,7 @@ contract Clocktower {
     event HoursCalc(bool houseSent);
     event UnknownFunction(string output3);
     event ReceiveETH(address user, uint amount);
+    event AccountCreated(string output4);
 
     //functions for receiving ether
     receive() external payable{
@@ -74,10 +84,58 @@ contract Clocktower {
     function getTime() external view returns (uint) {
         return block.timestamp;
     }
+
+     //converts time to hours after merge
+    function hoursSinceMerge(uint40 unixTime) public  returns(uint40 hourCount){
+
+
+        //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
+
+        hourCount = (unixTime - unixMergeTime)/3600;
+
+
+        emit HoursCalc(true);
+
+        return hourCount;
+    }
+
+    //gets transactions from account
+    function getAccount(address account) external view returns (Account memory returnAccount){
+        
+        //account info can only be accessed by itself
+        require(msg.sender == account, "Wrong account access attempted");
+
+        return returnAccount;
+
+    }
+
+    //set account
+    function setAccount(bool exists, Transaction[] storage transactions, uint balance) internal  view returns (Account memory account){
+        account  = Account(msg.sender, exists, transactions, balance);
+
+        return account;
+    }
+
+    //adds account
+    function addAccount(Account memory account) private {
+
+        //checks if account already exists
+        if(!accountMap[msg.sender].exists) {
+
+            accountMap[msg.sender] = account; 
+            emit AccountCreated("Account created");
+        } else {
+            emit AccountCreated("Account already exists");
+            //updates account
+            accountMap[msg.sender] = account;
+        }
+
+    }
+
     
     //sets Transaction
-    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) pure  internal returns(Transaction memory _transaction){
-
+    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) internal pure returns(Transaction memory _transaction){
+ 
             _transaction = Transaction(sender, receiver, timeTrigger, arrayIndex, false, payload);
 
             return _transaction;
@@ -97,21 +155,6 @@ contract Clocktower {
         timeMap[timeTrigger] = transactionArray;
 
     }
-
-    //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) public  returns(uint40 hourCount){
-
-
-        //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
-
-        hourCount = (unixTime - unixMergeTime)/3600;
-
-
-        emit HoursCalc(true);
-
-        return hourCount;
-    }
-
 
     //sends transaction
     function sendTransaction(Transaction memory transaction) private {
@@ -156,8 +199,6 @@ contract Clocktower {
         require(unixTime > block.timestamp);
         //require sent ETH to be higher than payload * fee
         require(payload >= (msg.value * fee), "Not enough ETH sent with transaction");
-
-        //TODO: receive eth from user
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
@@ -180,9 +221,57 @@ contract Clocktower {
         emit TransactionAdd(sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
 
-        //puts appended array back in map
+        //puts appended array back in time map
 
         setTransactionArray(_transactionArray, timeTrigger);      
+
+        
+        //gets transactions from existing or zero for new and adds new transaction
+
+        if(accountMap[msg.sender].exists == true) {
+            Account storage account = accountMap[msg.sender];
+
+            //updates account
+            account.balance = msg.value + account.balance;
+
+            Transaction[] storage accountTransactions = accountMap[msg.sender].transactions;
+            
+            //accountTransactions.push(transaction);
+
+            account.transactions = accountTransactions;
+
+            accountMap[msg.sender] = account;
+        } else {
+            //TODO: this shit is broken
+            /*
+            Transaction[] storage accountTransactions = accountMap[msg.sender].transactions;
+            accountTransactions[accountTransactions.length -1] = transaction;
+
+            Account memory account = Account(msg.sender, true, accountTransactions , msg.value);
+
+            //account.transactions[0] = transaction;
+
+            accountMap[msg.sender] = account;
+            */
+           console.log(
+            "click"
+           );
+        }
+
+        /*
+        Transaction[] memory accountTransactions = accountMap[msg.sender].transactions;
+        accountTransactions[accountTransactions.length - 1].push() = transaction;
+
+        uint balance = msg.value + accountMap[msg.sender].balance;
+
+        Account memory account = setAccount(true, accountTransactions, balance);
+
+        addAccount(account);
+        */
+        
+        //adds updated transaction list to account 
+        //accountMap[msg.sender] = account;
+
     }
     
 
