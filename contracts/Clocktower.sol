@@ -26,7 +26,6 @@ contract Clocktower {
         address accountAddress;
         //string description;
         bool exists;
-        //Transaction[] transactions;
         uint balance;
     }
 
@@ -182,23 +181,6 @@ contract Clocktower {
         _transactionArray[transaction.arrayIndex] = transaction;
 
         emit TransactionSent(true);
-
-        /*
-        if(transaction.receiver.send(transaction.payload)) {
-             emit TransactionSent(true);
-                        
-                        
-            //updates the transaction to reflect sent status
-            transaction.sent = true; 
-            Transaction[] memory _transactionArray = timeBlocks[transaction.timeTrigger];
-            _transactionArray[transaction.arrayIndex] = transaction;
-                        
-
-        } else {
-            //TODO: add error throw
-            emit TransactionSent(false);
-        }
-        */
        
     }
 
@@ -218,7 +200,6 @@ contract Clocktower {
         address sender = msg.sender;
         Transaction[] storage _transactionArray;
 
-        
         //Looks up array for blockTrigger. If no array exists it populates it. If it already does it appends it.
         _transactionArray = getTransactionArray(timeTrigger);   
         
@@ -236,7 +217,6 @@ contract Clocktower {
         //puts appended array back in time map
 
         setTransactionArray(_transactionArray, timeTrigger);      
-
         
         //gets transactions from existing or zero for new and adds new transaction
 
