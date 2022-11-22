@@ -26,7 +26,7 @@ contract Clocktower {
         address accountAddress;
         //string description;
         bool exists;
-        Transaction[] transactions;
+        //Transaction[] transactions;
         uint balance;
     }
 
@@ -38,6 +38,8 @@ contract Clocktower {
 
     //Account map
     mapping(address => Account) private accountMap;
+    //Map of transactions based on account
+    mapping(address => Transaction[]) private transactionsMap;
 
     //Initialize an array of transactions keyed to uint blocknumber.
     //This makes it very fast to look up transactions by time.
@@ -100,18 +102,28 @@ contract Clocktower {
     }
 
     //gets transactions from account
-    function getAccount(address account) external view returns (Account memory returnAccount){
+    function getAccountTransactions() external view returns (Transaction[] memory transactions){
+        //account info can only be accessed by itself
+        //require(msg.sender == account, "Wrong account access attempted");
+        transactions = transactionsMap[msg.sender];
+
+        return transactions;
+
+    }
+
+    function getAccount() external view returns (Account memory returnAccount){
         
         //account info can only be accessed by itself
-        require(msg.sender == account, "Wrong account access attempted");
+        //require(msg.sender == account, "Wrong account access attempted");
 
+        returnAccount = accountMap[msg.sender];
         return returnAccount;
 
     }
 
     //set account
-    function setAccount(bool exists, Transaction[] storage transactions, uint balance) internal  view returns (Account memory account){
-        account  = Account(msg.sender, exists, transactions, balance);
+    function setAccount(bool exists, uint balance) internal  view returns (Account memory account){
+        account  = Account(msg.sender, exists, balance);
 
         return account;
     }
@@ -229,49 +241,40 @@ contract Clocktower {
         //gets transactions from existing or zero for new and adds new transaction
 
         if(accountMap[msg.sender].exists == true) {
-            Account storage account = accountMap[msg.sender];
+            Account memory account = accountMap[msg.sender];
 
             //updates account
             account.balance = msg.value + account.balance;
 
-            Transaction[] storage accountTransactions = accountMap[msg.sender].transactions;
+            Transaction[] storage accountTransactions = transactionsMap[msg.sender];
             
-            //accountTransactions.push(transaction);
+            //updates transaction array
+            accountTransactions.push(transaction);
 
-            account.transactions = accountTransactions;
+            transactionsMap[msg.sender] = accountTransactions;
 
+            //adds new account to account map
             accountMap[msg.sender] = account;
         } else {
-            //TODO: this shit is broken
-            /*
-            Transaction[] storage accountTransactions = accountMap[msg.sender].transactions;
-            accountTransactions[accountTransactions.length -1] = transaction;
+            
+            Account memory account = accountMap[msg.sender];
 
-            Account memory account = Account(msg.sender, true, accountTransactions , msg.value);
+            //updates account
+            account.balance = msg.value + account.balance;
+            account.accountAddress = msg.sender;
+            account.exists = true;
 
-            //account.transactions[0] = transaction;
+            Transaction[] storage accountTransactions = transactionsMap[msg.sender];
+            
+            //updates transaction array
+            accountTransactions.push(transaction);
 
+            transactionsMap[msg.sender] = accountTransactions;
+
+            //adds new account to account map
             accountMap[msg.sender] = account;
-            */
-           console.log(
-            "click"
-           );
         }
-
-        /*
-        Transaction[] memory accountTransactions = accountMap[msg.sender].transactions;
-        accountTransactions[accountTransactions.length - 1].push() = transaction;
-
-        uint balance = msg.value + accountMap[msg.sender].balance;
-
-        Account memory account = setAccount(true, accountTransactions, balance);
-
-        addAccount(account);
-        */
-        
-        //adds updated transaction list to account 
-        //accountMap[msg.sender] = account;
-
+           
     }
     
 
