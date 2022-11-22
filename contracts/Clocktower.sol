@@ -120,12 +120,14 @@ contract Clocktower {
 
     }
 
+    /*
     //set account
     function setAccount(bool exists, uint balance) internal  view returns (Account memory account){
         account  = Account(msg.sender, exists, balance);
 
         return account;
     }
+    */
 
     //adds account
     function addAccount(Account memory account) private {
@@ -154,7 +156,7 @@ contract Clocktower {
     }
 
     //gets transaction array from block
-    function getTransactionArray(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
+    function getTimeTransactions(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
 
        return timeMap[timeTrigger];
 
@@ -201,7 +203,7 @@ contract Clocktower {
         Transaction[] storage _transactionArray;
 
         //Looks up array for blockTrigger. If no array exists it populates it. If it already does it appends it.
-        _transactionArray = getTransactionArray(timeTrigger);   
+        _transactionArray = getTimeTransactions(timeTrigger);   
         
         //gets length of array to populate arrayIndex in transaction
         uint16 arrayLength = uint16(_transactionArray.length);
