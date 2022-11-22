@@ -147,6 +147,27 @@ describe("Clocktower", function(){
             ).to.equals(ethers.utils.parseEther("103.0"))
 
         })
+        it("Should cancel transaction", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            let transactions: any = await hardhatClocktower.getAccountTransactions();
+
+            await expect(
+                hardhatClocktower.cancelTransaction(transactions[0].id, transactions[0].timeTrigger)
+            )
+
+        })
+        it("Should refund cancelled transaction", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            let transactions: any = await hardhatClocktower.getAccountTransactions();
+            let balance = await ethers.provider.getBalance(owner.address);
+            
+            await hardhatClocktower.cancelTransaction(transactions[0].id, transactions[0].timeTrigger);
+            await expect(
+                await ethers.provider.getBalance(owner.address)
+            ).to.greaterThan(balance)
+        })
         
         
     })
