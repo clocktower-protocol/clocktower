@@ -84,6 +84,35 @@ describe("Clocktower", function(){
         })
     })
 
+    //Account tests
+    describe("Account", function() {
+
+        const testParams = {
+            value: eth
+        };
+
+
+        it("Should get transactions by account", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            let transactions: any = await hardhatClocktower.getAccountTransactions();
+            
+            expect(transactions[0].payload).to.equal(eth)
+            expect(transactions[0].sender).to.equal(owner.address)
+            expect(transactions[0].receiver).to.equal(otherAccount.address)
+            expect(transactions.length).to.equal(3)
+        })
+        it("Should Check Account is owned by sender", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            expect(
+                 (await hardhatClocktower.getAccount()).accountAddress
+            ).to.equal(owner.address)
+        
+        })
+    })
+
     
     //tests adding transaction
     describe("Transactions", function(){
@@ -118,17 +147,6 @@ describe("Clocktower", function(){
             ).to.equals(ethers.utils.parseEther("103.0"))
 
         })
-        
-        it("Should Get Account", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture)
-            
-            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
-            expect(
-                 (await hardhatClocktower.getAccount()).accountAddress
-            ).to.equal(owner.address)
-        
-        })
-        
         
         
     })
