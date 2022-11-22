@@ -142,7 +142,7 @@ describe("Clocktower", function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
            
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
-            await expect(
+            expect(
                 await ethers.provider.getBalance(hardhatClocktower.address)
             ).to.equals(ethers.utils.parseEther("103.0"))
 
@@ -152,7 +152,7 @@ describe("Clocktower", function(){
             //await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
             let transactions: any = await hardhatClocktower.getAccountTransactions();
 
-            await expect(
+            expect(
                 hardhatClocktower.cancelTransaction(transactions[0].id, transactions[0].timeTrigger)
             )
 
@@ -164,7 +164,7 @@ describe("Clocktower", function(){
             let balance = await ethers.provider.getBalance(owner.address);
             
             await hardhatClocktower.cancelTransaction(transactions[0].id, transactions[0].timeTrigger);
-            await expect(
+            expect(
                 await ethers.provider.getBalance(owner.address)
             ).to.greaterThan(balance)
         })
