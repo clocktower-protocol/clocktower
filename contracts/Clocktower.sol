@@ -11,12 +11,14 @@ contract Clocktower {
 
     //global struct for future transactions
     struct Transaction {
+        bytes32 id;
         address sender;
         address payable receiver;
         //timeTrigger and arrayIndex make a unique key per transaction. So you can look it up in the map
         uint40 timeTrigger;
         uint16 arrayIndex;
         bool sent;
+        bool cancelled;
         //amount of ether sent in wei
         uint payload;
     }
@@ -148,12 +150,17 @@ contract Clocktower {
     
     //sets Transaction
     function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) internal pure returns(Transaction memory _transaction){
- 
-            _transaction = Transaction(sender, receiver, timeTrigger, arrayIndex, false, payload);
+        
+            //creates id hash
+            bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, arrayIndex));
+            
+            
+            _transaction = Transaction(id, sender, receiver, timeTrigger, arrayIndex, false, false, payload);
 
             return _transaction;
 
     }
+
 
     //gets transaction array from block
     function getTimeTransactions(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
@@ -238,7 +245,7 @@ contract Clocktower {
             //adds new account to account map
             accountMap[msg.sender] = account;
         } else {
-            
+            //new account
             Account memory account = accountMap[msg.sender];
 
             //updates account
