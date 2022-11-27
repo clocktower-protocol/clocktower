@@ -14,7 +14,7 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
-        //timeTrigger and arrayIndex make a unique key per transaction. So you can look it up in the map
+        //timeTrigger and arrayIndex make a unique key per transaction.
         uint40 timeTrigger;
         uint16 arrayIndex;
         bool sent;
