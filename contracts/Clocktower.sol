@@ -103,7 +103,7 @@ contract Clocktower {
     }
 
     //gets transactions from account
-    function getAccountTransactions() external view returns (Transaction[] memory transactions){
+    function getAccountTransactions() public view returns (Transaction[] memory transactions){
         //account info can only be accessed by itself
         //require(msg.sender == account, "Wrong account access attempted");
         transactions = accountTransactionsMap[msg.sender];
