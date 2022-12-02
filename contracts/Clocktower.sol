@@ -242,7 +242,7 @@ contract Clocktower {
         //require transactions to be in the future
         require(unixTime > block.timestamp);
         //require sent ETH to be higher than payload * fee
-        require(payload >= (msg.value * fee), "Not enough ETH sent with transaction");
+        require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
