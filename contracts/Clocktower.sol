@@ -102,6 +102,12 @@ contract Clocktower {
         return hourCount;
     }
 
+    //converts hours since merge to unix epoch utc time
+    function unixFromHours(uint40 timeTrigger) public view returns(uint40 unixTime) {
+        unixTime = (unixMergeTime + (timeTrigger*3600));
+        return unixTime;
+    }
+
     //gets transactions from account
     function getAccountTransactions() public view returns (Transaction[] memory transactions){
         //account info can only be accessed by itself
