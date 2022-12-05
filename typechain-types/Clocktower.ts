@@ -82,7 +82,6 @@ export interface ClocktowerInterface extends utils.Interface {
     "getAccountTransactions()": FunctionFragment;
     "getTime()": FunctionFragment;
     "hoursSinceMerge(uint40)": FunctionFragment;
-    "unixFromHours(uint40)": FunctionFragment;
   };
 
   getFunction(
@@ -94,7 +93,6 @@ export interface ClocktowerInterface extends utils.Interface {
       | "getAccountTransactions"
       | "getTime"
       | "hoursSinceMerge"
-      | "unixFromHours"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -123,10 +121,6 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "hoursSinceMerge",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "unixFromHours",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "addTransaction",
@@ -145,10 +139,6 @@ export interface ClocktowerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "hoursSinceMerge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unixFromHours",
     data: BytesLike
   ): Result;
 
@@ -314,11 +304,6 @@ export interface Clocktower extends BaseContract {
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    unixFromHours(
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number] & { unixTime: number }>;
   };
 
   addTransaction(
@@ -353,11 +338,6 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unixFromHours(
-    timeTrigger: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   callStatic: {
     addTransaction(
       receiver: PromiseOrValue<string>,
@@ -386,11 +366,6 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
-    unixFromHours(
-      timeTrigger: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<number>;
   };
@@ -462,11 +437,6 @@ export interface Clocktower extends BaseContract {
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    unixFromHours(
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -498,11 +468,6 @@ export interface Clocktower extends BaseContract {
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unixFromHours(
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }
