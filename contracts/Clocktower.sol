@@ -103,7 +103,7 @@ contract Clocktower {
     }
 
     //converts hours since merge to unix epoch utc time
-    function unixFromHours(uint40 timeTrigger) public view returns(uint40 unixTime) {
+    function unixFromHours(uint40 timeTrigger) private view returns(uint40 unixTime) {
         unixTime = (unixMergeTime + (timeTrigger*3600));
         return unixTime;
     }
@@ -113,6 +113,13 @@ contract Clocktower {
         //account info can only be accessed by itself
         //require(msg.sender == account, "Wrong account access attempted");
         transactions = accountTransactionsMap[msg.sender];
+
+        
+        //iterates through array and changes dates to unixEpochTime
+        for(uint i = 0; i < transactions.length; i++) {
+            transactions[i].timeTrigger = unixFromHours(transactions[i].timeTrigger);
+        }
+        
 
         return transactions;
 
