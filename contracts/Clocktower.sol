@@ -114,13 +114,11 @@ contract Clocktower {
         //require(msg.sender == account, "Wrong account access attempted");
         transactions = accountTransactionsMap[msg.sender];
 
-        
         //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < transactions.length; i++) {
-            transactions[i].timeTrigger = unixFromHours(transactions[i].timeTrigger);
+                transactions[i].timeTrigger = unixFromHours(transactions[i].timeTrigger);
         }
         
-
         return transactions;
 
     }
@@ -232,6 +230,8 @@ contract Clocktower {
 
     //sends transaction
     function sendTransaction(Transaction memory transaction) private {
+
+        //TODO: check that transaction isn't cancelled
 
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
