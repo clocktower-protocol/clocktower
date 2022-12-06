@@ -173,7 +173,6 @@ contract Clocktower {
     }
 
     //cancels transaction and refunds money
-    //TODO:
     function cancelTransaction(bytes32 id, uint40 timeTrigger) payable public {
 
         Transaction[] memory accountTransactions = accountTransactionsMap[msg.sender];
@@ -202,7 +201,6 @@ contract Clocktower {
             }
         }
         
-        //TODO: refund mechanism
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
         //checks transaction goes through
