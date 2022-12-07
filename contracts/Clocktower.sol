@@ -337,9 +337,11 @@ contract Clocktower {
                 //iterates through transaction array
                 for(uint h = 0; h <= (_transactionArray.length - 1); h++){
 
-                    //sends transactions
-                    sendTransaction(_transactionArray[h]);
-                    
+                    //excludes cancelled transactions
+                    if(!_transactionArray[h].cancelled){
+                        //sends transactions
+                        sendTransaction(_transactionArray[h]);
+                    }
                 }               
             }
         }
