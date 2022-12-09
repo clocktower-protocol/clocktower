@@ -93,6 +93,7 @@ contract Clocktower {
 
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
+        //FIXME: rounding down is causing issues or maybe its the merge date not happening on the hour
 
         hourCount = (unixTime - unixMergeTime)/3600;
 
@@ -193,7 +194,8 @@ contract Clocktower {
         }
         //loops through time transactions to find cancelled one
         for(uint i = 0; i < timeTransactions.length; i++) {
-            if(timeTransactions[i].timeTrigger == timeTrigger){
+            //TODO: check if changing this to id works
+            if(timeTransactions[i].id == id){
                 transaction = timeTransactions[i];
                 transaction.cancelled = true;
                 timeStorageT[i] = transaction;
@@ -229,17 +231,46 @@ contract Clocktower {
     //sends transaction
     function sendTransaction(Transaction memory transaction) private {
 
-        //TODO: check that transaction isn't cancelled
+        //FIXME: fix sent stamp. Doesn't save back to maps
+        //TODO: could change from send bool to transaction confirm hash
 
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
         //checks transaction goes through
         require(transaction.receiver.send(transaction.payload));
 
+        Transaction[] memory accountTransactions = accountTransactionsMap[transaction.sender];
+        Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
+        Transaction[] storage accountStorageT = accountTransactionsMap[transaction.sender];
+        Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
+
+
+        //loops through account transactions to stamp sent one
+        for(uint i = 0; i < accountTransactions.length; i++) {
+            if(accountTransactions[i].id == transaction.id){
+                transaction = accountTransactions[i];
+                transaction.sent = true;
+                accountStorageT[i] = transaction;
+                break;
+            }
+        }
+        //loops through time transactions to stamp sent one
+        for(uint i = 0; i < timeTransactions.length; i++) {
+            if(timeTransactions[i].id == transaction.id){
+                transaction = timeTransactions[i];
+                transaction.sent = true;
+                timeStorageT[i] = transaction;
+                break;
+            }
+        }
          //updates the transaction to reflect sent status
-        transaction.sent = true; 
-        Transaction[] memory _transactionArray = timeMap[transaction.timeTrigger];
-        _transactionArray[transaction.arrayIndex] = transaction;
+        //transaction.sent = true; 
+
+        //puts back in map
+        accountTransactionsMap[transaction.sender] = accountStorageT;
+        timeMap[transaction.timeTrigger] = timeStorageT;
+        //Transaction[] memory _transactionArray = timeMap[transaction.timeTrigger];
+       // _transactionArray[transaction.arrayIndex] = transaction;
 
         emit TransactionSent(true);
        
