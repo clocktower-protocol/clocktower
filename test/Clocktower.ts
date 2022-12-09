@@ -9,10 +9,12 @@ import { ethers } from "hardhat";
 describe("Clocktower", function(){
 
     //sends receive time in unix epoch seconds
+    //FIXME: adjust to on the hour
     let millis = Date.now();
     let currentTime = Math.floor(millis / 1000);
+    //let currentTime = 1764590400;
     //hour merge occured
-    let mergeTime = 1663264750;
+    let mergeTime = 1663264800;
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     //eth sent
     let eth = ethers.utils.parseEther("1.0")

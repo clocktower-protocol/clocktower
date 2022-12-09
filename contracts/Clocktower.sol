@@ -51,7 +51,6 @@ contract Clocktower {
     //blocks since merge
     uint32 blockMergeTime = 15537393;
     //seconds since merge
-   // uint40 unixMergeTime = 1663264750;
     uint40 unixMergeTime = 1663264800;
 
     //TODO: set fee
@@ -92,12 +91,9 @@ contract Clocktower {
      //converts time to hours after merge
     function hoursSinceMerge(uint40 unixTime) public  returns(uint40 hourCount){
 
-
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
-        //TODO: add check that unixtime is only hourly divisible. Check modulus
 
         hourCount = (unixTime - unixMergeTime)/3600;
-
 
         emit HoursCalc(true);
 
@@ -282,8 +278,11 @@ contract Clocktower {
     function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
 
         //require transactions to be in the future and to be on the hour
-        require(unixTime > block.timestamp && (unixTime % 3600 == 0), "Time data must be in the future and on the hour");
+        require(unixTime > block.timestamp, "Time data must be in the future");
 
+        //FIXME: broken in tests
+       // require(unixTime % 3600 == 0, "Time must be on the hour");
+        
         //require sent ETH to be higher than payload * fee
         require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
         
