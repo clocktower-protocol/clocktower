@@ -10,9 +10,9 @@ describe("Clocktower", function(){
 
     //sends receive time in unix epoch seconds
     //FIXME: adjust to on the hour
-    let millis = Date.now();
-    let currentTime = Math.floor(millis / 1000);
-    //let currentTime = 1764590400;
+    //let millis = Date.now();
+    //let currentTime = Math.floor(millis / 1000);
+    let currentTime = 1764590400;
     //hour merge occured
     let mergeTime = 1663264800;
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
@@ -22,6 +22,8 @@ describe("Clocktower", function(){
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
+
+    /*
     
     async function moveTime(hours: number, contract: any) {
         let seconds = hours * 3600;
@@ -33,6 +35,7 @@ describe("Clocktower", function(){
         hourAgo = currentTime - 3600;
         hourAhead = currentTime + 3600;
     }
+    */
     
 
     //fixture to deploy contract
@@ -60,7 +63,7 @@ describe("Clocktower", function(){
         await owner.sendTransaction(params);
 
         //moves time 2 hours
-        await moveTime(2, hardhatClocktower);
+       // await moveTime(2, hardhatClocktower);
 
 
         return { Clocktower, hardhatClocktower, owner, otherAccount } ;

@@ -280,8 +280,7 @@ contract Clocktower {
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
 
-        //FIXME: broken in tests
-       // require(unixTime % 3600 == 0, "Time must be on the hour");
+        require(unixTime % 3600 == 0, "Time must be on the hour");
         
         //require sent ETH to be higher than payload * fee
         require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
