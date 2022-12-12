@@ -52,7 +52,7 @@ describe("Clocktower", function(){
         let params2 = {
             value: eth
         }
-        
+
         //creates several transaactions to test transaction list
         hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
         hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
@@ -210,11 +210,32 @@ describe("Clocktower", function(){
         })
     })
 
+    
     describe("Batch Functions", function() {
         it("Should add transactions", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
+            const eths = ethers.utils.parseEther("3.0")
+            const testParams = {
+                value: eths
+            };
+
+            //creates two transaction objects
+            let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
+            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
+            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
+
+            let transactions = [transaction1, transaction2, transaction3]
+
+            //add batch
+            await hardhatClocktower.addBatchTransactions(transactions, testParams)
+
+            let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
+
+            expect(returnTransactions.length == 3)
         })
     })
+    
     
     
     

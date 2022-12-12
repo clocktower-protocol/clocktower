@@ -379,7 +379,7 @@ contract Clocktower {
 
     //TODO: need to test
     //REQUIRE transactions all be scheduled for the same time
-    function batchAddTransactions(Batch[] memory batch) payable external {
+    function addBatchTransactions(Batch[] memory batch) payable external {
 
         require(batch.length > 1, "Batch must have more than one transaction");
 
@@ -387,7 +387,7 @@ contract Clocktower {
         uint40 unixTime = 0;
 
         //validates data in each transaction
-        for(uint i = 0; i <= batch.length; i++) {
+        for(uint i = 0; i < batch.length; i++) {
 
             //require transactions to be in the future and to be on the hour
             require(batch[i].unixTime > block.timestamp, "Time data must be in the future");
@@ -417,7 +417,7 @@ contract Clocktower {
         Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
 
         //creates transaction array
-        for(uint16 i = 0; i <= batch.length; i++) {
+        for(uint16 i = 0; i < batch.length; i++) {
 
             //creates internal transaction struct
             Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, batch[i].payload);

@@ -139,29 +139,6 @@
   {
     "inputs": [
       {
-        "internalType": "address payable",
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "internalType": "uint40",
-        "name": "unixTime",
-        "type": "uint40"
-      },
-      {
-        "internalType": "uint256",
-        "name": "payload",
-        "type": "uint256"
-      }
-    ],
-    "name": "addTransaction",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
             "internalType": "address payable",
@@ -184,7 +161,30 @@
         "type": "tuple[]"
       }
     ],
-    "name": "batchAddTransactions",
+    "name": "addBatchTransactions",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint40",
+        "name": "unixTime",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payload",
+        "type": "uint256"
+      }
+    ],
+    "name": "addTransaction",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
