@@ -48,11 +48,11 @@ contract Clocktower {
     //Map of transactions based on account
     mapping(address => Transaction[]) private accountTransactionsMap;
 
-    //Initialize an array of transactions keyed to uint blocknumber.
+    //Initialize an array of transactions keyed to uint40 hour number.
     //This makes it very fast to look up transactions by time.
-    //Map of arrays of transaction structs keyed to block number send time
+    //Map of arrays of transaction structs keyed to hour number send time
 
-    mapping(uint => Transaction[]) private timeMap;
+    mapping(uint40 => Transaction[]) private timeMap;
 
     //blocks since merge
     uint32 blockMergeTime = 15537393;
@@ -62,7 +62,7 @@ contract Clocktower {
     //TODO: set fee
     uint fee = 1;
 
-    //variable for last checked time block
+    //variable for last checked by hour
     //uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     
@@ -215,13 +215,14 @@ contract Clocktower {
 
     }
 
-
+/*
     //gets transaction array from block
     function getTimeTransactions(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
 
        return timeMap[timeTrigger];
 
     }
+*/
 
     
     //sets transaction array to transaction block map
@@ -294,7 +295,7 @@ contract Clocktower {
         uint40 timeTrigger = hoursSinceMerge(unixTime);
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage _transactionArray = getTimeTransactions(timeTrigger);  
+        Transaction[] storage _transactionArray = timeMap[timeTrigger];  
         
         //gets length of array to populate arrayIndex in transaction
         //uint16 arrayLength = uint16(_transactionArray.length);
@@ -312,7 +313,7 @@ contract Clocktower {
         setTransactionArray(_transactionArray, timeTrigger);      
         
         //gets transactions from existing or zero for new and adds new transaction
-
+        /*
         if(accountMap[msg.sender].exists == true) {
             Account memory account = accountMap[msg.sender];
 
@@ -334,8 +335,11 @@ contract Clocktower {
 
             //updates account
             account.balance = msg.value + account.balance;
+
+            //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
             account.accountAddress = msg.sender;
             account.exists = true;
+            //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
             Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
             
@@ -347,12 +351,30 @@ contract Clocktower {
             //adds new account to account map
             accountMap[msg.sender] = account;
         }
-           
+        */
+       Account memory account = accountMap[msg.sender];
+
+        //updates account
+        account.balance = msg.value + account.balance;
+
+        if(accountMap[msg.sender].exists == false) {
+            account.accountAddress = msg.sender;
+            account.exists = true;
+        }
+
+        Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
+            
+        //updates transaction array
+        accountTransactions.push(transaction);
+
+        accountTransactionsMap[msg.sender] = accountTransactions;
+
+        //adds new account to account map
+        accountMap[msg.sender] = account;
     }
 
-    //TODO:
-    //REQUIRE they all be sent at the same time?
-    /*
+    //TODO: need to test
+    //REQUIRE transactions all be scheduled for the same time
     function batchAddTransactions(Batch[] memory batch) payable external {
 
         require(batch.length > 1, "Batch must have more than one transaction");
@@ -368,11 +390,11 @@ contract Clocktower {
 
             require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
 
-             //catches first time Trigger and compares it to all the others to make sure the batch is sending at the same time
+             //catches first time Trigger and compares it to all the others to make sure the batch transactions are scheduled for the same time
             if(i == 0) {
                 unixTime = batch[i].unixTime;
             } else {
-                require(unixTime == batch[i].unixTime, "All batch transactions must be sent at the same time");
+                require(unixTime == batch[i].unixTime, "All batch transactions must be scheduled for the same time");
             }
 
             //sums up all listed payloads
@@ -383,29 +405,41 @@ contract Clocktower {
         //require sent ETH to be higher than payload * fee
         require(payloads <= (msg.value * fee), "Not enough ETH sent with transaction");
 
+        //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
+        uint40 timeTrigger = hoursSinceMerge(unixTime);
+
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage _transactionArray = getTimeTransactions(hoursSinceMerge(unixTime));
-
-        //gets length of array to populate arrayIndex in transaction
-        uint16 arrayLength = uint16(_transactionArray.length);
-
-        Transaction[] memory transactionMemoryArray;
+        Transaction[] storage transactionStorageArray = timeMap[timeTrigger];
+        Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
 
         //creates transaction array
         for(uint16 i = 0; i <= batch.length; i++) {
 
-            //calculates hours since merge from passed unixTime
-            uint40 timeTrigger = hoursSinceMerge(batch[i].unixTime);
             //creates internal transaction struct
-            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, (i + arrayLength), batch[i].payload);
-            transactionMemoryArray[i] = transaction;
+            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, batch[i].payload);
+
+            transactionStorageArray.push() = transaction;
+            accountTransactions.push() = transaction;
         }
 
-        //FIXME: this might make batch transaction use the same or more gas as individual
-        _transactionArray.push() = transactionMemoryArray;
+        setTransactionArray(transactionStorageArray, timeTrigger);  
+        accountTransactionsMap[msg.sender] = accountTransactions;
+
+        //updates account
+        Account memory account = accountMap[msg.sender];
+
+        account.balance = msg.value + account.balance;
+
+        if(accountMap[msg.sender].exists == false) {
+            account.accountAddress = msg.sender;
+            account.exists = true;
+        }
+
+        //adds new account to account map
+        accountMap[msg.sender] = account;
 
     }
-    */
+
 
     //checks list of blocks between now and when it was last checked
     function checkTime() public {
@@ -415,7 +449,7 @@ contract Clocktower {
 
         require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
 
-        for(uint i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
+        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
             //gets transaction array per block
             Transaction[] memory _transactionArray = timeMap[i];
