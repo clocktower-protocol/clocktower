@@ -14,10 +14,8 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
-        //FIXME: arrayIndex probably isn't necessary with id
         //timeTrigger and arrayIndex make a unique key per transaction.
         uint40 timeTrigger;
-       // uint16 arrayIndex;
         bool sent;
         bool cancelled;
         //amount of ether sent in wei
@@ -170,7 +168,6 @@ contract Clocktower {
         
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
-            
             
             _transaction = Transaction(id, sender, receiver, timeTrigger, false, false, payload);
 
