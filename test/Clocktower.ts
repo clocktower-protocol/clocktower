@@ -49,21 +49,23 @@ describe("Clocktower", function(){
         const hardhatClocktower = await Clocktower.deploy();
         await hardhatClocktower.deployed();
 
-        let params2 = {
-            value: eth
-        }
-
-        //creates several transaactions to test transaction list
-        hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
-        hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
-
-        //starts contract with 100 ETH
-        const params = {
+         //starts contract with 100 ETH
+         const params = {
             from: owner.address,
             to: hardhatClocktower.address,
             value: ethers.utils.parseEther("100.0")
         };
         await owner.sendTransaction(params);
+
+        let params2 = {
+            value: eth
+        }
+
+        //creates several transaactions to test transaction list
+        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
+        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
+
+    
 
         //moves time 2 hours to 2023/01/01 3:00
         //await time.increaseTo(1672563600);
@@ -102,7 +104,7 @@ describe("Clocktower", function(){
 
         it("Should get transactions by account", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
             let transactions: any = await hardhatClocktower.getAccountTransactions();
             
             expect(transactions[0].payload).to.equal(eth)
@@ -221,9 +223,9 @@ describe("Clocktower", function(){
             };
 
             //creates two transaction objects
-            let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
-            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
-            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}
+            let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//2
+            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//3
+            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//4
 
             let transactions = [transaction1, transaction2, transaction3]
 
@@ -232,7 +234,10 @@ describe("Clocktower", function(){
 
             let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
 
-            expect(returnTransactions.length == 3)
+            expect(returnTransactions.length).to.equal(5)
+            expect(returnTransactions[2].payload).to.equal(eth)
+            expect(returnTransactions[2].receiver).to.equal(otherAccount.address)
+            expect(returnTransactions[3].payload).to.equal(eth)
         })
     })
     
