@@ -127,6 +127,7 @@ contract Clocktower {
 
     }
 
+    /*
     function getAccount() external view returns (Account memory returnAccount){
         
         //account info can only be accessed by itself
@@ -136,6 +137,7 @@ contract Clocktower {
         return returnAccount;
 
     }
+    */
 
     /*
     //set account
@@ -146,6 +148,7 @@ contract Clocktower {
     }
     */
 
+   /*
     //adds account
     function addAccount(Account memory account) private {
 
@@ -161,6 +164,7 @@ contract Clocktower {
         }
 
     }
+    */
 
     
     //sets Transaction
