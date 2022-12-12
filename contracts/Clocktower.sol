@@ -299,63 +299,25 @@ contract Clocktower {
         uint40 timeTrigger = hoursSinceMerge(unixTime);
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage _transactionArray = timeMap[timeTrigger];  
-        
-        //gets length of array to populate arrayIndex in transaction
-        //uint16 arrayLength = uint16(_transactionArray.length);
+        Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
+        Transaction[] storage accountStorageArray = accountTransactionsMap[msg.sender]; 
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, timeTrigger, payload);
 
-        _transactionArray.push() = transaction;
+        timeStorageArray.push() = transaction;
+        accountStorageArray.push(transaction);
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
 
-        //puts appended array back in time map
+        //puts appended arrays back in maps
 
-        setTransactionArray(_transactionArray, timeTrigger);      
+        //setTransactionArray(_transactionArray, timeTrigger); 
+        timeMap[timeTrigger] = timeStorageArray;   
+        accountTransactionsMap[msg.sender] = accountStorageArray;  
         
-        //gets transactions from existing or zero for new and adds new transaction
-        /*
-        if(accountMap[msg.sender].exists == true) {
-            Account memory account = accountMap[msg.sender];
-
-            //updates account
-            account.balance = msg.value + account.balance;
-
-            Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
-            
-            //updates transaction array
-            accountTransactions.push(transaction);
-
-            accountTransactionsMap[msg.sender] = accountTransactions;
-
-            //adds new account to account map
-            accountMap[msg.sender] = account;
-        } else {
-            //new account
-            Account memory account = accountMap[msg.sender];
-
-            //updates account
-            account.balance = msg.value + account.balance;
-
-            //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-            account.accountAddress = msg.sender;
-            account.exists = true;
-            //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-            Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
-            
-            //updates transaction array
-            accountTransactions.push(transaction);
-
-            accountTransactionsMap[msg.sender] = accountTransactions;
-
-            //adds new account to account map
-            accountMap[msg.sender] = account;
-        }
-        */
+       //adds or updates account
        Account memory account = accountMap[msg.sender];
 
         //updates account
@@ -366,18 +328,10 @@ contract Clocktower {
             account.exists = true;
         }
 
-        Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
-            
-        //updates transaction array
-        accountTransactions.push(transaction);
-
-        accountTransactionsMap[msg.sender] = accountTransactions;
-
         //adds new account to account map
         accountMap[msg.sender] = account;
     }
 
-    //TODO: need to test
     //REQUIRE transactions all be scheduled for the same time
     function addBatchTransactions(Batch[] memory batch) payable external {
 
@@ -426,7 +380,8 @@ contract Clocktower {
             accountTransactions.push() = transaction;
         }
 
-        setTransactionArray(transactionStorageArray, timeTrigger);  
+        //setTransactionArray(transactionStorageArray, timeTrigger); 
+        timeMap[timeTrigger] = transactionStorageArray; 
         accountTransactionsMap[msg.sender] = accountTransactions;
 
         //updates account
