@@ -12,7 +12,7 @@ describe("Clocktower", function(){
 
     //let millis = Date.now();
     //let currentTime = Math.floor(millis / 1000);
-    let currentTime = 1764590400;
+    let currentTime = 1672556400;
     //hour merge occured
     let mergeTime = 1663264800;
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
@@ -40,6 +40,9 @@ describe("Clocktower", function(){
 
     //fixture to deploy contract
     async function deployClocktowerFixture() {
+        //sets time to 2023/01/01 1:00
+        await time.increaseTo(1672556400);
+
         const Clocktower = await ethers.getContractFactory("Clocktower");
         const [owner, otherAccount] = await ethers.getSigners();
 
@@ -49,10 +52,10 @@ describe("Clocktower", function(){
         let params2 = {
             value: eth
         }
-
+        
         //creates several transaactions to test transaction list
-        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, params2);
-        hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, params2);
+        hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
+        hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, params2);
 
         //starts contract with 100 ETH
         const params = {
@@ -62,8 +65,8 @@ describe("Clocktower", function(){
         };
         await owner.sendTransaction(params);
 
-        //moves time 2 hours
-       // await moveTime(2, hardhatClocktower);
+        //moves time 2 hours to 2023/01/01 3:00
+        //await time.increaseTo(1672563600);
 
 
         return { Clocktower, hardhatClocktower, owner, otherAccount } ;
@@ -107,15 +110,7 @@ describe("Clocktower", function(){
             expect(transactions[0].receiver).to.equal(otherAccount.address)
             expect(transactions.length).to.equal(3)
         })
-        it("Should Check Account is owned by sender", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            
-            hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
-            expect(
-                 (await hardhatClocktower.getAccount()).accountAddress
-            ).to.equal(owner.address)
-        
-        })
+    
     })
 
     
@@ -189,8 +184,8 @@ describe("Clocktower", function(){
          
         it("Should send transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await time.increaseTo(1672563600);
             await expect(
-
                 hardhatClocktower.checkTime()
             ).to.emit(hardhatClocktower, "TransactionSent")
             .withArgs(true);
@@ -212,6 +207,12 @@ describe("Clocktower", function(){
             expect(
                 await hardhatClocktower.hoursSinceMerge(currentTime)
             )
+        })
+    })
+
+    describe("Batch Functions", function() {
+        it("Should add transactions", async function() {
+
         })
     })
     
