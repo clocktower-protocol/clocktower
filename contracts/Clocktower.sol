@@ -14,9 +14,10 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
+        //FIXME: arrayIndex probably isn't necessary with id
         //timeTrigger and arrayIndex make a unique key per transaction.
         uint40 timeTrigger;
-        uint16 arrayIndex;
+       // uint16 arrayIndex;
         bool sent;
         bool cancelled;
         //amount of ether sent in wei
@@ -29,6 +30,13 @@ contract Clocktower {
         //string description;
         bool exists;
         uint balance;
+    }
+
+    //batch struct
+    struct Batch {
+        address payable receiver;
+        uint40 unixTime;
+        uint payload;
     }
 
     //global struct for Watchers
@@ -158,13 +166,13 @@ contract Clocktower {
 
     
     //sets Transaction
-    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint16 arrayIndex, uint payload) internal pure returns(Transaction memory _transaction){
+    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint payload) internal view returns(Transaction memory _transaction){
         
             //creates id hash
-            bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, arrayIndex));
+            bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
             
-            _transaction = Transaction(id, sender, receiver, timeTrigger, arrayIndex, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, timeTrigger, false, false, payload);
 
             return _transaction;
 
@@ -288,14 +296,14 @@ contract Clocktower {
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
 
-        //Looks up array for blockTrigger. If no array exists it populates it. If it already does it appends it.
+        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
         Transaction[] storage _transactionArray = getTimeTransactions(timeTrigger);  
         
         //gets length of array to populate arrayIndex in transaction
-        uint16 arrayLength = uint16(_transactionArray.length);
+        //uint16 arrayLength = uint16(_transactionArray.length);
 
          //creates transaction
-        Transaction memory transaction = setTransaction(msg.sender, receiver, timeTrigger, arrayLength, payload);
+        Transaction memory transaction = setTransaction(msg.sender, receiver, timeTrigger, payload);
 
         _transactionArray.push() = transaction;
 
@@ -344,7 +352,63 @@ contract Clocktower {
         }
            
     }
-    
+
+    //TODO:
+    //REQUIRE they all be sent at the same time?
+    /*
+    function batchAddTransactions(Batch[] memory batch) payable external {
+
+        require(batch.length > 1, "Batch must have more than one transaction");
+
+        uint payloads  = 0;
+        uint40 unixTime = 0;
+
+        //validates data in each transaction
+        for(uint i = 0; i <= batch.length; i++) {
+
+            //require transactions to be in the future and to be on the hour
+            require(batch[i].unixTime > block.timestamp, "Time data must be in the future");
+
+            require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
+
+             //catches first time Trigger and compares it to all the others to make sure the batch is sending at the same time
+            if(i == 0) {
+                unixTime = batch[i].unixTime;
+            } else {
+                require(unixTime == batch[i].unixTime, "All batch transactions must be sent at the same time");
+            }
+
+            //sums up all listed payloads
+            payloads += batch[i].payload;
+        }
+
+        //makes sure enough ETH was sent in payloads
+        //require sent ETH to be higher than payload * fee
+        require(payloads <= (msg.value * fee), "Not enough ETH sent with transaction");
+
+        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
+        Transaction[] storage _transactionArray = getTimeTransactions(hoursSinceMerge(unixTime));
+
+        //gets length of array to populate arrayIndex in transaction
+        uint16 arrayLength = uint16(_transactionArray.length);
+
+        Transaction[] memory transactionMemoryArray;
+
+        //creates transaction array
+        for(uint16 i = 0; i <= batch.length; i++) {
+
+            //calculates hours since merge from passed unixTime
+            uint40 timeTrigger = hoursSinceMerge(batch[i].unixTime);
+            //creates internal transaction struct
+            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, (i + arrayLength), batch[i].payload);
+            transactionMemoryArray[i] = transaction;
+        }
+
+        //FIXME: this might make batch transaction use the same or more gas as individual
+        _transactionArray.push() = transactionMemoryArray;
+
+    }
+    */
 
     //checks list of blocks between now and when it was last checked
     function checkTime() public {
@@ -380,4 +444,5 @@ contract Clocktower {
         lastCheckedTimeSlot = _currentTimeSlot;
 
     }
+
 }

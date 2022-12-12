@@ -9,7 +9,7 @@ import { ethers } from "hardhat";
 describe("Clocktower", function(){
 
     //sends receive time in unix epoch seconds
-    //FIXME: adjust to on the hour
+
     //let millis = Date.now();
     //let currentTime = Math.floor(millis / 1000);
     let currentTime = 1764590400;
@@ -24,7 +24,7 @@ describe("Clocktower", function(){
     let hourAhead = currentTime + 3600;
 
     /*
-    
+    //FIXME: this function needs to be on the hour
     async function moveTime(hours: number, contract: any) {
         let seconds = hours * 3600;
         await time.increase(seconds);
