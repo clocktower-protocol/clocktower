@@ -29,16 +29,16 @@ import type {
 } from "./common";
 
 export declare namespace Clocktower {
-  export type AccountStruct = {
-    accountAddress: PromiseOrValue<string>;
-    exists: PromiseOrValue<boolean>;
-    balance: PromiseOrValue<BigNumberish>;
+  export type BatchStruct = {
+    receiver: PromiseOrValue<string>;
+    unixTime: PromiseOrValue<BigNumberish>;
+    payload: PromiseOrValue<BigNumberish>;
   };
 
-  export type AccountStructOutput = [string, boolean, BigNumber] & {
-    accountAddress: string;
-    exists: boolean;
-    balance: BigNumber;
+  export type BatchStructOutput = [string, number, BigNumber] & {
+    receiver: string;
+    unixTime: number;
+    payload: BigNumber;
   };
 
   export type TransactionStruct = {
@@ -73,9 +73,9 @@ export declare namespace Clocktower {
 export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addTransaction(address,uint40,uint256)": FunctionFragment;
+    "batchAddTransactions((address,uint40,uint256)[])": FunctionFragment;
     "cancelTransaction(bytes32,uint40)": FunctionFragment;
     "checkTime()": FunctionFragment;
-    "getAccount()": FunctionFragment;
     "getAccountTransactions()": FunctionFragment;
     "getTime()": FunctionFragment;
     "hoursSinceMerge(uint40)": FunctionFragment;
@@ -84,9 +84,9 @@ export interface ClocktowerInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "addTransaction"
+      | "batchAddTransactions"
       | "cancelTransaction"
       | "checkTime"
-      | "getAccount"
       | "getAccountTransactions"
       | "getTime"
       | "hoursSinceMerge"
@@ -101,14 +101,14 @@ export interface ClocktowerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "batchAddTransactions",
+    values: [Clocktower.BatchStruct[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "cancelTransaction",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAccount",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "getAccountTransactions",
     values?: undefined
@@ -124,11 +124,14 @@ export interface ClocktowerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "batchAddTransactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "cancelTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getAccount", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountTransactions",
     data: BytesLike
@@ -269,6 +272,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    batchAddTransactions(
+      batch: Clocktower.BatchStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       timeTrigger: PromiseOrValue<BigNumberish>,
@@ -278,14 +286,6 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    getAccount(
-      overrides?: CallOverrides
-    ): Promise<
-      [Clocktower.AccountStructOutput] & {
-        returnAccount: Clocktower.AccountStructOutput;
-      }
-    >;
 
     getAccountTransactions(
       overrides?: CallOverrides
@@ -310,6 +310,11 @@ export interface Clocktower extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  batchAddTransactions(
+    batch: Clocktower.BatchStruct[],
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   cancelTransaction(
     id: PromiseOrValue<BytesLike>,
     timeTrigger: PromiseOrValue<BigNumberish>,
@@ -319,10 +324,6 @@ export interface Clocktower extends BaseContract {
   checkTime(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  getAccount(
-    overrides?: CallOverrides
-  ): Promise<Clocktower.AccountStructOutput>;
 
   getAccountTransactions(
     overrides?: CallOverrides
@@ -343,6 +344,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    batchAddTransactions(
+      batch: Clocktower.BatchStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       timeTrigger: PromiseOrValue<BigNumberish>,
@@ -350,10 +356,6 @@ export interface Clocktower extends BaseContract {
     ): Promise<void>;
 
     checkTime(overrides?: CallOverrides): Promise<void>;
-
-    getAccount(
-      overrides?: CallOverrides
-    ): Promise<Clocktower.AccountStructOutput>;
 
     getAccountTransactions(
       overrides?: CallOverrides
@@ -414,6 +416,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    batchAddTransactions(
+      batch: Clocktower.BatchStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       timeTrigger: PromiseOrValue<BigNumberish>,
@@ -423,8 +430,6 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    getAccount(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccountTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -444,6 +449,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    batchAddTransactions(
+      batch: Clocktower.BatchStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       timeTrigger: PromiseOrValue<BigNumberish>,
@@ -453,8 +463,6 @@ export interface Clocktower extends BaseContract {
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    getAccount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAccountTransactions(
       overrides?: CallOverrides
