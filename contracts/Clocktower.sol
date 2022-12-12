@@ -126,46 +126,6 @@ contract Clocktower {
         return transactions;
 
     }
-
-    /*
-    function getAccount() external view returns (Account memory returnAccount){
-        
-        //account info can only be accessed by itself
-        //require(msg.sender == account, "Wrong account access attempted");
-
-        returnAccount = accountMap[msg.sender];
-        return returnAccount;
-
-    }
-    */
-
-    /*
-    //set account
-    function setAccount(bool exists, uint balance) internal  view returns (Account memory account){
-        account  = Account(msg.sender, exists, balance);
-
-        return account;
-    }
-    */
-
-   /*
-    //adds account
-    function addAccount(Account memory account) private {
-
-        //checks if account already exists
-        if(!accountMap[msg.sender].exists) {
-
-            accountMap[msg.sender] = account; 
-            emit AccountCreated("Account created");
-        } else {
-            emit AccountCreated("Account already exists");
-            //updates account
-            accountMap[msg.sender] = account;
-        }
-
-    }
-    */
-
     
     //sets Transaction
     function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint payload) internal view returns(Transaction memory _transaction){
@@ -216,22 +176,6 @@ contract Clocktower {
 
         accountTransactionsMap[msg.sender] = accountStorageT;
         timeMap[timeTrigger] = timeStorageT;
-
-    }
-
-/*
-    //gets transaction array from block
-    function getTimeTransactions(uint40 timeTrigger) private view returns(Transaction[] storage transactionArray){
-
-       return timeMap[timeTrigger];
-
-    }
-*/
-
-    
-    //sets transaction array to transaction block map
-    function setTransactionArray(Transaction[] storage transactionArray, uint40 timeTrigger) private {
-        timeMap[timeTrigger] = transactionArray;
 
     }
 
@@ -312,8 +256,7 @@ contract Clocktower {
         emit Status("Pushed");
 
         //puts appended arrays back in maps
-
-        //setTransactionArray(_transactionArray, timeTrigger); 
+ 
         timeMap[timeTrigger] = timeStorageArray;   
         accountTransactionsMap[msg.sender] = accountStorageArray;  
         
@@ -380,7 +323,6 @@ contract Clocktower {
             accountTransactions.push() = transaction;
         }
 
-        //setTransactionArray(transactionStorageArray, timeTrigger); 
         timeMap[timeTrigger] = transactionStorageArray; 
         accountTransactionsMap[msg.sender] = accountTransactions;
 
