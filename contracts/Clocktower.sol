@@ -37,11 +37,13 @@ contract Clocktower {
         uint payload;
     }
 
+    /*
     //global struct for Watchers
     struct Watcher {
         address watcherAddress;
 
     }
+    */
 
     //Account map
     mapping(address => Account) private accountMap;
@@ -54,12 +56,10 @@ contract Clocktower {
 
     mapping(uint40 => Transaction[]) private timeMap;
 
-    //blocks since merge
-    uint32 blockMergeTime = 15537393;
     //seconds since merge
     uint40 unixMergeTime = 1663264800;
 
-    //TODO: set fee
+    //TODO: set fee(0.003%? same as Uniswap)
     uint fee = 1;
 
     //variable for last checked by hour
@@ -83,6 +83,13 @@ contract Clocktower {
     fallback() external payable{
         emit UnknownFunction("Unknown function");
     }
+
+    //ADMIN METHODS*************************************
+    function setAdmin() public  {
+
+    }
+
+    //**************************************************
 
     function getBalance() internal view returns (uint){
         return address(this).balance;
