@@ -9,6 +9,7 @@ contract Clocktower {
     constructor() payable {
     }
 
+    //DATA-------------------------------------------------------
     //global struct for future transactions
     struct Transaction {
         bytes32 id;
@@ -37,6 +38,7 @@ contract Clocktower {
         uint payload;
     }
 
+
     /*
     //global struct for Watchers
     struct Watcher {
@@ -56,6 +58,12 @@ contract Clocktower {
 
     mapping(uint40 => Transaction[]) private timeMap;
 
+    //admin addresses
+    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    //circuit breaker
+    bool stopped = false;
+
     //seconds since merge
     uint40 unixMergeTime = 1663264800;
 
@@ -65,6 +73,8 @@ contract Clocktower {
     //variable for last checked by hour
     //uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
     uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
+
+    //---------------------------------------------------------------------------------
     
     //Emits
     event TransactionAdd(address sender, address receiver, uint40 timeTrigger, uint payload);
@@ -85,9 +95,35 @@ contract Clocktower {
     }
 
     //ADMIN METHODS*************************************
-    function setAdmin() public  {
-
+    
+    //checks if user is admin
+    modifier isAdmin() {
+        require(msg.sender == admin);
+        _;
     }
+
+    function changeAdmin(address newAddress) isAdmin public {
+        require((msg.sender == newAddress) && (newAddress != address(0)));
+
+        admin = newAddress;
+    }
+
+    //emergency circuit breaker controls
+    function toggleContractActive() isAdmin public {
+        // You can add an additional modifier that restricts stopping a contract to be based on another action, such as a vote of users
+        stopped = !stopped;
+    }
+    modifier stopInEmergency { if (!stopped) _; }
+    modifier onlyInEmergency { if (stopped) _; }
+
+    //TODO:
+    /*
+    //returns snapshot struct containing all data
+    function timeMapSnapshot() isAdmin public returns () {
+        
+    }
+    */
+
 
     //**************************************************
 
@@ -187,7 +223,7 @@ contract Clocktower {
     }
 
     //sends transaction
-    function sendTransaction(Transaction memory transaction) private {
+    function sendTransaction(Transaction memory transaction) stopInEmergency private {
 
         //TODO: could change from send bool to transaction confirm hash
 
