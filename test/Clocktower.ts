@@ -230,13 +230,23 @@ describe("Clocktower", function(){
         it("Should get transaction snapshot", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
-            let returnTransactions: any = await hardhatClocktower.totalTransactionsSnapshot();
+            let returnTransactions: any = await hardhatClocktower.allTransactions();
 
             expect(returnTransactions.length).to.equal(2)
             expect(returnTransactions[1].payload).to.equal(eth)
             
         })
+        it("Should get accounts snapshot", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            let returnAccounts: any = await hardhatClocktower.allAccounts();
+
+            expect(returnAccounts.length).to.equal(1)
+            expect(returnAccounts[0].accountAddress).to.equal(owner.address)
+        })
     })
+
+
     
     
     

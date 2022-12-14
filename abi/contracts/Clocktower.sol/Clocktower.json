@@ -35,19 +35,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "houseSent",
-        "type": "bool"
-      }
-    ],
-    "name": "HoursCalc",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -190,6 +177,56 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "allTransactions",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "address payable",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint40",
+            "name": "timeTrigger",
+            "type": "uint40"
+          },
+          {
+            "internalType": "bool",
+            "name": "sent",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payload",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Clocktower.Transaction[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -306,7 +343,7 @@
         "type": "uint40"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -314,56 +351,6 @@
     "name": "toggleContractActive",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalTransactionsSnapshot",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          },
-          {
-            "internalType": "address payable",
-            "name": "receiver",
-            "type": "address"
-          },
-          {
-            "internalType": "uint40",
-            "name": "timeTrigger",
-            "type": "uint40"
-          },
-          {
-            "internalType": "bool",
-            "name": "sent",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "cancelled",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "payload",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct Clocktower.Transaction[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
