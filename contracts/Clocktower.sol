@@ -119,36 +119,44 @@ contract Clocktower {
 
     //TODO:
     
-    //returns mapping containing all account data
+    //returns array containing all transactions
     
-    function totalTransactionsSnapshot() isAdmin public view returns (Transaction[] memory){
+    function allTransactions() isAdmin external view returns (Transaction[] memory){
 
         Transaction[] memory totalTransactions = new Transaction[](transactionLookup.length);
 
-       // console.log(accountLookup.length);
-
         uint count = 0;
-
-        console.log(transactionLookup.length);
 
         //for each account
         for(uint i = 0; i < accountLookup.length; i++) {
             //gets account transactions
-            //console.log(accountLookup[i]);
             Transaction[] memory accountTransactions = accountTransactionsMap[accountLookup[i]];
             
             //adds each transaction to total array
             for(uint j = 0; j < accountTransactions.length; j++) {
                 //Transaction memory transaction = accountTransactions[j];
                 totalTransactions[count] = accountTransactions[j];
-                //console.log(count);
                 count++;
             }
         }
 
         return totalTransactions;
-
     }
+
+    
+    //returns all accounts
+    function allAccounts() isAdmin external view returns(Account[] memory){
+
+        Account[] memory totalAccounts = new Account[](accountLookup.length);
+
+        //for each account
+        for(uint i = 0; i < accountLookup.length; i++) {
+            totalAccounts[i] = accountMap[accountLookup[i]];
+        }
+
+        return totalAccounts;
+    }
+    
 
     //**************************************************
 
