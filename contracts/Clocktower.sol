@@ -230,7 +230,9 @@ contract Clocktower {
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
         //checks transaction goes through
-        require(transaction.receiver.send(transaction.payload));
+        //require(transaction.receiver.send(transaction.payload));
+       // (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+       // require(success, "Transfer failed.");
 
         Transaction[] memory accountTransactions = accountTransactionsMap[transaction.sender];
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
@@ -256,15 +258,14 @@ contract Clocktower {
                 break;
             }
         }
-         //updates the transaction to reflect sent status
-        //transaction.sent = true; 
 
         //puts back in map
         accountTransactionsMap[transaction.sender] = accountStorageT;
         timeMap[transaction.timeTrigger] = timeStorageT;
-        //Transaction[] memory _transactionArray = timeMap[transaction.timeTrigger];
-       // _transactionArray[transaction.arrayIndex] = transaction;
-
+       
+        //sends at the end to avoid re-entry attack
+        (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+        require(success, "Transfer failed.");
         emit TransactionSent(true);
        
     }
