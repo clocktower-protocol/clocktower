@@ -102,14 +102,14 @@ contract Clocktower {
         _;
     }
 
-    function changeAdmin(address newAddress) isAdmin public {
+    function changeAdmin(address newAddress) isAdmin external {
         require((msg.sender == newAddress) && (newAddress != address(0)));
 
         admin = newAddress;
     }
 
     //emergency circuit breaker controls
-    function toggleContractActive() isAdmin public {
+    function toggleContractActive() isAdmin external {
         // You can add an additional modifier that restricts stopping a contract to be based on another action, such as a vote of users
         stopped = !stopped;
     }
@@ -156,7 +156,7 @@ contract Clocktower {
     }
 
     //gets transactions from account
-    function getAccountTransactions() public view returns (Transaction[] memory transactions){
+    function getAccountTransactions() external view returns (Transaction[] memory transactions){
         //account info can only be accessed by itself
         //require(msg.sender == account, "Wrong account access attempted");
         transactions = accountTransactionsMap[msg.sender];
@@ -183,7 +183,7 @@ contract Clocktower {
     }
 
     //cancels transaction and refunds money
-    function cancelTransaction(bytes32 id, uint40 timeTrigger) payable public {
+    function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
 
         Transaction[] memory accountTransactions = accountTransactionsMap[msg.sender];
         Transaction[] memory timeTransactions = timeMap[timeTrigger];
@@ -386,8 +386,8 @@ contract Clocktower {
     }
 
 
-    //checks list of blocks between now and when it was last checked
-    function checkTime() public {
+    //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
+    function checkTime() external isAdmin {
 
         //gets current time slot based on hour
         uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
