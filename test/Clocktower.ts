@@ -22,22 +22,7 @@ describe("Clocktower", function(){
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
-
-    /*
-    //FIXME: this function needs to be on the hour
-    async function moveTime(hours: number, contract: any) {
-        let seconds = hours * 3600;
-        await time.increase(seconds);
-
-        //resets time variables tests
-        currentTime = Number(await contract.getTime())
-        hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
-        hourAgo = currentTime - 3600;
-        hourAhead = currentTime + 3600;
-    }
-    */
     
-
     //fixture to deploy contract
     async function deployClocktowerFixture() {
         //sets time to 2023/01/01 1:00
@@ -238,6 +223,18 @@ describe("Clocktower", function(){
             expect(returnTransactions[2].payload).to.equal(eth)
             expect(returnTransactions[2].receiver).to.equal(otherAccount.address)
             expect(returnTransactions[3].payload).to.equal(eth)
+        })
+    })
+
+    describe("Admin Functions", function() {
+        it("Should get transaction snapshot", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            let returnTransactions: any = await hardhatClocktower.totalTransactionsSnapshot();
+
+            expect(returnTransactions.length).to.equal(2)
+            expect(returnTransactions[1].payload).to.equal(eth)
+            
         })
     })
     

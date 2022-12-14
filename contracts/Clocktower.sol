@@ -49,11 +49,13 @@ contract Clocktower {
 
     //Account map
     mapping(address => Account) private accountMap;
+     //creates lookup table for mapping
+    address[] private accountLookup;
 
     //Map of transactions based on account
     mapping(address => Transaction[]) private accountTransactionsMap;
-    //creates lookup table for mapping
-    address[] private accountLookup;
+    //creates lookup table for transactions
+    bytes32[] private transactionLookup;
 
     //Map of transactions based on hour to be sent
     mapping(uint40 => Transaction[]) private timeMap;
@@ -81,7 +83,6 @@ contract Clocktower {
     event Status(string output);
     event CheckStatus(string output2);
     event TransactionSent(bool sent);
-    event HoursCalc(bool houseSent);
     event UnknownFunction(string output3);
     event ReceiveETH(address user, uint amount);
     event AccountCreated(string output4);
@@ -122,18 +123,25 @@ contract Clocktower {
     
     function totalTransactionsSnapshot() isAdmin public view returns (Transaction[] memory){
 
-        Transaction[] memory totalTransactions;
+        Transaction[] memory totalTransactions = new Transaction[](transactionLookup.length);
+
+       // console.log(accountLookup.length);
 
         uint count = 0;
 
+        console.log(transactionLookup.length);
+
         //for each account
-        for(uint i; i < accountLookup.length; i++) {
+        for(uint i = 0; i < accountLookup.length; i++) {
             //gets account transactions
+            //console.log(accountLookup[i]);
             Transaction[] memory accountTransactions = accountTransactionsMap[accountLookup[i]];
             
             //adds each transaction to total array
-            for(uint j; j < accountTransactions.length; j++) {
+            for(uint j = 0; j < accountTransactions.length; j++) {
+                //Transaction memory transaction = accountTransactions[j];
                 totalTransactions[count] = accountTransactions[j];
+                //console.log(count);
                 count++;
             }
         }
@@ -155,13 +163,11 @@ contract Clocktower {
     }
 
      //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) public  returns(uint40 hourCount){
+    function hoursSinceMerge(uint40 unixTime) public view returns(uint40 hourCount){
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
 
         hourCount = (unixTime - unixMergeTime)/3600;
-
-        emit HoursCalc(true);
 
         return hourCount;
     }
@@ -316,8 +322,10 @@ contract Clocktower {
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
 
+        //adds transaction to lookup
+        transactionLookup.push() = transaction.id;
+
         //puts appended arrays back in maps
- 
         timeMap[timeTrigger] = timeStorageArray;   
         accountTransactionsMap[msg.sender] = accountStorageArray;  
         
@@ -329,10 +337,9 @@ contract Clocktower {
 
         //new account
         if(accountMap[msg.sender].exists == false) {
+            account.accountAddress = msg.sender;
             //adds to lookup table
             accountLookup.push() = account.accountAddress;
-
-            account.accountAddress = msg.sender;
             account.exists = true;
         }
 
@@ -386,6 +393,8 @@ contract Clocktower {
 
             transactionStorageArray.push() = transaction;
             accountTransactions.push() = transaction;
+             //adds transaction to lookup
+            transactionLookup.push() = transaction.id;
         }
 
         timeMap[timeTrigger] = transactionStorageArray; 
@@ -397,10 +406,9 @@ contract Clocktower {
         account.balance = msg.value + account.balance;
 
         if(accountMap[msg.sender].exists == false) {
-            //adds to lookup table
-            accountLookup.push() = account.accountAddress;
-
             account.accountAddress = msg.sender;
+             //adds to lookup table
+            accountLookup.push() = account.accountAddress;
             account.exists = true;
         }
 
