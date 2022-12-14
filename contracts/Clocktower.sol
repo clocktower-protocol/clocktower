@@ -49,13 +49,13 @@ contract Clocktower {
 
     //Account map
     mapping(address => Account) private accountMap;
+
     //Map of transactions based on account
     mapping(address => Transaction[]) private accountTransactionsMap;
+    //creates lookup table for mapping
+    address[] private accountLookup;
 
-    //Initialize an array of transactions keyed to uint40 hour number.
-    //This makes it very fast to look up transactions by time.
-    //Map of arrays of transaction structs keyed to hour number send time
-
+    //Map of transactions based on hour to be sent
     mapping(uint40 => Transaction[]) private timeMap;
 
     //admin addresses
@@ -117,13 +117,30 @@ contract Clocktower {
     modifier onlyInEmergency { if (stopped) _; }
 
     //TODO:
-    /*
-    //returns snapshot struct containing all data
-    function timeMapSnapshot() isAdmin public returns () {
-        
-    }
-    */
+    
+    //returns mapping containing all account data
+    
+    function totalTransactionsSnapshot() isAdmin public view returns (Transaction[] memory){
 
+        Transaction[] memory totalTransactions;
+
+        uint count = 0;
+
+        //for each account
+        for(uint i; i < accountLookup.length; i++) {
+            //gets account transactions
+            Transaction[] memory accountTransactions = accountTransactionsMap[accountLookup[i]];
+            
+            //adds each transaction to total array
+            for(uint j; j < accountTransactions.length; j++) {
+                totalTransactions[count] = accountTransactions[j];
+                count++;
+            }
+        }
+
+        return totalTransactions;
+
+    }
 
     //**************************************************
 
@@ -310,12 +327,16 @@ contract Clocktower {
         //updates account
         account.balance = msg.value + account.balance;
 
+        //new account
         if(accountMap[msg.sender].exists == false) {
+            //adds to lookup table
+            accountLookup.push() = account.accountAddress;
+
             account.accountAddress = msg.sender;
             account.exists = true;
         }
 
-        //adds new account to account map
+        //adds account to account map
         accountMap[msg.sender] = account;
     }
 
@@ -376,11 +397,14 @@ contract Clocktower {
         account.balance = msg.value + account.balance;
 
         if(accountMap[msg.sender].exists == false) {
+            //adds to lookup table
+            accountLookup.push() = account.accountAddress;
+
             account.accountAddress = msg.sender;
             account.exists = true;
         }
 
-        //adds new account to account map
+        //adds account to account map
         accountMap[msg.sender] = account;
 
     }
