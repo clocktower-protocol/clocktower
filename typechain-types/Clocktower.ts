@@ -75,10 +75,12 @@ export interface ClocktowerInterface extends utils.Interface {
     "addBatchTransactions((address,uint40,uint256)[])": FunctionFragment;
     "addTransaction(address,uint40,uint256)": FunctionFragment;
     "cancelTransaction(bytes32,uint40)": FunctionFragment;
+    "changeAdmin(address)": FunctionFragment;
     "checkTime()": FunctionFragment;
     "getAccountTransactions()": FunctionFragment;
     "getTime()": FunctionFragment;
     "hoursSinceMerge(uint40)": FunctionFragment;
+    "toggleContractActive()": FunctionFragment;
   };
 
   getFunction(
@@ -86,10 +88,12 @@ export interface ClocktowerInterface extends utils.Interface {
       | "addBatchTransactions"
       | "addTransaction"
       | "cancelTransaction"
+      | "changeAdmin"
       | "checkTime"
       | "getAccountTransactions"
       | "getTime"
       | "hoursSinceMerge"
+      | "toggleContractActive"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -108,6 +112,10 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "cancelTransaction",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "changeAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getAccountTransactions",
@@ -117,6 +125,10 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "hoursSinceMerge",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "toggleContractActive",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
@@ -131,6 +143,10 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "cancelTransaction",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "changeAdmin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountTransactions",
@@ -139,6 +155,10 @@ export interface ClocktowerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "hoursSinceMerge",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "toggleContractActive",
     data: BytesLike
   ): Result;
 
@@ -283,6 +303,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    changeAdmin(
+      newAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -299,6 +324,10 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -321,6 +350,11 @@ export interface Clocktower extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  changeAdmin(
+    newAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   checkTime(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -333,6 +367,10 @@ export interface Clocktower extends BaseContract {
 
   hoursSinceMerge(
     unixTime: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  toggleContractActive(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -355,6 +393,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    changeAdmin(
+      newAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     checkTime(overrides?: CallOverrides): Promise<void>;
 
     getAccountTransactions(
@@ -367,6 +410,8 @@ export interface Clocktower extends BaseContract {
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<number>;
+
+    toggleContractActive(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -427,6 +472,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    changeAdmin(
+      newAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -437,6 +487,10 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -460,6 +514,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    changeAdmin(
+      newAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     checkTime(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -472,6 +531,10 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
