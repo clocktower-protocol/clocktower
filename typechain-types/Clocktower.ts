@@ -81,6 +81,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "getTime()": FunctionFragment;
     "hoursSinceMerge(uint40)": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
+    "totalTransactionsSnapshot()": FunctionFragment;
   };
 
   getFunction(
@@ -94,6 +95,7 @@ export interface ClocktowerInterface extends utils.Interface {
       | "getTime"
       | "hoursSinceMerge"
       | "toggleContractActive"
+      | "totalTransactionsSnapshot"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -130,6 +132,10 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "toggleContractActive",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "totalTransactionsSnapshot",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "addBatchTransactions",
@@ -159,6 +165,10 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "toggleContractActive",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalTransactionsSnapshot",
     data: BytesLike
   ): Result;
 
@@ -324,12 +334,16 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[number] & { hourCount: number }>;
 
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    totalTransactionsSnapshot(
+      overrides?: CallOverrides
+    ): Promise<[Clocktower.TransactionStructOutput[]]>;
   };
 
   addBatchTransactions(
@@ -367,12 +381,16 @@ export interface Clocktower extends BaseContract {
 
   hoursSinceMerge(
     unixTime: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   toggleContractActive(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  totalTransactionsSnapshot(
+    overrides?: CallOverrides
+  ): Promise<Clocktower.TransactionStructOutput[]>;
 
   callStatic: {
     addBatchTransactions(
@@ -412,6 +430,10 @@ export interface Clocktower extends BaseContract {
     ): Promise<number>;
 
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
+
+    totalTransactionsSnapshot(
+      overrides?: CallOverrides
+    ): Promise<Clocktower.TransactionStructOutput[]>;
   };
 
   filters: {
@@ -487,12 +509,14 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    totalTransactionsSnapshot(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -531,11 +555,15 @@ export interface Clocktower extends BaseContract {
 
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    totalTransactionsSnapshot(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }
