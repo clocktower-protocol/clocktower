@@ -164,8 +164,10 @@ contract Clocktower {
 
             //adds transactions to total
             for(uint j = 0; j < subsetTransactions.length; j++) {
-                totalTransactions[count] = subsetTransactions[j];
-                count++;
+                if(subsetTransactions[j].sender == account){
+                    totalTransactions[count] = subsetTransactions[j];
+                    count++;
+                }
             }
         }
  
@@ -233,8 +235,11 @@ contract Clocktower {
 
             //adds transactions to total
             for(uint j = 0; j < subsetTransactions.length; j++) {
-                totalTransactions[count] = subsetTransactions[j];
-                count++;
+                //&& filters by account
+                if(subsetTransactions[j].sender == msg.sender){
+                    totalTransactions[count] = subsetTransactions[j];
+                    count++;
+                }
             }
         }
 
