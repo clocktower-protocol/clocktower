@@ -225,6 +225,7 @@ describe("Clocktower", function(){
             expect(returnTransactions[2].receiver).to.equal(otherAccount.address)
             expect(returnTransactions[3].payload).to.equal(eth)
         })
+      
     })
 
     describe("Admin Functions", function() {
