@@ -308,8 +308,11 @@ contract Clocktower {
 
         //TODO: could change from send bool to transaction confirm hash
 
-        //checks contract has enough ETH
-        require(getBalance() > transaction.payload);
+        //looks up balance of sender
+        Account memory account = accountMap[transaction.sender];
+
+        //checks contract has enough ETH and sender has enough balance
+        require(getBalance() > transaction.payload && account.balance > transaction.payload);
        
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
         Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
