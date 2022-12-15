@@ -15,7 +15,6 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
-        //timeTrigger and arrayIndex make a unique key per transaction.
         uint40 timeTrigger;
         bool sent;
         bool cancelled;
@@ -106,8 +105,6 @@ contract Clocktower {
     }
     modifier stopInEmergency { if (!stopped) _; }
     modifier onlyInEmergency { if (stopped) _; }
-
-    //TODO:
     
     //returns array containing all transactions
     function allTransactions() isAdmin external view returns (Transaction[] memory){
@@ -171,8 +168,7 @@ contract Clocktower {
                 count++;
             }
         }
-
-        
+ 
          //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < totalTransactions.length; i++) {
                 totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
@@ -333,8 +329,6 @@ contract Clocktower {
        
     }
 
-    
-
     //adds to list of transactions 
     function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
 
@@ -402,7 +396,7 @@ contract Clocktower {
     //REQUIRE transactions all be scheduled for the same time
     function addBatchTransactions(Batch[] memory batch) payable external {
 
-        //TODO: could change to accept a single transaction
+        //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
         require(batch.length > 1, "Batch must have more than one transaction");
 
         uint payloads  = 0;
