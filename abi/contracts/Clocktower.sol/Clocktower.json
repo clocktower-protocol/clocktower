@@ -178,6 +178,41 @@
   },
   {
     "inputs": [],
+    "name": "allAccounts",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "accountAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "balance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint40[]",
+            "name": "timeTriggers",
+            "type": "uint40[]"
+          }
+        ],
+        "internalType": "struct Clocktower.Account[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "allTransactions",
     "outputs": [
       {
@@ -307,7 +342,7 @@
           }
         ],
         "internalType": "struct Clocktower.Transaction[]",
-        "name": "transactions",
+        "name": "",
         "type": "tuple[]"
       }
     ],

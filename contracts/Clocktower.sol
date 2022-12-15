@@ -29,6 +29,7 @@ contract Clocktower {
         //string description;
         bool exists;
         uint balance;
+        uint40[] timeTriggers;
     }
 
     //batch struct
@@ -160,6 +161,8 @@ contract Clocktower {
 
     //**************************************************
 
+    //UTILITY FUNCTIONS-----------------------------------
+
     function getBalance() internal view returns (uint){
         return address(this).balance;
     }
@@ -187,17 +190,54 @@ contract Clocktower {
     }
 
     //gets transactions from account
-    function getAccountTransactions() external view returns (Transaction[] memory transactions){
+    function getAccountTransactions() external view returns (Transaction[] memory){
         //account info can only be accessed by itself
         //require(msg.sender == account, "Wrong account access attempted");
+        /*
         transactions = accountTransactionsMap[msg.sender];
 
         //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < transactions.length; i++) {
                 transactions[i].timeTrigger = unixFromHours(transactions[i].timeTrigger);
         }
+        */
+        //&&-----------------------
+        uint40[] memory timeTriggers = accountMap[msg.sender].timeTriggers;
+
+        //gets total amount of transactions
+        uint total = 0;
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            Transaction[] memory lengthArray = timeMap[timeTriggers[i]];
+            total += lengthArray.length;
+        }
         
-        return transactions;
+        //console.log(timeTriggers.length);
+        
+        Transaction[] memory subsetTransactions = new Transaction[](total);
+        Transaction[] memory totalTransactions = new Transaction[](total);
+        uint count = 0;
+
+        //loops through time triggers
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            subsetTransactions = timeMap[timeTriggers[i]];
+
+            //adds transactions to total
+            for(uint j = 0; j < subsetTransactions.length; j++) {
+                totalTransactions[count] = subsetTransactions[j];
+                count++;
+            }
+        }
+
+        
+         //iterates through array and changes dates to unixEpochTime
+        for(uint i = 0; i < totalTransactions.length; i++) {
+                totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
+        }
+        
+        //--------------------------
+    
+        //return transactions;
+        return totalTransactions;
 
     }
     
@@ -213,16 +253,26 @@ contract Clocktower {
 
     }
 
+    //------------------------------------------------------------
+
     //cancels transaction and refunds money
     function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
 
-        Transaction[] memory accountTransactions = accountTransactionsMap[msg.sender];
+        //converts time trigger to hour
+        timeTrigger = hoursSinceMerge(timeTrigger);
+
+       // Transaction[] memory accountTransactions = accountTransactionsMap[msg.sender];
         Transaction[] memory timeTransactions = timeMap[timeTrigger];
-        Transaction[] storage accountStorageT = accountTransactionsMap[msg.sender];
+      //  Transaction[] storage accountStorageT = accountTransactionsMap[msg.sender];
         Transaction[] storage timeStorageT = timeMap[timeTrigger];
+
+        //&&
+        //uint40[] storage accountTimeTriggers = accountMap[msg.sender].timeTriggers;
+        //uint count = 0;
 
         Transaction memory transaction;
 
+        /*
         //loops through account transactions to find cancelled one
         for(uint i = 0; i < accountTransactions.length; i++) {
             if(accountTransactions[i].id == id){
@@ -232,23 +282,49 @@ contract Clocktower {
                 break;
             }
         }
+        */
         //loops through time transactions to find cancelled one
         for(uint i = 0; i < timeTransactions.length; i++) {
-            //TODO: check if changing this to id works
+
+            console.log(timeTransactions.length);
+            
             if(timeTransactions[i].id == id){
+                console.log("yes");
                 transaction = timeTransactions[i];
                 transaction.cancelled = true;
                 timeStorageT[i] = transaction;
                 break;
             }
+            /*
+            //checks if account has muliple transactions in this time set
+            if(timeTransactions[i].sender == msg.sender) {
+                count += 1;
+            }
+            */
         }
+
+        /*
+        //&&
+        //if account only has one transaction in this time set remove from array
+        if(count == 1) {
+            for(uint k; k < accountTimeTriggers.length; k++) {
+                if(accountTimeTriggers[k] == timeTrigger) {     
+                    //removes item from array and shifts the remaining values down an index
+                    for (uint256 i = k; i < accountTimeTriggers.length - 1; i++) {
+                        accountTimeTriggers[i] = accountTimeTriggers[i+1];
+                    }
+                    accountTimeTriggers.pop(); // delete the last item
+                }
+            }
+        }
+        */
         
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
         //checks transaction goes through
         require(payable(transaction.sender).send(transaction.payload));
 
-        accountTransactionsMap[msg.sender] = accountStorageT;
+        //accountTransactionsMap[msg.sender] = accountStorageT;
         timeMap[timeTrigger] = timeStorageT;
 
     }
@@ -337,11 +413,28 @@ contract Clocktower {
         timeMap[timeTrigger] = timeStorageArray;   
         accountTransactionsMap[msg.sender] = accountStorageArray;  
         
-       //adds or updates account
-       Account memory account = accountMap[msg.sender];
+        //adds or updates account
+        Account storage account = accountMap[msg.sender];
 
         //updates account
         account.balance = msg.value + account.balance;
+        
+        //&&
+        //updates timeTrigger Array
+        bool exists = false;
+
+        uint40[] memory accountTriggers = account.timeTriggers;
+
+        for(uint i; i < accountTriggers.length; i++){
+            if(accountTriggers[i] == timeTrigger) {
+                exists = true;
+            }
+        }
+
+        if(exists == false) {
+             account.timeTriggers.push() = timeTrigger;
+        }
+        //account.timeTriggers.push() = timeTrigger;
 
         //new account
         if(accountMap[msg.sender].exists == false) {
@@ -409,9 +502,28 @@ contract Clocktower {
         accountTransactionsMap[msg.sender] = accountTransactions;
 
         //updates account
-        Account memory account = accountMap[msg.sender];
+        Account storage account = accountMap[msg.sender];
 
         account.balance = msg.value + account.balance;
+
+        //&&
+        //updates timeTrigger Array
+        //checks if timetrigger already exists in account
+        bool exists = false;
+
+        uint40[] memory accountTriggers = account.timeTriggers;
+
+        for(uint i; i < accountTriggers.length; i++){
+            if(accountTriggers[i] == timeTrigger) {
+                exists = true;
+            }
+        }
+
+        if(exists == false) {
+             account.timeTriggers.push() = timeTrigger;
+        }
+
+        //account.timeTriggers.push() = timeTrigger;
 
         if(accountMap[msg.sender].exists == false) {
             account.accountAddress = msg.sender;

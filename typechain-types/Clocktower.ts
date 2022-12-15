@@ -45,12 +45,14 @@ export declare namespace Clocktower {
     accountAddress: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
     balance: PromiseOrValue<BigNumberish>;
+    timeTriggers: PromiseOrValue<BigNumberish>[];
   };
 
-  export type AccountStructOutput = [string, boolean, BigNumber] & {
+  export type AccountStructOutput = [string, boolean, BigNumber, number[]] & {
     accountAddress: string;
     exists: boolean;
     balance: BigNumber;
+    timeTriggers: number[];
   };
 
   export type TransactionStruct = {
@@ -345,11 +347,7 @@ export interface Clocktower extends BaseContract {
 
     getAccountTransactions(
       overrides?: CallOverrides
-    ): Promise<
-      [Clocktower.TransactionStructOutput[]] & {
-        transactions: Clocktower.TransactionStructOutput[];
-      }
-    >;
+    ): Promise<[Clocktower.TransactionStructOutput[]]>;
 
     getTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
