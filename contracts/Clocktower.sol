@@ -54,7 +54,7 @@ contract Clocktower {
     address[] private accountLookup;
 
     //Map of transactions based on account
-    mapping(address => Transaction[]) private accountTransactionsMap;
+    //mapping(address => Transaction[]) private accountTransactionsMap;
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
@@ -121,7 +121,6 @@ contract Clocktower {
     //TODO:
     
     //returns array containing all transactions
-    
     function allTransactions() isAdmin external view returns (Transaction[] memory){
 
         Transaction[] memory totalTransactions = new Transaction[](transactionLookup.length);
@@ -130,8 +129,12 @@ contract Clocktower {
 
         //for each account
         for(uint i = 0; i < accountLookup.length; i++) {
+
+            //&&
+            Transaction[] memory accountTransactions = getTransactionsByAccount(accountLookup[i]);
+
             //gets account transactions
-            Transaction[] memory accountTransactions = accountTransactionsMap[accountLookup[i]];
+            //Transaction[] memory accountTransactions = accountTransactionsMap[accountLookup[i]];
             
             //adds each transaction to total array
             for(uint j = 0; j < accountTransactions.length; j++) {
@@ -156,6 +159,57 @@ contract Clocktower {
         }
 
         return totalAccounts;
+    }
+
+    function getTransactionsByAccount(address account) isAdmin public view returns (Transaction[] memory){
+        //account info can only be accessed by itself
+        //require(msg.sender == account, "Wrong account access attempted");
+        /*
+        transactions = accountTransactionsMap[msg.sender];
+
+        //iterates through array and changes dates to unixEpochTime
+        for(uint i = 0; i < transactions.length; i++) {
+                transactions[i].timeTrigger = unixFromHours(transactions[i].timeTrigger);
+        }
+        */
+        //&&-----------------------
+        uint40[] memory timeTriggers = accountMap[account].timeTriggers;
+
+        //gets total amount of transactions
+        uint total = 0;
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            Transaction[] memory lengthArray = timeMap[timeTriggers[i]];
+            total += lengthArray.length;
+        }
+        
+        //console.log(timeTriggers.length);
+        
+        Transaction[] memory subsetTransactions = new Transaction[](total);
+        Transaction[] memory totalTransactions = new Transaction[](total);
+        uint count = 0;
+
+        //loops through time triggers
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            subsetTransactions = timeMap[timeTriggers[i]];
+
+            //adds transactions to total
+            for(uint j = 0; j < subsetTransactions.length; j++) {
+                totalTransactions[count] = subsetTransactions[j];
+                count++;
+            }
+        }
+
+        
+         //iterates through array and changes dates to unixEpochTime
+        for(uint i = 0; i < totalTransactions.length; i++) {
+                totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
+        }
+        
+        //--------------------------
+    
+        //return transactions;
+        return totalTransactions;
+
     }
     
 
@@ -190,7 +244,7 @@ contract Clocktower {
     }
 
     //gets transactions from account
-    function getAccountTransactions() external view returns (Transaction[] memory){
+    function getAccountTransactions() public view returns (Transaction[] memory){
         //account info can only be accessed by itself
         //require(msg.sender == account, "Wrong account access attempted");
         /*
@@ -286,10 +340,10 @@ contract Clocktower {
         //loops through time transactions to find cancelled one
         for(uint i = 0; i < timeTransactions.length; i++) {
 
-            console.log(timeTransactions.length);
+            //console.log(timeTransactions.length);
             
             if(timeTransactions[i].id == id){
-                console.log("yes");
+                //console.log("yes");
                 transaction = timeTransactions[i];
                 transaction.cancelled = true;
                 timeStorageT[i] = transaction;
@@ -341,12 +395,12 @@ contract Clocktower {
        // (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
        // require(success, "Transfer failed.");
 
-        Transaction[] memory accountTransactions = accountTransactionsMap[transaction.sender];
+        //Transaction[] memory accountTransactions = accountTransactionsMap[transaction.sender];
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
-        Transaction[] storage accountStorageT = accountTransactionsMap[transaction.sender];
+        //Transaction[] storage accountStorageT = accountTransactionsMap[transaction.sender];
         Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
 
-
+        /*
         //loops through account transactions to stamp sent one
         for(uint i = 0; i < accountTransactions.length; i++) {
             if(accountTransactions[i].id == transaction.id){
@@ -356,6 +410,7 @@ contract Clocktower {
                 break;
             }
         }
+        */
         //loops through time transactions to stamp sent one
         for(uint i = 0; i < timeTransactions.length; i++) {
             if(timeTransactions[i].id == transaction.id){
@@ -367,7 +422,7 @@ contract Clocktower {
         }
 
         //puts back in map
-        accountTransactionsMap[transaction.sender] = accountStorageT;
+        //accountTransactionsMap[transaction.sender] = accountStorageT;
         timeMap[transaction.timeTrigger] = timeStorageT;
        
         //sends at the end to avoid re-entry attack
@@ -395,13 +450,13 @@ contract Clocktower {
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
         Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
-        Transaction[] storage accountStorageArray = accountTransactionsMap[msg.sender]; 
+        //Transaction[] storage accountStorageArray = accountTransactionsMap[msg.sender]; 
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
-        accountStorageArray.push(transaction);
+        //accountStorageArray.push(transaction);
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
@@ -411,7 +466,7 @@ contract Clocktower {
 
         //puts appended arrays back in maps
         timeMap[timeTrigger] = timeStorageArray;   
-        accountTransactionsMap[msg.sender] = accountStorageArray;  
+        //accountTransactionsMap[msg.sender] = accountStorageArray;  
         
         //adds or updates account
         Account storage account = accountMap[msg.sender];
@@ -484,7 +539,7 @@ contract Clocktower {
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
         Transaction[] storage transactionStorageArray = timeMap[timeTrigger];
-        Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
+        //Transaction[] storage accountTransactions = accountTransactionsMap[msg.sender];
 
         //creates transaction array
         for(uint16 i = 0; i < batch.length; i++) {
@@ -493,13 +548,13 @@ contract Clocktower {
             Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, batch[i].payload);
 
             transactionStorageArray.push() = transaction;
-            accountTransactions.push() = transaction;
+            //accountTransactions.push() = transaction;
              //adds transaction to lookup
             transactionLookup.push() = transaction.id;
         }
 
         timeMap[timeTrigger] = transactionStorageArray; 
-        accountTransactionsMap[msg.sender] = accountTransactions;
+        //accountTransactionsMap[msg.sender] = accountTransactions;
 
         //updates account
         Account storage account = accountMap[msg.sender];
