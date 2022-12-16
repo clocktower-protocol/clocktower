@@ -46,19 +46,28 @@ export declare namespace Clocktower {
     exists: PromiseOrValue<boolean>;
     balance: PromiseOrValue<BigNumberish>;
     timeTriggers: PromiseOrValue<BigNumberish>[];
+    tokens: PromiseOrValue<string>[];
   };
 
-  export type AccountStructOutput = [string, boolean, BigNumber, number[]] & {
+  export type AccountStructOutput = [
+    string,
+    boolean,
+    BigNumber,
+    number[],
+    string[]
+  ] & {
     accountAddress: string;
     exists: boolean;
     balance: BigNumber;
     timeTriggers: number[];
+    tokens: string[];
   };
 
   export type TransactionStruct = {
     id: PromiseOrValue<BytesLike>;
     sender: PromiseOrValue<string>;
     receiver: PromiseOrValue<string>;
+    token: PromiseOrValue<string>;
     timeTrigger: PromiseOrValue<BigNumberish>;
     sent: PromiseOrValue<boolean>;
     cancelled: PromiseOrValue<boolean>;
@@ -66,6 +75,7 @@ export declare namespace Clocktower {
   };
 
   export type TransactionStructOutput = [
+    string,
     string,
     string,
     string,
@@ -77,6 +87,7 @@ export declare namespace Clocktower {
     id: string;
     sender: string;
     receiver: string;
+    token: string;
     timeTrigger: number;
     sent: boolean;
     cancelled: boolean;
@@ -87,6 +98,7 @@ export declare namespace Clocktower {
 export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addBatchTransactions((address,uint40,uint256)[])": FunctionFragment;
+    "addERC20Contract(address)": FunctionFragment;
     "addTransaction(address,uint40,uint256)": FunctionFragment;
     "allAccounts()": FunctionFragment;
     "allTransactions()": FunctionFragment;
@@ -97,12 +109,14 @@ export interface ClocktowerInterface extends utils.Interface {
     "getTime()": FunctionFragment;
     "getTransactionsByAccount(address)": FunctionFragment;
     "hoursSinceMerge(uint40)": FunctionFragment;
+    "removeERC20Contract(address)": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "addBatchTransactions"
+      | "addERC20Contract"
       | "addTransaction"
       | "allAccounts"
       | "allTransactions"
@@ -113,12 +127,17 @@ export interface ClocktowerInterface extends utils.Interface {
       | "getTime"
       | "getTransactionsByAccount"
       | "hoursSinceMerge"
+      | "removeERC20Contract"
       | "toggleContractActive"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "addBatchTransactions",
     values: [Clocktower.BatchStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addERC20Contract",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "addTransaction",
@@ -159,12 +178,20 @@ export interface ClocktowerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeERC20Contract",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "toggleContractActive",
     values?: undefined
   ): string;
 
   decodeFunctionResult(
     functionFragment: "addBatchTransactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addERC20Contract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -199,6 +226,10 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "hoursSinceMerge",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeERC20Contract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -325,6 +356,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    addERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -371,6 +407,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number] & { hourCount: number }>;
 
+    removeERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -379,6 +420,11 @@ export interface Clocktower extends BaseContract {
   addBatchTransactions(
     batch: Clocktower.BatchStruct[],
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addERC20Contract(
+    erc20Contract: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   addTransaction(
@@ -427,6 +473,11 @@ export interface Clocktower extends BaseContract {
     overrides?: CallOverrides
   ): Promise<number>;
 
+  removeERC20Contract(
+    erc20Contract: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   toggleContractActive(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -434,6 +485,11 @@ export interface Clocktower extends BaseContract {
   callStatic: {
     addBatchTransactions(
       batch: Clocktower.BatchStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -481,6 +537,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
+    removeERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
   };
 
@@ -526,6 +587,11 @@ export interface Clocktower extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    addERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -566,6 +632,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    removeERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -575,6 +646,11 @@ export interface Clocktower extends BaseContract {
     addBatchTransactions(
       batch: Clocktower.BatchStruct[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     addTransaction(
@@ -617,6 +693,11 @@ export interface Clocktower extends BaseContract {
     hoursSinceMerge(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removeERC20Contract(
+      erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     toggleContractActive(

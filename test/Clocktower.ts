@@ -246,7 +246,17 @@ describe("Clocktower", function(){
             expect(returnAccounts.length).to.equal(1)
             expect(returnAccounts[0].accountAddress).to.equal(owner.address)
         })
+        it("Should allow to remove ERC20", async function(){
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            await hardhatClocktower.addERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
+            await hardhatClocktower.addERC20Contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
+            expect(await hardhatClocktower.removeERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F"))
+        })
+       
     })
+
+
 
 
     
