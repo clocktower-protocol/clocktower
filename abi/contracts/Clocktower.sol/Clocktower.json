@@ -156,6 +156,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "erc20Contract",
+        "type": "address"
+      }
+    ],
+    "name": "addERC20Contract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address payable",
         "name": "receiver",
         "type": "address"
@@ -201,6 +214,11 @@
             "internalType": "uint40[]",
             "name": "timeTriggers",
             "type": "uint40[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
           }
         ],
         "internalType": "struct Clocktower.Account[]",
@@ -230,6 +248,11 @@
           {
             "internalType": "address payable",
             "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
             "type": "address"
           },
           {
@@ -321,6 +344,11 @@
             "type": "address"
           },
           {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
             "internalType": "uint40",
             "name": "timeTrigger",
             "type": "uint40"
@@ -365,6 +393,67 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getTransactionsByAccount",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "address payable",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint40",
+            "name": "timeTrigger",
+            "type": "uint40"
+          },
+          {
+            "internalType": "bool",
+            "name": "sent",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payload",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Clocktower.Transaction[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint40",
         "name": "unixTime",
         "type": "uint40"
@@ -378,7 +467,20 @@
         "type": "uint40"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "erc20Contract",
+        "type": "address"
+      }
+    ],
+    "name": "removeERC20Contract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

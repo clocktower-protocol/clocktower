@@ -15,6 +15,8 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
+        //&&
+        address token;
         uint40 timeTrigger;
         bool sent;
         bool cancelled;
@@ -29,6 +31,9 @@ contract Clocktower {
         bool exists;
         uint balance;
         uint40[] timeTriggers;
+        //&&
+        address[] tokens;
+        //TODO: ERCO balances (array?)
     }
 
     //batch struct
@@ -43,21 +48,26 @@ contract Clocktower {
      //creates lookup table for mapping
     address[] private accountLookup;
 
-    
+    //Map of transactions based on hour to be sent
+    mapping(uint40 => Transaction[]) private timeMap;
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
-    //Map of transactions based on hour to be sent
-    mapping(uint40 => Transaction[]) private timeMap;
+    //&&
+    //per account address per token balance
+    mapping(address => mapping(address => uint)) tokenBalances;
 
     //admin addresses
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    //approved contract addresses
+    address[] approvedERC20;
 
     //circuit breaker
     bool stopped = false;
 
     //seconds since merge
-    uint40 unixMergeTime = 1663264800;
+    uint40 constant unixMergeTime = 1663264800;
 
     //TODO: set fee(0.003%? same as Uniswap)
     uint fee = 1;
@@ -105,6 +115,44 @@ contract Clocktower {
     }
     modifier stopInEmergency { if (!stopped) _; }
     modifier onlyInEmergency { if (stopped) _; }
+
+    
+    //allows admin to add to approved contract addresses
+    function addERC20Contract(address erc20Contract) isAdmin external {
+        require(erc20Contract != address(0));
+        require(!erc20IsApproved(erc20Contract), "ERC20 token already added");
+        
+        approvedERC20.push() = erc20Contract;
+    }
+
+    //allows admin to remove an erc20 contract from the approved list
+    function removeERC20Contract(address erc20Contract) isAdmin external {
+        require(erc20Contract != address(0));
+        require(erc20IsApproved(erc20Contract), "ERC20 token not added yet");
+
+        address[] memory memoryArray = approvedERC20;
+        
+        uint index = 0;
+
+        //finds index of address
+        for(uint i; i < memoryArray.length; i++) {
+            if(memoryArray[i] == erc20Contract) {
+                index = i;
+                break;
+            }
+        }
+
+
+        //removes from array and reorders
+        for(uint i = index; i < approvedERC20.length-1; i++){
+            approvedERC20[i] = approvedERC20[i+1];      
+        }
+        approvedERC20.pop();
+        
+
+        console.log(approvedERC20.length);
+
+    }
     
     //returns array containing all transactions
     function allTransactions() isAdmin external view returns (Transaction[] memory){
@@ -185,6 +233,19 @@ contract Clocktower {
     //**************************************************
 
     //UTILITY FUNCTIONS-----------------------------------
+   
+    //&&
+    function erc20IsApproved(address erc20Contract) private view returns(bool result) {
+        address[] memory approved = approvedERC20;
+
+        result = false;
+
+        for(uint i; i < approved.length; i++) {
+            if(erc20Contract == approved[i]) {
+                result = true;
+            }
+        }
+    }
 
     function getBalance() internal view returns (uint){
         return address(this).balance;
@@ -197,7 +258,7 @@ contract Clocktower {
     }
 
      //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) public view returns(uint40 hourCount){
+    function hoursSinceMerge(uint40 unixTime) public pure returns(uint40 hourCount){
 
         //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
 
@@ -207,7 +268,7 @@ contract Clocktower {
     }
 
     //converts hours since merge to unix epoch utc time
-    function unixFromHours(uint40 timeTrigger) private view returns(uint40 unixTime) {
+    function unixFromHours(uint40 timeTrigger) private pure returns(uint40 unixTime) {
         unixTime = (unixMergeTime + (timeTrigger*3600));
         return unixTime;
     }
@@ -256,12 +317,12 @@ contract Clocktower {
     }
     
     //sets Transaction
-    function setTransaction(address sender, address payable receiver, uint40 timeTrigger, uint payload) internal view returns(Transaction memory _transaction){
+    function setTransaction(address sender, address payable receiver, address token, uint40 timeTrigger, uint payload) internal view returns(Transaction memory _transaction){
         
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
-            _transaction = Transaction(id, sender, receiver, timeTrigger, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, payload);
 
             return _transaction;
     }
@@ -355,7 +416,7 @@ contract Clocktower {
         Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
 
          //creates transaction
-        Transaction memory transaction = setTransaction(msg.sender, receiver, timeTrigger, payload);
+        Transaction memory transaction = setTransaction(msg.sender, receiver, address(0), timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
 
@@ -379,12 +440,14 @@ contract Clocktower {
 
         uint40[] memory accountTriggers = account.timeTriggers;
 
+        //does the account already have transactions during this time period?
         for(uint i; i < accountTriggers.length; i++){
             if(accountTriggers[i] == timeTrigger) {
                 exists = true;
             }
         }
 
+        //if doesn't already exist adds time trigger to account list
         if(exists == false) {
              account.timeTriggers.push() = timeTrigger;
         }
@@ -443,7 +506,7 @@ contract Clocktower {
         for(uint16 i = 0; i < batch.length; i++) {
 
             //creates internal transaction struct
-            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, timeTrigger, batch[i].payload);
+            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, address(0), timeTrigger, batch[i].payload);
 
             transactionStorageArray.push() = transaction;
              //adds transaction to lookup
