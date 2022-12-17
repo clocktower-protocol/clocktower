@@ -29,10 +29,14 @@ describe("Clocktower", function(){
         await time.increaseTo(1672556400);
 
         const Clocktower = await ethers.getContractFactory("Clocktower");
+        const ClockToken = await ethers.getContractFactory("CLOCKToken");
         const [owner, otherAccount] = await ethers.getSigners();
 
         const hardhatClocktower = await Clocktower.deploy();
+        const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
+
         await hardhatClocktower.deployed();
+        await hardhatCLOCKToken.deployed();
 
          //starts contract with 100 ETH
          const params = {
@@ -56,7 +60,7 @@ describe("Clocktower", function(){
         //await time.increaseTo(1672563600);
 
 
-        return { Clocktower, hardhatClocktower, owner, otherAccount } ;
+        return { Clocktower, hardhatClocktower, owner, otherAccount, hardhatCLOCKToken } ;
     }
 
     //test sending ether
@@ -252,6 +256,13 @@ describe("Clocktower", function(){
             await hardhatClocktower.addERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
             await hardhatClocktower.addERC20Contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
             expect(await hardhatClocktower.removeERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F"))
+        })
+        it("Should get balance of CLOCK token", async function() {
+            const {hardhatCLOCKToken, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            let amount = await hardhatCLOCKToken.balanceOf(owner.address)
+
+            expect(amount).to.equal(ethers.utils.parseEther("100000"))
         })
        
     })
