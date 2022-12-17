@@ -142,16 +142,11 @@ contract Clocktower {
             }
         }
 
-
         //removes from array and reorders
         for(uint i = index; i < approvedERC20.length-1; i++){
             approvedERC20[i] = approvedERC20[i+1];      
         }
         approvedERC20.pop();
-        
-
-        console.log(approvedERC20.length);
-
     }
     
     //returns array containing all transactions
