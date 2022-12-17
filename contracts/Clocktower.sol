@@ -255,7 +255,7 @@ contract Clocktower {
      //converts time to hours after merge
     function hoursSinceMerge(uint40 unixTime) public pure returns(uint40 hourCount){
 
-        //TODO: need to do with safe math libraries. Leap years don't work. Could maybe fix?
+        //TODO: Leap years don't work. Could maybe fix?
 
         hourCount = (unixTime - unixMergeTime)/3600;
 

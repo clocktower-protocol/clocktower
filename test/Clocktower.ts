@@ -22,6 +22,9 @@ describe("Clocktower", function(){
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
+
+    //CLOCKtoken address
+    const clockTokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
     
     //fixture to deploy contract
     async function deployClocktowerFixture() {
