@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1671242575304,
-      "contentHash": "8d9fb73c623db79c42a9b4f6b6617233",
+      "lastModificationDate": 1671290788182,
+      "contentHash": "f85c3483796d99170d526b075b74ed23",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -35,7 +35,8 @@
         "^0.8.9"
       ],
       "artifacts": [
-        "Clocktower"
+        "Clocktower",
+        "ERC20"
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/hardhat/console.sol": {

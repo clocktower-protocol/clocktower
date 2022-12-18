@@ -32,6 +32,10 @@ declare module "hardhat/types/runtime" {
       name: "Clocktower",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Clocktower__factory>;
+    getContractFactory(
+      name: "ERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20__factory>;
 
     getContractAt(
       name: "ERC20",
@@ -58,6 +62,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Clocktower>;
+    getContractAt(
+      name: "ERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20>;
 
     // default types
     getContractFactory(
