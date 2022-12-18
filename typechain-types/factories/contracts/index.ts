@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
-export { Clocktower__factory } from "./Clocktower__factory";
+export * as clocktowerSol from "./Clocktower.sol";

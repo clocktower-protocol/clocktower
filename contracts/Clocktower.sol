@@ -4,6 +4,10 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 
+abstract contract ERC20{
+  function transferFrom(address from, address to, uint value) public virtual returns (bool);
+} 
+
 contract Clocktower {
 
     constructor() payable {
@@ -394,15 +398,23 @@ contract Clocktower {
     }
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload) payable external {
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) payable external {
 
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
 
         require(unixTime % 3600 == 0, "Time must be on the hour");
         
-        //require sent ETH to be higher than payload * fee
-        require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
+        if(token == address(0)) {
+            //require sent ETH to be higher than payload * fee
+            require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
+        } else {
+            //check if token is on approved list
+            require(erc20IsApproved(token)," Token not approved for this contract");
+
+            //transfers token to contract
+            require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+        }
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
@@ -411,7 +423,7 @@ contract Clocktower {
         Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
 
          //creates transaction
-        Transaction memory transaction = setTransaction(msg.sender, receiver, address(0), timeTrigger, payload);
+        Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
 
@@ -430,21 +442,38 @@ contract Clocktower {
         //updates account
         account.balance = msg.value + account.balance;
         
-        //updates timeTrigger Array
-        bool exists = false;
+        //updates timeTrigger Array and token array
+        bool triggerExists = false;
+        bool tokenExists = false;
+
 
         uint40[] memory accountTriggers = account.timeTriggers;
+        address[] memory tokens = account.tokens;
 
         //does the account already have transactions during this time period?
         for(uint i; i < accountTriggers.length; i++){
             if(accountTriggers[i] == timeTrigger) {
-                exists = true;
+                triggerExists = true;
+                break;
             }
         }
 
         //if doesn't already exist adds time trigger to account list
-        if(exists == false) {
+        if(triggerExists == false) {
              account.timeTriggers.push() = timeTrigger;
+        }
+
+        //has this account done a transaction witt this token before?
+        for(uint i; i < tokens.length; i++){
+            if(tokens[i] == token) {
+                tokenExists = true;
+                break;
+            }
+        }
+
+        //if account hasn't done a transaction with this token yet it adds it to the list
+        if(tokenExists == false) {
+            account.tokens.push() = token;
         }
 
         //new account

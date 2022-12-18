@@ -14,5 +14,5 @@ export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
 export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { CLOCKToken } from "./contracts/CLOCKtoken.sol/CLOCKToken";
 export { CLOCKToken__factory } from "./factories/contracts/CLOCKtoken.sol/CLOCKToken__factory";
-export type { Clocktower } from "./contracts/Clocktower";
-export { Clocktower__factory } from "./factories/contracts/Clocktower__factory";
+export type { Clocktower } from "./contracts/Clocktower.sol/Clocktower";
+export { Clocktower__factory } from "./factories/contracts/Clocktower.sol/Clocktower__factory";
