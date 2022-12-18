@@ -414,7 +414,7 @@ contract Clocktower {
             require(erc20IsApproved(token)," Token not approved for this contract");
 
             //transfers token to contract
-            require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+           // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
         
         //calculates hours since merge from passed unixTime
@@ -487,9 +487,10 @@ contract Clocktower {
         //adds account to account map
         accountMap[msg.sender] = account;
 
-        
-        //transfers token to contract (done at end to avoid re-entrancy attack)
-       // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+        if(token != address(0)) {
+            //transfers token to contract (done at end to avoid re-entrancy attack)
+            require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+        }
     }
 
     
