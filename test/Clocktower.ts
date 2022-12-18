@@ -25,6 +25,8 @@ describe("Clocktower", function(){
 
     //CLOCKtoken address
     const clockTokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+    //DAI address
+    const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
     
     //fixture to deploy contract
     async function deployClocktowerFixture() {
@@ -208,7 +210,7 @@ describe("Clocktower", function(){
     
     describe("Batch Functions", function() {
         it("Should add transactions", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatClocktower, hardhatCLOCKToken, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
             const eths = ethers.utils.parseEther("3.0")
             const testParams = {
@@ -216,14 +218,22 @@ describe("Clocktower", function(){
             };
 
             //creates two transaction objects
-            let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//2
-            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//3
-            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth}//4
+            let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//2
+            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//3
+            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//4
 
             let transactions = [transaction1, transaction2, transaction3]
 
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            await hardhatClocktower.addERC20Contract(daiAddress)
+
+            //gives approval to token transfer
+            await hardhatCLOCKToken.approve(hardhatClocktower.address, eths)
+
             //add batch
-            await hardhatClocktower.addBatchTransactions(transactions, testParams)
+           // await hardhatClocktower.addBatchTransactions(transactions, testParams)
+           await hardhatClocktower.addBatchTransactions(transactions)
 
             let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
 
