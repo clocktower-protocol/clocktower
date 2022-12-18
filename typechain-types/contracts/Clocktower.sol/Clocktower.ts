@@ -33,12 +33,14 @@ export declare namespace Clocktower {
     receiver: PromiseOrValue<string>;
     unixTime: PromiseOrValue<BigNumberish>;
     payload: PromiseOrValue<BigNumberish>;
+    token: PromiseOrValue<string>;
   };
 
-  export type BatchStructOutput = [string, number, BigNumber] & {
+  export type BatchStructOutput = [string, number, BigNumber, string] & {
     receiver: string;
     unixTime: number;
     payload: BigNumber;
+    token: string;
   };
 
   export type AccountStruct = {
@@ -97,7 +99,7 @@ export declare namespace Clocktower {
 
 export interface ClocktowerInterface extends utils.Interface {
   functions: {
-    "addBatchTransactions((address,uint40,uint256)[])": FunctionFragment;
+    "addBatchTransactions((address,uint40,uint256,address)[])": FunctionFragment;
     "addERC20Contract(address)": FunctionFragment;
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
     "allAccounts()": FunctionFragment;

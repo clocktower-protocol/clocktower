@@ -141,6 +141,11 @@
             "internalType": "uint256",
             "name": "payload",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
           }
         ],
         "internalType": "struct Clocktower.Batch[]",

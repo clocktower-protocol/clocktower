@@ -45,6 +45,7 @@ contract Clocktower {
         address payable receiver;
         uint40 unixTime;
         uint payload;
+        address token;
     }
 
     //Account map
@@ -446,7 +447,6 @@ contract Clocktower {
         bool triggerExists = false;
         bool tokenExists = false;
 
-
         uint40[] memory accountTriggers = account.timeTriggers;
         address[] memory tokens = account.tokens;
 
@@ -463,7 +463,7 @@ contract Clocktower {
              account.timeTriggers.push() = timeTrigger;
         }
 
-        //has this account done a transaction witt this token before?
+        //has this account done a transaction with this token before?
         for(uint i; i < tokens.length; i++){
             if(tokens[i] == token) {
                 tokenExists = true;
@@ -486,19 +486,31 @@ contract Clocktower {
 
         //adds account to account map
         accountMap[msg.sender] = account;
+
+        
+        //transfers token to contract (done at end to avoid re-entrancy attack)
+       // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
     }
 
+    
     //REQUIRE transactions all be scheduled for the same time
     function addBatchTransactions(Batch[] memory batch) payable external {
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
         require(batch.length > 1, "Batch must have more than one transaction");
 
-        uint payloads  = 0;
+        uint ethPayloads  = 0;
+       // uint numberOfTokens = 0;
+
+        //creates array for a list of tokens in batch sized to overall approved contract addresses
+        address[] memory batchTokenList = new address[](approvedERC20.length);
         uint40 unixTime = 0;
+
+        uint uniqueTokenCount = 0;
 
         //validates data in each transaction
         for(uint i = 0; i < batch.length; i++) {
+            //console.log(batchTokenList.length);
 
             //require transactions to be in the future and to be on the hour
             require(batch[i].unixTime > block.timestamp, "Time data must be in the future");
@@ -512,13 +524,47 @@ contract Clocktower {
                 require(unixTime == batch[i].unixTime, "All batch transactions must be scheduled for the same time");
             }
 
-            //sums up all listed payloads
-            payloads += batch[i].payload;
+            
+            //&&
+            //ethereum transaction
+            if(batch[i].token == address(0)) {
+                //require sent ETH to be higher than payload * fee
+                 //sums up all ETH payloads
+                ethPayloads += batch[i].payload;
+            } else {
+            //Token transaction 
+
+                //check if token is on approved list
+                require(erc20IsApproved(batch[i].token)," Token not approved for this contract");
+               
+                //&&
+                //if token is unique puts it in list
+                bool inList = false;
+            
+                //checks if already is in the list if not adds it
+                for(uint j = 0; j < batchTokenList.length; j++){ 
+                    if(batch[i].token == batchTokenList[j]) {
+                        inList = true;
+                        break;
+                    } 
+                }
+
+                if(!inList) {
+                    batchTokenList[uniqueTokenCount] = batch[i].token;
+                    uniqueTokenCount += 1;
+                } 
+                
+                //transfers token to contract
+                require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
+            }
+            
+            //sums up all ETH payloads
+            //payloads += batch[i].payload;
         }
 
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
-        require(payloads <= (msg.value * fee), "Not enough ETH sent with transaction");
+        require(ethPayloads <= (msg.value * fee), "Not enough ETH sent with transaction");
 
         //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
         uint40 timeTrigger = hoursSinceMerge(unixTime);
@@ -546,19 +592,39 @@ contract Clocktower {
 
         //updates timeTrigger Array
         //checks if timetrigger already exists in account
-        bool exists = false;
+        bool triggerExists = false;
+        
 
         uint40[] memory accountTriggers = account.timeTriggers;
+        address[] memory accountTokens = account.tokens;
 
         for(uint i; i < accountTriggers.length; i++){
             if(accountTriggers[i] == timeTrigger) {
-                exists = true;
+                triggerExists = true;
+                break;
             }
         }
 
-        if(exists == false) {
+        if(!triggerExists) {
              account.timeTriggers.push() = timeTrigger;
         }
+
+        
+        //checks if token already exists or not and adds to account
+        for(uint i; i < batchTokenList.length; i++) {
+            bool tokenExists = false;
+            for(uint j; j < accountTokens.length; j++) {
+                if(accountTokens[j] == batchTokenList[i]) {
+                    tokenExists = true;
+                    break;
+                } 
+            }
+            if(!tokenExists) {
+                account.tokens.push() = batchTokenList[i];
+            }
+       }
+        
+        
 
         if(accountMap[msg.sender].exists == false) {
             account.accountAddress = msg.sender;
@@ -569,6 +635,16 @@ contract Clocktower {
 
         //adds account to account map
         accountMap[msg.sender] = account;
+
+        /*
+        //gets tokens for contract (does at end to avoid re-entry)
+        for(uint i = 0; i < batch.length; i++) {
+            if(batch[i].token != address(0)) {
+                //transfers token to contract
+                require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
+            }
+        }
+        */
 
     }
 
