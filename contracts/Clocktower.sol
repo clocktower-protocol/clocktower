@@ -6,6 +6,8 @@ import "hardhat/console.sol";
 
 abstract contract ERC20{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
+  function balanceOf(address tokenOwner) public virtual returns (uint);
+  function approve(address spender, uint tokens) public virtual returns (bool);
 } 
 
 contract Clocktower {
@@ -51,17 +53,13 @@ contract Clocktower {
     //batch variables
     struct BatchVariables {
         uint ethPayloads;
-
         uint40[] accountTriggers;
-
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
         address[] batchTokenList;
         //&&
         //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
         uint40[] batchTriggerList;
-
         uint40 unixTime;
-
         uint uniqueTokenCount;
         uint uniqueTriggerCount;
     }
@@ -185,12 +183,14 @@ contract Clocktower {
             //&&
             Transaction[] memory accountTransactions = getTransactionsByAccount(accountLookup[i]);
             
+            
             //adds each transaction to total array
             for(uint j = 0; j < accountTransactions.length; j++) {
                 //Transaction memory transaction = accountTransactions[j];
                 totalTransactions[count] = accountTransactions[j];
                 count++;
             }
+            
         }
 
         return totalTransactions;
@@ -267,6 +267,10 @@ contract Clocktower {
 
     function getBalance() internal view returns (uint){
         return address(this).balance;
+    }
+
+    function getTokenBalance(address account, address token) internal view returns (uint) {
+        return tokenBalances[account][token];
     }
     //////////////////////
 
@@ -382,17 +386,25 @@ contract Clocktower {
 
     }
 
+    //TODO: change to accept ERC20 tokens
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
 
         //TODO: could change from send bool to transaction confirm hash
 
         //looks up balance of sender
-        Account memory account = accountMap[transaction.sender];
+        //Account memory account = accountMap[transaction.sender];
 
         //checks contract has enough ETH and sender has enough balance
-        require(getBalance() > transaction.payload && account.balance > transaction.payload);
-       
+        require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
+
+        //makes sure contract has enough ETH or tokens to pay for transaction
+        if(transaction.token == address(0)) {
+            require(getBalance() > transaction.payload);
+        } else {
+            require(ERC20(transaction.token).balanceOf(address(this)) >= transaction.payload);
+        }
+
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
         Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
 
@@ -410,9 +422,15 @@ contract Clocktower {
         timeMap[transaction.timeTrigger] = timeStorageT;
        
         //sends at the end to avoid re-entry attack
-        (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
-        require(success, "Transfer failed.");
-        emit TransactionSent(true);
+        if(transaction.token == address(0)){
+            //transfers ETH
+            (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+            require(success, "Transfer failed.");
+            emit TransactionSent(true);
+        } else {
+            //transfers Token
+            require(ERC20(transaction.token).approve(address(this), transaction.payload) && ERC20(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
+        }
        
     }
 
@@ -445,6 +463,8 @@ contract Clocktower {
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
+
+       // console.log(transaction.timeTrigger);
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
@@ -505,6 +525,9 @@ contract Clocktower {
         //adds account to account map
         accountMap[msg.sender] = account;
 
+        //updates token balance (and ETH at 0x0)
+        tokenBalances[msg.sender][token] += payload;
+
         if(token != address(0)) {
             //transfers token to contract (done at end to avoid re-entrancy attack)
             require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
@@ -512,7 +535,6 @@ contract Clocktower {
     }
 
     //REQUIRE maximum 100 transactions (based on gas limit per block)
-    //REQUIRE transactions all be scheduled for the same time
     function addBatchTransactions(Batch[] memory batch) payable external {
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
@@ -661,10 +683,8 @@ contract Clocktower {
 
                 //adds unique new timeTriggers to account list
                 for(uint j = 0; j < variables.accountTriggers.length; j++){
-                    console.log(variables.batchTriggerList[i]);
                     if(variables.accountTriggers[j] == variables.batchTriggerList[i]) {
                         triggerExists = true;
-                        console.log(variables.accountTriggers[j]);
                         break;
                     }
                  }
@@ -729,7 +749,12 @@ contract Clocktower {
      
         //gets tokens for contract (does at end to avoid re-entry)
         for(uint k = 0; k < batch.length; k++) {
+
+            //updates token balance (and ETH balance at 0x0)
+            tokenBalances[msg.sender][batch[k].token] += batch[k].payload;
+
             if(batch[k].token != address(0)) {
+
                 //transfers token to contract
                 require(ERC20(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
             }
@@ -745,19 +770,18 @@ contract Clocktower {
 
         require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
 
+
         for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
-            //gets transaction array per block
+            //gets transaction array per time trigger
             Transaction[] memory _transactionArray = timeMap[i];
 
             emit CheckStatus("done");
             
             //if block has transactions add them to transaction list
             if(_transactionArray.length > 0) {
-                
                 //iterates through transaction array
-                for(uint h = 0; h <= (_transactionArray.length - 1); h++){
-
+                for(uint h = 0; h < (_transactionArray.length); h++){
                     //excludes cancelled transactions
                     if(!_transactionArray[h].cancelled){
                         //sends transactions
