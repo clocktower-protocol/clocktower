@@ -35,11 +35,10 @@ contract Clocktower {
         address accountAddress;
         //string description;
         bool exists;
-        uint balance;
+        //uint balance;
         uint40[] timeTriggers;
         //&&
         address[] tokens;
-        //TODO: ERCO balances (array?)
     }
 
     //batch struct
@@ -386,7 +385,6 @@ contract Clocktower {
 
     }
 
-    //TODO: change to accept ERC20 tokens
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
 
@@ -479,7 +477,7 @@ contract Clocktower {
         Account storage account = accountMap[msg.sender];
 
         //updates account
-        account.balance = msg.value + account.balance;
+        //account.balance = msg.value + account.balance;
         
         //updates timeTrigger Array and token array
         bool triggerExists = false;
@@ -699,7 +697,7 @@ contract Clocktower {
         //updates account
        // Account storage account = accountMap[msg.sender];
 
-        account.balance = msg.value + account.balance;
+        //account.balance = msg.value + account.balance;
 
         //updates timeTrigger Array
         //checks if timetrigger already exists in account
