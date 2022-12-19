@@ -248,6 +248,11 @@ describe("Clocktower", function(){
     })
 
     describe("Admin Functions", function() {
+
+        const testParams = {
+            value: ethers.utils.parseEther("1.02")
+        };
+
         it("Should get transaction snapshot", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
@@ -278,6 +283,13 @@ describe("Clocktower", function(){
             let amount = await hardhatCLOCKToken.balanceOf(owner.address)
 
             expect(amount).to.equal(ethers.utils.parseEther("100000"))
+        })
+        it("Should change fee", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClocktower.changeFee(102);
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
+            let returnTransactions: any = await hardhatClocktower.allTransactions();
+            expect(returnTransactions.length).to.equal(3)
         })
        
     })

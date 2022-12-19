@@ -85,8 +85,9 @@ contract Clocktower {
     //seconds since merge
     uint40 constant unixMergeTime = 1663264800;
 
-    //TODO: set fee(0.003%? same as Uniswap)
-    uint fee = 1;
+    //TODO: set fee
+    //100 = 100%
+    uint fee = 100;
 
     //variable for last checked by hour
     uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
@@ -164,6 +165,11 @@ contract Clocktower {
         }
         approvedERC20.pop();
     }
+
+    //change fee
+    function changeFee(uint _fee) isAdmin external {
+        fee = _fee;
+    }
     
     //returns array containing all transactions
     function allTransactions() isAdmin external view returns (Transaction[] memory){
@@ -184,6 +190,7 @@ contract Clocktower {
                 count++;
             }     
         }
+        
         return totalTransactions;
     }
 
@@ -423,8 +430,9 @@ contract Clocktower {
         require(unixTime % 3600 == 0, "Time must be on the hour");
         
         if(token == address(0)) {
+            //TODO:
             //require sent ETH to be higher than payload * fee
-            require(payload <= (msg.value * fee), "Not enough ETH sent with transaction");
+            require(payload * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
         } else {
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
@@ -592,7 +600,8 @@ contract Clocktower {
 
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
-        require(variables.ethPayloads <= (msg.value * fee), "Not enough ETH sent with transaction");
+        //TODO:
+        require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
 
         //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
         for(uint i; i < variables.batchTriggerList.length; i++) {
