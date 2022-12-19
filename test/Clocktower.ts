@@ -22,6 +22,8 @@ describe("Clocktower", function(){
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
     let hourAhead = currentTime + 3600;
+    let twoHoursAhead = hourAhead + 3600;
+    let threeHoursAhead = twoHoursAhead + 3600;
 
     //CLOCKtoken address
     const clockTokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
@@ -219,8 +221,8 @@ describe("Clocktower", function(){
 
             //creates two transaction objects
             let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//2
-            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//3
-            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//4
+            let transaction2 = {receiver: otherAccount.address, unixTime: twoHoursAhead, payload: eth, token: hardhatCLOCKToken.address}//3
+            let transaction3 = {receiver: otherAccount.address, unixTime: threeHoursAhead, payload: eth, token: hardhatCLOCKToken.address}//4
 
             let transactions = [transaction1, transaction2, transaction3]
 
