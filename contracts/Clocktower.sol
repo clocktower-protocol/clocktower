@@ -48,6 +48,24 @@ contract Clocktower {
         address token;
     }
 
+    //batch variables
+    struct BatchVariables {
+        uint ethPayloads;
+
+        uint40[] accountTriggers;
+
+        //creates arrays for a list of tokens in batch sized to overall approved contract addresses
+        address[] batchTokenList;
+        //&&
+        //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
+        uint40[] batchTriggerList;
+
+        uint40 unixTime;
+
+        uint uniqueTokenCount;
+        uint uniqueTriggerCount;
+    }
+
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
@@ -493,23 +511,40 @@ contract Clocktower {
         }
     }
 
-    
+    //REQUIRE maximum 100 transactions (based on gas limit per block)
     //REQUIRE transactions all be scheduled for the same time
     function addBatchTransactions(Batch[] memory batch) payable external {
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
-        require(batch.length > 1, "Batch must have more than one transaction");
+        require(((batch.length > 1) && (batch.length < 100)), "Batch must have more than one transaction and less than 100");
 
-        uint ethPayloads  = 0;
-       // uint numberOfTokens = 0;
+        //have to put top level function variables in a struct to avoid variable per function limit
+        BatchVariables memory variables;
 
-        //creates array for a list of tokens in batch sized to overall approved contract addresses
-        address[] memory batchTokenList = new address[](approvedERC20.length);
-        uint40 unixTime = 0;
+        variables.ethPayloads  = 0;
+        // uint numberOfTokens = 0;
 
-        uint uniqueTokenCount = 0;
+        Account storage account = accountMap[msg.sender];
+        //uint40[] memory accountTriggers = account.timeTriggers;
+        variables.accountTriggers = account.timeTriggers;
 
-        //validates data in each transaction
+        //creates arrays for a list of tokens in batch sized to overall approved contract addresses
+        //address[] memory batchTokenList = new address[](approvedERC20.length);
+        variables.batchTokenList = new address[](approvedERC20.length);
+        //&&
+        //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
+        //uint40[] memory batchTriggerList = new uint40[](account.timeTriggers.length + 150);
+        variables.batchTriggerList = new uint40[](account.timeTriggers.length + 100);
+
+        //uint40 unixTime = 0;
+        variables.unixTime = 0;
+
+        //uint uniqueTokenCount = 0;
+        //uint uniqueTriggerCount = 0;
+        variables.uniqueTokenCount = 0;
+        variables.uniqueTriggerCount = 0;
+
+        //validates data in each transaction and creates lists of unique tokens and timeTriggers
         for(uint i = 0; i < batch.length; i++) {
             //console.log(batchTokenList.length);
 
@@ -518,23 +553,43 @@ contract Clocktower {
 
             require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
 
+            /*
              //catches first time Trigger and compares it to all the others to make sure the batch transactions are scheduled for the same time
             if(i == 0) {
                 unixTime = batch[i].unixTime;
             } else {
                 require(unixTime == batch[i].unixTime, "All batch transactions must be scheduled for the same time");
             }
+            */
+            //&&
+            //placeholder while we get functions below working
+            variables.unixTime = batch[i].unixTime;
 
+            //if time trigger is unique we put it in the list
+            bool inList2 = false;
+            uint40 timeTrigger2 = hoursSinceMerge(batch[i].unixTime);
+            //checks if already is in the list if not adds it
+            for(uint j = 0; j < variables.batchTriggerList.length; j++){ 
+                if(timeTrigger2 == variables.batchTriggerList[j]) {
+                    inList2 = true;
+                    break;
+                } 
+            }
+
+            if(!inList2) {
+                variables.batchTriggerList[variables.uniqueTriggerCount] = timeTrigger2;
+                variables.uniqueTriggerCount += 1;
+            } 
             
             //&&
             //ethereum transaction
             if(batch[i].token == address(0)) {
                 //require sent ETH to be higher than payload * fee
                  //sums up all ETH payloads
-                ethPayloads += batch[i].payload;
+                variables.ethPayloads += batch[i].payload;
             } else {
-            //Token transaction 
 
+            //Token transaction 
                 //check if token is on approved list
                 require(erc20IsApproved(batch[i].token)," Token not approved for this contract");
                
@@ -543,20 +598,20 @@ contract Clocktower {
                 bool inList = false;
             
                 //checks if already is in the list if not adds it
-                for(uint j = 0; j < batchTokenList.length; j++){ 
-                    if(batch[i].token == batchTokenList[j]) {
+                for(uint j = 0; j < variables.batchTokenList.length; j++){ 
+                    if(batch[i].token == variables.batchTokenList[j]) {
                         inList = true;
                         break;
                     } 
                 }
 
                 if(!inList) {
-                    batchTokenList[uniqueTokenCount] = batch[i].token;
-                    uniqueTokenCount += 1;
+                    variables.batchTokenList[variables.uniqueTokenCount] = batch[i].token;
+                    variables.uniqueTokenCount += 1;
                 } 
                 
                 //transfers token to contract
-                require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
+                //require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
             }
             
             //sums up all ETH payloads
@@ -565,40 +620,76 @@ contract Clocktower {
 
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
-        require(ethPayloads <= (msg.value * fee), "Not enough ETH sent with transaction");
+        require(variables.ethPayloads <= (msg.value * fee), "Not enough ETH sent with transaction");
 
-        //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
-        uint40 timeTrigger = hoursSinceMerge(unixTime);
+            //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
+            //uint40 timeTrigger = hoursSinceMerge(unixTime);
+        //console.log(variables.accountTriggers.length);
 
-        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage transactionStorageArray = timeMap[timeTrigger];
+        for(uint i; i < variables.batchTriggerList.length; i++) {
 
-        //creates transaction array
-        for(uint16 i = 0; i < batch.length; i++) {
+            //stops when it hits empty part of array
+            if(variables.batchTriggerList[i] == 0) {
+                break;
+            } else {
 
-            //creates internal transaction struct
-            Transaction memory transaction = setTransaction(msg.sender, batch[i].receiver, address(0), timeTrigger, batch[i].payload);
+                //updates time triggers in map
 
-            transactionStorageArray.push() = transaction;
-             //adds transaction to lookup
-            transactionLookup.push() = transaction.id;
+                //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
+                Transaction[] storage transactionStorageArray = timeMap[variables.batchTriggerList[i]];
+
+                //creates transaction array
+                for(uint16 j = 0; j < batch.length; j++) {
+
+                    uint40 time = hoursSinceMerge(batch[j].unixTime);
+
+                    if(time == variables.batchTriggerList[i]) {
+                        //creates internal transaction struct
+                        Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
+
+                        transactionStorageArray.push() = transaction;
+                        //adds transaction to lookup
+                        transactionLookup.push() = transaction.id;
+                    }
+                }
+
+                timeMap[variables.batchTriggerList[i]] = transactionStorageArray; 
+
+                
+                //updates timeTriggers in account
+                bool triggerExists = false;
+
+                //adds unique new timeTriggers to account list
+                for(uint j = 0; j < variables.accountTriggers.length; j++){
+                    console.log(variables.batchTriggerList[i]);
+                    if(variables.accountTriggers[j] == variables.batchTriggerList[i]) {
+                        triggerExists = true;
+                        console.log(variables.accountTriggers[j]);
+                        break;
+                    }
+                 }
+
+                if(!triggerExists) {
+                    account.timeTriggers.push() = variables.batchTriggerList[i];
+                }
+                
+            }
         }
 
-        timeMap[timeTrigger] = transactionStorageArray; 
-
         //updates account
-        Account storage account = accountMap[msg.sender];
+       // Account storage account = accountMap[msg.sender];
 
         account.balance = msg.value + account.balance;
 
         //updates timeTrigger Array
         //checks if timetrigger already exists in account
-        bool triggerExists = false;
+        //bool triggerExists = false;
         
 
-        uint40[] memory accountTriggers = account.timeTriggers;
+        //uint40[] memory accountTriggers = account.timeTriggers;
         address[] memory accountTokens = account.tokens;
 
+        /*
         for(uint i; i < accountTriggers.length; i++){
             if(accountTriggers[i] == timeTrigger) {
                 triggerExists = true;
@@ -609,24 +700,23 @@ contract Clocktower {
         if(!triggerExists) {
              account.timeTriggers.push() = timeTrigger;
         }
+        */
 
         
         //checks if token already exists or not and adds to account
-        for(uint i; i < batchTokenList.length; i++) {
+        for(uint i; i < variables.batchTokenList.length; i++) {
             bool tokenExists = false;
             for(uint j; j < accountTokens.length; j++) {
-                if(accountTokens[j] == batchTokenList[i]) {
+                if(accountTokens[j] == variables.batchTokenList[i]) {
                     tokenExists = true;
                     break;
                 } 
             }
             if(!tokenExists) {
-                account.tokens.push() = batchTokenList[i];
+                account.tokens.push() = variables.batchTokenList[i];
             }
        }
         
-        
-
         if(accountMap[msg.sender].exists == false) {
             account.accountAddress = msg.sender;
              //adds to lookup table
@@ -636,17 +726,14 @@ contract Clocktower {
 
         //adds account to account map
         accountMap[msg.sender] = account;
-
-        /*
+     
         //gets tokens for contract (does at end to avoid re-entry)
-        for(uint i = 0; i < batch.length; i++) {
-            if(batch[i].token != address(0)) {
+        for(uint k = 0; k < batch.length; k++) {
+            if(batch[k].token != address(0)) {
                 //transfers token to contract
-                require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
+                require(ERC20(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
             }
         }
-        */
-
     }
 
 
