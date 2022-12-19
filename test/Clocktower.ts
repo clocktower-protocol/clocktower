@@ -191,7 +191,7 @@ describe("Clocktower", function(){
         }) 
         it("Should send ether to addresses", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            hardhatClocktower.checkTime();
+            await hardhatClocktower.checkTime();
             expect(
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
@@ -221,8 +221,8 @@ describe("Clocktower", function(){
 
             //creates two transaction objects
             let transaction1 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//2
-            let transaction2 = {receiver: otherAccount.address, unixTime: twoHoursAhead, payload: eth, token: hardhatCLOCKToken.address}//3
-            let transaction3 = {receiver: otherAccount.address, unixTime: threeHoursAhead, payload: eth, token: hardhatCLOCKToken.address}//4
+            let transaction2 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//3
+            let transaction3 = {receiver: otherAccount.address, unixTime: hourAhead, payload: eth, token: hardhatCLOCKToken.address}//4
 
             let transactions = [transaction1, transaction2, transaction3]
 
@@ -297,7 +297,20 @@ describe("Clocktower", function(){
 
             expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(eth)
         })
+        it("Should send ERC20 Tokens", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            //User gives approval for clocktower to use their tokens
+            await hardhatCLOCKToken.approve(hardhatClocktower.address, eth)
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            //moves time 2 hours to 2023/01/01 3:00
+            await time.increaseTo(1672563600);
+            await hardhatClocktower.checkTime();
+            expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
 
+
+        })
     })
 
 
