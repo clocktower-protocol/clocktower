@@ -355,25 +355,23 @@ contract Clocktower {
 
         //loops through time transactions to find cancelled one
         for(uint i = 0; i < timeTransactions.length; i++) {
-
-            //console.log(timeTransactions.length);
             
             if(timeTransactions[i].id == id){
-                //console.log("yes");
                 transaction = timeTransactions[i];
                 transaction.cancelled = true;
                 timeStorageT[i] = transaction;
                 break;
             }
         }
+
+        timeMap[timeTrigger] = timeStorageT;
         
         //checks contract has enough ETH
         require(getBalance() > transaction.payload);
         //checks transaction goes through
         require(payable(transaction.sender).send(transaction.payload));
 
-        //accountTransactionsMap[msg.sender] = accountStorageT;
-        timeMap[timeTrigger] = timeStorageT;
+        //timeMap[timeTrigger] = timeStorageT;
 
     }
 
@@ -410,8 +408,9 @@ contract Clocktower {
        
         //sends at the end to avoid re-entry attack
         if(transaction.token == address(0)){
-            //transfers ETH
-            (bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+            //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
+            //(bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+            bool success = transaction.receiver.send(transaction.payload);
             require(success, "Transfer failed.");
             emit TransactionSent(true);
         } else {
