@@ -429,7 +429,6 @@ contract Clocktower {
         require(unixTime % 3600 == 0, "Time must be on the hour");
         
         if(token == address(0)) {
-            //TODO:
             //require sent ETH to be higher than payload * fee
             require(payload * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
         } else {
@@ -599,7 +598,6 @@ contract Clocktower {
 
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
-        //TODO:
         require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
 
         //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
