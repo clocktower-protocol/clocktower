@@ -8,6 +8,7 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
+    const TestUser = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
     const Clocktower = await ethers.getContractFactory("Clocktower");
     const ClockToken = await ethers.getContractFactory("CLOCKToken");
     const clocktower = await Clocktower.deploy();
@@ -25,8 +26,14 @@ async function main() {
 
     console.log("Contract address:", clockToken.address);
 
-    
+    //approve token for clocktower
+    await clocktower.addERC20Contract(clockToken.address);
+    console.log("Approved contract..."+clockToken.address);
 
+    //funds test account with CLOCK
+    await clockToken.approve(TestUser, ethers.utils.parseEther("10000"));
+    await clockToken.transfer(TestUser, ethers.utils.parseEther("10000"));
+    console.log("Funds test user 10000 CLOCK");
 }
 
 main().catch((error) => {

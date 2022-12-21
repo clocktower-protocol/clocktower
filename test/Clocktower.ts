@@ -320,8 +320,6 @@ describe("Clocktower", function(){
             await time.increaseTo(1672563600);
             await hardhatClocktower.checkTime();
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
-
-
         })
     })
 
