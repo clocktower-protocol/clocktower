@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1671543921341,
-      "contentHash": "3b66c816b4067561d992afa4b226428c",
+      "lastModificationDate": 1671665571406,
+      "contentHash": "016d0290e74e2dc941231fc4635a32a1",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
         "version": "0.8.9",

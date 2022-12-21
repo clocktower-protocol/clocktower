@@ -366,10 +366,15 @@ contract Clocktower {
 
         timeMap[timeTrigger] = timeStorageT;
         
-        //checks contract has enough ETH
-        require(getBalance() > transaction.payload);
-        //checks transaction goes through
-        require(payable(transaction.sender).send(transaction.payload));
+        //checks different things for ether and for erc20 
+        if(transaction.token == address(0)){
+            //checks contract has enough ETH
+            require(getBalance() > transaction.payload);
+            //checks transaction goes through
+            require(payable(transaction.sender).send(transaction.payload));
+        } else {
+            require(ERC20(transaction.token).balanceOf(address(this)) >= transaction.payload);
+        }
 
         //timeMap[timeTrigger] = timeStorageT;
 
@@ -598,6 +603,7 @@ contract Clocktower {
 
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
+        
         require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
 
         //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
