@@ -260,6 +260,10 @@ contract Clocktower {
         }
     }
 
+    function getFee() external view returns (uint) {
+        return fee;
+    }
+
     function getBalance() internal view returns (uint){
         return address(this).balance;
     }
@@ -319,7 +323,6 @@ contract Clocktower {
             }
         }
 
-        
          //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < totalTransactions.length; i++) {
                 totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
@@ -373,7 +376,11 @@ contract Clocktower {
             //checks transaction goes through
             require(payable(transaction.sender).send(transaction.payload));
         } else {
+            //checks account has enough balance to send
             require(ERC20(transaction.token).balanceOf(address(this)) >= transaction.payload);
+            //checks transaction goes through
+            //transfers Token
+            require(ERC20(transaction.token).approve(address(this), transaction.payload) && ERC20(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
         }
 
         //timeMap[timeTrigger] = timeStorageT;
