@@ -75,8 +75,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1671748344017,
-      "contentHash": "2e8e54125ac5c5dd5f22cdbda880054c",
+      "lastModificationDate": 1671816406600,
+      "contentHash": "f4a074415bd2bce2fc5668a99fccf67a",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
         "version": "0.8.9",
