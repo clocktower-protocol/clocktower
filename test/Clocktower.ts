@@ -3,6 +3,7 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
 //import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { signERC2612Permit } from "eth-permit";
 
 //Written by Hugo Marx
 
@@ -323,6 +324,24 @@ describe("Clocktower", function(){
             await time.increaseTo(1672563600);
             await hardhatClocktower.checkTime();
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
+        })
+
+        it("Should accect Permit signatures", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            
+            //signs permit
+            const result = await signERC2612Permit(
+                owner,
+                hardhatCLOCKToken.address,
+                owner.address,
+                hardhatClocktower.address,
+                String(eth)
+            );
+            
+
+
         })
         
     })
