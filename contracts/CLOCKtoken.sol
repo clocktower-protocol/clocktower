@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 
 contract CLOCKToken is ERC20Permit {
 
-   constructor(uint256 initialSupply) ERC20Permit("CLockTower") ERC20("CLockTower", "CLOCK"){
+   constructor(uint256 initialSupply) ERC20Permit("CLockTower") ERC20("CLockTower", "CLOCK") {
         _mint(msg.sender, initialSupply);
    }
 
