@@ -330,6 +330,8 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
             await hardhatClocktower.addERC20Contract(clockTokenAddress)
+
+            //console.log(await hardhatCLOCKToken.DOMAIN_SEPARATOR());
             
             //signs permit
             const result = await signERC2612Permit(
@@ -339,6 +341,33 @@ describe("Clocktower", function(){
                 hardhatClocktower.address,
                 String(eth)
             );
+            console.log(result);
+            
+            //submits permit to contract
+            let data = await hardhatCLOCKToken.permit(
+                owner.address,
+                hardhatClocktower.address,
+                result.value,
+                result.deadline,
+                result.v,
+                result.r,
+                result.s
+            )  
+
+            expect(await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams))
+
+            //console.log(data)
+             
+            /*
+            const txParams = {
+                nonce: await owner.getTransactionCount(),
+                gasLimit: 80000,
+                to: hardhatCLOCKToken.address,
+                data: data,
+            }
+            */
+            
+            
             
 
 
