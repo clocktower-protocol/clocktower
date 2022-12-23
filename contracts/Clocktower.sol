@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+//Copyright Hugo Marx 2022
 //Written by Hugo Marx
 pragma solidity ^0.8.9;
 
@@ -115,7 +116,7 @@ contract Clocktower {
     
     //checks if user is admin
     modifier isAdmin() {
-        require(msg.sender == admin);
+        require(msg.sender == admin, "Must have admin privileges");
         _;
     }
 
@@ -264,7 +265,7 @@ contract Clocktower {
         return fee;
     }
 
-    function getBalance() internal view returns (uint){
+    function getBalance() internal view returns (uint) {
         return address(this).balance;
     }
 
@@ -711,7 +712,6 @@ contract Clocktower {
         uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
-
 
         for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 

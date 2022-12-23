@@ -181,6 +181,7 @@ describe("Clocktower", function(){
             .withArgs("done");
         })
          
+        
         it("Should send transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await time.increaseTo(1672563600);
@@ -196,6 +197,7 @@ describe("Clocktower", function(){
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
         })
+        
     })
 
     
@@ -309,6 +311,7 @@ describe("Clocktower", function(){
 
             expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(eth)
         })
+        
         it("Should send ERC20 Tokens", async function() {
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
@@ -321,14 +324,6 @@ describe("Clocktower", function(){
             await hardhatClocktower.checkTime();
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
         })
+        
     })
-
-
-
-
-    
-    
-    
-    
-    
 })
