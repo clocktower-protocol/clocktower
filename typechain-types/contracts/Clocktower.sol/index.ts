@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Clocktower } from "./Clocktower";
-export type { ERC20 } from "./ERC20";
+export type { ERC20Permit } from "./ERC20Permit";
