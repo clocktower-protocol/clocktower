@@ -5,10 +5,11 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 
-abstract contract ERC20{
+abstract contract ERC20Permit{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
   function balanceOf(address tokenOwner) public virtual returns (uint);
   function approve(address spender, uint tokens) public virtual returns (bool);
+  function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public virtual;
 } 
 
 contract Clocktower {
@@ -59,6 +60,25 @@ contract Clocktower {
         uint40 unixTime;
         uint uniqueTokenCount;
         uint uniqueTriggerCount;
+    }
+
+    struct AddVariables {
+        uint40 timeTrigger;
+        bool triggerExists;
+        bool tokenExists;
+        uint40[] accountTriggers;
+        address[] tokens;
+    }
+
+    //Permit struct
+    struct Permit {
+        address owner;
+        address spender;
+        uint value;
+        uint deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
     }
 
     //Account map
@@ -378,10 +398,10 @@ contract Clocktower {
             require(payable(transaction.sender).send(transaction.payload));
         } else {
             //checks account has enough balance to send
-            require(ERC20(transaction.token).balanceOf(address(this)) >= transaction.payload);
+            require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
             //checks transaction goes through
             //transfers Token
-            require(ERC20(transaction.token).approve(address(this), transaction.payload) && ERC20(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
+            require(ERC20Permit(transaction.token).approve(address(this), transaction.payload) && ERC20Permit(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
         }
 
         //timeMap[timeTrigger] = timeStorageT;
@@ -400,7 +420,7 @@ contract Clocktower {
         if(transaction.token == address(0)) {
             require(getBalance() > transaction.payload);
         } else {
-            require(ERC20(transaction.token).balanceOf(address(this)) >= transaction.payload);
+            require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
         }
 
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
@@ -428,13 +448,13 @@ contract Clocktower {
             emit TransactionSent(true);
         } else {
             //transfers Token
-            require(ERC20(transaction.token).approve(address(this), transaction.payload) && ERC20(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
+            require(ERC20Permit(transaction.token).approve(address(this), transaction.payload) && ERC20Permit(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
         }
        
     }
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) payable external {
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) payable external {
 
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
@@ -451,62 +471,64 @@ contract Clocktower {
             //transfers token to contract
            // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
+
+        AddVariables memory variables;
         
         //calculates hours since merge from passed unixTime
-        uint40 timeTrigger = hoursSinceMerge(unixTime);
+        variables.timeTrigger = hoursSinceMerge(unixTime);
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
+        Transaction[] storage timeStorageArray = timeMap[variables.timeTrigger]; 
 
          //creates transaction
-        Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
+        Transaction memory transaction = setTransaction(msg.sender, receiver, token, variables.timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
 
        // console.log(transaction.timeTrigger);
 
-        emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
+        emit TransactionAdd(msg.sender, receiver, variables.timeTrigger, payload);
         emit Status("Pushed");
 
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;
 
         //puts appended arrays back in maps
-        timeMap[timeTrigger] = timeStorageArray;    
+        timeMap[variables.timeTrigger] = timeStorageArray;    
         
         //adds or updates account
         Account storage account = accountMap[msg.sender];
         
         //updates timeTrigger Array and token array
-        bool triggerExists = false;
-        bool tokenExists = false;
+        variables.triggerExists = false;
+        variables.tokenExists = false;
 
-        uint40[] memory accountTriggers = account.timeTriggers;
-        address[] memory tokens = account.tokens;
+        variables.accountTriggers = account.timeTriggers;
+        variables.tokens = account.tokens;
 
         //does the account already have transactions during this time period?
-        for(uint i; i < accountTriggers.length; i++){
-            if(accountTriggers[i] == timeTrigger) {
-                triggerExists = true;
+        for(uint i; i < variables.accountTriggers.length; i++){
+            if(variables.accountTriggers[i] == variables.timeTrigger) {
+                variables.triggerExists = true;
                 break;
             }
         }
 
         //if doesn't already exist adds time trigger to account list
-        if(triggerExists == false) {
-             account.timeTriggers.push() = timeTrigger;
+        if(variables.triggerExists == false) {
+             account.timeTriggers.push() = variables.timeTrigger;
         }
 
         //has this account done a transaction with this token before?
-        for(uint i; i < tokens.length; i++){
-            if(tokens[i] == token) {
-                tokenExists = true;
+        for(uint i; i < variables.tokens.length; i++){
+            if(variables.tokens[i] == token) {
+                variables.tokenExists = true;
                 break;
             }
         }
 
         //if account hasn't done a transaction with this token yet it adds it to the list
-        if(tokenExists == false) {
+        if(variables.tokenExists == false) {
             account.tokens.push() = token;
         }
 
@@ -525,8 +547,10 @@ contract Clocktower {
         tokenBalances[msg.sender][token] += payload;
 
         if(token != address(0)) {
+            //uses permit to approve transfer
+            ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
             //transfers token to contract (done at end to avoid re-entrancy attack)
-            require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+            require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
     }
 
@@ -699,7 +723,7 @@ contract Clocktower {
             if(batch[k].token != address(0)) {
 
                 //transfers token to contract
-                require(ERC20(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
+                require(ERC20Permit(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
             }
         }
     }
