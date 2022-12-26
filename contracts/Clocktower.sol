@@ -23,12 +23,11 @@ contract Clocktower {
         bytes32 id;
         address sender;
         address payable receiver;
-        //&&
         address token;
         uint40 timeTrigger;
         bool sent;
         bool cancelled;
-        //amount of ether sent in wei
+        //amount of ether or token sent in wei
         uint payload;
     }
 
@@ -37,6 +36,7 @@ contract Clocktower {
         address accountAddress;
         //string description;
         bool exists;
+        //indexs of timeTriggers and tokens stored per account
         uint40[] timeTriggers;
         address[] tokens;
     }
@@ -62,14 +62,6 @@ contract Clocktower {
         uint uniqueTriggerCount;
     }
 
-    struct AddVariables {
-        uint40 timeTrigger;
-        bool triggerExists;
-        bool tokenExists;
-        uint40[] accountTriggers;
-        address[] tokens;
-    }
-
     //Permit struct
     struct Permit {
         address owner;
@@ -93,6 +85,9 @@ contract Clocktower {
 
     //per account address per token balance
     mapping(address => mapping(address => uint)) tokenBalances;
+
+    //time triggers per account
+    //mapping(address => mapping(bytes32 =))
 
     //admin addresses
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
@@ -365,6 +360,59 @@ contract Clocktower {
     }
 
     //------------------------------------------------------------
+    function addAccountTransaction(uint40 timeTrigger, address token) private {
+        
+        //adds or updates account
+        Account storage account = accountMap[msg.sender];
+
+        //new account
+        if(accountMap[msg.sender].exists == false) {
+            account.accountAddress = msg.sender;
+            //adds to lookup table
+            accountLookup.push() = account.accountAddress;
+            account.exists = true;
+            account.timeTriggers.push() = timeTrigger;
+            account.tokens.push() = token;
+        } else {
+        
+            //updates timeTrigger Array and token array
+            bool triggerExists = false;
+            bool tokenExists = false;
+
+            //gets lookup arrays from account struct
+            uint40[] memory accountTriggers = account.timeTriggers;
+            address[] memory tokens = account.tokens;
+
+            //does the account already have transactions during this time period?
+            for(uint i; i < accountTriggers.length; i++){
+                if(accountTriggers[i] == timeTrigger) {
+                    triggerExists = true;
+                    break;
+                }
+            }
+
+            //if doesn't already exist adds time trigger to account list
+            if(triggerExists == false) {
+                account.timeTriggers.push() = timeTrigger;
+            }
+
+            //has this account done a transaction with this token before?
+            for(uint i; i < tokens.length; i++){
+                if(tokens[i] == token) {
+                    tokenExists = true;
+                    break;
+                }
+            }
+
+            //if account hasn't done a transaction with this token yet it adds it to the list
+            if(tokenExists == false) {
+                account.tokens.push() = token;
+            }
+        }
+
+        //adds account to account map
+        accountMap[msg.sender] = account;
+    }
 
     //cancels transaction and refunds money
     function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
@@ -471,77 +519,31 @@ contract Clocktower {
             //transfers token to contract
            // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
-
-        AddVariables memory variables;
         
         //calculates hours since merge from passed unixTime
-        variables.timeTrigger = hoursSinceMerge(unixTime);
+        uint40 timeTrigger = hoursSinceMerge(unixTime);
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage timeStorageArray = timeMap[variables.timeTrigger]; 
+        Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
 
          //creates transaction
-        Transaction memory transaction = setTransaction(msg.sender, receiver, token, variables.timeTrigger, payload);
+        Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
         timeStorageArray.push() = transaction;
 
        // console.log(transaction.timeTrigger);
 
-        emit TransactionAdd(msg.sender, receiver, variables.timeTrigger, payload);
+        emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
 
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;
 
         //puts appended arrays back in maps
-        timeMap[variables.timeTrigger] = timeStorageArray;    
-        
-        //adds or updates account
-        Account storage account = accountMap[msg.sender];
-        
-        //updates timeTrigger Array and token array
-        variables.triggerExists = false;
-        variables.tokenExists = false;
+        timeMap[timeTrigger] = timeStorageArray;   
 
-        variables.accountTriggers = account.timeTriggers;
-        variables.tokens = account.tokens;
-
-        //does the account already have transactions during this time period?
-        for(uint i; i < variables.accountTriggers.length; i++){
-            if(variables.accountTriggers[i] == variables.timeTrigger) {
-                variables.triggerExists = true;
-                break;
-            }
-        }
-
-        //if doesn't already exist adds time trigger to account list
-        if(variables.triggerExists == false) {
-             account.timeTriggers.push() = variables.timeTrigger;
-        }
-
-        //has this account done a transaction with this token before?
-        for(uint i; i < variables.tokens.length; i++){
-            if(variables.tokens[i] == token) {
-                variables.tokenExists = true;
-                break;
-            }
-        }
-
-        //if account hasn't done a transaction with this token yet it adds it to the list
-        if(variables.tokenExists == false) {
-            account.tokens.push() = token;
-        }
-
-        //new account
-        if(accountMap[msg.sender].exists == false) {
-            account.accountAddress = msg.sender;
-            //adds to lookup table
-            accountLookup.push() = account.accountAddress;
-            account.exists = true;
-        }
-
-        //adds account to account map
-        accountMap[msg.sender] = account;
+        //creates or updates account
+        addAccountTransaction(timeTrigger, token); 
 
         //updates token balance (and ETH at 0x0)
         tokenBalances[msg.sender][token] += payload;
@@ -638,7 +640,7 @@ contract Clocktower {
         
         require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
 
-        //since unixTime should be the same for all transactions. You only calulate the time trigger once. 
+        //iterates through batch time triggers 
         for(uint i; i < variables.batchTriggerList.length; i++) {
 
             //stops when it hits empty part of array
@@ -667,7 +669,6 @@ contract Clocktower {
                 }
 
                 timeMap[variables.batchTriggerList[i]] = transactionStorageArray; 
-
                 
                 //updates timeTriggers in account
                 bool triggerExists = false;
@@ -683,7 +684,6 @@ contract Clocktower {
                 if(!triggerExists) {
                     account.timeTriggers.push() = variables.batchTriggerList[i];
                 }
-                
             }
         }
 
