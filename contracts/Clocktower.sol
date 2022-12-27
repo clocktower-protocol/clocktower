@@ -367,7 +367,7 @@ contract Clocktower {
     }
     
     //sets Transaction
-    function setTransaction(address sender, address payable receiver, address token, uint40 timeTrigger, uint payload) internal view returns(Transaction memory _transaction){
+    function setTransaction(address sender, address payable receiver, address token, uint40 timeTrigger, uint payload) private view returns(Transaction memory _transaction){
         
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
@@ -500,7 +500,7 @@ contract Clocktower {
     }
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) payable external {
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
@@ -555,7 +555,7 @@ contract Clocktower {
     }
 
     //REQUIRE maximum 100 transactions (based on gas limit per block)
-    function addBatchTransactions(Batch[] memory batch) payable external {
+    function addBatchTransactions(Batch[] memory batch) stopInEmergency payable external {
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
         require(((batch.length > 1) && (batch.length < 100)), "Batch must have more than one transaction and less than 100");
