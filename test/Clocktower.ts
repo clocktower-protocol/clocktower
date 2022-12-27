@@ -216,16 +216,6 @@ describe("Clocktower", function(){
     
 
     describe("Send Time", function(){
-        /*
-        it("Should output transactions", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await expect(
-                hardhatClocktower.sendTime()
-            ).to.emit(hardhatClocktower, "CheckStatus")
-            .withArgs("done");
-        })
-        */
-         
         
         it("Should send transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -244,18 +234,6 @@ describe("Clocktower", function(){
         })
         
     })
-
-    
-    describe("Time Functions", function() {
-        it("Should output hours", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-
-            expect(
-                await hardhatClocktower.hoursSinceMerge(currentTime)
-            )
-        })
-    })
-
     
     describe("Batch Functions", function() {
         it("Should add transactions", async function() {

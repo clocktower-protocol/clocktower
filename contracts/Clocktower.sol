@@ -81,8 +81,9 @@ contract Clocktower {
     //per account address per token balance
     mapping(address => mapping(address => uint)) tokenBalances;
 
-    //time triggers per account
-    //mapping(address => mapping(bytes32 =))
+    //existence mappings for accounts
+    //mapping(address => mapping(uint40 => bool)) triggerExists;
+    //mapping(address => mapping(address => bool)) tokenExists;
 
     //admin addresses
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
@@ -275,11 +276,11 @@ contract Clocktower {
         return fee;
     }
 
-    function getBalance() internal view returns (uint) {
+    function getBalance() private view returns (uint) {
         return address(this).balance;
     }
 
-    function getTokenBalance(address account, address token) internal view returns (uint) {
+    function getTokenBalance(address account, address token) private view returns (uint) {
         return tokenBalances[account][token];
     }
     //////////////////////
@@ -290,14 +291,14 @@ contract Clocktower {
     }
 
     //checks if value is in array
-    function isInTimeArray(uint40 value, uint40[] memory array) private pure returns (bool result) {
-        result = false;
+    function isInTimeArray(uint40 value, uint40[] memory array) private pure returns (bool) {
+    
         for(uint i; i < array.length; i++){
             if(array[i] == value) {
                     return true;
             }
         }
-        return false;
+        return false; 
     }
 
     //checks if value is in array
@@ -312,7 +313,7 @@ contract Clocktower {
     }
 
      //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) public pure returns(uint40 hourCount){
+    function hoursSinceMerge(uint40 unixTime) private pure returns(uint40 hourCount){
 
         hourCount = (unixTime - unixMergeTime)/3600;
 
@@ -391,8 +392,6 @@ contract Clocktower {
             account.timeTriggers.push() = timeTrigger;
             account.tokens.push() = token;
         } else {
-        
-            //updates timeTrigger Array and token array
 
             //gets lookup arrays from account struct
             uint40[] memory accountTriggers = account.timeTriggers;
@@ -590,6 +589,7 @@ contract Clocktower {
             //if time trigger is unique we put it in the list
             uint40 timeTrigger2 = hoursSinceMerge(batch[i].unixTime);
 
+            //batchTriggerList
             if(!isInTimeArray(timeTrigger2, batchTriggerList)) {
                 batchTriggerList[variables.uniqueTriggerCount] = timeTrigger2;
                 variables.uniqueTriggerCount += 1;
@@ -612,6 +612,7 @@ contract Clocktower {
             }
         }
 
+        
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
         
@@ -623,33 +624,34 @@ contract Clocktower {
             //stops when it hits empty part of array
             if(batchTriggerList[i] == 0) {
                 break;
-            } else {
+            }
 
-                //updates time triggers in map
+            //updates time triggers in map
 
-                //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-                Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
+            //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
+            Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
 
-                //creates transaction array
-                for(uint16 j = 0; j < batch.length; j++) {
+            //creates transaction array
+            for(uint16 j = 0; j < batch.length; j++) {
 
-                    uint40 time = hoursSinceMerge(batch[j].unixTime);
+                uint40 time = hoursSinceMerge(batch[j].unixTime);
 
-                    if(time == batchTriggerList[i]) {
-                        //creates internal transaction struct
-                        Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
+                if(time == batchTriggerList[i]) {
+                    //creates internal transaction struct
+                    Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
 
-                        transactionStorageArray.push() = transaction;
-                        //adds transaction to lookup
-                        transactionLookup.push() = transaction.id;
+                    transactionStorageArray.push() = transaction;
+                
+                    //adds transaction to lookup
+                    transactionLookup.push() = transaction.id;
                     }
-                }
+            }
 
-                timeMap[batchTriggerList[i]] = transactionStorageArray;
+            timeMap[batchTriggerList[i]] = transactionStorageArray;
 
-                if(!isInTimeArray(batchTriggerList[i], accountTriggers)) {
-                    account.timeTriggers.push() = batchTriggerList[i];
-                }
+                
+            if(!isInTimeArray(batchTriggerList[i], accountTriggers)) {
+                account.timeTriggers.push() = batchTriggerList[i];
             }
         }
 
@@ -659,6 +661,7 @@ contract Clocktower {
         //checks if token already exists or not and adds to account
         for(i = 0; i < batchTokenList.length; i++) {
 
+            
             if(!isInAddressArray(batchTokenList[i], accountTokens)) {
                 account.tokens.push() = batchTokenList[i];
             }

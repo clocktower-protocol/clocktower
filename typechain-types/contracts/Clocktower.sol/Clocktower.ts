@@ -132,7 +132,6 @@ export interface ClocktowerInterface extends utils.Interface {
     "getFee()": FunctionFragment;
     "getTime()": FunctionFragment;
     "getTransactionsByAccount(address)": FunctionFragment;
-    "hoursSinceMerge(uint40)": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "sendTime()": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
@@ -153,7 +152,6 @@ export interface ClocktowerInterface extends utils.Interface {
       | "getFee"
       | "getTime"
       | "getTransactionsByAccount"
-      | "hoursSinceMerge"
       | "removeERC20Contract"
       | "sendTime"
       | "toggleContractActive"
@@ -209,10 +207,6 @@ export interface ClocktowerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hoursSinceMerge",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "removeERC20Contract",
     values: [PromiseOrValue<string>]
   ): string;
@@ -260,10 +254,6 @@ export interface ClocktowerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTransactionsByAccount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "hoursSinceMerge",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -448,11 +438,6 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[Clocktower.TransactionStructOutput[]]>;
 
-    hoursSinceMerge(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number] & { hourCount: number }>;
-
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -525,11 +510,6 @@ export interface Clocktower extends BaseContract {
     overrides?: CallOverrides
   ): Promise<Clocktower.TransactionStructOutput[]>;
 
-  hoursSinceMerge(
-    unixTime: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   removeERC20Contract(
     erc20Contract: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -601,11 +581,6 @@ export interface Clocktower extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<Clocktower.TransactionStructOutput[]>;
-
-    hoursSinceMerge(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -706,11 +681,6 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    hoursSinceMerge(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -777,11 +747,6 @@ export interface Clocktower extends BaseContract {
 
     getTransactionsByAccount(
       account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hoursSinceMerge(
-      unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
