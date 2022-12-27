@@ -215,27 +215,29 @@ describe("Clocktower", function(){
     })
     
 
-    describe("Check Time", function(){
+    describe("Send Time", function(){
+        /*
         it("Should output transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await expect(
-                hardhatClocktower.checkTime()
+                hardhatClocktower.sendTime()
             ).to.emit(hardhatClocktower, "CheckStatus")
             .withArgs("done");
         })
+        */
          
         
         it("Should send transactions", async function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await time.increaseTo(1672563600);
             await expect(
-                hardhatClocktower.checkTime()
+                hardhatClocktower.sendTime()
             ).to.emit(hardhatClocktower, "TransactionSent")
             .withArgs(true);
         }) 
         it("Should send ether to addresses", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClocktower.checkTime();
+            await hardhatClocktower.sendTime();
             expect(
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
@@ -369,7 +371,7 @@ describe("Clocktower", function(){
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams)
             //moves time 2 hours to 2023/01/01 3:00
             await time.increaseTo(1672563600);
-            await hardhatClocktower.checkTime();
+            await hardhatClocktower.sendTime();
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
         })
 
