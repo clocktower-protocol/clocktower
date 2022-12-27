@@ -53,12 +53,6 @@ contract Clocktower {
     //batch variables
     struct BatchVariables {
         uint ethPayloads;
-        uint40[] accountTriggers;
-        //creates arrays for a list of tokens in batch sized to overall approved contract addresses
-        address[] batchTokenList;
-        //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
-        uint40[] batchTriggerList;
-        uint40 unixTime;
         uint uniqueTokenCount;
         uint uniqueTriggerCount;
     }
@@ -295,6 +289,28 @@ contract Clocktower {
         return block.timestamp;
     }
 
+    //checks if value is in array
+    function isInTimeArray(uint40 value, uint40[] memory array) private pure returns (bool result) {
+        result = false;
+        for(uint i; i < array.length; i++){
+            if(array[i] == value) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    //checks if value is in array
+    function isInAddressArray(address value, address[] memory array) private pure returns (bool result) {
+        result = false;
+        for(uint i; i < array.length; i++){
+            if(array[i] == value) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
      //converts time to hours after merge
     function hoursSinceMerge(uint40 unixTime) public pure returns(uint40 hourCount){
 
@@ -377,36 +393,18 @@ contract Clocktower {
         } else {
         
             //updates timeTrigger Array and token array
-            bool triggerExists = false;
-            bool tokenExists = false;
 
             //gets lookup arrays from account struct
             uint40[] memory accountTriggers = account.timeTriggers;
             address[] memory tokens = account.tokens;
 
-            //does the account already have transactions during this time period?
-            for(uint i; i < accountTriggers.length; i++){
-                if(accountTriggers[i] == timeTrigger) {
-                    triggerExists = true;
-                    break;
-                }
-            }
-
             //if doesn't already exist adds time trigger to account list
-            if(triggerExists == false) {
+            if(!isInTimeArray(timeTrigger, accountTriggers)) {
                 account.timeTriggers.push() = timeTrigger;
             }
 
-            //has this account done a transaction with this token before?
-            for(uint i; i < tokens.length; i++){
-                if(tokens[i] == token) {
-                    tokenExists = true;
-                    break;
-                }
-            }
-
             //if account hasn't done a transaction with this token yet it adds it to the list
-            if(tokenExists == false) {
+            if(!isInAddressArray(token, tokens)) {
                 account.tokens.push() = token;
             }
         }
@@ -566,42 +564,34 @@ contract Clocktower {
         //have to put top level function variables in a struct to avoid variable per function limit
         BatchVariables memory variables;
 
-        variables.ethPayloads  = 0;
+        //variables.ethPayloads;
 
         Account storage account = accountMap[msg.sender];
-        variables.accountTriggers = account.timeTriggers;
+        uint40[] memory accountTriggers = account.timeTriggers;
 
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
-        variables.batchTokenList = new address[](approvedERC20.length);
+        address[] memory batchTokenList = new address[](approvedERC20.length);
         //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
-        variables.batchTriggerList = new uint40[](account.timeTriggers.length + 100);
+        uint40[] memory batchTriggerList = new uint40[](account.timeTriggers.length + 100);
 
-        variables.unixTime = 0;
-
-        variables.uniqueTokenCount = 0;
-        variables.uniqueTriggerCount = 0;
+       // variables.uniqueTokenCount;
+       // variables.uniqueTriggerCount;
+       uint i;
 
         //validates data in each transaction and creates lists of unique tokens and timeTriggers
-        for(uint i = 0; i < batch.length; i++) {
+        for(i = 0; i < batch.length; i++) {
 
             //require transactions to be in the future and to be on the hour
             require(batch[i].unixTime > block.timestamp, "Time data must be in the future");
 
             require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
 
+            
             //if time trigger is unique we put it in the list
-            bool inList2 = false;
             uint40 timeTrigger2 = hoursSinceMerge(batch[i].unixTime);
-            //checks if already is in the list if not adds it
-            for(uint j = 0; j < variables.batchTriggerList.length; j++){ 
-                if(timeTrigger2 == variables.batchTriggerList[j]) {
-                    inList2 = true;
-                    break;
-                } 
-            }
 
-            if(!inList2) {
-                variables.batchTriggerList[variables.uniqueTriggerCount] = timeTrigger2;
+            if(!isInTimeArray(timeTrigger2, batchTriggerList)) {
+                batchTriggerList[variables.uniqueTriggerCount] = timeTrigger2;
                 variables.uniqueTriggerCount += 1;
             } 
             
@@ -615,24 +605,10 @@ contract Clocktower {
                 //check if token is on approved list
                 require(erc20IsApproved(batch[i].token)," Token not approved for this contract");
                
-                //if token is unique puts it in list
-                bool inList = false;
-            
-                //checks if already is in the list if not adds it
-                for(uint j = 0; j < variables.batchTokenList.length; j++){ 
-                    if(batch[i].token == variables.batchTokenList[j]) {
-                        inList = true;
-                        break;
-                    } 
-                }
-
-                if(!inList) {
-                    variables.batchTokenList[variables.uniqueTokenCount] = batch[i].token;
+                if(!isInAddressArray(batch[i].token, batchTokenList)) {
+                    batchTokenList[variables.uniqueTokenCount] = batch[i].token;
                     variables.uniqueTokenCount += 1;
                 } 
-                
-                //transfers token to contract
-                //require(ERC20(batch[i].token).transferFrom(msg.sender, address(this), batch[i].payload), "Problem transferring token");
             }
         }
 
@@ -642,24 +618,24 @@ contract Clocktower {
         require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
 
         //iterates through batch time triggers 
-        for(uint i; i < variables.batchTriggerList.length; i++) {
+        for(i = 0; i < batchTriggerList.length; i++) {
 
             //stops when it hits empty part of array
-            if(variables.batchTriggerList[i] == 0) {
+            if(batchTriggerList[i] == 0) {
                 break;
             } else {
 
                 //updates time triggers in map
 
                 //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-                Transaction[] storage transactionStorageArray = timeMap[variables.batchTriggerList[i]];
+                Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
 
                 //creates transaction array
                 for(uint16 j = 0; j < batch.length; j++) {
 
                     uint40 time = hoursSinceMerge(batch[j].unixTime);
 
-                    if(time == variables.batchTriggerList[i]) {
+                    if(time == batchTriggerList[i]) {
                         //creates internal transaction struct
                         Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
 
@@ -669,21 +645,10 @@ contract Clocktower {
                     }
                 }
 
-                timeMap[variables.batchTriggerList[i]] = transactionStorageArray; 
-                
-                //updates timeTriggers in account
-                bool triggerExists = false;
+                timeMap[batchTriggerList[i]] = transactionStorageArray;
 
-                //adds unique new timeTriggers to account list
-                for(uint j = 0; j < variables.accountTriggers.length; j++){
-                    if(variables.accountTriggers[j] == variables.batchTriggerList[i]) {
-                        triggerExists = true;
-                        break;
-                    }
-                 }
-
-                if(!triggerExists) {
-                    account.timeTriggers.push() = variables.batchTriggerList[i];
+                if(!isInTimeArray(batchTriggerList[i], accountTriggers)) {
+                    account.timeTriggers.push() = batchTriggerList[i];
                 }
             }
         }
@@ -692,18 +657,12 @@ contract Clocktower {
         address[] memory accountTokens = account.tokens;
         
         //checks if token already exists or not and adds to account
-        for(uint i; i < variables.batchTokenList.length; i++) {
-            bool tokenExists = false;
-            for(uint j; j < accountTokens.length; j++) {
-                if(accountTokens[j] == variables.batchTokenList[i]) {
-                    tokenExists = true;
-                    break;
-                } 
+        for(i = 0; i < batchTokenList.length; i++) {
+
+            if(!isInAddressArray(batchTokenList[i], accountTokens)) {
+                account.tokens.push() = batchTokenList[i];
             }
-            if(!tokenExists) {
-                account.tokens.push() = variables.batchTokenList[i];
-            }
-       }
+        }
         
         if(accountMap[msg.sender].exists == false) {
             account.accountAddress = msg.sender;
