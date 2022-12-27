@@ -36,7 +36,8 @@ contract Clocktower {
         address accountAddress;
         //string description;
         bool exists;
-        //indexs of timeTriggers and tokens stored per account
+        //indexs of timeTriggers and tokens stored per account. 
+        //Timetrigger to lookup transactions. Token index to lookup balances
         uint40[] timeTriggers;
         address[] tokens;
     }
@@ -730,7 +731,7 @@ contract Clocktower {
 
 
     //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
-    function checkTime() external isAdmin {
+    function sendTime() external isAdmin {
 
         //gets current time slot based on hour
         uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
@@ -741,8 +742,6 @@ contract Clocktower {
 
             //gets transaction array per time trigger
             Transaction[] memory _transactionArray = timeMap[i];
-
-            emit CheckStatus("done");
             
             //if block has transactions add them to transaction list
             if(_transactionArray.length > 0) {
@@ -759,5 +758,25 @@ contract Clocktower {
 
         //updates lastCheckedTimeSlot
         lastCheckedTimeSlot = _currentTimeSlot;
+    }
+
+    //view function that checks if any transactions are in line to be sent
+    function checkTime() external view isAdmin returns (bool) {
+         //gets current time slot based on hour
+        uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
+
+        require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
+
+        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
+
+            //gets transaction array per time trigger
+            Transaction[] memory _transactionArray = timeMap[i];
+
+            //if block has transactions add them to transaction list
+            if(_transactionArray.length > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
