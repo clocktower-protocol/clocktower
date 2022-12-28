@@ -333,8 +333,8 @@ describe("Clocktower", function(){
             let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams)
             let balances: any  = await hardhatClocktower.getAccountBalances();
-            expect(balances[0].balance).to.equal(ethers.utils.parseEther("2"));
-            expect(balances[1].balance).to.equal(eth);
+            expect(balances[0].scheduledBalance).to.equal(ethers.utils.parseEther("2"));
+            expect(balances[1].scheduledBalance).to.equal(eth);
         })
         it("Should deposit tokens", async function() {
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -342,7 +342,19 @@ describe("Clocktower", function(){
             let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
             await hardhatClocktower.deposit(hardhatCLOCKToken.address, signedPermit)
             let balances: any  = await hardhatClocktower.getAccountBalances();
-            expect(balances[1].balance).to.equal(eth)
+            expect(balances[1].availableBalance).to.equal(eth)
+        })
+        it("Should withdraw available tokens", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
+            await hardhatClocktower.deposit(hardhatCLOCKToken.address, signedPermit)
+            let balances: any  = await hardhatClocktower.getAccountBalances();
+            expect(balances[1].availableBalance).to.equal(eth)
+            await hardhatClocktower.withdraw(hardhatCLOCKToken.address,ethers.utils.parseEther("0.25"))
+            let balances2: any  = await hardhatClocktower.getAccountBalances();
+            expect(balances2[1].availableBalance).to.equal(ethers.utils.parseEther("0.75"))
+
         })
     })
     describe("ERC20 Functions", function() {
