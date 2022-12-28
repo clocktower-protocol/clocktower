@@ -100,10 +100,15 @@ describe("Clocktower", function(){
             value: eth
         }
 
-        //creates several transaactions to test transaction list
-        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, ethers.constants.AddressZero, permit, params2);
-        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, ethers.constants.AddressZero, permit ,params2);
+        //approves token
+        //await hardhatClocktower.addERC20Contract(hardhatCLOCKToken.address);
+         //signs permit
+         //let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
 
+        //creates several transaactions to test transaction list
+       // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
+        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, ethers.constants.AddressZero, permit ,params2);
+        await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, ethers.constants.AddressZero, permit ,params2);
     
 
         //moves time 2 hours to 2023/01/01 3:00
@@ -317,6 +322,22 @@ describe("Clocktower", function(){
             expect(returnTransactions.length).to.equal(3)
         })
        
+    })
+    describe("Deposit/Withdraw", function() {
+        const testParams = {
+            value: eth
+        };
+        it("Should get account balances", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams)
+            let balances: any  = await hardhatClocktower.getAccountBalances();
+            expect(balances[0].balance).to.equal(ethers.utils.parseEther("2"));
+            expect(balances[1].balance).to.equal(eth);
+        })
     })
     describe("ERC20 Functions", function() {
         const testParams = {
