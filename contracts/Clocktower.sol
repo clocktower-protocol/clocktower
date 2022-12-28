@@ -71,7 +71,8 @@ contract Clocktower {
     //Account Balance struct
     struct Balance {
         address token;
-        uint balance;
+        uint availableBalance;
+        uint scheduledBalance;
     }
 
     //Account map
@@ -84,8 +85,10 @@ contract Clocktower {
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
-    //per account address per token balance
-    mapping(address => mapping(address => uint)) tokenBalances;
+    //per account address per token balance for scheduled transactions
+    mapping(address => mapping(address => uint)) scheduledBalances;
+
+    mapping(address => mapping(address => uint)) availableBalances;
 
     //existence mappings for accounts
     //mapping(address => mapping(uint40 => bool)) triggerExists;
@@ -281,7 +284,8 @@ contract Clocktower {
             Balance memory balance; 
 
             balance.token = tokens[i];
-            balance.balance = tokenBalances[msg.sender][tokens[i]];
+            balance.availableBalance = availableBalances[msg.sender][tokens[i]];
+            balance.scheduledBalance = scheduledBalances[msg.sender][tokens[i]];
 
             balances[i] = balance;
         }
@@ -322,7 +326,7 @@ contract Clocktower {
         accountMap[msg.sender] = account;
 
         //updates token balance (and ETH at 0x0)
-        tokenBalances[msg.sender][token] += permit.value;
+        availableBalances[msg.sender][token] += permit.value;
 
         if(token != address(0)) {
             //uses permit to approve transfer
@@ -331,6 +335,29 @@ contract Clocktower {
             require(ERC20Permit(token).transferFrom(msg.sender, address(this), permit.value), "Problem transferring token");
         }
     } 
+
+    //TODO:
+    function withdraw(address token, uint amount) external payable {
+
+        require(availableBalances[msg.sender][token] >= amount, "Not enough available balance to withdraw");
+
+        availableBalances[msg.sender][token] -= amount;
+
+         //checks different things for ether and for erc20 
+        if(token == address(0)){
+            //checks contract has enough ETH
+            require(getBalance() > amount);
+            //checks transaction goes through
+            require(payable(msg.sender).send(amount));
+        } else {
+            //checks account has enough balance to send
+            require(ERC20Permit(token).balanceOf(address(this)) >= amount);
+
+            //checks transaction goes through
+            //transfers Token
+            require(ERC20Permit(token).approve(address(this), amount) && ERC20Permit(token).transferFrom(address(this), msg.sender, amount));
+        }
+    }
 
     //-----------------------------------------------------
 
@@ -357,7 +384,7 @@ contract Clocktower {
     }
 
     function getTokenBalance(address account, address token) private view returns (uint) {
-        return tokenBalances[account][token];
+        return scheduledBalances[account][token];
     }
     //////////////////////
 
@@ -511,6 +538,10 @@ contract Clocktower {
         }
 
         timeMap[timeTrigger] = timeStorageT;
+
+        //decreases balance
+        //updates token balance (and ETH at 0x0)
+        scheduledBalances[msg.sender][transaction.token] -= transaction.payload;
         
         //checks different things for ether and for erc20 
         if(transaction.token == address(0)){
@@ -560,6 +591,9 @@ contract Clocktower {
 
         //puts back in map
         timeMap[transaction.timeTrigger] = timeStorageT;
+
+        //decreases balances
+        scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
        
         //sends at the end to avoid re-entry attack
         if(transaction.token == address(0)){
@@ -620,7 +654,7 @@ contract Clocktower {
         addAccountTransaction(timeTrigger, token); 
 
         //updates token balance (and ETH at 0x0)
-        tokenBalances[msg.sender][token] += payload;
+        scheduledBalances[msg.sender][token] += payload;
 
         if(token != address(0)) {
             //uses permit to approve transfer
@@ -757,7 +791,7 @@ contract Clocktower {
         for(uint k = 0; k < batch.length; k++) {
 
             //updates token balance (and ETH balance at 0x0)
-            tokenBalances[msg.sender][batch[k].token] += batch[k].payload;
+            scheduledBalances[msg.sender][batch[k].token] += batch[k].payload;
 
             if(batch[k].token != address(0)) {
 
