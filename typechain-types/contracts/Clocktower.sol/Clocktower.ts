@@ -138,6 +138,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
     "checkTime()": FunctionFragment;
+    "deposit(address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "getAccountBalances()": FunctionFragment;
     "getAccountTransactions()": FunctionFragment;
     "getFee()": FunctionFragment;
@@ -159,6 +160,7 @@ export interface ClocktowerInterface extends utils.Interface {
       | "changeAdmin"
       | "changeFee"
       | "checkTime"
+      | "deposit"
       | "getAccountBalances"
       | "getAccountTransactions"
       | "getFee"
@@ -208,6 +210,10 @@ export interface ClocktowerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deposit",
+    values: [PromiseOrValue<string>, Clocktower.PermitStruct]
+  ): string;
   encodeFunctionData(
     functionFragment: "getAccountBalances",
     values?: undefined
@@ -262,6 +268,7 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "changeFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountBalances",
     data: BytesLike
@@ -445,6 +452,12 @@ export interface Clocktower extends BaseContract {
 
     checkTime(overrides?: CallOverrides): Promise<[boolean]>;
 
+    deposit(
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     getAccountBalances(
       overrides?: CallOverrides
     ): Promise<[Clocktower.BalanceStructOutput[]]>;
@@ -521,6 +534,12 @@ export interface Clocktower extends BaseContract {
 
   checkTime(overrides?: CallOverrides): Promise<boolean>;
 
+  deposit(
+    token: PromiseOrValue<string>,
+    permit: Clocktower.PermitStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   getAccountBalances(
     overrides?: CallOverrides
   ): Promise<Clocktower.BalanceStructOutput[]>;
@@ -596,6 +615,12 @@ export interface Clocktower extends BaseContract {
     ): Promise<void>;
 
     checkTime(overrides?: CallOverrides): Promise<boolean>;
+
+    deposit(
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     getAccountBalances(
       overrides?: CallOverrides
@@ -702,6 +727,12 @@ export interface Clocktower extends BaseContract {
 
     checkTime(overrides?: CallOverrides): Promise<BigNumber>;
 
+    deposit(
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     getAccountBalances(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccountTransactions(overrides?: CallOverrides): Promise<BigNumber>;
@@ -770,6 +801,12 @@ export interface Clocktower extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     checkTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deposit(
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     getAccountBalances(
       overrides?: CallOverrides

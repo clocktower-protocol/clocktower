@@ -266,7 +266,7 @@ contract Clocktower {
 
     //ACCOUNT FUNCTIONS------------------------------------
 
-    //returns an array of structs with balances
+    //returns an array of structs of token types with balances
     function getAccountBalances() external view returns(Balance[] memory){
 
         address[] memory tokens = new address[](accountMap[msg.sender].tokens.length);
@@ -288,6 +288,49 @@ contract Clocktower {
 
         return balances;
     }
+
+    function deposit(address token, Permit calldata permit) external payable {
+         
+        //if ERC20 
+        if(token != address(0)){
+        //check if token is on approved list
+            require(erc20IsApproved(token)," Token not approved for this contract");
+        }
+
+        //adds or updates account
+        Account storage account = accountMap[msg.sender];
+
+        //new account
+        if(accountMap[msg.sender].exists == false) {
+            account.accountAddress = msg.sender;
+            //adds to lookup table
+            accountLookup.push() = account.accountAddress;
+            account.exists = true;
+            account.tokens.push() = token;
+        } else {
+
+            //gets lookup arrays from account struct
+            address[] memory tokens = account.tokens;
+
+            //if account hasn't done a transaction with this token yet it adds it to the list
+            if(!isInAddressArray(token, tokens)) {
+                account.tokens.push() = token;
+            }
+        }
+
+        //adds account to account map
+        accountMap[msg.sender] = account;
+
+        //updates token balance (and ETH at 0x0)
+        tokenBalances[msg.sender][token] += permit.value;
+
+        if(token != address(0)) {
+            //uses permit to approve transfer
+            ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
+            //transfers token to contract (done at end to avoid re-entrancy attack)
+            require(ERC20Permit(token).transferFrom(msg.sender, address(this), permit.value), "Problem transferring token");
+        }
+    } 
 
     //-----------------------------------------------------
 
@@ -547,8 +590,8 @@ contract Clocktower {
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
 
-            //transfers token to contract
-           // require(ERC20(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+            //requires payload to be the same as permit value
+            require(payload == permit.value, "Payload must be the same as value permitted");
         }
         
         //calculates hours since merge from passed unixTime

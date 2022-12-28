@@ -329,14 +329,20 @@ describe("Clocktower", function(){
         };
         it("Should get account balances", async function() {
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            
-            
             await hardhatClocktower.addERC20Contract(clockTokenAddress)
             let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams)
             let balances: any  = await hardhatClocktower.getAccountBalances();
             expect(balances[0].balance).to.equal(ethers.utils.parseEther("2"));
             expect(balances[1].balance).to.equal(eth);
+        })
+        it("Should deposit tokens", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
+            await hardhatClocktower.deposit(hardhatCLOCKToken.address, signedPermit)
+            let balances: any  = await hardhatClocktower.getAccountBalances();
+            expect(balances[1].balance).to.equal(eth)
         })
     })
     describe("ERC20 Functions", function() {
