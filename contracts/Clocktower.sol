@@ -68,6 +68,12 @@ contract Clocktower {
         bytes32 s;
     }
 
+    //Account Balance struct
+    struct Balance {
+        address token;
+        uint balance;
+    }
+
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
@@ -257,6 +263,33 @@ contract Clocktower {
     }
     
     //**************************************************
+
+    //ACCOUNT FUNCTIONS------------------------------------
+
+    //returns an array of structs with balances
+    function getAccountBalances() external view returns(Balance[] memory){
+
+        address[] memory tokens = new address[](accountMap[msg.sender].tokens.length);
+
+        tokens = accountMap[msg.sender].tokens;
+
+        Balance[] memory balances = new Balance[](tokens.length);
+
+        for(uint i; i < accountMap[msg.sender].tokens.length; i++) {
+
+            
+            Balance memory balance; 
+
+            balance.token = tokens[i];
+            balance.balance = tokenBalances[msg.sender][tokens[i]];
+
+            balances[i] = balance;
+        }
+
+        return balances;
+    }
+
+    //-----------------------------------------------------
 
     //UTILITY FUNCTIONS-----------------------------------
    
