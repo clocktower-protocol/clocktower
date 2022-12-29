@@ -91,9 +91,11 @@ contract Clocktower {
     bytes32[] private transactionLookup;
 
     //per account address per token balance for scheduled transactions
-    mapping(address => mapping(address => uint)) scheduledBalances;
+    //mapping(address => mapping(address => uint)) scheduledBalances;
 
-    //mapping(address => mapping(address => uint)) availableBalances;
+    //TODO: might be a more gas efficient way to do this
+    //mapping for token totals
+    mapping(address => mapping(address => uint)) tokenTotals;
     
     //&&
     //failed transaction array
@@ -387,9 +389,11 @@ contract Clocktower {
         return address(this).balance;
     }
 
+    /*
     function getTokenBalance(address account, address token) private view returns (uint) {
         return scheduledBalances[account][token];
     }
+    */
     //////////////////////
 
     //gets time TESTING FUNCTION
@@ -545,7 +549,7 @@ contract Clocktower {
 
         //decreases balance
         //updates token balance (and ETH at 0x0)
-        scheduledBalances[msg.sender][transaction.token] -= transaction.payload;
+        //scheduledBalances[msg.sender][transaction.token] -= transaction.payload;
         
         //checks different things for ether and for erc20 
         if(transaction.token == address(0)){
@@ -577,7 +581,7 @@ contract Clocktower {
 
         //TODO: eventually get rid of balance
         //checks contract has enough ETH and sender has enough balance
-        require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
+        //require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
 
         //makes sure contract has enough ETH or tokens to pay for transaction
         if(transaction.token == address(0)) {
@@ -615,7 +619,7 @@ contract Clocktower {
         timeMap[transaction.timeTrigger] = timeStorageT;
 
         //decreases balances
-        scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
+        //scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
        
         //sends at the end to avoid re-entry attack
         if(transaction.token == address(0)){
@@ -680,7 +684,7 @@ contract Clocktower {
         addAccountTransaction(timeTrigger, token); 
 
         //updates token balance (and ETH at 0x0)
-        scheduledBalances[msg.sender][token] += payload;
+        //scheduledBalances[msg.sender][token] += payload;
 
         if(token != address(0)) {
             //uses permit to approve transfer
@@ -702,6 +706,7 @@ contract Clocktower {
         //have to put top level function variables in a struct to avoid variable per function limit
         BatchVariables memory variables;
 
+
         //variables.ethPayloads;
 
         Account storage account = accountMap[msg.sender];
@@ -709,7 +714,6 @@ contract Clocktower {
 
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
         address[] memory batchTokenList = new address[](approvedERC20.length);
-        uint[] memory batchTokenTotal = new uint[](approvedERC20.length);
 
         //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
         uint40[] memory batchTriggerList = new uint40[](account.timeTriggers.length + 100);
@@ -753,7 +757,7 @@ contract Clocktower {
             }
 
             //updates token balance (and ETH balance at 0x0)
-            scheduledBalances[msg.sender][batch[i].token] += batch[i].payload;
+            tokenTotals[msg.sender][batch[i].token] += batch[i].payload;
         }
 
         
@@ -806,14 +810,10 @@ contract Clocktower {
         //checks if token already exists or not and adds to account
         for(i = 0; i < batchTokenList.length; i++) {
 
-            //TODO:
             //checks that user has set allowance to contract high enough for each token
             if(batchTokenList[i] != address(0)) {
                 //checks that allowances were set correctly
-                require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= scheduledBalances[msg.sender][batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= scheduledBalances[msg.sender][batchTokenList[i]]);
-                console.log(scheduledBalances[msg.sender][batchTokenList[i]]);
-                console.log(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)));
-
+                require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= tokenTotals[msg.sender][batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= tokenTotals[msg.sender][batchTokenList[i]]);
             }
     
             if(!isInAddressArray(batchTokenList[i], accountTokens)) {
