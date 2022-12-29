@@ -336,7 +336,6 @@ contract Clocktower {
         }
     } 
 
-    //TODO:
     function withdraw(address token, uint amount) external payable {
 
         require(availableBalances[msg.sender][token] >= amount, "Not enough available balance to withdraw");
