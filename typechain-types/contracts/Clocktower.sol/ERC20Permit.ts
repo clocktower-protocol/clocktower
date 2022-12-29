@@ -25,6 +25,7 @@ import type {
 
 export interface ERC20PermitInterface extends utils.Interface {
   functions: {
+    "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
@@ -32,9 +33,18 @@ export interface ERC20PermitInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "approve" | "balanceOf" | "permit" | "transferFrom"
+    nameOrSignatureOrTopic:
+      | "allowance"
+      | "approve"
+      | "balanceOf"
+      | "permit"
+      | "transferFrom"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "allowance",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -64,6 +74,7 @@ export interface ERC20PermitInterface extends utils.Interface {
     ]
   ): string;
 
+  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
@@ -102,6 +113,12 @@ export interface ERC20Permit extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    allowance(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     approve(
       spender: PromiseOrValue<string>,
       tokens: PromiseOrValue<BigNumberish>,
@@ -131,6 +148,12 @@ export interface ERC20Permit extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  allowance(
+    owner: PromiseOrValue<string>,
+    spender: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   approve(
     spender: PromiseOrValue<string>,
@@ -162,6 +185,12 @@ export interface ERC20Permit extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    allowance(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     approve(
       spender: PromiseOrValue<string>,
       tokens: PromiseOrValue<BigNumberish>,
@@ -195,6 +224,12 @@ export interface ERC20Permit extends BaseContract {
   filters: {};
 
   estimateGas: {
+    allowance(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     approve(
       spender: PromiseOrValue<string>,
       tokens: PromiseOrValue<BigNumberish>,
@@ -226,6 +261,12 @@ export interface ERC20Permit extends BaseContract {
   };
 
   populateTransaction: {
+    allowance(
+      owner: PromiseOrValue<string>,
+      spender: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     approve(
       spender: PromiseOrValue<string>,
       tokens: PromiseOrValue<BigNumberish>,
