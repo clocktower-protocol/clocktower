@@ -323,6 +323,7 @@ describe("Clocktower", function(){
         })
        
     })
+    /*
     describe("Deposit/Withdraw", function() {
         const testParams = {
             value: eth
@@ -357,6 +358,7 @@ describe("Clocktower", function(){
 
         })
     })
+    */
     describe("ERC20 Functions", function() {
         const testParams = {
             value: eth
