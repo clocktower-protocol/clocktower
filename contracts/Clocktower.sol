@@ -10,6 +10,7 @@ abstract contract ERC20Permit{
   function balanceOf(address tokenOwner) public virtual returns (uint);
   function approve(address spender, uint tokens) public virtual returns (bool);
   function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public virtual;
+  function allowance(address owner, address spender) public virtual returns (uint);
 } 
 
 contract Clocktower {
@@ -27,6 +28,7 @@ contract Clocktower {
         uint40 timeTrigger;
         bool sent;
         bool cancelled;
+        bool failed;
         //amount of ether or token sent in wei
         uint payload;
     }
@@ -48,6 +50,7 @@ contract Clocktower {
         uint40 unixTime;
         uint payload;
         address token;
+        Permit permit;
     }
 
     //batch variables
@@ -470,7 +473,7 @@ contract Clocktower {
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
-            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, false, payload);
 
             return _transaction;
     }
@@ -561,6 +564,9 @@ contract Clocktower {
 
         //TODO: could change from send bool to transaction confirm hash
 
+        bool hasFailed = false;
+
+        //TODO: eventually get rid of balance
         //checks contract has enough ETH and sender has enough balance
         require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
 
@@ -568,7 +574,15 @@ contract Clocktower {
         if(transaction.token == address(0)) {
             require(getBalance() > transaction.payload);
         } else {
-            require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
+
+            //makes sure sender has enough tokens allocated
+            //require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
+            
+            //&&
+            //if account doesn't have enough allowance or balance mark as failed
+            if(ERC20Permit(transaction.token).allowance(transaction.sender, transaction.receiver) < transaction.payload && ERC20Permit(transaction.token).balanceOf(transaction.sender) < transaction.payload) {
+                hasFailed = true;
+            }
         }
 
         Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
@@ -578,7 +592,11 @@ contract Clocktower {
         for(uint i = 0; i < timeTransactions.length; i++) {
             if(timeTransactions[i].id == transaction.id){
                 transaction = timeTransactions[i];
-                transaction.sent = true;
+                if(hasFailed) {
+                    transaction.failed = true;
+                } else {
+                    transaction.sent = true;
+                }
                 timeStorageT[i] = transaction;
                 break;
             }
@@ -598,8 +616,12 @@ contract Clocktower {
             require(success, "Transfer failed.");
             emit TransactionSent(true);
         } else {
-            //transfers Token
-            require(ERC20Permit(transaction.token).approve(address(this), transaction.payload) && ERC20Permit(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
+            
+            //&&
+            if(!hasFailed) {
+                //transfers Token
+                require(ERC20Permit(transaction.token).transferFrom(transaction.sender, transaction.receiver, transaction.payload));
+            }
         }
        
     }
@@ -620,7 +642,7 @@ contract Clocktower {
             require(erc20IsApproved(token)," Token not approved for this contract");
 
             //requires payload to be the same as permit value
-            require(payload == permit.value, "Payload must be the same as value permitted");
+            require(payload <= permit.value, "Payload must be the same as value permitted");
         }
         
         //calculates hours since merge from passed unixTime
@@ -654,8 +676,10 @@ contract Clocktower {
         if(token != address(0)) {
             //uses permit to approve transfer
             ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
+
+            //&&  
             //transfers token to contract (done at end to avoid re-entrancy attack)
-            require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+           // require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
     }
 
@@ -765,8 +789,7 @@ contract Clocktower {
         
         //checks if token already exists or not and adds to account
         for(i = 0; i < batchTokenList.length; i++) {
-
-            
+    
             if(!isInAddressArray(batchTokenList[i], accountTokens)) {
                 account.tokens.push() = batchTokenList[i];
             }
@@ -790,8 +813,12 @@ contract Clocktower {
 
             if(batch[k].token != address(0)) {
 
+                //&&
+                //uses permit to approve transfers
+                ERC20Permit(batch[k].token).permit(batch[k].permit.owner, batch[k].permit.spender, batch[k].permit.value, batch[k].permit.deadline, batch[k].permit.v, batch[k].permit.r, batch[k].permit.s);
+
                 //transfers token to contract
-                require(ERC20Permit(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
+               // require(ERC20Permit(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
             }
         }
     }
