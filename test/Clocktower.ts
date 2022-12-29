@@ -256,6 +256,8 @@ describe("Clocktower", function(){
 
             let transactions = [transaction1, transaction2, transaction3]
 
+           // let transactions = [transaction1]
+
             //adds CLOCK to approved tokens
             await hardhatClocktower.addERC20Contract(clockTokenAddress)
             await hardhatClocktower.addERC20Contract(daiAddress)
@@ -264,8 +266,8 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.approve(hardhatClocktower.address, eths)
 
             //add batch
-           // await hardhatClocktower.addBatchTransactions(transactions, testParams)
-           await hardhatClocktower.addBatchTransactions(transactions)
+            // await hardhatClocktower.addBatchTransactions(transactions, testParams)
+            await hardhatClocktower.addBatchTransactions(transactions)
 
             let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
 
