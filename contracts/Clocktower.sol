@@ -88,11 +88,7 @@ contract Clocktower {
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) scheduledBalances;
 
-    mapping(address => mapping(address => uint)) availableBalances;
-
-    //existence mappings for accounts
-    //mapping(address => mapping(uint40 => bool)) triggerExists;
-    //mapping(address => mapping(address => bool)) tokenExists;
+    //mapping(address => mapping(address => uint)) availableBalances;
 
     //admin addresses
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
@@ -268,7 +264,7 @@ contract Clocktower {
     //**************************************************
 
     //ACCOUNT FUNCTIONS------------------------------------
-
+/*
     //returns an array of structs of token types with balances
     function getAccountBalances() external view returns(Balance[] memory){
 
@@ -357,7 +353,7 @@ contract Clocktower {
             require(ERC20Permit(token).approve(address(this), amount) && ERC20Permit(token).transferFrom(address(this), msg.sender, amount));
         }
     }
-
+*/
     //-----------------------------------------------------
 
     //UTILITY FUNCTIONS-----------------------------------
