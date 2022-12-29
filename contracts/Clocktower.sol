@@ -819,6 +819,10 @@ contract Clocktower {
             if(!isInAddressArray(batchTokenList[i], accountTokens)) {
                 account.tokens.push() = batchTokenList[i];
             }
+
+            //resets tokenTotal
+            tokenTotals[msg.sender][batchTokenList[i]] = 0;
+
         }
         
         if(accountMap[msg.sender].exists == false) {
