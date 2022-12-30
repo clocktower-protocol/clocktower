@@ -48,8 +48,9 @@ describe("Clocktower", function(){
     //function that creates permit
     async function setPermit(owner:any , spender: string, value: string, deadline: number) {
         
-        let _value = String(ethers.utils.parseEther(value))
-        
+        //let _value = String(ethers.utils.parseEther(value))
+        let Big2 = ethers.BigNumber.from(2);
+        let _value = String(Big2.pow(255));
         //signs permit
         const result = await signERC2612Permit(
             owner,
@@ -388,12 +389,15 @@ describe("Clocktower", function(){
             //await hardhatCLOCKToken.approve(hardhatClocktower.address, eth)
             //signs permit
             let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
-
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams)
+            let signedPermit2 = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
+            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit2, testParams)
+
             //moves time 2 hours to 2023/01/01 3:00
-            await time.increaseTo(1672563600);
+            //await time.increaseTo(1672563600);
+            await time.increaseTo(twoHoursAhead);
             await hardhatClocktower.sendTime();
-            //expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(eth)
+            expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(ethers.utils.parseEther("2.0"))
         })
 
         it("Should accept Permit signatures", async function() {
