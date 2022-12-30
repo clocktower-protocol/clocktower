@@ -41,7 +41,7 @@ contract Clocktower {
         //indexs of timeTriggers and tokens stored per account. 
         //Timetrigger to lookup transactions. Token index to lookup balances
         uint40[] timeTriggers;
-        address[] tokens;
+       // address[] tokens;
     }
 
     //batch struct
@@ -50,7 +50,6 @@ contract Clocktower {
         uint40 unixTime;
         uint payload;
         address token;
-        //Permit permit;
     }
 
     //batch variables
@@ -59,7 +58,6 @@ contract Clocktower {
         uint uniqueTokenCount;
         uint uniqueTriggerCount;
         uint40[] accountTriggers;
-        
     }
 
     //Permit struct
@@ -73,12 +71,17 @@ contract Clocktower {
         bytes32 s;
     }
 
+    //TODO: Subscription struct
+    
+
+    /*
     //Account Balance struct
     struct Balance {
         address token;
         uint availableBalance;
         uint scheduledBalance;
     }
+    */
 
     //Account map
     mapping(address => Account) private accountMap;
@@ -89,6 +92,8 @@ contract Clocktower {
     mapping(uint40 => Transaction[]) private timeMap;
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
+
+    //TODO: Subscription maps daily, quarterly, yearly
 
     //per account address per token balance for scheduled transactions
     //mapping(address => mapping(address => uint)) scheduledBalances;
@@ -489,7 +494,7 @@ contract Clocktower {
     }
 
     //------------------------------------------------------------
-    function addAccountTransaction(uint40 timeTrigger, address token) private {
+    function addAccountTransaction(uint40 timeTrigger) private {
         
         //adds or updates account
         Account storage account = accountMap[msg.sender];
@@ -501,22 +506,24 @@ contract Clocktower {
             accountLookup.push() = account.accountAddress;
             account.exists = true;
             account.timeTriggers.push() = timeTrigger;
-            account.tokens.push() = token;
+           // account.tokens.push() = token;
         } else {
 
             //gets lookup arrays from account struct
             uint40[] memory accountTriggers = account.timeTriggers;
-            address[] memory tokens = account.tokens;
+            //address[] memory tokens = account.tokens;
 
             //if doesn't already exist adds time trigger to account list
             if(!isInTimeArray(timeTrigger, accountTriggers)) {
                 account.timeTriggers.push() = timeTrigger;
             }
 
+            /*
             //if account hasn't done a transaction with this token yet it adds it to the list
             if(!isInAddressArray(token, tokens)) {
                 account.tokens.push() = token;
             }
+            */
         }
 
         //adds account to account map
@@ -681,7 +688,7 @@ contract Clocktower {
         timeMap[timeTrigger] = timeStorageArray;   
 
         //creates or updates account
-        addAccountTransaction(timeTrigger, token); 
+        addAccountTransaction(timeTrigger); 
 
         //updates token balance (and ETH at 0x0)
         //scheduledBalances[msg.sender][token] += payload;
@@ -799,13 +806,15 @@ contract Clocktower {
             timeMap[batchTriggerList[i]] = transactionStorageArray;
 
                 
+            /*
             if(!isInTimeArray(batchTriggerList[i], variables.accountTriggers)) {
                 account.timeTriggers.push() = batchTriggerList[i];
             }
+            */
         }
         
         //updates account
-        address[] memory accountTokens = account.tokens;
+        //address[] memory accountTokens = account.tokens;
         
         //checks if token already exists or not and adds to account
         for(i = 0; i < batchTokenList.length; i++) {
@@ -816,9 +825,11 @@ contract Clocktower {
                 require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= tokenTotals[msg.sender][batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= tokenTotals[msg.sender][batchTokenList[i]]);
             }
     
+            /*
             if(!isInAddressArray(batchTokenList[i], accountTokens)) {
                 account.tokens.push() = batchTokenList[i];
             }
+            */
 
             //resets tokenTotal
             tokenTotals[msg.sender][batchTokenList[i]] = 0;

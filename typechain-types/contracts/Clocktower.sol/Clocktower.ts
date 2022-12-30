@@ -75,14 +75,12 @@ export declare namespace Clocktower {
     accountAddress: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
     timeTriggers: PromiseOrValue<BigNumberish>[];
-    tokens: PromiseOrValue<string>[];
   };
 
-  export type AccountStructOutput = [string, boolean, number[], string[]] & {
+  export type AccountStructOutput = [string, boolean, number[]] & {
     accountAddress: string;
     exists: boolean;
     timeTriggers: number[];
-    tokens: string[];
   };
 
   export type TransactionStruct = {
