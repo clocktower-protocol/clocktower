@@ -579,6 +579,7 @@ contract Clocktower {
 
     }
 
+    //TODO: need to update this to combine transfers into a single transaction to save lots of gas
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
 
@@ -602,48 +603,51 @@ contract Clocktower {
             //if account doesn't have enough allowance or balance mark as failed
             if(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)) < transaction.payload || ERC20Permit(transaction.token).balanceOf(transaction.sender) < transaction.payload) {
                 hasFailed = true;
+                console.log(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)));
             }
         }
 
-        Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
-        Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
+        if(!hasFailed){
 
-        //loops through time transactions to stamp sent one
-        for(uint i = 0; i < timeTransactions.length; i++) {
-            if(timeTransactions[i].id == transaction.id){
-                transaction = timeTransactions[i];
-                if(hasFailed) {
-                    transaction.failed = true;
-                } else {
-                    transaction.sent = true;
+            Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
+            Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
+
+            //loops through time transactions to stamp sent one
+            for(uint i = 0; i < timeTransactions.length; i++) {
+                if(timeTransactions[i].id == transaction.id){
+                    transaction = timeTransactions[i];
+                    if(hasFailed) {
+                        transaction.failed = true;
+                    } else {
+                        transaction.sent = true;
+                    }
+                    timeStorageT[i] = transaction;
+                    break;
                 }
-                timeStorageT[i] = transaction;
-                break;
+            }
+
+            //puts back in map
+            timeMap[transaction.timeTrigger] = timeStorageT;
+
+            //decreases balances
+            //scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
+        
+            //sends at the end to avoid re-entry attack
+            if(transaction.token == address(0)){
+                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
+                //(bool success, ) = transaction.receiver.call{value:transaction.payload}("");
+                bool success = transaction.receiver.send(transaction.payload);
+                require(success, "Transfer failed.");
+                emit TransactionSent(true);
+            } else {
+                //&&
+            // if(!hasFailed) {
+                   // console.log(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)));
+                    //transfers Token
+                    require(ERC20Permit(transaction.token).transferFrom(transaction.sender, transaction.receiver, transaction.payload));
+            // }
             }
         }
-
-        //puts back in map
-        timeMap[transaction.timeTrigger] = timeStorageT;
-
-        //decreases balances
-        //scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
-       
-        //sends at the end to avoid re-entry attack
-        if(transaction.token == address(0)){
-            //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
-            //(bool success, ) = transaction.receiver.call{value:transaction.payload}("");
-            bool success = transaction.receiver.send(transaction.payload);
-            require(success, "Transfer failed.");
-            emit TransactionSent(true);
-        } else {
-            
-            //&&
-            if(!hasFailed) {
-                //transfers Token
-                require(ERC20Permit(transaction.token).transferFrom(transaction.sender, transaction.receiver, transaction.payload));
-            }
-        }
-       
     }
 
     //adds to list of transactions 
