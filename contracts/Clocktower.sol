@@ -26,9 +26,9 @@ contract Clocktower {
         address payable receiver;
         address token;
         uint40 timeTrigger;
-        bool sent;
+        //bool sent;
         //bool cancelled;
-        bool failed;
+        //bool failed;
         //amount of ether or token sent in wei
         uint payload;
     }
@@ -571,7 +571,7 @@ contract Clocktower {
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
-            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, payload);
 
             return _transaction;
     }
@@ -698,9 +698,7 @@ contract Clocktower {
 
    // }
     
-
-    //TODO: need to update this to combine transfers into a single transaction to save lots of gas
-    //TODO: also need to delete sent transactions to save gas
+    //TODO: could add emit of transaction confirm hash
     function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
 
         uint ethTotal;
@@ -742,10 +740,9 @@ contract Clocktower {
         }        
     }
     
+    /*
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
-
-        //TODO: could change from send bool to transaction confirm hash
 
         bool hasFailed = false;
 
@@ -810,6 +807,7 @@ contract Clocktower {
             }
         }
     }
+    */
 
     //adds to list of transactions 
     function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
