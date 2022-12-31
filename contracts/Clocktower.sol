@@ -27,7 +27,7 @@ contract Clocktower {
         address token;
         uint40 timeTrigger;
         bool sent;
-        bool cancelled;
+        //bool cancelled;
         bool failed;
         //amount of ether or token sent in wei
         uint payload;
@@ -398,7 +398,7 @@ contract Clocktower {
 
             }
     }
-    //TODO:
+    
     function removeTransaction(bytes32 id, uint40 unixTrigger) external {
 
         uint40 timeTrigger = hoursSinceMerge(unixTrigger);
@@ -423,7 +423,6 @@ contract Clocktower {
                 ownedCount++;
             }
             if(transactions[i].id == id) {
-                console.log("Here");
                 index = i;
                 delete transactions[i];
             }
@@ -556,7 +555,7 @@ contract Clocktower {
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
-            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, payload);
 
             return _transaction;
     }
@@ -597,6 +596,8 @@ contract Clocktower {
         //adds account to account map
         accountMap[msg.sender] = account;
     }
+
+    /*
 
     //cancels transaction and refunds money if ethereum
     function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
@@ -645,7 +646,8 @@ contract Clocktower {
 
         //timeMap[timeTrigger] = timeStorageT;
 
-    }
+   // }
+    
 
     //TODO: need to update this to combine transfers into a single transaction to save lots of gas
     //sends transaction
@@ -655,7 +657,6 @@ contract Clocktower {
 
         bool hasFailed = false;
 
-        //TODO: eventually get rid of balance
         //checks contract has enough ETH and sender has enough balance
         //require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
 
@@ -963,12 +964,10 @@ contract Clocktower {
                 //iterates through transaction array
                 for(uint h = 0; h < (_transactionArray.length); h++){
                     //excludes cancelled transactions
-                    if(!_transactionArray[h].cancelled){
+                    //if(!_transactionArray[h].cancelled){
                         //sends transactions
                         sendTransaction(_transactionArray[h]);
-                    } else {
-
-                    }
+                   // } 
                 }              
             }           
         }
