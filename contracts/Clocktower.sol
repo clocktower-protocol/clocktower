@@ -90,6 +90,7 @@ contract Clocktower {
 
     //Map of transactions based on hour to be sent
     mapping(uint40 => Transaction[]) private timeMap;
+    //FIXME: need to delete item in removeTransaction function
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
@@ -401,8 +402,6 @@ contract Clocktower {
     
     function removeTransaction(bytes32 id, uint40 timeTrigger) private {
 
-        //uint40 timeTrigger = hoursSinceMerge(unixTrigger);
-
         //if only one transaction in array deletes entire array
         if(timeMap[timeTrigger].length == 1){
             delete timeMap[timeTrigger];
@@ -412,6 +411,8 @@ contract Clocktower {
         }
 
         Transaction[] storage transactions = timeMap[timeTrigger];
+        //Transaction[] memory totalTransactions = transactionLookup;
+
         uint index;
         uint ownedCount;
         
@@ -438,6 +439,19 @@ contract Clocktower {
             removeAccountTriggerItem(timeTrigger);
         }
 
+        uint index2;
+
+        //removes id from lookup
+        for(uint i; i < transactionLookup.length; i++){
+            if(transactionLookup[i] == id) {
+                index2 = i;
+                break;
+            }
+        }
+
+        //copies last element into gap and pops last element
+        transactionLookup[index2] = transactionLookup[transactionLookup.length - 1];
+        transactionLookup.pop();
     }
 
    
@@ -453,6 +467,7 @@ contract Clocktower {
         }
     }
 
+    
     function getFee() external view returns (uint) {
         return fee;
     }
