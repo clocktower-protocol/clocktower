@@ -90,7 +90,6 @@ export declare namespace Clocktower {
     token: PromiseOrValue<string>;
     timeTrigger: PromiseOrValue<BigNumberish>;
     sent: PromiseOrValue<boolean>;
-    cancelled: PromiseOrValue<boolean>;
     failed: PromiseOrValue<boolean>;
     payload: PromiseOrValue<BigNumberish>;
   };
@@ -103,7 +102,6 @@ export declare namespace Clocktower {
     number,
     boolean,
     boolean,
-    boolean,
     BigNumber
   ] & {
     id: string;
@@ -112,7 +110,6 @@ export declare namespace Clocktower {
     token: string;
     timeTrigger: number;
     sent: boolean;
-    cancelled: boolean;
     failed: boolean;
     payload: BigNumber;
   };
@@ -125,7 +122,6 @@ export interface ClocktowerInterface extends utils.Interface {
     "addTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "allAccounts()": FunctionFragment;
     "allTransactions()": FunctionFragment;
-    "cancelTransaction(bytes32,uint40)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
     "checkTime()": FunctionFragment;
@@ -146,7 +142,6 @@ export interface ClocktowerInterface extends utils.Interface {
       | "addTransaction"
       | "allAccounts"
       | "allTransactions"
-      | "cancelTransaction"
       | "changeAdmin"
       | "changeFee"
       | "checkTime"
@@ -185,10 +180,6 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "allTransactions",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "cancelTransaction",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "changeAdmin",
@@ -241,10 +232,6 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "allTransactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "cancelTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -418,12 +405,6 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[Clocktower.TransactionStructOutput[]]>;
 
-    cancelTransaction(
-      id: PromiseOrValue<BytesLike>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -496,12 +477,6 @@ export interface Clocktower extends BaseContract {
     overrides?: CallOverrides
   ): Promise<Clocktower.TransactionStructOutput[]>;
 
-  cancelTransaction(
-    id: PromiseOrValue<BytesLike>,
-    timeTrigger: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   changeAdmin(
     newAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -573,12 +548,6 @@ export interface Clocktower extends BaseContract {
     allTransactions(
       overrides?: CallOverrides
     ): Promise<Clocktower.TransactionStructOutput[]>;
-
-    cancelTransaction(
-      id: PromiseOrValue<BytesLike>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     changeAdmin(
       newAddress: PromiseOrValue<string>,
@@ -681,12 +650,6 @@ export interface Clocktower extends BaseContract {
 
     allTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
-    cancelTransaction(
-      id: PromiseOrValue<BytesLike>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -753,12 +716,6 @@ export interface Clocktower extends BaseContract {
     allAccounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    cancelTransaction(
-      id: PromiseOrValue<BytesLike>,
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     changeAdmin(
       newAddress: PromiseOrValue<string>,
