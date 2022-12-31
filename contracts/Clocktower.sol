@@ -90,7 +90,7 @@ contract Clocktower {
 
     //Map of transactions based on hour to be sent
     mapping(uint40 => Transaction[]) private timeMap;
-    //FIXME: need to delete item in removeTransaction function
+    
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
@@ -400,6 +400,7 @@ contract Clocktower {
             }
     }
     
+    //removes transction from the state. DOES NOT reorder lists. 
     function removeTransaction(bytes32 id, uint40 timeTrigger) private {
 
         //if only one transaction in array deletes entire array
@@ -699,6 +700,8 @@ contract Clocktower {
     
 
     //TODO: need to update this to combine transfers into a single transaction to save lots of gas
+    //TODO: also need to delete sent transactions to save gas
+    
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
 
