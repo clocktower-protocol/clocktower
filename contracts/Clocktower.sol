@@ -373,6 +373,74 @@ contract Clocktower {
     //-----------------------------------------------------
 
     //UTILITY FUNCTIONS-----------------------------------
+    function removeAccountTriggerItem(uint40 timeTrigger) private {
+
+            //goes into account map and cleans up timeTriggers
+            if(accountMap[msg.sender].timeTriggers.length == 1){
+                delete accountMap[msg.sender].timeTriggers;
+            } else {
+
+                //deletes timeTrigger index in account
+                uint40[] storage accountTimeTriggers = accountMap[msg.sender].timeTriggers;
+
+                uint index2;
+
+                for(uint i; i < accountTimeTriggers.length; i++) {
+                    if(accountTimeTriggers[i] == timeTrigger) {
+                        index2 = i;
+                        delete accountTimeTriggers[i];
+                        break;
+                    }
+                }
+
+                accountTimeTriggers[index2] = accountTimeTriggers[accountTimeTriggers.length - 1];
+                accountTimeTriggers.pop();
+
+            }
+    }
+    //TODO:
+    function removeTransaction(bytes32 id, uint40 unixTrigger) external {
+
+        uint40 timeTrigger = hoursSinceMerge(unixTrigger);
+
+        //if only one transaction in array deletes entire array
+        if(timeMap[timeTrigger].length == 1){
+            delete timeMap[timeTrigger];
+
+            removeAccountTriggerItem(timeTrigger);
+            return;
+        }
+
+        Transaction[] storage transactions = timeMap[timeTrigger];
+        uint index;
+        uint ownedCount;
+        
+
+        //zeros out data in transaction and counts how many transactions are connected to account
+        for(uint i; i < transactions.length; i++) {
+
+            if(transactions[i].sender == msg.sender){
+                ownedCount++;
+            }
+            if(transactions[i].id == id) {
+                console.log("Here");
+                index = i;
+                delete transactions[i];
+            }
+            
+        }
+
+        //copies last element into gap and pops last element
+        transactions[index] = transactions[transactions.length - 1];
+        transactions.pop();
+
+        if(ownedCount == 1) {
+            //cleans up account timeTrigger index
+            removeAccountTriggerItem(timeTrigger);
+        }
+
+    }
+
    
     function erc20IsApproved(address erc20Contract) private view returns(bool result) {
         address[] memory approved = approvedERC20;
@@ -530,7 +598,7 @@ contract Clocktower {
         accountMap[msg.sender] = account;
     }
 
-    //cancels transaction and refunds money
+    //cancels transaction and refunds money if ethereum
     function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
 
         //converts time trigger to hour
@@ -888,18 +956,21 @@ contract Clocktower {
 
             //gets transaction array per time trigger
             Transaction[] memory _transactionArray = timeMap[i];
-            
-            //if block has transactions add them to transaction list
             if(_transactionArray.length > 0) {
+            
+            //strips out cancels and sends array to be sent as batch
+            //if(_transactionArray.length > 0) {
                 //iterates through transaction array
                 for(uint h = 0; h < (_transactionArray.length); h++){
                     //excludes cancelled transactions
                     if(!_transactionArray[h].cancelled){
                         //sends transactions
                         sendTransaction(_transactionArray[h]);
+                    } else {
+
                     }
-                }               
-            }
+                }              
+            }           
         }
 
         //updates lastCheckedTimeSlot

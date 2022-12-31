@@ -205,6 +205,20 @@ describe("Clocktower", function(){
             )
 
         })
+        it("Should remove transaction", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
+            let transactions: any = await hardhatClocktower.getAccountTransactions();
+            await hardhatClocktower.removeTransaction(transactions[0].id, transactions[0].timeTrigger)
+            let transactions2: any = await hardhatClocktower.getAccountTransactions();
+            console.log(transactions2.length);
+            console.log(transactions.length);
+            expect(
+                transactions2.length
+            ).lessThan(transactions.length);
+
+        })
+
         it("Should refund cancelled transaction", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, permit, testParams)
