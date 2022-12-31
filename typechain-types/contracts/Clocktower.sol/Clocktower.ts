@@ -89,6 +89,8 @@ export declare namespace Clocktower {
     receiver: PromiseOrValue<string>;
     token: PromiseOrValue<string>;
     timeTrigger: PromiseOrValue<BigNumberish>;
+    sent: PromiseOrValue<boolean>;
+    failed: PromiseOrValue<boolean>;
     payload: PromiseOrValue<BigNumberish>;
   };
 
@@ -98,6 +100,8 @@ export declare namespace Clocktower {
     string,
     string,
     number,
+    boolean,
+    boolean,
     BigNumber
   ] & {
     id: string;
@@ -105,6 +109,8 @@ export declare namespace Clocktower {
     receiver: string;
     token: string;
     timeTrigger: number;
+    sent: boolean;
+    failed: boolean;
     payload: BigNumber;
   };
 }
