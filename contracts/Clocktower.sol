@@ -399,9 +399,9 @@ contract Clocktower {
             }
     }
     
-    function removeTransaction(bytes32 id, uint40 unixTrigger) external {
+    function removeTransaction(bytes32 id, uint40 timeTrigger) private {
 
-        uint40 timeTrigger = hoursSinceMerge(unixTrigger);
+        //uint40 timeTrigger = hoursSinceMerge(unixTrigger);
 
         //if only one transaction in array deletes entire array
         if(timeMap[timeTrigger].length == 1){
@@ -597,6 +597,40 @@ contract Clocktower {
         accountMap[msg.sender] = account;
     }
 
+    function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
+        //converts time trigger to hour
+        uint40 timeTrigger = hoursSinceMerge(unixTrigger);
+
+        //refunds ethereum
+        if(token == address(0)) {
+            Transaction[] memory timeTransactions = timeMap[timeTrigger];
+            Transaction memory transaction;
+
+            //loops through time transactions to find cancelled one
+            for(uint i = 0; i < timeTransactions.length; i++) {
+                
+                if(timeTransactions[i].id == id){
+                    transaction = timeTransactions[i];
+                    break;
+                }
+            }
+
+            //checks contract has enough eth
+            require(getBalance() > transaction.payload);
+
+            //removes transaction
+            removeTransaction(transaction.id, transaction.timeTrigger);
+
+            //checks transaction goes through
+            require(payable(transaction.sender).send(transaction.payload));
+
+        } else {
+            //removes transaction
+            removeTransaction(id, timeTrigger);
+        }
+    }
+
+
     /*
 
     //cancels transaction and refunds money if ethereum
@@ -657,7 +691,7 @@ contract Clocktower {
 
         bool hasFailed = false;
 
-        //checks contract has enough ETH and sender has enough balance
+        //checks contract or user has enough ETH and sender has enough balance
         //require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
 
         //makes sure contract has enough ETH or tokens to pay for transaction

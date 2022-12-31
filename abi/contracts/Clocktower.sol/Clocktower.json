@@ -309,11 +309,6 @@
           },
           {
             "internalType": "bool",
-            "name": "cancelled",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
             "name": "failed",
             "type": "bool"
           },
@@ -340,8 +335,13 @@
       },
       {
         "internalType": "uint40",
-        "name": "timeTrigger",
+        "name": "unixTrigger",
         "type": "uint40"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
       }
     ],
     "name": "cancelTransaction",
@@ -422,11 +422,6 @@
           {
             "internalType": "bool",
             "name": "sent",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "cancelled",
             "type": "bool"
           },
           {
@@ -518,11 +513,6 @@
           },
           {
             "internalType": "bool",
-            "name": "cancelled",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
             "name": "failed",
             "type": "bool"
           },
@@ -549,24 +539,6 @@
       }
     ],
     "name": "removeERC20Contract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "id",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint40",
-        "name": "unixTrigger",
-        "type": "uint40"
-      }
-    ],
-    "name": "removeTransaction",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

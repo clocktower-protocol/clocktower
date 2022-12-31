@@ -211,7 +211,7 @@ describe("Clocktower", function(){
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
             let transactions: any = await hardhatClocktower.getAccountTransactions();
-            await hardhatClocktower.removeTransaction(transactions[0].id, transactions[0].timeTrigger)
+            await hardhatClocktower.cancelTransaction(transactions[0].id, transactions[0].timeTrigger, transactions[0].token)
             let transactions2: any = await hardhatClocktower.getAccountTransactions();
             expect(
                 transactions2.length
