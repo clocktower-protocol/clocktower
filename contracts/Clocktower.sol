@@ -701,6 +701,46 @@ contract Clocktower {
 
     //TODO: need to update this to combine transfers into a single transaction to save lots of gas
     //TODO: also need to delete sent transactions to save gas
+    function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
+
+        uint ethTotal;
+        uint index;
+        Transaction[] memory sortedTransactions = new Transaction[](transactions.length);
+
+        //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
+        for(uint i; i < transactions.length; i++) {
+             if(transactions[i].token == address(0)) {
+                ethTotal += transactions[i].payload;
+                sortedTransactions[index] = transactions[i];
+                index++;
+                } else {
+                //if account doesn't have enough allowance consider transaction to have failed and delete it
+                if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
+                    //hasFailed = true;
+                    removeTransaction(transactions[i].id, transactions[i].timeTrigger);
+                } else {
+                    sortedTransactions[index] = transactions[i];
+                    index++;
+                }
+            }
+        }
+
+        //reverts entire procedure if theres not enough eth
+        require(getBalance() > ethTotal, "Not enough ETH to complete transactions");
+
+        
+        for(uint j; j < sortedTransactions.length; j++) {
+            if(sortedTransactions[j].token == address(0)){
+                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
+                bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
+                require(success, "Transfer failed.");
+                emit TransactionSent(true);
+            } else {
+                //transfers Token
+                require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
+            }
+        }        
+    }
     
     //sends transaction
     function sendTransaction(Transaction memory transaction) stopInEmergency private {
@@ -1011,6 +1051,7 @@ contract Clocktower {
             Transaction[] memory _transactionArray = timeMap[i];
             if(_transactionArray.length > 0) {
             
+            /*
             //strips out cancels and sends array to be sent as batch
             //if(_transactionArray.length > 0) {
                 //iterates through transaction array
@@ -1020,8 +1061,10 @@ contract Clocktower {
                         //sends transactions
                         sendTransaction(_transactionArray[h]);
                    // } 
-                }              
-            }           
+                }    
+                */   
+               sendTransactions(_transactionArray);       
+            }          
         }
 
         //updates lastCheckedTimeSlot
