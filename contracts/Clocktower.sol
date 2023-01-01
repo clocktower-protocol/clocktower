@@ -579,26 +579,32 @@ contract Clocktower {
     //------------------------------------------------------------
     function addAccountTransaction(uint40 timeTrigger) private {
         
+        
         //adds or updates account
-        Account storage account = accountMap[msg.sender];
+        //Account storage account = accountMap[msg.sender];
 
         //new account
         if(accountMap[msg.sender].exists == false) {
-            account.accountAddress = msg.sender;
+            accountMap[msg.sender].accountAddress = msg.sender;
+            //account.accountAddress = msg.sender;
             //adds to lookup table
-            accountLookup.push() = account.accountAddress;
-            account.exists = true;
-            account.timeTriggers.push() = timeTrigger;
+            //accountLookup.push() = account.accountAddress;
+            accountLookup.push() = msg.sender;
+            accountMap[msg.sender].exists = true;
+            //account.exists = true;
+            accountMap[msg.sender].timeTriggers.push() = timeTrigger;
+            //account.timeTriggers.push() = timeTrigger;
            // account.tokens.push() = token;
         } else {
 
             //gets lookup arrays from account struct
-            uint40[] memory accountTriggers = account.timeTriggers;
+            uint40[] memory accountTriggers = accountMap[msg.sender].timeTriggers;
             //address[] memory tokens = account.tokens;
 
             //if doesn't already exist adds time trigger to account list
             if(!isInTimeArray(timeTrigger, accountTriggers)) {
-                account.timeTriggers.push() = timeTrigger;
+                //account.timeTriggers.push() = timeTrigger;
+                accountMap[msg.sender].timeTriggers.push() = timeTrigger;
             }
 
             /*
@@ -610,7 +616,8 @@ contract Clocktower {
         }
 
         //adds account to account map
-        accountMap[msg.sender] = account;
+        //accountMap[msg.sender] = account;
+        
     }
 
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
@@ -708,7 +715,8 @@ contract Clocktower {
 
         //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
         for(uint i; i < transactions.length; i++) {
-             if(transactions[i].token == address(0)) {
+            
+            if(transactions[i].token == address(0)) {
                 ethTotal += transactions[i].payload;
                 sortedTransactions[index] = transactions[i];
                 index++;
@@ -716,13 +724,16 @@ contract Clocktower {
                 //if account doesn't have enough allowance consider transaction to have failed and delete it
                 if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
                     //hasFailed = true;
-                    removeTransaction(transactions[i].id, transactions[i].timeTrigger);
+                    //removeTransaction(transactions[i].id, transactions[i].timeTrigger);
+                    timeMap[transactions[i].timeTrigger][i].failed = true;
                 } else {
                     sortedTransactions[index] = transactions[i];
                     index++;
+                    timeMap[transactions[i].timeTrigger][i].sent = true;
                 }
             }
         }
+
 
         //reverts entire procedure if theres not enough eth
         require(getBalance() > ethTotal, "Not enough ETH to complete transactions");
@@ -826,21 +837,22 @@ contract Clocktower {
             require(erc20IsApproved(token)," Token not approved for this contract");
 
             //requires payload to be the same as permit value
-            require(payload <= permit.value, "Payload must be the same as value permitted");
+            require(payload <= permit.value, "Payload must be less than or equal to value permitted");
         }
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
 
         //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
+        //&&
+        //Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
-        timeStorageArray.push() = transaction;
-
-       // console.log(transaction.timeTrigger);
+        //&&
+        //timeStorageArray.push() = transaction;
+        timeMap[timeTrigger].push() = transaction;
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit Status("Pushed");
@@ -849,7 +861,8 @@ contract Clocktower {
         transactionLookup.push() = transaction.id;
 
         //puts appended arrays back in maps
-        timeMap[timeTrigger] = timeStorageArray;   
+        //&&
+        //timeMap[timeTrigger] = timeStorageArray;   
 
         //creates or updates account
         addAccountTransaction(timeTrigger); 
@@ -880,14 +893,14 @@ contract Clocktower {
 
         //variables.ethPayloads;
 
-        Account storage account = accountMap[msg.sender];
-        variables.accountTriggers = account.timeTriggers;
+        //Account storage account = accountMap[msg.sender];
+        //variables.accountTriggers = accountMap[msg.sender].timeTriggers;
 
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
         address[] memory batchTokenList = new address[](approvedERC20.length);
 
         //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
-        uint40[] memory batchTriggerList = new uint40[](account.timeTriggers.length + 100);
+        uint40[] memory batchTriggerList = new uint40[](accountMap[msg.sender].timeTriggers.length + 100);
 
        // variables.uniqueTokenCount;
        // variables.uniqueTriggerCount;
@@ -948,7 +961,8 @@ contract Clocktower {
             //updates time triggers in map
 
             //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-            Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
+            //&&
+            //Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
 
             //creates transaction array
             for(uint16 j = 0; j < batch.length; j++) {
@@ -960,14 +974,17 @@ contract Clocktower {
                     //creates internal transaction struct
                     Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
 
-                    transactionStorageArray.push() = transaction;
+                    //&&
+                    //transactionStorageArray.push() = transaction;
+                    timeMap[batchTriggerList[i]].push() = transaction;
                 
                     //adds transaction to lookup
                     transactionLookup.push() = transaction.id;
                 }
             }
 
-            timeMap[batchTriggerList[i]] = transactionStorageArray;
+            //&&
+            //timeMap[batchTriggerList[i]] = transactionStorageArray;
 
                 
             /*
@@ -1001,14 +1018,15 @@ contract Clocktower {
         }
         
         if(accountMap[msg.sender].exists == false) {
-            account.accountAddress = msg.sender;
+            //account.accountAddress = msg.sender;
+            accountMap[msg.sender].accountAddress = msg.sender;
              //adds to lookup table
-            accountLookup.push() = account.accountAddress;
-            account.exists = true;
+            accountLookup.push() = msg.sender;
+            accountMap[msg.sender].exists = true;
         }
 
         //adds account to account map
-        accountMap[msg.sender] = account;
+        //accountMap[msg.sender] = account;
      
         /*
         //gets tokens for contract (does at end to avoid re-entry)
