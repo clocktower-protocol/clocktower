@@ -820,9 +820,73 @@ contract Clocktower {
         }
     }
     */
+   //REQUIRES unlimited allowance per token
+   //adds to list of transactions 
+    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
+
+        //require transactions to be in the future and to be on the hour
+        require(unixTime > block.timestamp, "Time data must be in the future");
+
+        require(unixTime % 3600 == 0, "Time must be on the hour");
+        
+        if(token == address(0)) {
+            //require sent ETH to be higher than payload * fee
+            require(payload * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
+        } else {
+            //check if token is on approved list
+            require(erc20IsApproved(token)," Token not approved for this contract");
+
+            //checks that allowance is infinite
+            require(ERC20Permit(token).allowance(msg.sender, address(this)) == 2**255, "Requires 2^255 allowance");
+
+            //requires payload to be the same as permit value
+            //require(payload <= permit.value, "Payload must be less than or equal to value permitted");
+        }
+        
+        //calculates hours since merge from passed unixTime
+        uint40 timeTrigger = hoursSinceMerge(unixTime);
+
+        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
+        //&&
+        //Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
+
+         //creates transaction
+        Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
+
+        //&&
+        //timeStorageArray.push() = transaction;
+        timeMap[timeTrigger].push() = transaction;
+
+        emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
+        emit Status("Pushed");
+
+        //adds transaction to lookup
+        transactionLookup.push() = transaction.id;
+
+        //puts appended arrays back in maps
+        //&&
+        //timeMap[timeTrigger] = timeStorageArray;   
+
+        //creates or updates account
+        addAccountTransaction(timeTrigger); 
+
+        //updates token balance (and ETH at 0x0)
+        //scheduledBalances[msg.sender][token] += payload;
+
+        /*
+        if(token != address(0)) {
+            //uses permit to approve transfer
+            ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
+
+            //&&  
+            //transfers token to contract (done at end to avoid re-entrancy attack)
+           // require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
+        }
+        */
+    }
 
     //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
+    function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");

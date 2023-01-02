@@ -236,6 +236,34 @@
         "type": "tuple"
       }
     ],
+    "name": "addPermitTransaction",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint40",
+        "name": "unixTime",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payload",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
     "name": "addTransaction",
     "outputs": [],
     "stateMutability": "payable",

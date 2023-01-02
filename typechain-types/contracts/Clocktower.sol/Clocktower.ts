@@ -119,7 +119,8 @@ export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addBatchTransactions((address,uint40,uint256,address)[])": FunctionFragment;
     "addERC20Contract(address)": FunctionFragment;
-    "addTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "addPermitTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "addTransaction(address,uint40,uint256,address)": FunctionFragment;
     "allAccounts()": FunctionFragment;
     "allTransactions()": FunctionFragment;
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
@@ -139,6 +140,7 @@ export interface ClocktowerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addBatchTransactions"
       | "addERC20Contract"
+      | "addPermitTransaction"
       | "addTransaction"
       | "allAccounts"
       | "allTransactions"
@@ -164,13 +166,22 @@ export interface ClocktowerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "addTransaction",
+    functionFragment: "addPermitTransaction",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       Clocktower.PermitStruct
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addTransaction",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -224,6 +235,10 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addERC20Contract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addPermitTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -392,12 +407,20 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    addTransaction(
+    addPermitTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    addTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -465,12 +488,20 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  addTransaction(
+  addPermitTransaction(
     receiver: PromiseOrValue<string>,
     unixTime: PromiseOrValue<BigNumberish>,
     payload: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     permit: Clocktower.PermitStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addTransaction(
+    receiver: PromiseOrValue<string>,
+    unixTime: PromiseOrValue<BigNumberish>,
+    payload: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -538,12 +569,20 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addTransaction(
+    addPermitTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       permit: Clocktower.PermitStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -644,12 +683,20 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    addTransaction(
+    addPermitTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    addTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -712,12 +759,20 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    addTransaction(
+    addPermitTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
       payload: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
