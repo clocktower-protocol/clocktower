@@ -224,6 +224,7 @@ describe("Clocktower", function(){
             ).lessThan(transactions.length);
 
         })
+
         /*
         it("Should refund cancelled transaction", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -289,12 +290,17 @@ describe("Clocktower", function(){
             // await hardhatClocktower.addBatchTransactions(transactions, testParams)
             await hardhatClocktower.addBatchTransactions(transactions, testParams)
 
+            //gets total claims
+            let claims = await hardhatClocktower.getTotalClaims(clockTokenAddress);
+
             let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
+
 
             expect(returnTransactions.length).to.equal(5)
             expect(returnTransactions[2].payload).to.equal(eth)
             expect(returnTransactions[2].receiver).to.equal(otherAccount.address)
             expect(returnTransactions[3].payload).to.equal(eth)
+            expect(claims).to.equal(eths);
         })
       
     })

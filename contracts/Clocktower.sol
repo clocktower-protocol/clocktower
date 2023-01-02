@@ -95,7 +95,7 @@ contract Clocktower {
         string description;
         SubType subType;
         address[] subscribers;
-        uint16 due;
+        uint16 dueDay;
     }
 
     /*
@@ -525,6 +525,11 @@ contract Clocktower {
     //gets time TESTING FUNCTION
     function getTime() external view returns (uint) {
         return block.timestamp;
+    }
+
+    //gets claims per token
+    function getTotalClaims(address token) external view returns (uint) {
+        return tokenClaims[msg.sender][token];
     }
 
     //checks if value is in array
