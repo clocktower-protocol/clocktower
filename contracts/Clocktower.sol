@@ -19,6 +19,15 @@ contract Clocktower {
     }
 
     //DATA-------------------------------------------------------
+    //global enums
+    enum Status {
+        PENDING,
+        SENT,
+        FAILED,
+        CANCELLED
+    }
+
+
     //global struct for future transactions
     struct Transaction {
         bytes32 id;
@@ -26,11 +35,13 @@ contract Clocktower {
         address payable receiver;
         address token;
         uint40 timeTrigger;
-        bool sent;
+        Status status;
+        //bool sent;
         //bool cancelled;
-        bool failed;
+       // bool failed;
         //amount of ether or token sent in wei
         uint payload;
+        
     }
 
     //acount struct
@@ -132,7 +143,7 @@ contract Clocktower {
     
     //Emits
     event TransactionAdd(address sender, address receiver, uint40 timeTrigger, uint payload);
-    event Status(string output);
+    event StatusEmit(string output);
     event CheckStatus(string output2);
     event TransactionSent(bool sent);
     event UnknownFunction(string output3);
@@ -580,7 +591,7 @@ contract Clocktower {
             //creates id hash
             bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
             
-            _transaction = Transaction(id, sender, receiver, token,timeTrigger, false, false, payload);
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, Status.PENDING, payload);
 
             return _transaction;
     }
@@ -725,7 +736,6 @@ contract Clocktower {
 
    // }
     
-    //TODO: need to bring back failed and sent bool
     //TODO: could add emit of transaction confirm hash
     function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
 
@@ -745,11 +755,13 @@ contract Clocktower {
                 if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
                     //hasFailed = true;
                     //removeTransaction(transactions[i].id, transactions[i].timeTrigger);
-                    timeMap[transactions[i].timeTrigger][i].failed = true;
+                    //timeMap[transactions[i].timeTrigger][i].failed = true;
+                    timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
                 } else {
                     sortedTransactions[index] = transactions[i];
                     index++;
-                    timeMap[transactions[i].timeTrigger][i].sent = true;
+                   // timeMap[transactions[i].timeTrigger][i].sent = true;
+                    timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
                 }
             }
         }
@@ -888,7 +900,7 @@ contract Clocktower {
         timeMap[timeTrigger].push() = transaction;
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
-        emit Status("Pushed");
+        emit StatusEmit("Pushed");
 
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;
@@ -958,7 +970,7 @@ contract Clocktower {
         timeMap[timeTrigger].push() = transaction;
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
-        emit Status("Pushed");
+        emit StatusEmit("Pushed");
 
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;

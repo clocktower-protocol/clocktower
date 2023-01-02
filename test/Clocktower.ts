@@ -188,7 +188,7 @@ describe("Clocktower", function(){
             //get status output
             await expect(
                 hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
-            ).to.emit(hardhatClocktower, "Status")
+            ).to.emit(hardhatClocktower, "StatusEmit")
             .withArgs("Pushed");
         })
         it("Should send eth with the transaction", async function() {
