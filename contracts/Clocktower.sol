@@ -119,7 +119,6 @@ contract Clocktower {
     //seconds since merge
     uint40 constant unixMergeTime = 1663264800;
 
-    //TODO: set fee also need fixed fee for token
     //100 = 100%
     uint fee = 100;
     //0.01 eth in wei
@@ -206,6 +205,11 @@ contract Clocktower {
     //change fee
     function changeFee(uint _fee) isAdmin external {
         fee = _fee;
+    }
+
+    //change fixed fee
+    function changeFixedFee(uint _fixed_fee) isAdmin external {
+        fixedFee = _fixed_fee;
     }
     
     //returns array containing all transactions
@@ -861,8 +865,10 @@ contract Clocktower {
             require(erc20IsApproved(token)," Token not approved for this contract");
 
             //checks that allowance is infinite
-            require(ERC20Permit(token).allowance(msg.sender, address(this)) == 2**255, "Requires 2^255 allowance");
+            //require(ERC20Permit(token).allowance(msg.sender, address(this)) == 2**255, "Requires 2^255 allowance");
 
+            //check if there is enough allowance
+            require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
             //requires payload to be the same as permit value
             //require(payload <= permit.value, "Payload must be less than or equal to value permitted");
         }
@@ -929,6 +935,9 @@ contract Clocktower {
 
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
+
+            //check if there is enough allowance
+            require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
 
             //requires payload to be the same as permit value
             require(payload <= permit.value, "Payload must be less than or equal to value permitted");
@@ -1031,6 +1040,10 @@ contract Clocktower {
             //Token transaction 
                 //check if token is on approved list
                 require(erc20IsApproved(batch[i].token)," Token not approved for this contract");
+
+                 //check if there is enough allowance
+                require(ERC20Permit(batch[i].token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][batch[i].token] + batch[i].payload, "Requires token allowance to be increased for contract");
+          
                
                 if(!isInAddressArray(batch[i].token, batchTokenList)) {
                     batchTokenList[variables.uniqueTokenCount] = batch[i].token;

@@ -126,6 +126,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
+    "changeFixedFee(uint256)": FunctionFragment;
     "checkTime()": FunctionFragment;
     "getAccountTransactions()": FunctionFragment;
     "getFee()": FunctionFragment;
@@ -147,6 +148,7 @@ export interface ClocktowerInterface extends utils.Interface {
       | "cancelTransaction"
       | "changeAdmin"
       | "changeFee"
+      | "changeFixedFee"
       | "checkTime"
       | "getAccountTransactions"
       | "getFee"
@@ -208,6 +210,10 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "changeFee",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "changeFixedFee",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getAccountTransactions",
@@ -262,6 +268,10 @@ export interface ClocktowerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "changeFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "changeFixedFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountTransactions",
@@ -449,6 +459,11 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    changeFixedFee(
+      _fixed_fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     checkTime(overrides?: CallOverrides): Promise<[boolean]>;
 
     getAccountTransactions(
@@ -530,6 +545,11 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  changeFixedFee(
+    _fixed_fee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   checkTime(overrides?: CallOverrides): Promise<boolean>;
 
   getAccountTransactions(
@@ -608,6 +628,11 @@ export interface Clocktower extends BaseContract {
 
     changeFee(
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    changeFixedFee(
+      _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -721,6 +746,11 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    changeFixedFee(
+      _fixed_fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     checkTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccountTransactions(overrides?: CallOverrides): Promise<BigNumber>;
@@ -794,6 +824,11 @@ export interface Clocktower extends BaseContract {
 
     changeFee(
       _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    changeFixedFee(
+      _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
