@@ -119,9 +119,12 @@ contract Clocktower {
     //seconds since merge
     uint40 constant unixMergeTime = 1663264800;
 
-    //TODO: set fee
+    //TODO: set fee also need fixed fee for token
     //100 = 100%
     uint fee = 100;
+    //0.01 eth in wei
+    uint fixedFee = 10000000000000000;
+
 
     //variable for last checked by hour
     uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
@@ -850,6 +853,10 @@ contract Clocktower {
             //require sent ETH to be higher than payload * fee
             require(payload * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
         } else {
+
+             //require sent ETH to be higher than fixed token fee
+            require(fixedFee <= msg.value, "Not enough ETH sent with transaction");
+
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
 
@@ -917,6 +924,9 @@ contract Clocktower {
             //require sent ETH to be higher than payload * fee
             require(payload * fee / 100 <= msg.value, "Not enough ETH sent with transaction");
         } else {
+             //require sent ETH to be higher than fixed token fee
+            require(fixedFee <= msg.value, "Not enough ETH sent with transaction");
+
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
 
@@ -976,6 +986,8 @@ contract Clocktower {
         //have to put top level function variables in a struct to avoid variable per function limit
         BatchVariables memory variables;
 
+         //require sent ETH to be higher than fixed token fee
+        require(fixedFee * batch.length <= msg.value, "Not enough ETH sent with transaction");
 
         //variables.ethPayloads;
 
