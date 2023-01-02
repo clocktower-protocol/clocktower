@@ -27,6 +27,11 @@ contract Clocktower {
         CANCELLED
     }
 
+    enum SubType {
+        MONTHLY,
+        YEARLY
+    }
+
 
     //global struct for future transactions
     struct Transaction {
@@ -83,7 +88,15 @@ contract Clocktower {
     }
 
     //TODO: Subscription struct
-    
+    struct Subscription {
+        bytes32 id;
+        uint amount;
+        address owner;
+        string description;
+        SubType subType;
+        address[] subscribers;
+        uint16 due;
+    }
 
     /*
     //Account Balance struct
@@ -105,7 +118,12 @@ contract Clocktower {
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
-    //TODO: Subscription maps daily, quarterly, yearly
+    //TODO: Subscription maps monthly, quarterly, yearly
+    //day of month 
+    //mapping(uint8 => Subscription[]) monthMap
+    //day of year
+    //mapping(uint16 => Subscription[]) yearMap
+
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
