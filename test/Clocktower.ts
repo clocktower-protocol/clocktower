@@ -287,7 +287,7 @@ describe("Clocktower", function(){
 
             //add batch
             // await hardhatClocktower.addBatchTransactions(transactions, testParams)
-            await hardhatClocktower.addBatchTransactions(transactions)
+            await hardhatClocktower.addBatchTransactions(transactions, testParams)
 
             let returnTransactions: any = await hardhatClocktower.getAccountTransactions();
 
