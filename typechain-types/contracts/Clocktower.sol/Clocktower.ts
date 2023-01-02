@@ -89,8 +89,7 @@ export declare namespace Clocktower {
     receiver: PromiseOrValue<string>;
     token: PromiseOrValue<string>;
     timeTrigger: PromiseOrValue<BigNumberish>;
-    sent: PromiseOrValue<boolean>;
-    failed: PromiseOrValue<boolean>;
+    status: PromiseOrValue<BigNumberish>;
     payload: PromiseOrValue<BigNumberish>;
   };
 
@@ -100,8 +99,7 @@ export declare namespace Clocktower {
     string,
     string,
     number,
-    boolean,
-    boolean,
+    number,
     BigNumber
   ] & {
     id: string;
@@ -109,8 +107,7 @@ export declare namespace Clocktower {
     receiver: string;
     token: string;
     timeTrigger: number;
-    sent: boolean;
-    failed: boolean;
+    status: number;
     payload: BigNumber;
   };
 }
@@ -297,7 +294,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "AccountCreated(string)": EventFragment;
     "CheckStatus(string)": EventFragment;
     "ReceiveETH(address,uint256)": EventFragment;
-    "Status(string)": EventFragment;
+    "StatusEmit(string)": EventFragment;
     "TransactionAdd(address,address,uint40,uint256)": EventFragment;
     "TransactionSent(bool)": EventFragment;
     "UnknownFunction(string)": EventFragment;
@@ -306,7 +303,7 @@ export interface ClocktowerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AccountCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CheckStatus"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReceiveETH"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Status"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StatusEmit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionAdd"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransactionSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UnknownFunction"): EventFragment;
@@ -340,12 +337,12 @@ export type ReceiveETHEvent = TypedEvent<
 
 export type ReceiveETHEventFilter = TypedEventFilter<ReceiveETHEvent>;
 
-export interface StatusEventObject {
+export interface StatusEmitEventObject {
   output: string;
 }
-export type StatusEvent = TypedEvent<[string], StatusEventObject>;
+export type StatusEmitEvent = TypedEvent<[string], StatusEmitEventObject>;
 
-export type StatusEventFilter = TypedEventFilter<StatusEvent>;
+export type StatusEmitEventFilter = TypedEventFilter<StatusEmitEvent>;
 
 export interface TransactionAddEventObject {
   sender: string;
@@ -674,8 +671,8 @@ export interface Clocktower extends BaseContract {
     ): ReceiveETHEventFilter;
     ReceiveETH(user?: null, amount?: null): ReceiveETHEventFilter;
 
-    "Status(string)"(output?: null): StatusEventFilter;
-    Status(output?: null): StatusEventFilter;
+    "StatusEmit(string)"(output?: null): StatusEmitEventFilter;
+    StatusEmit(output?: null): StatusEmitEventFilter;
 
     "TransactionAdd(address,address,uint40,uint256)"(
       sender?: null,
