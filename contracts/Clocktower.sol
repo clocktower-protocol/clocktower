@@ -97,11 +97,11 @@ contract Clocktower {
     //TODO: Subscription maps daily, quarterly, yearly
 
     //per account address per token balance for scheduled transactions
-    //mapping(address => mapping(address => uint)) scheduledBalances;
+    mapping(address => mapping(address => uint)) tokenClaims;
 
     //TODO: might be a more gas efficient way to do this
-    //mapping for token totals
-    mapping(address => mapping(address => uint)) tokenTotals;
+    //mapping for batch token totals
+    mapping(address => uint) batchTokenTotals;
     
     //&&
     //failed transaction array
@@ -477,11 +477,13 @@ contract Clocktower {
         return address(this).balance;
     }
 
+    
     /*
     function getTokenBalance(address account, address token) private view returns (uint) {
-        return scheduledBalances[account][token];
+        return tokenClaims[account][token];
     }
     */
+    
     //////////////////////
 
     //gets time TESTING FUNCTION
@@ -625,7 +627,7 @@ contract Clocktower {
         uint40 timeTrigger = hoursSinceMerge(unixTrigger);
 
         //refunds ethereum
-        if(token == address(0)) {
+        //if(token == address(0)) {
             Transaction[] memory timeTransactions = timeMap[timeTrigger];
             Transaction memory transaction;
 
@@ -638,19 +640,30 @@ contract Clocktower {
                 }
             }
 
-            //checks contract has enough eth
-            require(getBalance() > transaction.payload);
-
-            //removes transaction
+             //removes transaction
             removeTransaction(transaction.id, transaction.timeTrigger);
 
-            //checks transaction goes through
-            require(payable(transaction.sender).send(transaction.payload));
+            if(token != address(0)){
+                //removes from claim balance
+                tokenClaims[msg.sender][token] -= transaction.payload;
+            } else {
 
+                //removes from claim balance
+                tokenClaims[msg.sender][token] -= transaction.payload;
+            
+                //checks contract has enough eth
+                require(getBalance() > transaction.payload);
+
+                //checks transaction goes through
+                require(payable(transaction.sender).send(transaction.payload));
+            }
+
+        /*
         } else {
             //removes transaction
             removeTransaction(id, timeTrigger);
         }
+        */
     }
 
 
@@ -738,8 +751,12 @@ contract Clocktower {
         //reverts entire procedure if theres not enough eth
         require(getBalance() > ethTotal, "Not enough ETH to complete transactions");
 
+
         
         for(uint j; j < sortedTransactions.length; j++) {
+            //decreases claimsBalance
+            tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
+            
             if(sortedTransactions[j].token == address(0)){
                 //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
                 bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
@@ -873,6 +890,9 @@ contract Clocktower {
         //updates token balance (and ETH at 0x0)
         //scheduledBalances[msg.sender][token] += payload;
 
+        //updates token balance
+        tokenClaims[msg.sender][token] += payload;
+
         /*
         if(token != address(0)) {
             //uses permit to approve transfer
@@ -933,6 +953,8 @@ contract Clocktower {
 
         //updates token balance (and ETH at 0x0)
         //scheduledBalances[msg.sender][token] += payload;
+
+        tokenClaims[msg.sender][token] += payload;
 
         if(token != address(0)) {
             //uses permit to approve transfer
@@ -1005,7 +1027,11 @@ contract Clocktower {
             }
 
             //updates token balance (and ETH balance at 0x0)
-            tokenTotals[msg.sender][batch[i].token] += batch[i].payload;
+            //tokenTotals[msg.sender][batch[i].token] += batch[i].payload;
+            batchTokenTotals[batch[i].token] += batch[i].payload;
+
+            //updates claim balance
+            tokenClaims[msg.sender][batch[i].token] += batch[i].payload;
         }
 
         
@@ -1067,7 +1093,7 @@ contract Clocktower {
             //checks that user has set allowance to contract high enough for each token
             if(batchTokenList[i] != address(0)) {
                 //checks that allowances were set correctly
-                require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= tokenTotals[msg.sender][batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= tokenTotals[msg.sender][batchTokenList[i]]);
+                require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= batchTokenTotals[batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= batchTokenTotals[batchTokenList[i]]);
             }
     
             /*
@@ -1077,7 +1103,7 @@ contract Clocktower {
             */
 
             //resets tokenTotal
-            tokenTotals[msg.sender][batchTokenList[i]] = 0;
+            batchTokenTotals[batchTokenList[i]] = 0;
 
         }
         

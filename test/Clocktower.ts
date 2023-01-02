@@ -240,7 +240,6 @@ describe("Clocktower", function(){
         
     })
     
-
     describe("Send Time", function(){
         
         it("Should send transactions", async function(){
