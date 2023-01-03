@@ -41,9 +41,6 @@ contract Clocktower {
         address token;
         uint40 timeTrigger;
         Status status;
-        //bool sent;
-        //bool cancelled;
-       // bool failed;
         //amount of ether or token sent in wei
         uint payload;
         
@@ -57,7 +54,6 @@ contract Clocktower {
         //indexs of timeTriggers and tokens stored per account. 
         //Timetrigger to lookup transactions. Token index to lookup balances
         uint40[] timeTriggers;
-       // address[] tokens;
     }
 
     //batch struct
@@ -97,15 +93,6 @@ contract Clocktower {
         address[] subscribers;
         uint16 dueDay;
     }
-
-    /*
-    //Account Balance struct
-    struct Balance {
-        address token;
-        uint availableBalance;
-        uint scheduledBalance;
-    }
-    */
 
     //Account map
     mapping(address => Account) private accountMap;
@@ -315,99 +302,6 @@ contract Clocktower {
     }
     
     //**************************************************
-
-    //ACCOUNT FUNCTIONS------------------------------------
-/*
-    //returns an array of structs of token types with balances
-    function getAccountBalances() external view returns(Balance[] memory){
-
-        address[] memory tokens = new address[](accountMap[msg.sender].tokens.length);
-
-        tokens = accountMap[msg.sender].tokens;
-
-        Balance[] memory balances = new Balance[](tokens.length);
-
-        for(uint i; i < accountMap[msg.sender].tokens.length; i++) {
-
-            
-            Balance memory balance; 
-
-            balance.token = tokens[i];
-            balance.availableBalance = availableBalances[msg.sender][tokens[i]];
-            balance.scheduledBalance = scheduledBalances[msg.sender][tokens[i]];
-
-            balances[i] = balance;
-        }
-
-        return balances;
-    }
-
-    function deposit(address token, Permit calldata permit) external payable {
-         
-        //if ERC20 
-        if(token != address(0)){
-        //check if token is on approved list
-            require(erc20IsApproved(token)," Token not approved for this contract");
-        }
-
-        //adds or updates account
-        Account storage account = accountMap[msg.sender];
-
-        //new account
-        if(accountMap[msg.sender].exists == false) {
-            account.accountAddress = msg.sender;
-            //adds to lookup table
-            accountLookup.push() = account.accountAddress;
-            account.exists = true;
-            account.tokens.push() = token;
-        } else {
-
-            //gets lookup arrays from account struct
-            address[] memory tokens = account.tokens;
-
-            //if account hasn't done a transaction with this token yet it adds it to the list
-            if(!isInAddressArray(token, tokens)) {
-                account.tokens.push() = token;
-            }
-        }
-
-        //adds account to account map
-        accountMap[msg.sender] = account;
-
-        //updates token balance (and ETH at 0x0)
-        availableBalances[msg.sender][token] += permit.value;
-
-        if(token != address(0)) {
-            //uses permit to approve transfer
-            ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
-            //transfers token to contract (done at end to avoid re-entrancy attack)
-            require(ERC20Permit(token).transferFrom(msg.sender, address(this), permit.value), "Problem transferring token");
-        }
-    } 
-
-    function withdraw(address token, uint amount) external payable {
-
-        require(availableBalances[msg.sender][token] >= amount, "Not enough available balance to withdraw");
-
-        availableBalances[msg.sender][token] -= amount;
-
-         //checks different things for ether and for erc20 
-        if(token == address(0)){
-            //checks contract has enough ETH
-            require(getBalance() > amount);
-            //checks transaction goes through
-            require(payable(msg.sender).send(amount));
-        } else {
-            //checks account has enough balance to send
-            require(ERC20Permit(token).balanceOf(address(this)) >= amount);
-
-            //checks transaction goes through
-            //transfers Token
-            require(ERC20Permit(token).approve(address(this), amount) && ERC20Permit(token).transferFrom(address(this), msg.sender, amount));
-        }
-    }
-*/
-    //-----------------------------------------------------
 
     //UTILITY FUNCTIONS-----------------------------------
     function removeAccountTriggerItem(uint40 timeTrigger) private {
@@ -621,46 +515,24 @@ contract Clocktower {
 
     //------------------------------------------------------------
     function addAccountTransaction(uint40 timeTrigger) private {
-        
-        
-        //adds or updates account
-        //Account storage account = accountMap[msg.sender];
 
         //new account
         if(accountMap[msg.sender].exists == false) {
             accountMap[msg.sender].accountAddress = msg.sender;
-            //account.accountAddress = msg.sender;
             //adds to lookup table
-            //accountLookup.push() = account.accountAddress;
             accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
-            //account.exists = true;
             accountMap[msg.sender].timeTriggers.push() = timeTrigger;
-            //account.timeTriggers.push() = timeTrigger;
-           // account.tokens.push() = token;
         } else {
 
             //gets lookup arrays from account struct
             uint40[] memory accountTriggers = accountMap[msg.sender].timeTriggers;
-            //address[] memory tokens = account.tokens;
 
             //if doesn't already exist adds time trigger to account list
             if(!isInTimeArray(timeTrigger, accountTriggers)) {
-                //account.timeTriggers.push() = timeTrigger;
                 accountMap[msg.sender].timeTriggers.push() = timeTrigger;
             }
-
-            /*
-            //if account hasn't done a transaction with this token yet it adds it to the list
-            if(!isInAddressArray(token, tokens)) {
-                account.tokens.push() = token;
-            }
-            */
         }
-
-        //adds account to account map
-        //accountMap[msg.sender] = account;
-        
     }
 
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
@@ -668,7 +540,6 @@ contract Clocktower {
         uint40 timeTrigger = hoursSinceMerge(unixTrigger);
 
         //refunds ethereum
-        //if(token == address(0)) {
             Transaction[] memory timeTransactions = timeMap[timeTrigger];
             Transaction memory transaction;
 
@@ -698,66 +569,7 @@ contract Clocktower {
                 //checks transaction goes through
                 require(payable(transaction.sender).send(transaction.payload));
             }
-
-        /*
-        } else {
-            //removes transaction
-            removeTransaction(id, timeTrigger);
-        }
-        */
     }
-
-
-    /*
-
-    //cancels transaction and refunds money if ethereum
-    function cancelTransaction(bytes32 id, uint40 timeTrigger) payable external {
-
-        //converts time trigger to hour
-        timeTrigger = hoursSinceMerge(timeTrigger);
-
-        Transaction[] memory timeTransactions = timeMap[timeTrigger];
-        Transaction[] storage timeStorageT = timeMap[timeTrigger];
-
-        Transaction memory transaction;
-
-        //loops through time transactions to find cancelled one
-        for(uint i = 0; i < timeTransactions.length; i++) {
-            
-            if(timeTransactions[i].id == id){
-                transaction = timeTransactions[i];
-                transaction.cancelled = true;
-                timeStorageT[i] = transaction;
-                break;
-            }
-        }
-
-        timeMap[timeTrigger] = timeStorageT;
-
-        //decreases balance
-        //updates token balance (and ETH at 0x0)
-        //scheduledBalances[msg.sender][transaction.token] -= transaction.payload;
-        
-        //checks different things for ether and for erc20 
-        if(transaction.token == address(0)){
-            //checks contract has enough ETH
-            require(getBalance() > transaction.payload);
-            //checks transaction goes through
-            require(payable(transaction.sender).send(transaction.payload));
-        } 
-        /*
-        else {
-            //checks account has enough balance to send
-            require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
-            //checks transaction goes through
-            //transfers Token
-            require(ERC20Permit(transaction.token).approve(address(this), transaction.payload) && ERC20Permit(transaction.token).transferFrom(address(this), transaction.receiver, transaction.payload));
-        }
-        */
-
-        //timeMap[timeTrigger] = timeStorageT;
-
-   // }
     
     //TODO: could add emit of transaction confirm hash
     function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
@@ -776,14 +588,10 @@ contract Clocktower {
                 } else {
                 //if account doesn't have enough allowance consider transaction to have failed and delete it
                 if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
-                    //hasFailed = true;
-                    //removeTransaction(transactions[i].id, transactions[i].timeTrigger);
-                    //timeMap[transactions[i].timeTrigger][i].failed = true;
                     timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
                 } else {
                     sortedTransactions[index] = transactions[i];
                     index++;
-                   // timeMap[transactions[i].timeTrigger][i].sent = true;
                     timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
                 }
             }
@@ -811,74 +619,6 @@ contract Clocktower {
         }        
     }
     
-    /*
-    //sends transaction
-    function sendTransaction(Transaction memory transaction) stopInEmergency private {
-
-        bool hasFailed = false;
-
-        //checks contract or user has enough ETH and sender has enough balance
-        //require(getTokenBalance(transaction.sender, transaction.token) >= transaction.payload);
-
-        //makes sure contract has enough ETH or tokens to pay for transaction
-        if(transaction.token == address(0)) {
-            require(getBalance() > transaction.payload);
-        } else {
-
-            //makes sure sender has enough tokens allocated
-            //require(ERC20Permit(transaction.token).balanceOf(address(this)) >= transaction.payload);
-            
-            //&&
-            //if account doesn't have enough allowance or balance mark as failed
-            if(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)) < transaction.payload || ERC20Permit(transaction.token).balanceOf(transaction.sender) < transaction.payload) {
-                hasFailed = true;
-                console.log(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)));
-            }
-        }
-
-        if(!hasFailed){
-
-            Transaction[] memory timeTransactions = timeMap[transaction.timeTrigger];
-            Transaction[] storage timeStorageT = timeMap[transaction.timeTrigger];
-
-            //loops through time transactions to stamp sent one
-            for(uint i = 0; i < timeTransactions.length; i++) {
-                if(timeTransactions[i].id == transaction.id){
-                    transaction = timeTransactions[i];
-                    if(hasFailed) {
-                        transaction.failed = true;
-                    } else {
-                        transaction.sent = true;
-                    }
-                    timeStorageT[i] = transaction;
-                    break;
-                }
-            }
-
-            //puts back in map
-            timeMap[transaction.timeTrigger] = timeStorageT;
-
-            //decreases balances
-            //scheduledBalances[transaction.sender][transaction.token] -= transaction.payload;
-        
-            //sends at the end to avoid re-entry attack
-            if(transaction.token == address(0)){
-                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
-                //(bool success, ) = transaction.receiver.call{value:transaction.payload}("");
-                bool success = transaction.receiver.send(transaction.payload);
-                require(success, "Transfer failed.");
-                emit TransactionSent(true);
-            } else {
-                //&&
-            // if(!hasFailed) {
-                   // console.log(ERC20Permit(transaction.token).allowance(transaction.sender, address(this)));
-                    //transfers Token
-                    require(ERC20Permit(transaction.token).transferFrom(transaction.sender, transaction.receiver, transaction.payload));
-            // }
-            }
-        }
-    }
-    */
    //REQUIRES unlimited allowance per token
    //adds to list of transactions 
     function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
@@ -899,27 +639,16 @@ contract Clocktower {
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
 
-            //checks that allowance is infinite
-            //require(ERC20Permit(token).allowance(msg.sender, address(this)) == 2**255, "Requires 2^255 allowance");
-
             //check if there is enough allowance
             require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
-            //requires payload to be the same as permit value
-            //require(payload <= permit.value, "Payload must be less than or equal to value permitted");
         }
         
         //calculates hours since merge from passed unixTime
         uint40 timeTrigger = hoursSinceMerge(unixTime);
 
-        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        //&&
-        //Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
-
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
-        //&&
-        //timeStorageArray.push() = transaction;
         timeMap[timeTrigger].push() = transaction;
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
@@ -928,29 +657,12 @@ contract Clocktower {
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;
 
-        //puts appended arrays back in maps
-        //&&
-        //timeMap[timeTrigger] = timeStorageArray;   
-
         //creates or updates account
         addAccountTransaction(timeTrigger); 
-
-        //updates token balance (and ETH at 0x0)
-        //scheduledBalances[msg.sender][token] += payload;
 
         //updates token balance
         tokenClaims[msg.sender][token] += payload;
 
-        /*
-        if(token != address(0)) {
-            //uses permit to approve transfer
-            ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
-
-            //&&  
-            //transfers token to contract (done at end to avoid re-entrancy attack)
-           // require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
-        }
-        */
     }
 
     //adds to list of transactions 
@@ -971,52 +683,33 @@ contract Clocktower {
             //check if token is on approved list
             require(erc20IsApproved(token)," Token not approved for this contract");
 
-            //check if there is enough allowance
-            //require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
-
             //requires payload to be the same as permit value
             require(payload <= permit.value, "Payload must be less than or equal to value permitted");
         }
         
         //calculates hours since merge from passed unixTime
-        uint40 timeTrigger = hoursSinceMerge(unixTime);
-
-        //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-        //&&
-        //Transaction[] storage timeStorageArray = timeMap[timeTrigger]; 
+        uint40 timeTrigger = hoursSinceMerge(unixTime); 
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
 
-        //&&
-        //timeStorageArray.push() = transaction;
         timeMap[timeTrigger].push() = transaction;
 
         emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
         emit StatusEmit("Pushed");
 
         //adds transaction to lookup
-        transactionLookup.push() = transaction.id;
-
-        //puts appended arrays back in maps
-        //&&
-        //timeMap[timeTrigger] = timeStorageArray;   
+        transactionLookup.push() = transaction.id;  
 
         //creates or updates account
         addAccountTransaction(timeTrigger); 
 
         //updates token balance (and ETH at 0x0)
-        //scheduledBalances[msg.sender][token] += payload;
-
         tokenClaims[msg.sender][token] += payload;
 
         if(token != address(0)) {
             //uses permit to approve transfer
             ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
-
-            //&&  
-            //transfers token to contract (done at end to avoid re-entrancy attack)
-           // require(ERC20Permit(token).transferFrom(msg.sender, address(this), payload), "Problem transferring token");
         }
     }
 
@@ -1033,20 +726,13 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee * batch.length <= msg.value, "Not enough ETH sent with transaction");
 
-        //variables.ethPayloads;
-
-        //Account storage account = accountMap[msg.sender];
-        //variables.accountTriggers = accountMap[msg.sender].timeTriggers;
-
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
         address[] memory batchTokenList = new address[](approvedERC20.length);
 
         //array for unique time triggers in batch (max array size based on existing unique time triggers plus max batch size)
         uint40[] memory batchTriggerList = new uint40[](accountMap[msg.sender].timeTriggers.length + 100);
 
-       // variables.uniqueTokenCount;
-       // variables.uniqueTriggerCount;
-       uint i;
+        uint i;
 
         //validates data in each transaction and creates lists of unique tokens and timeTriggers
         for(i = 0; i < batch.length; i++) {
@@ -1087,7 +773,6 @@ contract Clocktower {
             }
 
             //updates token balance (and ETH balance at 0x0)
-            //tokenTotals[msg.sender][batch[i].token] += batch[i].payload;
             batchTokenTotals[batch[i].token] += batch[i].payload;
 
             //updates claim balance
@@ -1108,12 +793,6 @@ contract Clocktower {
                 break;
             }
 
-            //updates time triggers in map
-
-            //Looks up array for timeTrigger. If no array exists it populates it. If it already does it appends it.
-            //&&
-            //Transaction[] storage transactionStorageArray = timeMap[batchTriggerList[i]];
-
             //creates transaction array
             for(uint16 j = 0; j < batch.length; j++) {
 
@@ -1124,28 +803,13 @@ contract Clocktower {
                     //creates internal transaction struct
                     Transaction memory transaction = setTransaction(msg.sender, batch[j].receiver, batch[j].token, time , batch[j].payload);
 
-                    //&&
-                    //transactionStorageArray.push() = transaction;
                     timeMap[batchTriggerList[i]].push() = transaction;
                 
                     //adds transaction to lookup
                     transactionLookup.push() = transaction.id;
                 }
             }
-
-            //&&
-            //timeMap[batchTriggerList[i]] = transactionStorageArray;
-
-                
-            /*
-            if(!isInTimeArray(batchTriggerList[i], variables.accountTriggers)) {
-                account.timeTriggers.push() = batchTriggerList[i];
-            }
-            */
         }
-        
-        //updates account
-        //address[] memory accountTokens = account.tokens;
         
         //checks if token already exists or not and adds to account
         for(i = 0; i < batchTokenList.length; i++) {
@@ -1156,12 +820,6 @@ contract Clocktower {
                 require(ERC20Permit(batchTokenList[i]).allowance(msg.sender, address(this)) >= batchTokenTotals[batchTokenList[i]] && ERC20Permit(batchTokenList[i]).balanceOf(msg.sender) >= batchTokenTotals[batchTokenList[i]]);
             }
     
-            /*
-            if(!isInAddressArray(batchTokenList[i], accountTokens)) {
-                account.tokens.push() = batchTokenList[i];
-            }
-            */
-
             //resets tokenTotal
             batchTokenTotals[batchTokenList[i]] = 0;
 
@@ -1174,35 +832,7 @@ contract Clocktower {
             accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
         }
-
-        //adds account to account map
-        //accountMap[msg.sender] = account;
-     
-        /*
-        //gets tokens for contract (does at end to avoid re-entry)
-        for(uint k = 0; k < batch.length; k++) {
-
-            //updates token balance (and ETH balance at 0x0)
-            scheduledBalances[msg.sender][batch[k].token] += batch[k].payload;
-
-
-            if(batch[k].token != address(0)) {
-
-                //&&
-                //uses permit to approve transfers
-                //ERC20Permit(batch[k].token).permit(batch[k].permit.owner, batch[k].permit.spender, batch[k].permit.value, batch[k].permit.deadline, batch[k].permit.v, batch[k].permit.r, batch[k].permit.s);
-
-                //transfers token to contract
-               // require(ERC20Permit(batch[k].token).transferFrom(msg.sender, address(this), batch[k].payload), "Problem transferring token");
-            }
-        }
-        */
-
-
-
-
     }
-
 
     //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
     function sendTime() external isAdmin {
@@ -1217,19 +847,7 @@ contract Clocktower {
             //gets transaction array per time trigger
             Transaction[] memory _transactionArray = timeMap[i];
             if(_transactionArray.length > 0) {
-            
-            /*
-            //strips out cancels and sends array to be sent as batch
-            //if(_transactionArray.length > 0) {
-                //iterates through transaction array
-                for(uint h = 0; h < (_transactionArray.length); h++){
-                    //excludes cancelled transactions
-                    //if(!_transactionArray[h].cancelled){
-                        //sends transactions
-                        sendTransaction(_transactionArray[h]);
-                   // } 
-                }    
-                */   
+               
                sendTransactions(_transactionArray);       
             }          
         }
