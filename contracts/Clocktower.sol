@@ -972,7 +972,7 @@ contract Clocktower {
             require(erc20IsApproved(token)," Token not approved for this contract");
 
             //check if there is enough allowance
-            require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
+            //require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
 
             //requires payload to be the same as permit value
             require(payload <= permit.value, "Payload must be less than or equal to value permitted");
