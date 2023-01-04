@@ -4,6 +4,7 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
+import "./Timelibrary.sol";
 
 abstract contract ERC20Permit{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
@@ -17,6 +18,8 @@ contract Clocktower {
 
     constructor() payable {
     }
+
+    using BokkyPooBahsDateTimeLibrary for uint;
 
     //DATA-------------------------------------------------------
 
@@ -446,9 +449,14 @@ contract Clocktower {
         return false;
     }
 
-    //TODO: coverts time trigger to day of the month
-    function hourstoDayOfMonth(uint40 timeTrigger) private view returns (uint8) {
+    //coverts time trigger to day, year, month
+    function unixTimeToDayMonthYear(uint40 unixTime) view external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
 
+        uint unixDays = unixTime / 86400;
+
+        (yearAmount, monthAmount, dayAmount) = unixDays._daysToDate();
+
+        return(yearAmount, monthAmount, dayAmount);
     }
 
     //&&
