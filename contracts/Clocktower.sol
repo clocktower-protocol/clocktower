@@ -19,6 +19,16 @@ contract Clocktower {
     }
 
     //DATA-------------------------------------------------------
+
+    //admin addresses
+    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    //100 = 100%
+    uint fee = 100;
+    //0.01 eth in wei
+    uint fixedFee = 10000000000000000;
+
+
     //global enums
     enum Status {
         PENDING,
@@ -123,26 +133,14 @@ contract Clocktower {
     //failed transaction array
     Transaction[] failedTransactions;
 
-    //admin addresses
-    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-
     //approved contract addresses
     address[] approvedERC20;
 
     //circuit breaker
     bool stopped = false;
 
-    //seconds since merge
-    uint40 constant unixMergeTime = 1663264800;
-
-    //100 = 100%
-    uint fee = 100;
-    //0.01 eth in wei
-    uint fixedFee = 10000000000000000;
-
-
     //variable for last checked by hour
-    uint40 lastCheckedTimeSlot = (hoursSinceMerge(uint40(block.timestamp)) - 1);
+    uint40 lastCheckedTimeSlot = (unixToHours(uint40(block.timestamp)) - 1);
 
     //---------------------------------------------------------------------------------
     
@@ -294,7 +292,7 @@ contract Clocktower {
  
          //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < totalTransactions.length; i++) {
-                totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
+                totalTransactions[i].timeTrigger = hourstoUnix(totalTransactions[i].timeTrigger);
         }
     
         //return transactions;
@@ -448,17 +446,22 @@ contract Clocktower {
         return false;
     }
 
-     //converts time to hours after merge
-    function hoursSinceMerge(uint40 unixTime) private pure returns(uint40 hourCount){
+    //TODO: coverts time trigger to day of the month
+    function hourstoDayOfMonth(uint40 timeTrigger) private view returns (uint8) {
 
-        hourCount = (unixTime - unixMergeTime)/3600;
+    }
 
+    //&&
+    //converts unixTime to hours
+    function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
+        hourCount = unixTime/3600;
         return hourCount;
     }
 
+    //&&
     //converts hours since merge to unix epoch utc time
-    function unixFromHours(uint40 timeTrigger) private pure returns(uint40 unixTime) {
-        unixTime = (unixMergeTime + (timeTrigger*3600));
+    function hourstoUnix(uint40 timeTrigger) private pure returns(uint40 unixTime) {
+        unixTime = timeTrigger*3600;
         return unixTime;
     }
 
@@ -495,7 +498,7 @@ contract Clocktower {
 
          //iterates through array and changes dates to unixEpochTime
         for(uint i = 0; i < totalTransactions.length; i++) {
-                totalTransactions[i].timeTrigger = unixFromHours(totalTransactions[i].timeTrigger);
+                totalTransactions[i].timeTrigger = hourstoUnix(totalTransactions[i].timeTrigger);
         }
     
         //return transactions;
@@ -537,7 +540,7 @@ contract Clocktower {
 
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
         //converts time trigger to hour
-        uint40 timeTrigger = hoursSinceMerge(unixTrigger);
+        uint40 timeTrigger = unixToHours(unixTrigger);
 
         //refunds ethereum
             Transaction[] memory timeTransactions = timeMap[timeTrigger];
@@ -644,7 +647,7 @@ contract Clocktower {
         }
         
         //calculates hours since merge from passed unixTime
-        uint40 timeTrigger = hoursSinceMerge(unixTime);
+        uint40 timeTrigger = unixToHours(unixTime);
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
@@ -688,7 +691,7 @@ contract Clocktower {
         }
         
         //calculates hours since merge from passed unixTime
-        uint40 timeTrigger = hoursSinceMerge(unixTime); 
+        uint40 timeTrigger = unixToHours(unixTime); 
 
          //creates transaction
         Transaction memory transaction = setTransaction(msg.sender, receiver, token, timeTrigger, payload);
@@ -744,7 +747,7 @@ contract Clocktower {
 
             
             //if time trigger is unique we put it in the list
-            uint40 timeTrigger2 = hoursSinceMerge(batch[i].unixTime);
+            uint40 timeTrigger2 = unixToHours(batch[i].unixTime);
 
             //batchTriggerList
             if(!isInTimeArray(timeTrigger2, batchTriggerList)) {
@@ -796,7 +799,7 @@ contract Clocktower {
             //creates transaction array
             for(uint16 j = 0; j < batch.length; j++) {
 
-                uint40 time = hoursSinceMerge(batch[j].unixTime);
+                uint40 time = unixToHours(batch[j].unixTime);
 
 
                 if(time == batchTriggerList[i]) {
@@ -838,7 +841,7 @@ contract Clocktower {
     function sendTime() external isAdmin {
 
         //gets current time slot based on hour
-        uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
+        uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
 
@@ -859,7 +862,7 @@ contract Clocktower {
     //view function that checks if any transactions are in line to be sent
     function checkTime() external view isAdmin returns (bool) {
          //gets current time slot based on hour
-        uint40 _currentTimeSlot = hoursSinceMerge(uint40(block.timestamp));
+        uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked for this time slot");
 
