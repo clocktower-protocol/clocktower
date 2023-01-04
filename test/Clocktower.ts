@@ -235,7 +235,7 @@ describe("Clocktower", function(){
         })
         it("Should find day of month", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            expect(await hardhatClocktower.unixTimeToDayOfMonth(1739340000))
+            expect(await hardhatClocktower.unixTimeToDayMonthYear(1739340000))
 
         })
         
