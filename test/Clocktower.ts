@@ -233,6 +233,11 @@ describe("Clocktower", function(){
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
         })
+        it("Should find day of month", async function() {
+            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            expect(await hardhatClocktower.unixTimeToDayOfMonth(1739340000))
+
+        })
         
     })
     
@@ -402,5 +407,6 @@ describe("Clocktower", function(){
            // expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(ethers.utils.parseEther("1"));
 
         })
+
     })
 })

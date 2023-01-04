@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1672841208433,
-      "contentHash": "311611ab122a4c7cfb0c482a61b9ad52",
+      "lastModificationDate": 1672868666292,
+      "contentHash": "87cec8517fede774c1df03a3003a763f",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -29,7 +29,8 @@
         }
       },
       "imports": [
-        "hardhat/console.sol"
+        "hardhat/console.sol",
+        "./Timelibrary.sol"
       ],
       "versionPragmas": [
         "^0.8.9"
@@ -512,6 +513,41 @@
       ],
       "artifacts": [
         "Math"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Timelibrary.sol": {
+      "lastModificationDate": 1672866777661,
+      "contentHash": "ee67455d57040b9a3d355220efe8f373",
+      "sourceName": "contracts/Timelibrary.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "BokkyPooBahsDateTimeLibrary"
       ]
     }
   }
