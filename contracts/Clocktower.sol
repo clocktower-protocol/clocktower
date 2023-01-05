@@ -101,10 +101,11 @@ contract Clocktower {
         bytes32 id;
         uint amount;
         address owner;
+        address token;
         string description;
         SubType subType;
-        address[] subscribers;
         uint16 dueDay;
+        address[] subscribers;
     }
 
     //Account map
@@ -118,12 +119,11 @@ contract Clocktower {
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
-    //TODO: Subscription maps monthly, quarterly, yearly
+    //Subscription maps monthly, quarterly, yearly
     //day of month 
-    //mapping(uint8 => Subscription[]) monthMap
+    mapping(uint16 => Subscription[]) monthMap;
     //day of year
-    //mapping(uint16 => Subscription[]) yearMap
-
+    mapping(uint16 => Subscription[]) yearMap;
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
@@ -450,7 +450,7 @@ contract Clocktower {
     }
 
     //coverts time trigger to day, year, month
-    function unixTimeToDayMonthYear(uint40 unixTime) view external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
+    function unixTimeToDayMonthYear(uint40 unixTime) pure external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
 
         uint unixDays = unixTime / 86400;
 
@@ -524,7 +524,53 @@ contract Clocktower {
             return _transaction;
     }
 
+    //sets Subscription
+    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
+
+         //creates id hash
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
+
+        address [] memory subscribers;
+
+        subscription = Subscription(id, amount, msg.sender, token, description, subType, dueDay, subscribers);
+    }
+
     //------------------------------------------------------------
+    function createSubscription(uint amount, address token, string calldata description, SubType subtype, uint16 dueDay) external payable {
+        
+        //cannot be ETH or zero address
+        require(token != address(0), "Token address cannot be zero address");
+
+         //require sent ETH to be higher than fixed token fee
+        require(fixedFee <= msg.value, "Not enough ETH sent with transaction");
+
+        //check if token is on approved list
+        require(erc20IsApproved(token)," Token not approved for this contract");
+
+        //amount must be greater than zero
+        require(amount > 0, "Amount must be greater than zero");
+
+        //creates subscription
+        Subscription memory subscription = setSubscription(amount, token, description, subtype, dueDay);
+
+         //month subscription
+        if(subtype == SubType.MONTHLY) {
+            //recurring day must be between 1 and 28
+            require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
+
+            monthMap[dueDay].push() = subscription;
+        }
+
+        if(subtype == SubType.YEARLY) {
+            //recurring annual day must be between 1 and 365
+            require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
+
+            yearMap[dueDay].push() = subscription;
+        }
+
+    }
+
+
     function addAccountTransaction(uint40 timeTrigger) private {
 
         //new account
