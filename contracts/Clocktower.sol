@@ -5,6 +5,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 import "./Timelibrary.sol";
+import "./ClockTowerLibrary.sol";
 
 abstract contract ERC20Permit{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
@@ -20,6 +21,7 @@ contract Clocktower {
     }
 
     using BokkyPooBahsDateTimeLibrary for uint;
+    using ClockTowerLibrary for *;
 
     //DATA-------------------------------------------------------
 
@@ -104,7 +106,7 @@ contract Clocktower {
         bytes32 s;
     }
 
-    //TODO: Subscription struct
+    //Subscription struct
     struct Subscription {
         bytes32 id;
         uint amount;
@@ -457,6 +459,7 @@ contract Clocktower {
         return false;
     }
 
+
     //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
         
@@ -577,6 +580,8 @@ contract Clocktower {
             return _transaction;
     }
 
+    
+    
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
 
@@ -585,6 +590,8 @@ contract Clocktower {
 
         subscription = Subscription(id, amount, msg.sender, true, token, description, subType, dueDay);
     }
+    
+    
 
     //------------------------------------------------------------
     
@@ -598,8 +605,12 @@ contract Clocktower {
 
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "Not enough ETH sent with transaction");
-        
 
+        uint40 test = 1672955979;
+        uint40 result;
+
+        result = test.unixToHours();
+        
         /*
 
         //check if token is on approved list
@@ -653,8 +664,11 @@ contract Clocktower {
         //amount must be greater than zero
         require(amount > 0, "Amount must be greater than zero");
 
+        
+
+        //Subscription memory subscriptionTest = test.setSubscription(amount, token, description, subtype, dueDay);
         //creates subscription
-        Subscription memory subscription = setSubscription(amount, token, description, subtype, dueDay);
+        Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
          //month subscription
         if(subtype == SubType.MONTHLY) {
