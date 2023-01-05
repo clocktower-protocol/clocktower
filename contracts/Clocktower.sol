@@ -4,8 +4,8 @@
 pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
-import "./Timelibrary.sol";
-import "./ClockTowerLibrary.sol";
+//import "./Timelibrary.sol";
+//import "./ClockTowerLibrary.sol";
 
 abstract contract ERC20Permit{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
@@ -20,8 +20,8 @@ contract Clocktower {
     constructor() payable {
     }
 
-    using BokkyPooBahsDateTimeLibrary for uint;
-    using ClockTowerLibrary for *;
+    //using BokkyPooBahsDateTimeLibrary for uint;
+    //using ClockTowerLibrary for *;
 
     //DATA-------------------------------------------------------
 
@@ -489,6 +489,7 @@ contract Clocktower {
     }
     
 
+/*
     //coverts time trigger to day, year, month
     function unixTimeToDayMonthYear(uint40 unixTime) pure external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
 
@@ -498,6 +499,7 @@ contract Clocktower {
 
         return(yearAmount, monthAmount, dayAmount);
     }
+    */
 
     //&&
     //converts unixTime to hours
@@ -592,6 +594,7 @@ contract Clocktower {
     }
     
     
+    
 
     //------------------------------------------------------------
     
@@ -609,7 +612,7 @@ contract Clocktower {
         uint40 test = 1672955979;
         uint40 result;
 
-        result = test.unixToHours();
+        //result = test.unixToHours();
         
         /*
 

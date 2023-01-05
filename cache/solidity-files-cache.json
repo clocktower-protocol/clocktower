@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1672956374367,
-      "contentHash": "427f4a1a8805b216ad0db6c192a82b73",
+      "lastModificationDate": 1672957916427,
+      "contentHash": "695e2a5b43a1adb5fb569be05ef909ce",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -29,9 +29,7 @@
         }
       },
       "imports": [
-        "hardhat/console.sol",
-        "./Timelibrary.sol",
-        "./ClockTowerLibrary.sol"
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.8.9"
@@ -552,8 +550,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerLibrary.sol": {
-      "lastModificationDate": 1672956699509,
-      "contentHash": "1f33d4e130bbca77324651c2222ab812",
+      "lastModificationDate": 1672957866925,
+      "contentHash": "cf1a82b580dc669d03ed713cd644fe8f",
       "sourceName": "contracts/ClockTowerLibrary.sol",
       "solcConfig": {
         "version": "0.8.9",

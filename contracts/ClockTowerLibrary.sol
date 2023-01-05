@@ -10,6 +10,7 @@ library ClockTowerLibrary {
         YEARLY
     }
 
+    
     struct Maps {
         //day of month 
         mapping(uint16 => Subscription[]) monthMap;
@@ -19,7 +20,9 @@ library ClockTowerLibrary {
         //map of subscribers
         mapping(bytes32 => address) subscribersMap;
     }
+    
 
+    
     //Subscription struct
     struct Subscription {
         bytes32 id;
@@ -32,6 +35,7 @@ library ClockTowerLibrary {
         uint16 dueDay;
         //address[] subscribers;
     }
+    
 
      //struct of Subscription indexes
     struct SubIndex {
@@ -41,13 +45,14 @@ library ClockTowerLibrary {
     }
 
      //converts unixTime to hours
-    function unixToHours(uint40 unixTime) internal pure returns(uint40 hourCount){
+    function unixToHours(uint40 unixTime) external pure returns(uint40 hourCount){
         hourCount = unixTime/3600;
         return hourCount;
     }
     
+    
      //fetches subscription from day maps by id
-    function getSubByIndex(SubIndex memory index, Maps storage self) view internal returns(Subscription memory subscription){
+    function getSubByIndex(SubIndex memory index, Maps storage self) view external returns(Subscription memory subscription){
         
           if(index.subType == SubType.MONTHLY){
             
@@ -73,9 +78,10 @@ library ClockTowerLibrary {
 
           return subscription;
     }
+    
 
      //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) internal view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) external view returns (Subscription memory subscription){
 
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
