@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-//Copyright Hugo Marx 2022
+//Copyright Hugo Marx 2023
 //Written by Hugo Marx
 pragma solidity ^0.8.9;
 
@@ -109,11 +109,12 @@ contract Clocktower {
         bytes32 id;
         uint amount;
         address owner;
+        bool exists;
         address token;
         string description;
         SubType subType;
         uint16 dueDay;
-        address[] subscribers;
+        //address[] subscribers;
     }
 
     //Account map
@@ -132,6 +133,9 @@ contract Clocktower {
     mapping(uint16 => Subscription[]) monthMap;
     //day of year
     mapping(uint16 => Subscription[]) yearMap;
+
+    //map of subscribers
+    mapping(bytes32 => address) subscribersMap;
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
@@ -453,7 +457,6 @@ contract Clocktower {
         return false;
     }
 
-    //TODO:
     //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
         
@@ -507,7 +510,7 @@ contract Clocktower {
         return unixTime;
     }
 
-    //TODO: subscriptions by account
+    //subscriptions by account
     function getAccountSubscriptions() external view returns (Subscription[] memory) {
         
         //gets account index
@@ -580,14 +583,64 @@ contract Clocktower {
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
 
-        address [] memory subscribers;
-
-        subscription = Subscription(id, amount, msg.sender, token, description, subType, dueDay, subscribers);
+        subscription = Subscription(id, amount, msg.sender, true, token, description, subType, dueDay);
     }
 
     //------------------------------------------------------------
+    
+    //TODO:
+    
+    //allows subscriber to join a subscription
+    function subscribe(Subscription calldata subscription) external payable {
+
+        //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
+
+         //require sent ETH to be higher than fixed token fee
+        require(fixedFee <= msg.value, "Not enough ETH sent with transaction");
+        
+
+        /*
+
+        //check if token is on approved list
+        require(erc20IsApproved(subscription.token)," Token not approved for this contract");
+
+        //amount must be greater than zero
+        require(subscription.amount > 0, "Amount must be greater than zero");
+
+        */
+
+
+        /*
+        //check subscription exists
+        SubIndex memory index = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
+
+        Subscription memory subCheck = getSubByIndex(index);
+
+        require(subCheck.exists, "Subscription doesn't exist");
+        */
+        
+
+
+            /*
+        if(subscription.subType == SubType.MONTHLY){
+                console.log("here");
+        }
+        if(subscription.subType == SubType.YEARLY) {
+
+        }
+        */
+
+    }
+    
+    
+    
+    //allows provider user to create a subscription
     function createSubscription(uint amount, address token, string calldata description, SubType subtype, uint16 dueDay) external payable {
         
+         //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
+
         //cannot be ETH or zero address
         require(token != address(0), "Token address cannot be zero address");
 
@@ -661,6 +714,10 @@ contract Clocktower {
     }
 
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
+
+         //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
+
         //converts time trigger to hour
         uint40 timeTrigger = unixToHours(unixTrigger);
 
@@ -748,6 +805,9 @@ contract Clocktower {
    //adds to list of transactions 
     function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
 
+         //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
+        
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
 
@@ -793,6 +853,9 @@ contract Clocktower {
     //adds to list of transactions 
     function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
+         //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
+        
         //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "Time data must be in the future");
 
@@ -841,6 +904,9 @@ contract Clocktower {
     //REQUIRE maximum 100 transactions (based on gas limit per block)
     //REQUIRE approval for token totals to be done in advance of calling this function
     function addBatchTransactions(Batch[] memory batch) stopInEmergency payable external {
+
+         //cannot be sent from zero address
+        require(msg.sender != address(0), "Cannot be called from zero address");
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
         require(((batch.length > 1) && (batch.length < 100)), "Batch must have more than one transaction and less than 100");

@@ -1,4 +1,4 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, setBlockGasLimit } from "@nomicfoundation/hardhat-network-helpers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 //import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
@@ -439,8 +439,27 @@ describe("Clocktower", function(){
             expect(subscriptions[1].amount).to.equal(eth);
             expect(subscriptions[1].token).to.equal(hardhatCLOCKToken.address);
             expect(subscriptions[1].dueDay).to.equal(15);
-            
-
         })
+        
+        it("Should allow user to subscribe", async function() {
+
+            const testParams2 = {
+                value: eth,
+                gasLimit: 3000000
+            };
+    
+            
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",0,15, testParams)
+            await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
+
+            let subscriptions = await hardhatClocktower.getAccountSubscriptions()
+
+            await hardhatClocktower.subscribe(subscriptions[0], testParams2)
+        })
+        
     })
 })
