@@ -186,7 +186,6 @@ export interface ClocktowerInterface extends utils.Interface {
     "sendTime()": FunctionFragment;
     "subscribe((bytes32,uint256,address,bool,address,string,uint8,uint16))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
-    "unixTimeToDayMonthYear(uint40)": FunctionFragment;
   };
 
   getFunction(
@@ -213,7 +212,6 @@ export interface ClocktowerInterface extends utils.Interface {
       | "sendTime"
       | "subscribe"
       | "toggleContractActive"
-      | "unixTimeToDayMonthYear"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -313,10 +311,6 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "toggleContractActive",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "unixTimeToDayMonthYear",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "addBatchTransactions",
@@ -386,10 +380,6 @@ export interface ClocktowerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "toggleContractActive",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unixTimeToDayMonthYear",
     data: BytesLike
   ): Result;
 
@@ -614,17 +604,6 @@ export interface Clocktower extends BaseContract {
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    unixTimeToDayMonthYear(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        dayAmount: BigNumber;
-        monthAmount: BigNumber;
-        yearAmount: BigNumber;
-      }
-    >;
   };
 
   addBatchTransactions(
@@ -735,17 +714,6 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unixTimeToDayMonthYear(
-    unixTime: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      dayAmount: BigNumber;
-      monthAmount: BigNumber;
-      yearAmount: BigNumber;
-    }
-  >;
-
   callStatic: {
     addBatchTransactions(
       batch: Clocktower.BatchStruct[],
@@ -850,17 +818,6 @@ export interface Clocktower extends BaseContract {
     ): Promise<void>;
 
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
-
-    unixTimeToDayMonthYear(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        dayAmount: BigNumber;
-        monthAmount: BigNumber;
-        yearAmount: BigNumber;
-      }
-    >;
   };
 
   filters: {
@@ -999,11 +956,6 @@ export interface Clocktower extends BaseContract {
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    unixTimeToDayMonthYear(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1109,11 +1061,6 @@ export interface Clocktower extends BaseContract {
 
     toggleContractActive(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unixTimeToDayMonthYear(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }
