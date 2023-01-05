@@ -67,6 +67,14 @@ contract Clocktower {
         //indexs of timeTriggers and tokens stored per account. 
         //Timetrigger to lookup transactions. Token index to lookup balances
         uint40[] timeTriggers;
+        SubIndex[] subscriptions;
+    }
+
+     //struct of Subscription indexes
+    struct SubIndex {
+        bytes32 id;
+        uint16 dueDay;
+        SubType subType;
     }
 
     //batch struct
@@ -131,10 +139,6 @@ contract Clocktower {
     //TODO: might be a more gas efficient way to do this
     //mapping for batch token totals
     mapping(address => uint) batchTokenTotals;
-    
-    //&&
-    //failed transaction array
-    Transaction[] failedTransactions;
 
     //approved contract addresses
     address[] approvedERC20;
@@ -449,6 +453,36 @@ contract Clocktower {
         return false;
     }
 
+    //TODO:
+    //fetches subscription from day maps by id
+    function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
+          
+          if(index.subType == SubType.MONTHLY){
+            
+            Subscription[] memory subList = monthMap[index.dueDay];
+
+                //searchs for subscription in day map
+                for(uint j; j < subList.length; j++) {
+                    if(subList[j].id == index.id) {
+                        subscription = subList[j];
+                    }
+                }
+          }
+           if(index.subType == SubType.YEARLY){
+            Subscription[] memory subList = monthMap[index.dueDay];
+
+                //searchs for subscription in day map
+                for(uint j; j < subList.length; j++) {
+                    if(subList[j].id == index.id) {
+                        subscription = subList[j];
+                    }
+                }
+          }
+
+          return subscription;
+    }
+    
+
     //coverts time trigger to day, year, month
     function unixTimeToDayMonthYear(uint40 unixTime) pure external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
 
@@ -471,6 +505,22 @@ contract Clocktower {
     function hourstoUnix(uint40 timeTrigger) private pure returns(uint40 unixTime) {
         unixTime = timeTrigger*3600;
         return unixTime;
+    }
+
+    //TODO: subscriptions by account
+    function getAccountSubscriptions() external view returns (Subscription[] memory) {
+        
+        //gets account index
+        SubIndex[] memory index = accountMap[msg.sender].subscriptions;
+
+        Subscription[] memory subscriptions = new Subscription[](index.length);
+
+        //loops through account index and fetchs subscriptions
+        for(uint i; i < index.length; i++){
+            subscriptions[i] = getSubByIndex(index[i]);
+        }
+        
+        return subscriptions;
     }
 
     //gets transactions from account
@@ -558,6 +608,7 @@ contract Clocktower {
             //recurring day must be between 1 and 28
             require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
 
+            //creates subscription
             monthMap[dueDay].push() = subscription;
         }
 
@@ -568,6 +619,23 @@ contract Clocktower {
             yearMap[dueDay].push() = subscription;
         }
 
+         //creates subscription index
+        SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
+
+        //adds it to account
+        addAccountSubscription(subindex);
+
+    }
+
+    function addAccountSubscription(SubIndex memory subIndex) private {
+          //new account
+        if(accountMap[msg.sender].exists == false) {
+            accountMap[msg.sender].accountAddress = msg.sender;
+            //adds to lookup table
+            accountLookup.push() = msg.sender;
+            accountMap[msg.sender].exists = true;
+        } 
+        accountMap[msg.sender].subscriptions.push() = subIndex;
     }
 
 
