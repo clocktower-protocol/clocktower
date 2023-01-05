@@ -105,6 +105,8 @@ describe("Clocktower", function(){
             value: eth
         }
 
+        
+
         //approves token
         //await hardhatClocktower.addERC20Contract(hardhatCLOCKToken.address);
          //signs permit
@@ -408,5 +410,36 @@ describe("Clocktower", function(){
 
         })
 
+    })
+    describe("Subscriptions", function() {
+        const testParams = {
+            value: eth
+        };
+
+        it("Should create Subscription", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+
+            expect(await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",0,15, testParams))
+
+        })
+
+        it("Should get subscriptions", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",0,15, testParams)
+            let subscriptions = await hardhatClocktower.getAccountSubscriptions()
+
+            expect(subscriptions[0].description).to.equal("Test")
+            expect(subscriptions[0].amount).to.equal(eth);
+            expect(subscriptions[0].token).to.equal(hardhatCLOCKToken.address);
+            expect(subscriptions[0].dueDay).to.equal(15);
+            
+
+        })
     })
 })
