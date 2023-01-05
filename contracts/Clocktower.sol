@@ -456,7 +456,7 @@ contract Clocktower {
     //TODO:
     //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
-          
+        
           if(index.subType == SubType.MONTHLY){
             
             Subscription[] memory subList = monthMap[index.dueDay];
@@ -469,7 +469,7 @@ contract Clocktower {
                 }
           }
            if(index.subType == SubType.YEARLY){
-            Subscription[] memory subList = monthMap[index.dueDay];
+            Subscription[] memory subList = yearMap[index.dueDay];
 
                 //searchs for subscription in day map
                 for(uint j; j < subList.length; j++) {
