@@ -34,6 +34,7 @@ describe("Clocktower", function(){
     //DAI address
     const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
     const clockLibraryAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    const clockPureAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
 
     //Infinite approval
     const infiniteApproval = BigInt(Math.pow(2,255))
@@ -100,14 +101,20 @@ describe("Clocktower", function(){
         const Clocktower = await ethers.getContractFactory("Clocktower")
 
         const ClockToken = await ethers.getContractFactory("CLOCKToken");
+
+       // const ClockPure = await ethers.getContractFactory("contracts/ClocktowerPure.sol");
+
         const [owner, otherAccount] = await ethers.getSigners();
 
         const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
+       // const hardhatClockPure = await ClockPure.deploy();
+
         const addressZero = ethers.constants.AddressZero;
 
         await hardhatClocktower.deployed();
         await hardhatCLOCKToken.deployed();
+        //await hardhatClockPure.deployed();
 
          //starts contract with 100 ETH
          const params = {

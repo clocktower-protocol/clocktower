@@ -7,6 +7,16 @@ import "hardhat/console.sol";
 //import "./Timelibrary.sol";
 //import "./ClockTowerLibrary.sol";
 
+interface ERC20Permit{
+  function transferFrom(address from, address to, uint value) external returns (bool);
+  function balanceOf(address tokenOwner) external returns (uint);
+  function approve(address spender, uint tokens) external returns (bool);
+  function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
+  function allowance(address owner, address spender) external returns (uint);
+} 
+
+
+/*
 abstract contract ERC20Permit{
   function transferFrom(address from, address to, uint value) public virtual returns (bool);
   function balanceOf(address tokenOwner) public virtual returns (uint);
@@ -14,6 +24,7 @@ abstract contract ERC20Permit{
   function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public virtual;
   function allowance(address owner, address spender) public virtual returns (uint);
 } 
+*/
 
 contract Clocktower {
 
