@@ -618,21 +618,15 @@ contract Clocktower {
 
     //------------------------------------------------------------
     
-    //TODO:
-    
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
         //cannot be sent from zero address
-        //require(msg.sender != address(0), "No zero address call");
         userNotZero();
 
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "Not enough ETH sent");
 
-
-        //result = test.unixToHours();
-        
         /*
 
         //check if token is on approved list
@@ -643,27 +637,15 @@ contract Clocktower {
 
         */
 
-
-        /*
         //check subscription exists
         SubIndex memory index = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
 
-        Subscription memory subCheck = getSubByIndex(index);
+        Subscription memory memSubscription = getSubByIndex(index);
 
-        require(subCheck.exists, "Subscription doesn't exist");
-        */
-        
+        require(memSubscription.exists, "Subscription doesn't exist");
 
-
-            /*
-        if(subscription.subType == SubType.MONTHLY){
-                console.log("here");
-        }
-        if(subscription.subType == SubType.YEARLY) {
-
-        }
-        */
-
+        //adds to subscriber map
+        subscribersMap[subscription.id] = msg.sender;
     }
     
     
