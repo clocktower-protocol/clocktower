@@ -157,20 +157,18 @@ contract Clocktower {
     //---------------------------------------------------------------------------------
     
     //Emits
-    event TransactionAdd(address sender, address receiver, uint40 timeTrigger, uint payload);
-    event StatusEmit(string output);
-    event CheckStatus(string output2);
-    event TransactionSent(bool sent);
-    event UnknownFunction(string output3);
-    event ReceiveETH(address user, uint amount);
-    event AccountCreated(string output4);
+    //event CheckStatus(string output2);
+    //event TransactionSent(bool sent);
+    //event UnknownFunction(string output3);
+    //event ReceiveETH(address user, uint amount);
+    ///event AccountCreated(string output4);
 
     //functions for receiving ether
     receive() external payable{
-        emit ReceiveETH(msg.sender, msg.value);
+        //emit ReceiveETH(msg.sender, msg.value);
     }
     fallback() external payable{
-        emit UnknownFunction("Unknown function");
+        //emit UnknownFunction("Unknown function");
     }
 
     //ADMIN METHODS*************************************
@@ -318,6 +316,17 @@ contract Clocktower {
     //**************************************************
 
     //UTILITY FUNCTIONS-----------------------------------
+    function userNotZero() view private {
+        require(msg.sender != address(0), "No zero address call");
+    }
+
+    function futureOnHour(uint40 unixTime) view private {
+         //require transactions to be in the future and to be on the hour
+        require(unixTime > block.timestamp, "Time must be in the future");
+
+        require(unixTime % 3600 == 0, "Time must be on the hour");
+    }
+
     function removeAccountTriggerItem(uint40 timeTrigger) private {
 
             //goes into account map and cleans up timeTriggers
@@ -615,13 +624,12 @@ contract Clocktower {
     function subscribe(Subscription calldata subscription) external payable {
 
         //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+        //require(msg.sender != address(0), "No zero address call");
+        userNotZero();
 
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "Not enough ETH sent");
 
-        uint40 test = 1672955979;
-        uint40 result;
 
         //result = test.unixToHours();
         
@@ -664,7 +672,8 @@ contract Clocktower {
     function createSubscription(uint amount, address token, string calldata description, SubType subtype, uint16 dueDay) external payable {
         
          //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+        //require(msg.sender != address(0), "No zero address call");
+        userNotZero();
 
         //cannot be ETH or zero address
         require(token != address(0), "Token address cannot be zero");
@@ -745,7 +754,8 @@ contract Clocktower {
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
 
          //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+        //require(msg.sender != address(0), "No zero address call");
+        userNotZero();
 
         //converts time trigger to hour
         uint40 timeTrigger = unixToHours(unixTrigger);
@@ -822,7 +832,6 @@ contract Clocktower {
                 //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
                 bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
                 require(success, "Transfer failed.");
-                emit TransactionSent(true);
             } else {
                 //transfers Token
                 require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
@@ -835,12 +844,14 @@ contract Clocktower {
     function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
 
          //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+       // require(msg.sender != address(0), "No zero address call");
+       userNotZero();
         
         //require transactions to be in the future and to be on the hour
-        require(unixTime > block.timestamp, "Time must be in the future");
+        //require(unixTime > block.timestamp, "Time must be in the future");
 
-        require(unixTime % 3600 == 0, "Time must be on the hour");
+        //require(unixTime % 3600 == 0, "Time must be on the hour");
+        futureOnHour(unixTime);
         
         if(token == address(0)) {
             //require sent ETH to be higher than payload * fee
@@ -865,9 +876,6 @@ contract Clocktower {
 
         timeMap[timeTrigger].push() = transaction;
 
-        emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
-        emit StatusEmit("Pushed");
-
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;
 
@@ -883,12 +891,14 @@ contract Clocktower {
     function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
          //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+       // require(msg.sender != address(0), "No zero address call");
+       userNotZero();
         
         //require transactions to be in the future and to be on the hour
-        require(unixTime > block.timestamp, "Time must be in the future");
+        //require(unixTime > block.timestamp, "Time must be in the future");
 
-        require(unixTime % 3600 == 0, "Time must be on the hour");
+        //require(unixTime % 3600 == 0, "Time must be on the hour");
+        futureOnHour(unixTime);
         
         if(token == address(0)) {
             //require sent ETH to be higher than payload * fee
@@ -912,9 +922,6 @@ contract Clocktower {
 
         timeMap[timeTrigger].push() = transaction;
 
-        emit TransactionAdd(msg.sender, receiver, timeTrigger, payload);
-        emit StatusEmit("Pushed");
-
         //adds transaction to lookup
         transactionLookup.push() = transaction.id;  
 
@@ -935,7 +942,8 @@ contract Clocktower {
     function addBatchTransactions(Batch[] memory batch) stopInEmergency payable external {
 
          //cannot be sent from zero address
-        require(msg.sender != address(0), "No zero address call");
+        //require(msg.sender != address(0), "No zero address call");
+        userNotZero();
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
         require(((batch.length > 1) && (batch.length < 100)), "Batch must > one transaction < 100");
@@ -958,9 +966,10 @@ contract Clocktower {
         for(i = 0; i < batch.length; i++) {
 
             //require transactions to be in the future and to be on the hour
-            require(batch[i].unixTime > block.timestamp, "Time must be in the future");
+            //require(batch[i].unixTime > block.timestamp, "Time must be in the future");
 
-            require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
+            //require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
+            futureOnHour(batch[i].unixTime);
 
             
             //if time trigger is unique we put it in the list

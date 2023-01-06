@@ -14,11 +14,7 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -379,92 +375,8 @@ export interface ClocktowerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {
-    "AccountCreated(string)": EventFragment;
-    "CheckStatus(string)": EventFragment;
-    "ReceiveETH(address,uint256)": EventFragment;
-    "StatusEmit(string)": EventFragment;
-    "TransactionAdd(address,address,uint40,uint256)": EventFragment;
-    "TransactionSent(bool)": EventFragment;
-    "UnknownFunction(string)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "AccountCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "CheckStatus"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ReceiveETH"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StatusEmit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransactionAdd"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TransactionSent"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UnknownFunction"): EventFragment;
+  events: {};
 }
-
-export interface AccountCreatedEventObject {
-  output4: string;
-}
-export type AccountCreatedEvent = TypedEvent<
-  [string],
-  AccountCreatedEventObject
->;
-
-export type AccountCreatedEventFilter = TypedEventFilter<AccountCreatedEvent>;
-
-export interface CheckStatusEventObject {
-  output2: string;
-}
-export type CheckStatusEvent = TypedEvent<[string], CheckStatusEventObject>;
-
-export type CheckStatusEventFilter = TypedEventFilter<CheckStatusEvent>;
-
-export interface ReceiveETHEventObject {
-  user: string;
-  amount: BigNumber;
-}
-export type ReceiveETHEvent = TypedEvent<
-  [string, BigNumber],
-  ReceiveETHEventObject
->;
-
-export type ReceiveETHEventFilter = TypedEventFilter<ReceiveETHEvent>;
-
-export interface StatusEmitEventObject {
-  output: string;
-}
-export type StatusEmitEvent = TypedEvent<[string], StatusEmitEventObject>;
-
-export type StatusEmitEventFilter = TypedEventFilter<StatusEmitEvent>;
-
-export interface TransactionAddEventObject {
-  sender: string;
-  receiver: string;
-  timeTrigger: number;
-  payload: BigNumber;
-}
-export type TransactionAddEvent = TypedEvent<
-  [string, string, number, BigNumber],
-  TransactionAddEventObject
->;
-
-export type TransactionAddEventFilter = TypedEventFilter<TransactionAddEvent>;
-
-export interface TransactionSentEventObject {
-  sent: boolean;
-}
-export type TransactionSentEvent = TypedEvent<
-  [boolean],
-  TransactionSentEventObject
->;
-
-export type TransactionSentEventFilter = TypedEventFilter<TransactionSentEvent>;
-
-export interface UnknownFunctionEventObject {
-  output3: string;
-}
-export type UnknownFunctionEvent = TypedEvent<
-  [string],
-  UnknownFunctionEventObject
->;
-
-export type UnknownFunctionEventFilter = TypedEventFilter<UnknownFunctionEvent>;
 
 export interface Clocktower extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -810,41 +722,7 @@ export interface Clocktower extends BaseContract {
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
   };
 
-  filters: {
-    "AccountCreated(string)"(output4?: null): AccountCreatedEventFilter;
-    AccountCreated(output4?: null): AccountCreatedEventFilter;
-
-    "CheckStatus(string)"(output2?: null): CheckStatusEventFilter;
-    CheckStatus(output2?: null): CheckStatusEventFilter;
-
-    "ReceiveETH(address,uint256)"(
-      user?: null,
-      amount?: null
-    ): ReceiveETHEventFilter;
-    ReceiveETH(user?: null, amount?: null): ReceiveETHEventFilter;
-
-    "StatusEmit(string)"(output?: null): StatusEmitEventFilter;
-    StatusEmit(output?: null): StatusEmitEventFilter;
-
-    "TransactionAdd(address,address,uint40,uint256)"(
-      sender?: null,
-      receiver?: null,
-      timeTrigger?: null,
-      payload?: null
-    ): TransactionAddEventFilter;
-    TransactionAdd(
-      sender?: null,
-      receiver?: null,
-      timeTrigger?: null,
-      payload?: null
-    ): TransactionAddEventFilter;
-
-    "TransactionSent(bool)"(sent?: null): TransactionSentEventFilter;
-    TransactionSent(sent?: null): TransactionSentEventFilter;
-
-    "UnknownFunction(string)"(output3?: null): UnknownFunctionEventFilter;
-    UnknownFunction(output3?: null): UnknownFunctionEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     addBatchTransactions(
