@@ -33,6 +33,7 @@ describe("Clocktower", function(){
     const clockTokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
     //DAI address
     const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+    const clockLibraryAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
     //Infinite approval
     const infiniteApproval = BigInt(Math.pow(2,255))
@@ -79,10 +80,25 @@ describe("Clocktower", function(){
     //fixture to deploy contract
     async function deployClocktowerFixture() {
 
+        /*
+        const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
+        const hardhatClockLibrary = await ClockLibrary.deploy();
+        await hardhatClockLibrary.deployed();
+        */
+
         //sets time to 2023/01/01 1:00
         await time.increaseTo(currentTime);
 
-        const Clocktower = await ethers.getContractFactory("Clocktower");
+        /*
+        const Clocktower = await ethers.getContractFactory("Clocktower", {
+            libraries: {
+                ClockTowerLibrary: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+            }
+        });
+        */
+
+        const Clocktower = await ethers.getContractFactory("Clocktower")
+
         const ClockToken = await ethers.getContractFactory("CLOCKToken");
         const [owner, otherAccount] = await ethers.getSigners();
 

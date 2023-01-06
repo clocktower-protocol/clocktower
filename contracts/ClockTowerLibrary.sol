@@ -5,6 +5,29 @@ pragma solidity ^0.8.9;
 
 library ClockTowerLibrary {
 
+     //checks if value is in array
+    function isInTimeArray(uint40 value, uint40[] memory array) internal pure returns (bool) {
+    
+        for(uint i; i < array.length; i++){
+            if(array[i] == value) {
+                    return true;
+            }
+        }
+        return false; 
+    }
+
+    //checks if value is in array
+    function isInAddressArray(address value, address[] memory array) internal pure returns (bool result) {
+        result = false;
+        for(uint i; i < array.length; i++){
+            if(array[i] == value) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /*
       enum SubType {
         MONTHLY,
         YEARLY
@@ -89,5 +112,5 @@ library ClockTowerLibrary {
         subscription = Subscription(id, amount, msg.sender, true, token, description, subType, dueDay);
     }
 
-
+    */
 }

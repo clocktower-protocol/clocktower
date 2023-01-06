@@ -21,70 +21,31 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export declare namespace ClockTowerLibrary {
-  export type SubscriptionStruct = {
-    id: PromiseOrValue<BytesLike>;
-    amount: PromiseOrValue<BigNumberish>;
-    owner: PromiseOrValue<string>;
-    exists: PromiseOrValue<boolean>;
-    token: PromiseOrValue<string>;
-    description: PromiseOrValue<string>;
-    subType: PromiseOrValue<BigNumberish>;
-    dueDay: PromiseOrValue<BigNumberish>;
-  };
-
-  export type SubscriptionStructOutput = [
-    string,
-    BigNumber,
-    string,
-    boolean,
-    string,
-    string,
-    number,
-    number
-  ] & {
-    id: string;
-    amount: BigNumber;
-    owner: string;
-    exists: boolean;
-    token: string;
-    description: string;
-    subType: number;
-    dueDay: number;
-  };
-}
-
 export interface ClockTowerLibraryInterface extends utils.Interface {
   functions: {
-    "setSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
-    "unixToHours(uint40)": FunctionFragment;
+    "isInAddressArray(address,address[])": FunctionFragment;
+    "isInTimeArray(uint40,uint40[])": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "setSubscription" | "unixToHours"
+    nameOrSignatureOrTopic: "isInAddressArray" | "isInTimeArray"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "setSubscription",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    functionFragment: "isInAddressArray",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "unixToHours",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "isInTimeArray",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "setSubscription",
+    functionFragment: "isInAddressArray",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "unixToHours",
+    functionFragment: "isInTimeArray",
     data: BytesLike
   ): Result;
 
@@ -118,85 +79,71 @@ export interface ClockTowerLibrary extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    setSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      description: PromiseOrValue<string>,
-      subType: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
+    isInAddressArray(
+      value: PromiseOrValue<string>,
+      array: PromiseOrValue<string>[],
       overrides?: CallOverrides
-    ): Promise<
-      [ClockTowerLibrary.SubscriptionStructOutput] & {
-        subscription: ClockTowerLibrary.SubscriptionStructOutput;
-      }
-    >;
+    ): Promise<[boolean] & { result: boolean }>;
 
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    isInTimeArray(
+      value: PromiseOrValue<BigNumberish>,
+      array: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
-    ): Promise<[number] & { hourCount: number }>;
+    ): Promise<[boolean]>;
   };
 
-  setSubscription(
-    amount: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
-    description: PromiseOrValue<string>,
-    subType: PromiseOrValue<BigNumberish>,
-    dueDay: PromiseOrValue<BigNumberish>,
+  isInAddressArray(
+    value: PromiseOrValue<string>,
+    array: PromiseOrValue<string>[],
     overrides?: CallOverrides
-  ): Promise<ClockTowerLibrary.SubscriptionStructOutput>;
+  ): Promise<boolean>;
 
-  unixToHours(
-    unixTime: PromiseOrValue<BigNumberish>,
+  isInTimeArray(
+    value: PromiseOrValue<BigNumberish>,
+    array: PromiseOrValue<BigNumberish>[],
     overrides?: CallOverrides
-  ): Promise<number>;
+  ): Promise<boolean>;
 
   callStatic: {
-    setSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      description: PromiseOrValue<string>,
-      subType: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
+    isInAddressArray(
+      value: PromiseOrValue<string>,
+      array: PromiseOrValue<string>[],
       overrides?: CallOverrides
-    ): Promise<ClockTowerLibrary.SubscriptionStructOutput>;
+    ): Promise<boolean>;
 
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    isInTimeArray(
+      value: PromiseOrValue<BigNumberish>,
+      array: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
-    ): Promise<number>;
+    ): Promise<boolean>;
   };
 
   filters: {};
 
   estimateGas: {
-    setSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      description: PromiseOrValue<string>,
-      subType: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
+    isInAddressArray(
+      value: PromiseOrValue<string>,
+      array: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    isInTimeArray(
+      value: PromiseOrValue<BigNumberish>,
+      array: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    setSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      description: PromiseOrValue<string>,
-      subType: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
+    isInAddressArray(
+      value: PromiseOrValue<string>,
+      array: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    isInTimeArray(
+      value: PromiseOrValue<BigNumberish>,
+      array: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
