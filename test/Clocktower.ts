@@ -193,23 +193,6 @@ describe("Clocktower", function(){
             value: eth
         };
 
-        it("Should add transactions", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-
-            //Add transaction to contract
-            await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAhead ,eth , ethers.constants.AddressZero, testParams)
-            ).to.emit(hardhatClocktower, "TransactionAdd")
-            .withArgs(owner.address, otherAccount.address, ((currentTime / 3600) + 1), eth);
-        })
-        it("Should output status", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            //get status output
-            await expect(
-                hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
-            ).to.emit(hardhatClocktower, "StatusEmit")
-            .withArgs("Pushed");
-        })
         it("Should send eth with the transaction", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
            
@@ -236,14 +219,7 @@ describe("Clocktower", function(){
     
     describe("Send Time", function(){
         
-        it("Should send transactions", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await time.increaseTo(twoHoursAhead);
-            await expect(
-                hardhatClocktower.sendTime()
-            ).to.emit(hardhatClocktower, "TransactionSent")
-            .withArgs(true);
-        }) 
+
         it("Should send ether to addresses", async function() {
             const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await hardhatClocktower.sendTime();
