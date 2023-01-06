@@ -452,6 +452,20 @@ describe("Clocktower", function(){
 
             await hardhatClocktower.subscribe(subscriptions[0], testParams2)
         })
+        it("Should allow user to unsubscribe", async function() {
+            const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            
+            //adds CLOCK to approved tokens
+            await hardhatClocktower.addERC20Contract(clockTokenAddress)
+            await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",0,15, testParams)
+            await hardhatClocktower.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
+
+            let subscriptions = await hardhatClocktower.getAccountSubscriptions()
+
+            await hardhatClocktower.subscribe(subscriptions[0], testParams)
+
+            await hardhatClocktower.unsubscribe(subscriptions[0].id, testParams);
+        })
         
     })
 })
