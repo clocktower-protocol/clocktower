@@ -5,121 +5,6 @@
     "type": "constructor"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "output4",
-        "type": "string"
-      }
-    ],
-    "name": "AccountCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "output2",
-        "type": "string"
-      }
-    ],
-    "name": "CheckStatus",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "ReceiveETH",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "output",
-        "type": "string"
-      }
-    ],
-    "name": "StatusEmit",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint40",
-        "name": "timeTrigger",
-        "type": "uint40"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "payload",
-        "type": "uint256"
-      }
-    ],
-    "name": "TransactionAdd",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sent",
-        "type": "bool"
-      }
-    ],
-    "name": "TransactionSent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "output3",
-        "type": "string"
-      }
-    ],
-    "name": "UnknownFunction",
-    "type": "event"
-  },
-  {
     "stateMutability": "payable",
     "type": "fallback"
   },
@@ -374,6 +259,66 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "enum Clocktower.SubType",
+            "name": "subType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint16",
+            "name": "dueDay",
+            "type": "uint16"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct Clocktower.Subscription",
+        "name": "subscription",
+        "type": "tuple"
+      }
+    ],
+    "name": "cancelSubscription",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "id",
         "type": "bytes32"
@@ -506,14 +451,14 @@
             "type": "bool"
           },
           {
+            "internalType": "bool",
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
             "internalType": "address",
             "name": "token",
             "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           },
           {
             "internalType": "enum Clocktower.SubType",
@@ -524,6 +469,11 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Clocktower.Subscription[]",
@@ -587,19 +537,6 @@
   {
     "inputs": [],
     "name": "getFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getTime",
     "outputs": [
       {
         "internalType": "uint256",
@@ -730,14 +667,14 @@
             "type": "bool"
           },
           {
+            "internalType": "bool",
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
             "internalType": "address",
             "name": "token",
             "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           },
           {
             "internalType": "enum Clocktower.SubType",
@@ -748,6 +685,11 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
           }
         ],
         "internalType": "struct Clocktower.Subscription",
@@ -770,30 +712,14 @@
   {
     "inputs": [
       {
-        "internalType": "uint40",
-        "name": "unixTime",
-        "type": "uint40"
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
       }
     ],
-    "name": "unixTimeToDayMonthYear",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "dayAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "monthAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "yearAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
+    "name": "unsubscribe",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {

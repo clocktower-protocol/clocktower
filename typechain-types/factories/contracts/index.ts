@@ -3,3 +3,4 @@
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
 export * as clocktowerSol from "./Clocktower.sol";
+export { ClocktowerPure__factory } from "./ClocktowerPure__factory";
