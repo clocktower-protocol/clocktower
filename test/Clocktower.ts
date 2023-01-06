@@ -81,11 +81,7 @@ describe("Clocktower", function(){
     //fixture to deploy contract
     async function deployClocktowerFixture() {
 
-        /*
-        const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
-        const hardhatClockLibrary = await ClockLibrary.deploy();
-        await hardhatClockLibrary.deployed();
-        */
+        
 
         //sets time to 2023/01/01 1:00
         await time.increaseTo(currentTime);
@@ -97,6 +93,7 @@ describe("Clocktower", function(){
             }
         });
         */
+        
 
         const Clocktower = await ethers.getContractFactory("Clocktower")
 
@@ -128,7 +125,11 @@ describe("Clocktower", function(){
             value: eth
         }
 
-        
+        /*
+        const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
+        const hardhatClockLibrary = await ClockLibrary.deploy();
+        await hardhatClockLibrary.deployed();
+        */
 
         //approves token
         //await hardhatClocktower.addERC20Contract(hardhatCLOCKToken.address);
