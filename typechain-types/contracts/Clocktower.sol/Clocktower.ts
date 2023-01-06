@@ -131,10 +131,11 @@ export declare namespace Clocktower {
     amount: PromiseOrValue<BigNumberish>;
     owner: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
+    cancelled: PromiseOrValue<boolean>;
     token: PromiseOrValue<string>;
-    description: PromiseOrValue<string>;
     subType: PromiseOrValue<BigNumberish>;
     dueDay: PromiseOrValue<BigNumberish>;
+    description: PromiseOrValue<string>;
   };
 
   export type SubscriptionStructOutput = [
@@ -142,19 +143,21 @@ export declare namespace Clocktower {
     BigNumber,
     string,
     boolean,
-    string,
+    boolean,
     string,
     number,
-    number
+    number,
+    string
   ] & {
     id: string;
     amount: BigNumber;
     owner: string;
     exists: boolean;
+    cancelled: boolean;
     token: string;
-    description: string;
     subType: number;
     dueDay: number;
+    description: string;
   };
 }
 
@@ -166,6 +169,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
     "allAccounts()": FunctionFragment;
     "allTransactions()": FunctionFragment;
+    "cancelSubscription((bytes32,uint256,address,bool,bool,address,uint8,uint16,string))": FunctionFragment;
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
@@ -179,7 +183,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "getTransactionsByAccount(address)": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "sendTime()": FunctionFragment;
-    "subscribe((bytes32,uint256,address,bool,address,string,uint8,uint16))": FunctionFragment;
+    "subscribe((bytes32,uint256,address,bool,bool,address,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
   };
@@ -192,6 +196,7 @@ export interface ClocktowerInterface extends utils.Interface {
       | "addTransaction"
       | "allAccounts"
       | "allTransactions"
+      | "cancelSubscription"
       | "cancelTransaction"
       | "changeAdmin"
       | "changeFee"
@@ -244,6 +249,10 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "allTransactions",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "cancelSubscription",
+    values: [Clocktower.SubscriptionStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "cancelTransaction",
@@ -333,6 +342,10 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "allTransactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelSubscription",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -450,6 +463,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[Clocktower.TransactionStructOutput[]]>;
 
+    cancelSubscription(
+      subscription: Clocktower.SubscriptionStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       unixTrigger: PromiseOrValue<BigNumberish>,
@@ -561,6 +579,11 @@ export interface Clocktower extends BaseContract {
   allTransactions(
     overrides?: CallOverrides
   ): Promise<Clocktower.TransactionStructOutput[]>;
+
+  cancelSubscription(
+    subscription: Clocktower.SubscriptionStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   cancelTransaction(
     id: PromiseOrValue<BytesLike>,
@@ -674,6 +697,11 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<Clocktower.TransactionStructOutput[]>;
 
+    cancelSubscription(
+      subscription: Clocktower.SubscriptionStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       unixTrigger: PromiseOrValue<BigNumberish>,
@@ -781,6 +809,11 @@ export interface Clocktower extends BaseContract {
 
     allTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    cancelSubscription(
+      subscription: Clocktower.SubscriptionStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,
       unixTrigger: PromiseOrValue<BigNumberish>,
@@ -885,6 +918,11 @@ export interface Clocktower extends BaseContract {
     allAccounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    cancelSubscription(
+      subscription: Clocktower.SubscriptionStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     cancelTransaction(
       id: PromiseOrValue<BytesLike>,

@@ -71,11 +71,34 @@ contract Clocktower {
         SubIndex[] subscriptions;
     }
 
+     //Subscription struct
+    struct Subscription {
+        bytes32 id;
+        uint amount;
+        address owner;
+        bool exists;
+        bool cancelled;
+        address token;
+        SubType subType;
+        uint16 dueDay;
+        string description;
+        //address[] subscribers;
+    }
+
+
      //struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
         uint16 dueDay;
         SubType subType;
+    }
+
+    //&&
+    //struct of subscription payments
+    struct SubLog {
+        bytes32 subId;
+        uint40 timestamp; 
+        bool success;
     }
 
     //batch struct
@@ -105,19 +128,6 @@ contract Clocktower {
         bytes32 s;
     }
 
-    //Subscription struct
-    struct Subscription {
-        bytes32 id;
-        uint amount;
-        address owner;
-        bool exists;
-        address token;
-        string description;
-        SubType subType;
-        uint16 dueDay;
-        //address[] subscribers;
-    }
-
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
@@ -137,6 +147,10 @@ contract Clocktower {
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
+
+    //&&
+    //log of subscription payments
+    mapping(address => SubLog) paymentLog;
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
@@ -612,14 +626,47 @@ contract Clocktower {
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
 
-        subscription = Subscription(id, amount, msg.sender, true, token, description, subType, dueDay);
+        subscription = Subscription(id, amount, msg.sender, true, false, token, subType, dueDay, description);
     }
     
+    //checks subscription exists
+    function subExists(bytes32 id, uint16 dueDay, SubType subType) private view returns(bool) {
+        //check subscription exists
+        SubIndex memory index = SubIndex(id, dueDay, subType);
+
+        Subscription memory memSubscription = getSubByIndex(index);
+
+        if(memSubscription.exists) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //deletes subscription index from account
+    function deleteSubFromAccount(bytes32 id, address account) private {
+        
+        //deletes index in account
+        address[] storage subscribers = subscribersMap[id];
+
+        uint index2;
+
+        for(uint i; i < subscribers.length; i++) {
+            if(subscribers[i] == account) {
+                index2 = i;
+                delete subscribers[i];
+                break; 
+            }
+
+            subscribers[index2] = subscribers[subscribers.length - 1];
+            subscribers.pop();
+        }
+    }
     
     
 
     //------------------------------------------------------------
-    
+    //TODO: could try to lower gas: only pass parameters, use requires instead of existence check
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
@@ -629,25 +676,19 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "Not enough ETH sent");
 
-        /*
+        //TODO: turn on after testing
+        //cant subscribe to subscription you own
+        //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
 
-        //check if token is on approved list
-        require(erc20IsApproved(subscription.token)," Token not approved for this contract");
-
-        //amount must be greater than zero
-        require(subscription.amount > 0, "Amount must be greater than zero");
-
-        */
-
-        //check subscription exists
-        SubIndex memory index = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
-
-        Subscription memory memSubscription = getSubByIndex(index);
-
-        require(memSubscription.exists, "Subscription doesn't exist");
+        //require(memSubscription.exists, "Subscription doesn't exist");
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "Subscription doesn't exist");
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
+
+        //adds it to account
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType));
+
     }
     
     function unsubscribe(bytes32 id) external payable {
@@ -658,23 +699,45 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "Not enough ETH sent");
 
-        //deletes timeTrigger index in account
-        address[] storage subscribers = subscribersMap[id];
+        deleteSubFromAccount(id, msg.sender);
+    }
+        
 
-        uint index2;
+    //TODO:
+    function cancelSubscription(Subscription calldata subscription) external {
+        userNotZero();
+
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "Subscription doesn't exist");
+
+        //gets list of subscribers and deletes all entries in their accounts
+        address[] memory subscribers = subscribersMap[subscription.id];
 
         for(uint i; i < subscribers.length; i++) {
-            if(subscribers[i] == msg.sender) {
-                index2 = i;
-                delete subscribers[i];
-                break;
-                
+            //gets location of subscription index in array
+            deleteSubFromAccount(subscription.id, subscribers[i]);
+        }
+ 
+        //sets cancelled bool to true
+        if(subscription.subType == SubType.MONTHLY) {
+            Subscription[] memory subscriptions = monthMap[subscription.dueDay];
+
+            for(uint i; i < subscribers.length; i++) {
+                if(subscriptions[i].id == subscription.id) {
+                    monthMap[subscription.dueDay][i].cancelled = true;
+                }
             }
 
-            subscribers[index2] = subscribers[subscribers.length - 1];
-            subscribers.pop();
         }
 
+        if(subscription.subType == SubType.YEARLY) {
+             Subscription[] memory subscriptions = yearMap[subscription.dueDay];
+
+            for(uint i; i < subscribers.length; i++) {
+                if(subscriptions[i].id == subscription.id) {
+                    yearMap[subscription.dueDay][i].cancelled = true;
+                }
+            }
+        }
     }
     
     
