@@ -136,7 +136,7 @@ contract Clocktower {
     mapping(uint16 => Subscription[]) yearMap;
 
     //map of subscribers
-    mapping(bytes32 => address) subscribersMap;
+    mapping(bytes32 => address[]) subscribersMap;
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
@@ -327,6 +327,7 @@ contract Clocktower {
         require(unixTime % 3600 == 0, "Time must be on the hour");
     }
 
+    
     function removeAccountTriggerItem(uint40 timeTrigger) private {
 
             //goes into account map and cleans up timeTriggers
@@ -352,6 +353,7 @@ contract Clocktower {
 
             }
     }
+     
     
     //removes transction from the state. DOES NOT reorder lists. 
     function removeTransaction(bytes32 id, uint40 timeTrigger) private {
@@ -645,7 +647,34 @@ contract Clocktower {
         require(memSubscription.exists, "Subscription doesn't exist");
 
         //adds to subscriber map
-        subscribersMap[subscription.id] = msg.sender;
+        subscribersMap[subscription.id].push() = msg.sender;
+    }
+    
+    function unsubscribe(bytes32 id) external payable {
+
+        //cannot be sent from zero address
+        userNotZero();
+
+         //require sent ETH to be higher than fixed token fee
+        require(fixedFee <= msg.value, "Not enough ETH sent");
+
+        //deletes timeTrigger index in account
+        address[] storage subscribers = subscribersMap[id];
+
+        uint index2;
+
+        for(uint i; i < subscribers.length; i++) {
+            if(subscribers[i] == msg.sender) {
+                index2 = i;
+                delete subscribers[i];
+                break;
+                
+            }
+
+            subscribers[index2] = subscribers[subscribers.length - 1];
+            subscribers.pop();
+        }
+
     }
     
     
