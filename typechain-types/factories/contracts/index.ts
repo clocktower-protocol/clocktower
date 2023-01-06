@@ -3,4 +3,3 @@
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
 export * as clocktowerSol from "./Clocktower.sol";
-export { ClockTowerLibrary__factory } from "./ClockTowerLibrary__factory";

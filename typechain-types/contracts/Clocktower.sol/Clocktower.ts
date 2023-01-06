@@ -179,7 +179,6 @@ export interface ClocktowerInterface extends utils.Interface {
     "getAccountSubscriptions()": FunctionFragment;
     "getAccountTransactions()": FunctionFragment;
     "getFee()": FunctionFragment;
-    "getTime()": FunctionFragment;
     "getTotalClaims(address)": FunctionFragment;
     "getTransactionsByAccount(address)": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
@@ -205,7 +204,6 @@ export interface ClocktowerInterface extends utils.Interface {
       | "getAccountSubscriptions"
       | "getAccountTransactions"
       | "getFee"
-      | "getTime"
       | "getTotalClaims"
       | "getTransactionsByAccount"
       | "removeERC20Contract"
@@ -289,7 +287,6 @@ export interface ClocktowerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getFee", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getTotalClaims",
     values: [PromiseOrValue<string>]
@@ -363,7 +360,6 @@ export interface ClocktowerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getFee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTotalClaims",
     data: BytesLike
@@ -575,8 +571,6 @@ export interface Clocktower extends BaseContract {
 
     getFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getTime(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getTotalClaims(
       token: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -684,8 +678,6 @@ export interface Clocktower extends BaseContract {
 
   getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getTime(overrides?: CallOverrides): Promise<BigNumber>;
-
   getTotalClaims(
     token: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -792,8 +784,6 @@ export interface Clocktower extends BaseContract {
     ): Promise<Clocktower.TransactionStructOutput[]>;
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalClaims(
       token: PromiseOrValue<string>,
@@ -927,8 +917,6 @@ export interface Clocktower extends BaseContract {
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getTime(overrides?: CallOverrides): Promise<BigNumber>;
-
     getTotalClaims(
       token: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1032,8 +1020,6 @@ export interface Clocktower extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTotalClaims(
       token: PromiseOrValue<string>,

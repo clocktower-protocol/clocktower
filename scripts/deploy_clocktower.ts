@@ -11,8 +11,11 @@ async function main() {
     const TestUser = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
     const Clocktower = await ethers.getContractFactory("Clocktower");
     const ClockToken = await ethers.getContractFactory("CLOCKToken");
+    const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
+
     const clocktower = await Clocktower.deploy();
     const clockToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
+    const clockLibrary = await ClockLibrary.deploy();
 
     await clocktower.deployed();
 
@@ -34,6 +37,9 @@ async function main() {
     await clockToken.approve(TestUser, ethers.utils.parseEther("10000"));
     await clockToken.transfer(TestUser, ethers.utils.parseEther("10000"));
     console.log("Funds test user 10000 CLOCK");
+
+   // await clockLibrary.deployed();
+    console.log("Contract address:", clockLibrary.address)
 }
 
 main().catch((error) => {

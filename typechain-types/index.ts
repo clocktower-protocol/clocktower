@@ -20,5 +20,3 @@ export type { CLOCKToken } from "./contracts/CLOCKtoken.sol/CLOCKToken";
 export { CLOCKToken__factory } from "./factories/contracts/CLOCKtoken.sol/CLOCKToken__factory";
 export type { Clocktower } from "./contracts/Clocktower.sol/Clocktower";
 export { Clocktower__factory } from "./factories/contracts/Clocktower.sol/Clocktower__factory";
-export type { ClockTowerLibrary } from "./contracts/ClockTowerLibrary";
-export { ClockTowerLibrary__factory } from "./factories/contracts/ClockTowerLibrary__factory";
