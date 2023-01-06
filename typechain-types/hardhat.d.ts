@@ -41,13 +41,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Clocktower__factory>;
     getContractFactory(
-      name: "ClocktowerPure",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ClocktowerPure__factory>;
-    getContractFactory(
       name: "ERC20Permit",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Permit__factory>;
+    getContractFactory(
+      name: "ClockTowerLibrary",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClockTowerLibrary__factory>;
     getContractFactory(
       name: "ClocktowerPure",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -89,15 +89,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Clocktower>;
     getContractAt(
-      name: "ClocktowerPure",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ClocktowerPure>;
-    getContractAt(
       name: "ERC20Permit",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Permit>;
+    getContractAt(
+      name: "ClockTowerLibrary",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClockTowerLibrary>;
     getContractAt(
       name: "ClocktowerPure",
       address: string,

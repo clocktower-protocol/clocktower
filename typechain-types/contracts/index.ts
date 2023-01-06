@@ -5,4 +5,5 @@ import type * as clocKtokenSol from "./CLOCKtoken.sol";
 export type { clocKtokenSol };
 import type * as clocktowerSol from "./Clocktower.sol";
 export type { clocktowerSol };
+export type { ClockTowerLibrary } from "./ClockTowerLibrary";
 export type { ClocktowerPure } from "./ClocktowerPure";

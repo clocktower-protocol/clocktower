@@ -5,7 +5,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 //import "./Timelibrary.sol";
-//import "./ClockTowerLibrary.sol";
+import "./ClockTowerLibrary.sol";
 
 interface ERC20Permit{
   function transferFrom(address from, address to, uint value) external returns (bool);
@@ -32,7 +32,7 @@ contract Clocktower {
     }
 
     //using BokkyPooBahsDateTimeLibrary for uint;
-    //using ClockTowerLibrary for *;
+   // using ClockTowerLibrary for *;
 
     //DATA-------------------------------------------------------
 

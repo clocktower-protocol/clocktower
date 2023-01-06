@@ -5,8 +5,34 @@ pragma solidity ^0.8.9;
 
 library ClockTowerLibrary {
 
+     enum SubType {
+        MONTHLY,
+        YEARLY
+    }
+
+    //struct of Subscription indexes
+    struct SubIndex {
+        bytes32 id;
+        uint16 dueDay;
+        SubType subType;
+    }
+
+    //Subscription struct
+    struct Subscription {
+        bytes32 id;
+        uint amount;
+        address owner;
+        bool exists;
+        bool cancelled;
+        address token;
+        SubType subType;
+        uint16 dueDay;
+        string description;
+        //address[] subscribers;
+    }
+
      //checks if value is in array
-    function isInTimeArray(uint40 value, uint40[] memory array) internal pure returns (bool) {
+    function isInTimeArray(uint40 value, uint40[] memory array) external pure returns (bool) {
     
         for(uint i; i < array.length; i++){
             if(array[i] == value) {
@@ -17,7 +43,7 @@ library ClockTowerLibrary {
     }
 
     //checks if value is in array
-    function isInAddressArray(address value, address[] memory array) internal pure returns (bool result) {
+    function isInAddressArray(address value, address[] memory array) external pure returns (bool result) {
         result = false;
         for(uint i; i < array.length; i++){
             if(array[i] == value) {
@@ -26,6 +52,30 @@ library ClockTowerLibrary {
         }
         return false;
     }
+
+     //converts unixTime to hours
+    function unixToHours(uint40 unixTime) external pure returns(uint40 hourCount){
+        hourCount = unixTime/3600;
+        return hourCount;
+    }
+
+    //&&
+    //converts hours since merge to unix epoch utc time
+    function hourstoUnix(uint40 timeTrigger) external pure returns(uint40 unixTime) {
+        unixTime = timeTrigger*3600;
+        return unixTime;
+    }
+
+    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
+
+         //creates id hash
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
+
+        subscription = Subscription(id, amount, msg.sender, true, false, token, subType, dueDay, description);
+    }
+    
+
+   
 
     /*
       enum SubType {
