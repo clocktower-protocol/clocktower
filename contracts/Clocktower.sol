@@ -52,6 +52,7 @@ contract Clocktower {
     12 = Transfer failed
     13 = Requires token allowance to be increased for contract
     14 = Time already checked
+    15 = Token allowance must be unlimited for subscriptions
 
     */
 
@@ -559,20 +560,7 @@ contract Clocktower {
 
           return subscription;
     }
-    
-
-/*
-    //coverts time trigger to day, year, month
-    function unixTimeToDayMonthYear(uint40 unixTime) pure external returns(uint dayAmount, uint monthAmount, uint yearAmount) {
-
-        uint unixDays = unixTime / 86400;
-
-        (yearAmount, monthAmount, dayAmount) = unixDays._daysToDate();
-
-        return(yearAmount, monthAmount, dayAmount);
-    }
-    */
-
+ 
     //&&
     //converts unixTime to hours
     function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
@@ -734,6 +722,10 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "5");
 
+        //TODO:
+        //check if there is enough allowance
+        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= 2**255, "15");
+    
         //TODO: turn on after testing
         //cant subscribe to subscription you own
         //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
@@ -1181,12 +1173,9 @@ contract Clocktower {
             }
         }
 
-
         //reverts entire procedure if theres not enough eth
         require(address(this).balance > ethTotal, "11");
 
-
-        
         for(uint j; j < sortedTransactions.length; j++) {
             //decreases claimsBalance
             tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
@@ -1242,6 +1231,8 @@ contract Clocktower {
 
     
     //TODO:
+    //if user has subscription they HAVE TO have unlimited allowance because subscriptions are open ended
+
     //completes money transfer for subscribers
     function chargeSubs() external view isAdmin {
 
@@ -1252,8 +1243,14 @@ contract Clocktower {
       //  console.log(_days);
         
         //gets subscriptions from mappings
-        Subscription[] memory monthlySubs = monthMap[_days];
-        Subscription[] memory yearlySubs = yearMap[yearDays];
+        //Subscription[] memory monthlySubs = monthMap[_days];
+        //Subscription[] memory yearlySubs = yearMap[yearDays];
+        
+        //loops through monthly subscriptions
+        for(uint i; i <= monthMap[_days].length; i++) {
+
+        }
+        
     }
     
 }
