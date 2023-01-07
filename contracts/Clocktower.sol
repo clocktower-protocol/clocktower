@@ -33,7 +33,7 @@ contract Clocktower {
 
     //using BokkyPooBahsDateTimeLibrary for uint;
     using ClockTowerLibrary for uint;
-    using ClockTowerLibrary for address;
+    //using ClockTowerLibrary for address;
 
     /*
     //Require error codes
@@ -50,7 +50,7 @@ contract Clocktower {
     10 = Amount must be greater than zero
     11 = Not enough ETH in contract
     12 = Transfer failed
-    13 = Requires token allowance to be increased for contract
+    13 = Requires token allowance to be increased
     14 = Time already checked
     15 = Token allowance must be unlimited for subscriptions
 
@@ -291,6 +291,9 @@ contract Clocktower {
         fixedFee = _fixed_fee;
     }
     
+    //TODO: do these functions offchain
+
+    /*
     //returns array containing all transactions
     function allTransactions() isAdmin external view returns (Transaction[] memory){
 
@@ -364,9 +367,58 @@ contract Clocktower {
         return totalTransactions;
     }
     
+    */
+    
     //**************************************************
 
     //UTILITY FUNCTIONS-----------------------------------
+    function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 day) {
+       
+        uint _days = unix/86400;
+       
+        int __days = int(_days);
+
+        int L = __days + 68569 + 2440588;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        int _year = 4000 * (L + 1) / 1461001;
+        L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+        _year = 100 * (N - 49) + _year + L;
+
+        uint uintyear = uint(_year);
+        uint month = uint(_month);
+        uint uintday = uint(_day);
+
+        day = uint16(uintday);        
+
+        uint dayCounter;
+
+        //loops through months to get current day of year
+        for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
+            dayCounter += _getDaysInMonth(uintyear, month);
+        }
+
+        yearDays = uint16(dayCounter);
+    }
+
+    function _isLeapYear(uint year) internal pure returns (bool leapYear) {
+        leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+
+     function _getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+            daysInMonth = 31;
+        } else if (month != 2) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = _isLeapYear(year) ? 29 : 28;
+        }
+    }
+
     function userNotZero() view private {
         require(msg.sender != address(0), "3");
     }
@@ -667,7 +719,7 @@ contract Clocktower {
         }
     }
 
-    /*
+    
     //deletes subscription index from account
     function deleteSubFromAccount(bytes32 id, address account) private {
         
@@ -687,7 +739,7 @@ contract Clocktower {
             subscribers.pop();
         }
     }
-    */
+    
     
     /*
      function _daysToDate(uint _days) external pure returns (uint month, uint day) {
@@ -722,9 +774,8 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "5");
 
-        //TODO:
         //check if there is enough allowance
-        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= 2**255, "15");
+        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
     
         //TODO: turn on after testing
         //cant subscribe to subscription you own
@@ -749,13 +800,13 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "5");
 
-        (msg.sender).deleteSubFromAccount(subscribersMap[id]);
+        deleteSubFromAccount(id, msg.sender);
 
         //deleteSubFromAccount(id, msg.sender);
     }
         
 
-    //TODO:
+    //TODO: test 
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
@@ -766,10 +817,11 @@ contract Clocktower {
 
         for(uint i; i < subscribers.length; i++) {
             //gets location of subscription index in array
-            //deleteSubFromAccount(subscription.id, subscribers[i]);
-            subscribers[i].deleteSubFromAccount(subscribersMap[subscription.id]);
+            deleteSubFromAccount(subscription.id, subscribers[i]);
+            //subscribers[i].deleteSubFromAccount(subscribersMap[subscription.id]);
         }
- 
+
+        
         //sets cancelled bool to true
         if(subscription.subType == SubType.MONTHLY) {
             Subscription[] memory subscriptions = monthMap[subscription.dueDay];
@@ -791,6 +843,7 @@ contract Clocktower {
                 }
             }
         }
+        
     }
     
     
@@ -813,8 +866,6 @@ contract Clocktower {
 
         //amount must be greater than zero
         require(amount > 0, "10");
-
-        
 
         //Subscription memory subscriptionTest = test.setSubscription(amount, token, description, subtype, dueDay);
         //creates subscription
@@ -1231,26 +1282,81 @@ contract Clocktower {
 
     
     //TODO:
-    //if user has subscription they HAVE TO have unlimited allowance because subscriptions are open ended
+    //Might want to require unlimited allowance for subscriptions
 
     //completes money transfer for subscribers
-    function chargeSubs() external view isAdmin {
+    function chargeSubs() external isAdmin {
 
         //calls library function
-        (uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
-
-      //  console.log(yearDays);
-      //  console.log(_days);
+        //(uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
+        (uint16 yearDays, uint16 _days) = unixToDays(block.timestamp);
         
         //gets subscriptions from mappings
         //Subscription[] memory monthlySubs = monthMap[_days];
         //Subscription[] memory yearlySubs = yearMap[yearDays];
         
         //loops through monthly subscriptions
-        for(uint i; i <= monthMap[_days].length; i++) {
+        for(uint i; i < monthMap[_days].length; i++) {
 
+            if(!monthMap[_days][i].cancelled) {
+
+                bytes32 id = monthMap[_days][i].id;
+                address token = monthMap[_days][i].token;
+                uint amount = monthMap[_days][i].amount;
+                //loops through subscribers
+                for(uint j; j < subscribersMap[id].length; j++) {
+                    
+                    //checks for failure (balance and unlimited allowance)
+                    address subscriber = subscribersMap[id][j];
+
+                    //check if there is enough allowance and balance
+                    if(ERC20Permit(monthMap[_days][i].token).allowance(subscriber, address(this)) >= amount
+                    && 
+                    ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
+                        //log as failed
+                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
+                    } else {
+
+                         //log as succeeded
+                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
+                        //completes transaction
+                        require(ERC20Permit(token).transferFrom(subscriber, monthMap[_days][i].owner, amount));
+                    }
+                    
+                }
+            }
         }
-        
+
+        //loops through yearly subscriptions
+        for(uint i; i < yearMap[yearDays].length; i++) {
+
+            if(!yearMap[_days][i].cancelled) {
+
+                bytes32 id = yearMap[_days][i].id;
+                address token = yearMap[_days][i].token;
+                uint amount = yearMap[_days][i].amount;
+                //loops through subscribers
+                for(uint j; j < subscribersMap[id].length; j++) {
+                    
+                    //checks for failure (balance and unlimited allowance)
+                    address subscriber = subscribersMap[id][j];
+
+                    //check if there is enough allowance and balance
+                    if(ERC20Permit(yearMap[_days][i].token).allowance(subscriber, address(this)) >= amount
+                    && 
+                    ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
+                        //log as failed
+                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
+                    } else {
+
+                         //log as succeeded
+                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
+                        //completes transaction
+                        require(ERC20Permit(token).transferFrom(subscriber, yearMap[_days][i].owner, amount));
+                    }
+                    
+                }
+            }
+        }
     }
-    
 }

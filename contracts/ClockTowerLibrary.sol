@@ -22,12 +22,6 @@ library ClockTowerLibrary {
         //address[] subscribers;
     }
 
-    struct SubStruct {
-         //map of subscribers
-        mapping(bytes32 => address[]) subscribersMap;
-    }
-
-
      //struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
@@ -82,7 +76,7 @@ library ClockTowerLibrary {
         }
     }
 
-    
+    /*
     //deletes subscription index from account
     function deleteSubFromAccount(address account, address[] storage subscribers) public {
         
@@ -102,8 +96,8 @@ library ClockTowerLibrary {
             subscribers.pop();
         }
     }
-    
+    */
 
-    
+   
 
 }
