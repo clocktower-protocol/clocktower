@@ -78,6 +78,7 @@ contract Clocktower {
     }
 
     enum SubType {
+        ONETIME,
         MONTHLY,
         YEARLY
     }
@@ -116,7 +117,7 @@ contract Clocktower {
         bool cancelled;
         address token;
         SubType subType;
-        uint16 dueDay;
+        uint40 dueDay;
         string description;
         //address[] subscribers;
     }
@@ -125,7 +126,7 @@ contract Clocktower {
      //struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
-        uint16 dueDay;
+        uint40 dueDay;
         SubType subType;
     }
 
@@ -177,9 +178,12 @@ contract Clocktower {
 
     //Subscription maps monthly, quarterly, yearly
     //day of month 
-    mapping(uint16 => Subscription[]) monthMap;
+    mapping(uint40 => Subscription[]) monthMap;
     //day of year
-    mapping(uint16 => Subscription[]) yearMap;
+    mapping(uint40 => Subscription[]) yearMap;
+    
+    //Subscription master map
+    mapping(uint => mapping(uint40 => Subscription[])) subscriptionMap;
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
@@ -697,7 +701,7 @@ contract Clocktower {
     
     
     //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, string memory description, SubType subType, uint40 dueDay) private view returns (Subscription memory subscription){
 
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
@@ -706,7 +710,7 @@ contract Clocktower {
     }
     
     //checks subscription exists
-    function subExists(bytes32 id, uint16 dueDay, SubType subType) private view returns(bool) {
+    function subExists(bytes32 id, uint40 dueDay, SubType subType) private view returns(bool) {
         //check subscription exists
         SubIndex memory index = SubIndex(id, dueDay, subType);
 

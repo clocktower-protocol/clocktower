@@ -107,7 +107,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "addBatchTransactions((address,uint40,uint256,address)[])": FunctionFragment;
     "addERC20Contract(address)": FunctionFragment;
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
-    "cancelSubscription((bytes32,uint256,address,bool,bool,address,uint8,uint16,string))": FunctionFragment;
+    "cancelSubscription((bytes32,uint256,address,bool,bool,address,uint8,uint40,string))": FunctionFragment;
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
@@ -121,7 +121,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "getTotalClaims(address)": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "sendTime()": FunctionFragment;
-    "subscribe((bytes32,uint256,address,bool,bool,address,uint8,uint16,string))": FunctionFragment;
+    "subscribe((bytes32,uint256,address,bool,bool,address,uint8,uint40,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unixToDays(uint256)": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
