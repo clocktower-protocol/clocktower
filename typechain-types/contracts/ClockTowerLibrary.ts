@@ -23,53 +23,17 @@ import type {
 
 export interface ClockTowerLibraryInterface extends utils.Interface {
   functions: {
-    "hourstoUnix(uint40)": FunctionFragment;
-    "isInAddressArray(address,address[])": FunctionFragment;
-    "isInTimeArray(uint40,uint40[])": FunctionFragment;
-    "unixToHours(uint40)": FunctionFragment;
+    "unixToDays(uint256)": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic:
-      | "hourstoUnix"
-      | "isInAddressArray"
-      | "isInTimeArray"
-      | "unixToHours"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "unixToDays"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "hourstoUnix",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isInAddressArray",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isInTimeArray",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unixToHours",
+    functionFragment: "unixToDays",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "hourstoUnix",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isInAddressArray",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isInTimeArray",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unixToHours",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "unixToDays", data: BytesLike): Result;
 
   events: {};
 }
@@ -101,121 +65,36 @@ export interface ClockTowerLibrary extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    hourstoUnix(
-      timeTrigger: PromiseOrValue<BigNumberish>,
+    unixToDays(
+      unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[number] & { unixTime: number }>;
-
-    isInAddressArray(
-      value: PromiseOrValue<string>,
-      array: PromiseOrValue<string>[],
-      overrides?: CallOverrides
-    ): Promise<[boolean] & { result: boolean }>;
-
-    isInTimeArray(
-      value: PromiseOrValue<BigNumberish>,
-      array: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number] & { hourCount: number }>;
+    ): Promise<[number, number] & { yearDays: number; day: number }>;
   };
 
-  hourstoUnix(
-    timeTrigger: PromiseOrValue<BigNumberish>,
+  unixToDays(
+    unix: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<number>;
-
-  isInAddressArray(
-    value: PromiseOrValue<string>,
-    array: PromiseOrValue<string>[],
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isInTimeArray(
-    value: PromiseOrValue<BigNumberish>,
-    array: PromiseOrValue<BigNumberish>[],
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  unixToHours(
-    unixTime: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
+  ): Promise<[number, number] & { yearDays: number; day: number }>;
 
   callStatic: {
-    hourstoUnix(
-      timeTrigger: PromiseOrValue<BigNumberish>,
+    unixToDays(
+      unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<number>;
-
-    isInAddressArray(
-      value: PromiseOrValue<string>,
-      array: PromiseOrValue<string>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isInTimeArray(
-      value: PromiseOrValue<BigNumberish>,
-      array: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
+    ): Promise<[number, number] & { yearDays: number; day: number }>;
   };
 
   filters: {};
 
   estimateGas: {
-    hourstoUnix(
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isInAddressArray(
-      value: PromiseOrValue<string>,
-      array: PromiseOrValue<string>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isInTimeArray(
-      value: PromiseOrValue<BigNumberish>,
-      array: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    unixToDays(
+      unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    hourstoUnix(
-      timeTrigger: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isInAddressArray(
-      value: PromiseOrValue<string>,
-      array: PromiseOrValue<string>[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isInTimeArray(
-      value: PromiseOrValue<BigNumberish>,
-      array: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    unixToHours(
-      unixTime: PromiseOrValue<BigNumberish>,
+    unixToDays(
+      unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

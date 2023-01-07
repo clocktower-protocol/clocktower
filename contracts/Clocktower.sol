@@ -5,7 +5,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 //import "./Timelibrary.sol";
-//import "./ClockTowerLibrary.sol";
+import "./ClockTowerLibrary.sol";
 
 interface ERC20Permit{
   function transferFrom(address from, address to, uint value) external returns (bool);
@@ -32,7 +32,8 @@ contract Clocktower {
     }
 
     //using BokkyPooBahsDateTimeLibrary for uint;
-    //using ClockTowerLibrary for *;
+    using ClockTowerLibrary for uint;
+    using ClockTowerLibrary for address;
 
     /*
     //Require error codes
@@ -63,6 +64,9 @@ contract Clocktower {
     uint fee = 100;
     //0.01 eth in wei
     uint fixedFee = 10000000000000000;
+
+    //offset for time calc
+    //int constant OFFSET19700101 = 2440588;
 
     //global enums
     enum Status {
@@ -197,7 +201,8 @@ contract Clocktower {
     bool stopped = false;
 
     //variable for last checked by hour
-    uint40 lastCheckedTimeSlot = (unixToHours(uint40(block.timestamp)) - 1);
+    uint40 lastCheckedHour = (unixToHours(uint40(block.timestamp)) - 1);
+    
 
     //---------------------------------------------------------------------------------
     
@@ -502,7 +507,7 @@ contract Clocktower {
         return tokenClaims[msg.sender][token];
     }
     
-
+    
     //checks if value is in array
     function isInTimeArray(uint40 value, uint40[] memory array) private pure returns (bool) {
     
@@ -674,6 +679,7 @@ contract Clocktower {
         }
     }
 
+    /*
     //deletes subscription index from account
     function deleteSubFromAccount(bytes32 id, address account) private {
         
@@ -693,7 +699,28 @@ contract Clocktower {
             subscribers.pop();
         }
     }
+    */
     
+    /*
+     function _daysToDate(uint _days) external pure returns (uint month, uint day) {
+        int __days = int(_days);
+
+        int L = __days + 68569 + OFFSET19700101;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        //int _year = 4000 * (L + 1) / 1461001;
+        //L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+       // _year = 100 * (N - 49) + _year + L;
+
+       // year = uint(_year);
+        month = uint(_month);
+        day = uint(_day);
+    }
+    */
     
 
     //------------------------------------------------------------
@@ -730,7 +757,9 @@ contract Clocktower {
          //require sent ETH to be higher than fixed token fee
         require(fixedFee <= msg.value, "5");
 
-        deleteSubFromAccount(id, msg.sender);
+        (msg.sender).deleteSubFromAccount(subscribersMap[id]);
+
+        //deleteSubFromAccount(id, msg.sender);
     }
         
 
@@ -745,7 +774,8 @@ contract Clocktower {
 
         for(uint i; i < subscribers.length; i++) {
             //gets location of subscription index in array
-            deleteSubFromAccount(subscription.id, subscribers[i]);
+            //deleteSubFromAccount(subscription.id, subscribers[i]);
+            subscribers[i].deleteSubFromAccount(subscribersMap[subscription.id]);
         }
  
         //sets cancelled bool to true
@@ -897,52 +927,6 @@ contract Clocktower {
             }
     }
     
-    //TODO: could add emit of transaction confirm hash
-    function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
-
-        uint ethTotal;
-        uint index;
-        Transaction[] memory sortedTransactions = new Transaction[](transactions.length);
-
-        //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
-        for(uint i; i < transactions.length; i++) {
-            
-            if(transactions[i].token == address(0)) {
-                ethTotal += transactions[i].payload;
-                sortedTransactions[index] = transactions[i];
-                index++;
-                } else {
-                //if account doesn't have enough allowance consider transaction to have failed and delete it
-                if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
-                    timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
-                } else {
-                    sortedTransactions[index] = transactions[i];
-                    index++;
-                    timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
-                }
-            }
-        }
-
-
-        //reverts entire procedure if theres not enough eth
-        require(address(this).balance > ethTotal, "11");
-
-
-        
-        for(uint j; j < sortedTransactions.length; j++) {
-            //decreases claimsBalance
-            tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
-            
-            if(sortedTransactions[j].token == address(0)){
-                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
-                bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
-                require(success, "12");
-            } else {
-                //transfers Token
-                require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
-            }
-        }        
-    }
     
    //REQUIRES unlimited allowance per token
    //adds to list of transactions 
@@ -992,6 +976,7 @@ contract Clocktower {
 
     }
 
+/*
     //adds to list of transactions 
     function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
@@ -1041,6 +1026,7 @@ contract Clocktower {
             ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
         }
     }
+    */
 
     //REQUIRE maximum 100 transactions (based on gas limit per block)
     //REQUIRE approval for token totals to be done in advance of calling this function
@@ -1169,15 +1155,62 @@ contract Clocktower {
         }
     }
 
+     //TODO: could add emit of transaction confirm hash
+    function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
+
+        uint ethTotal;
+        uint index;
+        Transaction[] memory sortedTransactions = new Transaction[](transactions.length);
+
+        //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
+        for(uint i; i < transactions.length; i++) {
+            
+            if(transactions[i].token == address(0)) {
+                ethTotal += transactions[i].payload;
+                sortedTransactions[index] = transactions[i];
+                index++;
+                } else {
+                //if account doesn't have enough allowance consider transaction to have failed and delete it
+                if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
+                    timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
+                } else {
+                    sortedTransactions[index] = transactions[i];
+                    index++;
+                    timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
+                }
+            }
+        }
+
+
+        //reverts entire procedure if theres not enough eth
+        require(address(this).balance > ethTotal, "11");
+
+
+        
+        for(uint j; j < sortedTransactions.length; j++) {
+            //decreases claimsBalance
+            tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
+            
+            if(sortedTransactions[j].token == address(0)){
+                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
+                bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
+                require(success, "12");
+            } else {
+                //transfers Token
+                require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
+            }
+        }        
+    }
+
     //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
     function sendTime() external isAdmin {
 
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedTimeSlot, "14");
+        require(_currentTimeSlot > lastCheckedHour, "14");
 
-        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
+        for(uint40 i = lastCheckedHour; i <= _currentTimeSlot; i++) {
 
             //gets transaction array per time trigger
             if(timeMap[i].length > 0) {
@@ -1187,7 +1220,7 @@ contract Clocktower {
         }
 
         //updates lastCheckedTimeSlot
-        lastCheckedTimeSlot = _currentTimeSlot;
+        lastCheckedHour = _currentTimeSlot;
     }
 
     //view function that checks if any transactions are in line to be sent
@@ -1195,9 +1228,9 @@ contract Clocktower {
          //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedTimeSlot, "14");
+        require(_currentTimeSlot > lastCheckedHour, "14");
 
-        for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
+        for(uint40 i = lastCheckedHour; i <= _currentTimeSlot; i++) {
 
             //if block has transactions add them to transaction list
             if(timeMap[i].length > 0) {
@@ -1206,4 +1239,21 @@ contract Clocktower {
         }
         return false;
     }
+
+    
+    //TODO:
+    //completes money transfer for subscribers
+    function chargeSubs() external view isAdmin {
+
+        //calls library function
+        (uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
+
+      //  console.log(yearDays);
+      //  console.log(_days);
+        
+        //gets subscriptions from mappings
+        Subscription[] memory monthlySubs = monthMap[_days];
+        Subscription[] memory yearlySubs = yearMap[yearDays];
+    }
+    
 }

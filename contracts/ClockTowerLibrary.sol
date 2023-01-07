@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: UNLICENSED
-//Copyright Hugo Marx 2023
-//Written by Hugo Marx
 pragma solidity ^0.8.9;
 
 library ClockTowerLibrary {
@@ -10,14 +8,7 @@ library ClockTowerLibrary {
         YEARLY
     }
 
-    //struct of Subscription indexes
-    struct SubIndex {
-        bytes32 id;
-        uint16 dueDay;
-        SubType subType;
-    }
-
-    //Subscription struct
+      //Subscription struct
     struct Subscription {
         bytes32 id;
         uint amount;
@@ -31,84 +22,6 @@ library ClockTowerLibrary {
         //address[] subscribers;
     }
 
-     //checks if value is in array
-    function isInTimeArray(uint40 value, uint40[] memory array) external pure returns (bool) {
-    
-        for(uint i; i < array.length; i++){
-            if(array[i] == value) {
-                    return true;
-            }
-        }
-        return false; 
-    }
-
-    //checks if value is in array
-    function isInAddressArray(address value, address[] memory array) external pure returns (bool result) {
-        result = false;
-        for(uint i; i < array.length; i++){
-            if(array[i] == value) {
-                    return true;
-            }
-        }
-        return false;
-    }
-
-     //converts unixTime to hours
-    function unixToHours(uint40 unixTime) external pure returns(uint40 hourCount){
-        hourCount = unixTime/3600;
-        return hourCount;
-    }
-
-    //&&
-    //converts hours since merge to unix epoch utc time
-    function hourstoUnix(uint40 timeTrigger) external pure returns(uint40 unixTime) {
-        unixTime = timeTrigger*3600;
-        return unixTime;
-    }
-
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
-
-         //creates id hash
-        bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
-
-        subscription = Subscription(id, amount, msg.sender, true, false, token, subType, dueDay, description);
-    }
-    
-
-   
-
-    /*
-      enum SubType {
-        MONTHLY,
-        YEARLY
-    }
-
-    
-    struct Maps {
-        //day of month 
-        mapping(uint16 => Subscription[]) monthMap;
-        //day of year
-        mapping(uint16 => Subscription[]) yearMap;
-
-        //map of subscribers
-        mapping(bytes32 => address) subscribersMap;
-    }
-    
-
-    
-    //Subscription struct
-    struct Subscription {
-        bytes32 id;
-        uint amount;
-        address owner;
-        bool exists;
-        address token;
-        string description;
-        SubType subType;
-        uint16 dueDay;
-        //address[] subscribers;
-    }
-    
 
      //struct of Subscription indexes
     struct SubIndex {
@@ -117,50 +30,72 @@ library ClockTowerLibrary {
         SubType subType;
     }
 
-     //converts unixTime to hours
-    function unixToHours(uint40 unixTime) external pure returns(uint40 hourCount){
-        hourCount = unixTime/3600;
-        return hourCount;
+   function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 day) {
+       
+        uint _days = unix/86400;
+       
+        int __days = int(_days);
+
+        int L = __days + 68569 + 2440588;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        int _year = 4000 * (L + 1) / 1461001;
+        L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+        _year = 100 * (N - 49) + _year + L;
+
+        uint uintyear = uint(_year);
+        uint month = uint(_month);
+        uint uintday = uint(_day);
+
+        day = uint16(uintday);        
+
+        uint dayCounter;
+
+        //loops through months to get current day of year
+        for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
+            dayCounter += _getDaysInMonth(uintyear, month);
+        }
+
+        yearDays = uint16(dayCounter);
     }
-    
-    
-     //fetches subscription from day maps by id
-    function getSubByIndex(SubIndex memory index, Maps storage self) view external returns(Subscription memory subscription){
+
+    function _isLeapYear(uint year) internal pure returns (bool leapYear) {
+        leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+
+     function _getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+            daysInMonth = 31;
+        } else if (month != 2) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = _isLeapYear(year) ? 29 : 28;
+        }
+    }
+
+    //deletes subscription index from account
+    function deleteSubFromAccount(address account, address[] storage subscribers) public {
         
-          if(index.subType == SubType.MONTHLY){
-            
-            Subscription[] memory subList = self.monthMap[index.dueDay];
+        //deletes index in account
+        //address[] storage subscribers = subscribersMap[id];
 
-                //searchs for subscription in day map
-                for(uint j; j < subList.length; j++) {
-                    if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                    }
-                }
-          }
-           if(index.subType == SubType.YEARLY){
-            Subscription[] memory subList = self.yearMap[index.dueDay];
+        uint index2;
 
-                //searchs for subscription in day map
-                for(uint j; j < subList.length; j++) {
-                    if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                    }
-                }
-          }
+        for(uint i; i < subscribers.length; i++) {
+            if(subscribers[i] == account) {
+                index2 = i;
+                delete subscribers[i];
+                break; 
+            }
 
-          return subscription;
-    }
-    
-
-     //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) external view returns (Subscription memory subscription){
-
-         //creates id hash
-        bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
-
-        subscription = Subscription(id, amount, msg.sender, true, token, description, subType, dueDay);
+            subscribers[index2] = subscribers[subscribers.length - 1];
+            subscribers.pop();
+        }
     }
 
-    */
+
 }

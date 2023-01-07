@@ -39,34 +39,6 @@ export declare namespace Clocktower {
     token: string;
   };
 
-  export type PermitStruct = {
-    owner: PromiseOrValue<string>;
-    spender: PromiseOrValue<string>;
-    value: PromiseOrValue<BigNumberish>;
-    deadline: PromiseOrValue<BigNumberish>;
-    v: PromiseOrValue<BigNumberish>;
-    r: PromiseOrValue<BytesLike>;
-    s: PromiseOrValue<BytesLike>;
-  };
-
-  export type PermitStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    number,
-    string,
-    string
-  ] & {
-    owner: string;
-    spender: string;
-    value: BigNumber;
-    deadline: BigNumber;
-    v: number;
-    r: string;
-    s: string;
-  };
-
   export type SubIndexStruct = {
     id: PromiseOrValue<BytesLike>;
     dueDay: PromiseOrValue<BigNumberish>;
@@ -165,7 +137,6 @@ export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addBatchTransactions((address,uint40,uint256,address)[])": FunctionFragment;
     "addERC20Contract(address)": FunctionFragment;
-    "addPermitTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
     "allAccounts()": FunctionFragment;
     "allTransactions()": FunctionFragment;
@@ -174,6 +145,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
     "changeFixedFee(uint256)": FunctionFragment;
+    "chargeSubs()": FunctionFragment;
     "checkTime()": FunctionFragment;
     "createSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
     "getAccountSubscriptions()": FunctionFragment;
@@ -192,7 +164,6 @@ export interface ClocktowerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addBatchTransactions"
       | "addERC20Contract"
-      | "addPermitTransaction"
       | "addTransaction"
       | "allAccounts"
       | "allTransactions"
@@ -201,6 +172,7 @@ export interface ClocktowerInterface extends utils.Interface {
       | "changeAdmin"
       | "changeFee"
       | "changeFixedFee"
+      | "chargeSubs"
       | "checkTime"
       | "createSubscription"
       | "getAccountSubscriptions"
@@ -222,16 +194,6 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addERC20Contract",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addPermitTransaction",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      Clocktower.PermitStruct
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "addTransaction",
@@ -273,6 +235,10 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "changeFixedFee",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "chargeSubs",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "checkTime", values?: undefined): string;
   encodeFunctionData(
@@ -329,10 +295,6 @@ export interface ClocktowerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "addPermitTransaction",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "addTransaction",
     data: BytesLike
   ): Result;
@@ -361,6 +323,7 @@ export interface ClocktowerInterface extends utils.Interface {
     functionFragment: "changeFixedFee",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "chargeSubs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "checkTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createSubscription",
@@ -438,15 +401,6 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    addPermitTransaction(
-      receiver: PromiseOrValue<string>,
-      unixTime: PromiseOrValue<BigNumberish>,
-      payload: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      permit: Clocktower.PermitStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -489,6 +443,8 @@ export interface Clocktower extends BaseContract {
       _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    chargeSubs(overrides?: CallOverrides): Promise<[void]>;
 
     checkTime(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -555,15 +511,6 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  addPermitTransaction(
-    receiver: PromiseOrValue<string>,
-    unixTime: PromiseOrValue<BigNumberish>,
-    payload: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
-    permit: Clocktower.PermitStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   addTransaction(
     receiver: PromiseOrValue<string>,
     unixTime: PromiseOrValue<BigNumberish>,
@@ -606,6 +553,8 @@ export interface Clocktower extends BaseContract {
     _fixed_fee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  chargeSubs(overrides?: CallOverrides): Promise<void>;
 
   checkTime(overrides?: CallOverrides): Promise<boolean>;
 
@@ -672,15 +621,6 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addPermitTransaction(
-      receiver: PromiseOrValue<string>,
-      unixTime: PromiseOrValue<BigNumberish>,
-      payload: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      permit: Clocktower.PermitStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -723,6 +663,8 @@ export interface Clocktower extends BaseContract {
       _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    chargeSubs(overrides?: CallOverrides): Promise<void>;
 
     checkTime(overrides?: CallOverrides): Promise<boolean>;
 
@@ -788,15 +730,6 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    addPermitTransaction(
-      receiver: PromiseOrValue<string>,
-      unixTime: PromiseOrValue<BigNumberish>,
-      payload: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      permit: Clocktower.PermitStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -835,6 +768,8 @@ export interface Clocktower extends BaseContract {
       _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    chargeSubs(overrides?: CallOverrides): Promise<BigNumber>;
 
     checkTime(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -898,15 +833,6 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    addPermitTransaction(
-      receiver: PromiseOrValue<string>,
-      unixTime: PromiseOrValue<BigNumberish>,
-      payload: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      permit: Clocktower.PermitStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -945,6 +871,8 @@ export interface Clocktower extends BaseContract {
       _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    chargeSubs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     checkTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
