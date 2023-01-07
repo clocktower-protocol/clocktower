@@ -71,9 +71,9 @@ export declare namespace Clocktower {
     id: PromiseOrValue<BytesLike>;
     amount: PromiseOrValue<BigNumberish>;
     owner: PromiseOrValue<string>;
+    token: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
     cancelled: PromiseOrValue<boolean>;
-    token: PromiseOrValue<string>;
     subType: PromiseOrValue<BigNumberish>;
     dueDay: PromiseOrValue<BigNumberish>;
     description: PromiseOrValue<string>;
@@ -83,9 +83,9 @@ export declare namespace Clocktower {
     string,
     BigNumber,
     string,
-    boolean,
-    boolean,
     string,
+    boolean,
+    boolean,
     number,
     number,
     string
@@ -93,9 +93,9 @@ export declare namespace Clocktower {
     id: string;
     amount: BigNumber;
     owner: string;
+    token: string;
     exists: boolean;
     cancelled: boolean;
-    token: string;
     subType: number;
     dueDay: number;
     description: string;
@@ -136,7 +136,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "addERC20Contract(address)": FunctionFragment;
     "addPermitTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
-    "cancelSubscription((bytes32,uint256,address,bool,bool,address,uint8,uint40,string))": FunctionFragment;
+    "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint40,string))": FunctionFragment;
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
@@ -150,7 +150,7 @@ export interface ClocktowerInterface extends utils.Interface {
     "getTotalClaims(address)": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "sendTime()": FunctionFragment;
-    "subscribe((bytes32,uint256,address,bool,bool,address,uint8,uint40,string))": FunctionFragment;
+    "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint40,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unixToDays(uint256)": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
