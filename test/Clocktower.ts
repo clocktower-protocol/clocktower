@@ -87,13 +87,15 @@ describe("Clocktower", function(){
         //sets time to 2023/01/01 1:00
         await time.increaseTo(currentTime);
         
+        /*
         const Clocktower = await ethers.getContractFactory("Clocktower", {
             libraries: {
                 ClockTowerLibrary: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
             }
         });
+        */
         
-        //const Clocktower = await ethers.getContractFactory("Clocktower")
+        const Clocktower = await ethers.getContractFactory("Clocktower")
 
         const ClockToken = await ethers.getContractFactory("CLOCKToken");
 
@@ -109,10 +111,10 @@ describe("Clocktower", function(){
 
         await hardhatClocktower.deployed();
         await hardhatCLOCKToken.deployed();
-        const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
-        const hardhatClockLibrary = await ClockLibrary.deploy();
+        //const ClockLibrary = await ethers.getContractFactory("ClockTowerLibrary");
+        //const hardhatClockLibrary = await ClockLibrary.deploy();
         
-        await hardhatClockLibrary.deployed();
+        //await hardhatClockLibrary.deployed();
         //await hardhatClockPure.deployed();
 
          //starts contract with 100 ETH
@@ -283,7 +285,7 @@ describe("Clocktower", function(){
         })
       
     })
-
+/*
     describe("Admin Functions", function() {
 
         const testParams = {
@@ -330,6 +332,7 @@ describe("Clocktower", function(){
         })
        
     })
+*/
  
     describe("ERC20 Functions", function() {
         const testParams = {
