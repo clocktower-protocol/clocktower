@@ -178,11 +178,11 @@ contract Clocktower {
 
     //Subscription maps monthly, quarterly, yearly
     //day of month 
-    mapping(uint40 => Subscription[]) monthMap;
+    //mapping(uint40 => Subscription[]) monthMap;
     //day of year
-    mapping(uint40 => Subscription[]) yearMap;
+   // mapping(uint40 => Subscription[]) yearMap;
     
-    //Subscription master map
+    //Subscription master map keyed on type
     mapping(uint => mapping(uint40 => Subscription[])) subscriptionMap;
 
     //map of subscribers
@@ -591,7 +591,17 @@ contract Clocktower {
 
     //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
-        
+
+          Subscription[] memory subList = subscriptionMap[uint(index.subType)][index.dueDay];
+
+            //searchs for subscription in day map
+            for(uint j; j < subList.length; j++) {
+                if(subList[j].id == index.id) {
+                        subscription = subList[j];
+                }
+            }
+
+          /*
           if(index.subType == SubType.MONTHLY){
             
             Subscription[] memory subList = monthMap[index.dueDay];
@@ -613,6 +623,7 @@ contract Clocktower {
                     }
                 }
           }
+          */
 
           return subscription;
     }
@@ -743,29 +754,6 @@ contract Clocktower {
             subscribers.pop();
         }
     }
-    
-    
-    /*
-     function _daysToDate(uint _days) external pure returns (uint month, uint day) {
-        int __days = int(_days);
-
-        int L = __days + 68569 + OFFSET19700101;
-        int N = 4 * L / 146097;
-        L = L - (146097 * N + 3) / 4;
-        //int _year = 4000 * (L + 1) / 1461001;
-        //L = L - 1461 * _year / 4 + 31;
-        int _month = 80 * L / 2447;
-        int _day = L - 2447 * _month / 80;
-        L = _month / 11;
-        _month = _month + 2 - 12 * L;
-       // _year = 100 * (N - 49) + _year + L;
-
-       // year = uint(_year);
-        month = uint(_month);
-        day = uint(_day);
-    }
-    */
-    
 
     //------------------------------------------------------------
     //TODO: could try to lower gas: only pass parameters, use requires instead of existence check
@@ -825,7 +813,14 @@ contract Clocktower {
             //subscribers[i].deleteSubFromAccount(subscribersMap[subscription.id]);
         }
 
-        
+        Subscription[] memory subscriptions = subscriptionMap[uint(subscription.subType)][subscription.dueDay];
+        for(uint i; i < subscribers.length; i++) {
+            if(subscriptions[i].id == subscription.id) {
+               // monthMap[subscription.dueDay][i].cancelled = true;
+               subscriptionMap[uint(subscription.subType)][subscription.dueDay];
+            }
+        }
+        /*
         //sets cancelled bool to true
         if(subscription.subType == SubType.MONTHLY) {
             Subscription[] memory subscriptions = monthMap[subscription.dueDay];
@@ -847,6 +842,7 @@ contract Clocktower {
                 }
             }
         }
+        */
         
     }
     
@@ -875,6 +871,18 @@ contract Clocktower {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
+        
+        if(subtype == SubType.MONTHLY) {
+            require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
+        }
+        if(subtype == SubType.YEARLY) {
+            require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
+        }
+        subscriptionMap[uint(subtype)][dueDay].push() = subscription;
+        
+
+        /*
+        //%%
          //month subscription
         if(subtype == SubType.MONTHLY) {
             //recurring day must be between 1 and 28
@@ -890,6 +898,7 @@ contract Clocktower {
 
             yearMap[dueDay].push() = subscription;
         }
+        */
 
          //creates subscription index
         //SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
@@ -1298,7 +1307,53 @@ contract Clocktower {
         //gets subscriptions from mappings
         //Subscription[] memory monthlySubs = monthMap[_days];
         //Subscription[] memory yearlySubs = yearMap[yearDays];
+
+        //TODO: possibly add onetime later
+        //loops through types
+        for(uint s = 1; s <= 2; s++) {
+
+            uint40 timeTrigger;
+            if(s == uint(SubType.MONTHLY)) {
+                timeTrigger = _days;
+            }
+            if(s == uint(SubType.YEARLY)) {
+                timeTrigger = yearDays;
+            }
+
+             //loops through monthly subscriptions
+            for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+                //checks if cancelled
+                if(!subscriptionMap[s][timeTrigger][i].cancelled) {
+
+                    bytes32 id = subscriptionMap[s][timeTrigger][i].id;
+                    address token = subscriptionMap[s][timeTrigger][i].token;
+                    uint amount = subscriptionMap[s][timeTrigger][i].amount;
+                    //loops through subscribers
+                    for(uint j; j < subscribersMap[id].length; j++) {
+                        
+                        //checks for failure (balance and unlimited allowance)
+                        address subscriber = subscribersMap[id][j];
+
+                        //check if there is enough allowance and balance
+                        if(ERC20Permit(subscriptionMap[s][timeTrigger][i].token).allowance(subscriber, address(this)) >= amount
+                        && 
+                        ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
+                            //log as failed
+                            paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
+                        } else {
+
+                            //log as succeeded
+                            paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
+                            //completes transaction
+                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, amount));
+                        }
+                        
+                    }
+                }
+            }
+        }
         
+        /*
         //loops through monthly subscriptions
         for(uint i; i < monthMap[_days].length; i++) {
 
@@ -1362,5 +1417,6 @@ contract Clocktower {
                 }
             }
         }
+        */
     }
 }
