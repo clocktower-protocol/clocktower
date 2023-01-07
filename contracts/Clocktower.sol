@@ -5,7 +5,7 @@ pragma solidity ^0.8.9;
 
 import "hardhat/console.sol";
 //import "./Timelibrary.sol";
-import "./ClockTowerLibrary.sol";
+//import "./ClockTowerLibrary.sol";
 
 interface ERC20Permit{
   function transferFrom(address from, address to, uint value) external returns (bool);
@@ -32,7 +32,27 @@ contract Clocktower {
     }
 
     //using BokkyPooBahsDateTimeLibrary for uint;
-   // using ClockTowerLibrary for *;
+    //using ClockTowerLibrary for *;
+
+    /*
+    //Require error codes
+    0 = Must have admin privileges
+    1 = ERC20 token already added
+    2 = ERC20 token not added yet
+    3 = No zero address call
+    4 = Time must be in the future
+    5 = Not enough ETH sent
+    6 = Time must be on the hour
+    7 = Subscription doesn't exist
+    8 = Token address cannot be zero
+    9 = Token not approved
+    10 = Amount must be greater than zero
+    11 = Not enough ETH in contract
+    12 = Transfer failed
+    13 = Requires token allowance to be increased for contract
+    14 = Time already checked
+
+    */
 
     //DATA-------------------------------------------------------
 
@@ -199,7 +219,7 @@ contract Clocktower {
     //ADMIN METHODS*************************************
 
     function adminRequire() private view {
-        require(msg.sender == admin, "Must have admin privileges");
+        require(msg.sender == admin, "0");
     }
     
     //checks if user is admin
@@ -226,7 +246,7 @@ contract Clocktower {
     //allows admin to add to approved contract addresses
     function addERC20Contract(address erc20Contract) isAdmin external {
         require(erc20Contract != address(0));
-        require(!erc20IsApproved(erc20Contract), "ERC20 token already added");
+        require(!erc20IsApproved(erc20Contract), "1");
         
         approvedERC20.push() = erc20Contract;
     }
@@ -234,7 +254,7 @@ contract Clocktower {
     //allows admin to remove an erc20 contract from the approved list
     function removeERC20Contract(address erc20Contract) isAdmin external {
         require(erc20Contract != address(0));
-        require(erc20IsApproved(erc20Contract), "ERC20 token not added yet");
+        require(erc20IsApproved(erc20Contract), "2");
 
         address[] memory memoryArray = approvedERC20;
         
@@ -342,14 +362,14 @@ contract Clocktower {
 
     //UTILITY FUNCTIONS-----------------------------------
     function userNotZero() view private {
-        require(msg.sender != address(0), "No zero address call");
+        require(msg.sender != address(0), "3");
     }
 
     function futureOnHour(uint40 unixTime) view private {
          //require transactions to be in the future and to be on the hour
-        require(unixTime > block.timestamp, "Time must be in the future");
+        require(unixTime > block.timestamp, "4");
 
-        require(unixTime % 3600 == 0, "Time must be on the hour");
+        require(unixTime % 3600 == 0, "6");
     }
 
     
@@ -685,14 +705,14 @@ contract Clocktower {
         userNotZero();
 
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "Not enough ETH sent");
+        require(fixedFee <= msg.value, "5");
 
         //TODO: turn on after testing
         //cant subscribe to subscription you own
         //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
 
         //require(memSubscription.exists, "Subscription doesn't exist");
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "Subscription doesn't exist");
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "7");
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
@@ -708,7 +728,7 @@ contract Clocktower {
         userNotZero();
 
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "Not enough ETH sent");
+        require(fixedFee <= msg.value, "5");
 
         deleteSubFromAccount(id, msg.sender);
     }
@@ -718,7 +738,7 @@ contract Clocktower {
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "Subscription doesn't exist");
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "7");
 
         //gets list of subscribers and deletes all entries in their accounts
         address[] memory subscribers = subscribersMap[subscription.id];
@@ -761,16 +781,16 @@ contract Clocktower {
         userNotZero();
 
         //cannot be ETH or zero address
-        require(token != address(0), "Token address cannot be zero");
+        require(token != address(0), "8");
 
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "Not enough ETH sent");
+        require(fixedFee <= msg.value, "5");
 
         //check if token is on approved list
-        require(erc20IsApproved(token)," Token not approved");
+        require(erc20IsApproved(token),"9");
 
         //amount must be greater than zero
-        require(amount > 0, "Amount must be greater than zero");
+        require(amount > 0, "10");
 
         
 
@@ -905,7 +925,7 @@ contract Clocktower {
 
 
         //reverts entire procedure if theres not enough eth
-        require(address(this).balance > ethTotal, "Not enough ETH");
+        require(address(this).balance > ethTotal, "11");
 
 
         
@@ -916,7 +936,7 @@ contract Clocktower {
             if(sortedTransactions[j].token == address(0)){
                 //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
                 bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
-                require(success, "Transfer failed.");
+                require(success, "12");
             } else {
                 //transfers Token
                 require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
@@ -940,17 +960,17 @@ contract Clocktower {
         
         if(token == address(0)) {
             //require sent ETH to be higher than payload * fee
-            require(payload * fee / 100 <= msg.value, "Not enough ETH sent");
+            require(payload * fee / 100 <= msg.value, "5");
         } else {
 
              //require sent ETH to be higher than fixed token fee
-            require(fixedFee <= msg.value, "Not enough ETH sent");
+            require(fixedFee <= msg.value, "5");
 
             //check if token is on approved list
-            require(erc20IsApproved(token)," Token not approved");
+            require(erc20IsApproved(token),"9");
 
             //check if there is enough allowance
-            require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "Requires token allowance to be increased for contract");
+            require(ERC20Permit(token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][token] + payload, "13");
         }
         
         //calculates hours since merge from passed unixTime
@@ -987,13 +1007,13 @@ contract Clocktower {
         
         if(token == address(0)) {
             //require sent ETH to be higher than payload * fee
-            require(payload * fee / 100 <= msg.value, "Not enough ETH sent");
+            require(payload * fee / 100 <= msg.value, "5");
         } else {
              //require sent ETH to be higher than fixed token fee
-            require(fixedFee <= msg.value, "Not enough ETH sent");
+            require(fixedFee <= msg.value, "5");
 
             //check if token is on approved list
-            require(erc20IsApproved(token)," Token not approved");
+            require(erc20IsApproved(token),"9");
 
             //requires payload to be the same as permit value
             require(payload <= permit.value, "Payload must be <= value permitted");
@@ -1037,7 +1057,7 @@ contract Clocktower {
         BatchVariables memory variables;
 
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee * batch.length <= msg.value, "Not enough ETH sent");
+        require(fixedFee * batch.length <= msg.value, "5");
 
         //creates arrays for a list of tokens in batch sized to overall approved contract addresses
         address[] memory batchTokenList = new address[](approvedERC20.length);
@@ -1074,10 +1094,10 @@ contract Clocktower {
 
             //Token transaction 
                 //check if token is on approved list
-                require(erc20IsApproved(batch[i].token),"Token not approved");
+                require(erc20IsApproved(batch[i].token),"9");
 
                  //check if there is enough allowance
-                require(ERC20Permit(batch[i].token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][batch[i].token] + batch[i].payload, "Requires token allowance to be increased for contract");
+                require(ERC20Permit(batch[i].token).allowance(msg.sender, address(this)) >= tokenClaims[msg.sender][batch[i].token] + batch[i].payload, "13");
         
                
                 if(!isInAddressArray(batch[i].token, batchTokenList)) {
@@ -1098,7 +1118,7 @@ contract Clocktower {
         //makes sure enough ETH was sent in payloads
         //require sent ETH to be higher than payload * fee
         
-        require(variables.ethPayloads * fee / 100 <= msg.value, "Not enough ETH sent");
+        require(variables.ethPayloads * fee / 100 <= msg.value, "5");
 
         //iterates through batch time triggers 
         for(i = 0; i < batchTriggerList.length; i++) {
@@ -1155,7 +1175,7 @@ contract Clocktower {
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked");
+        require(_currentTimeSlot > lastCheckedTimeSlot, "14");
 
         for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
@@ -1175,7 +1195,7 @@ contract Clocktower {
          //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedTimeSlot, "Time already checked");
+        require(_currentTimeSlot > lastCheckedTimeSlot, "14");
 
         for(uint40 i = lastCheckedTimeSlot; i <= _currentTimeSlot; i++) {
 
