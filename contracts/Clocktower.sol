@@ -78,7 +78,6 @@ contract Clocktower {
     }
 
     enum SubType {
-        ONETIME,
         MONTHLY,
         YEARLY
     }
@@ -113,9 +112,9 @@ contract Clocktower {
         bytes32 id;
         uint amount;
         address owner;
+        address token;
         bool exists;
         bool cancelled;
-        address token;
         SubType subType;
         uint40 dueDay;
         string description;
@@ -130,7 +129,6 @@ contract Clocktower {
         SubType subType;
     }
 
-    //&&
     //struct of subscription payments
     struct SubLog {
         bytes32 subId;
@@ -717,7 +715,7 @@ contract Clocktower {
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
 
-        subscription = Subscription(id, amount, msg.sender, true, false, token, subType, dueDay, description);
+        subscription = Subscription(id, amount, msg.sender, token, true, false, subType, dueDay, description);
     }
     
     //checks subscription exists
@@ -1310,7 +1308,7 @@ contract Clocktower {
 
         //TODO: possibly add onetime later
         //loops through types
-        for(uint s = 1; s <= 2; s++) {
+        for(uint s = 0; s <= 1; s++) {
 
             uint40 timeTrigger;
             if(s == uint(SubType.MONTHLY)) {
