@@ -370,8 +370,8 @@ contract Clocktower {
         //return transactions;
         return totalTransactions;
     }
-    
     */
+    
     
     //**************************************************
 
@@ -1032,7 +1032,7 @@ contract Clocktower {
 
     }
 
-/*
+
     //adds to list of transactions 
     function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
@@ -1082,7 +1082,7 @@ contract Clocktower {
             ERC20Permit(token).permit(permit.owner, permit.spender, permit.value, permit.deadline, permit.v, permit.r, permit.s);
         }
     }
-    */
+    
 
     //REQUIRE maximum 100 transactions (based on gas limit per block)
     //REQUIRE approval for token totals to be done in advance of calling this function

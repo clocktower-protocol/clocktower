@@ -39,6 +39,34 @@ export declare namespace Clocktower {
     token: string;
   };
 
+  export type PermitStruct = {
+    owner: PromiseOrValue<string>;
+    spender: PromiseOrValue<string>;
+    value: PromiseOrValue<BigNumberish>;
+    deadline: PromiseOrValue<BigNumberish>;
+    v: PromiseOrValue<BigNumberish>;
+    r: PromiseOrValue<BytesLike>;
+    s: PromiseOrValue<BytesLike>;
+  };
+
+  export type PermitStructOutput = [
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    number,
+    string,
+    string
+  ] & {
+    owner: string;
+    spender: string;
+    value: BigNumber;
+    deadline: BigNumber;
+    v: number;
+    r: string;
+    s: string;
+  };
+
   export type SubscriptionStruct = {
     id: PromiseOrValue<BytesLike>;
     amount: PromiseOrValue<BigNumberish>;
@@ -106,6 +134,7 @@ export interface ClocktowerInterface extends utils.Interface {
   functions: {
     "addBatchTransactions((address,uint40,uint256,address)[])": FunctionFragment;
     "addERC20Contract(address)": FunctionFragment;
+    "addPermitTransaction(address,uint40,uint256,address,(address,address,uint256,uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "addTransaction(address,uint40,uint256,address)": FunctionFragment;
     "cancelSubscription((bytes32,uint256,address,bool,bool,address,uint8,uint40,string))": FunctionFragment;
     "cancelTransaction(bytes32,uint40,address)": FunctionFragment;
@@ -131,6 +160,7 @@ export interface ClocktowerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addBatchTransactions"
       | "addERC20Contract"
+      | "addPermitTransaction"
       | "addTransaction"
       | "cancelSubscription"
       | "cancelTransaction"
@@ -159,6 +189,16 @@ export interface ClocktowerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addERC20Contract",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addPermitTransaction",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      Clocktower.PermitStruct
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "addTransaction",
@@ -249,6 +289,10 @@ export interface ClocktowerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addERC20Contract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addPermitTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -345,6 +389,15 @@ export interface Clocktower extends BaseContract {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    addPermitTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     addTransaction(
@@ -451,6 +504,15 @@ export interface Clocktower extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  addPermitTransaction(
+    receiver: PromiseOrValue<string>,
+    unixTime: PromiseOrValue<BigNumberish>,
+    payload: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
+    permit: Clocktower.PermitStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   addTransaction(
     receiver: PromiseOrValue<string>,
     unixTime: PromiseOrValue<BigNumberish>,
@@ -555,6 +617,15 @@ export interface Clocktower extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    addPermitTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -656,6 +727,15 @@ export interface Clocktower extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    addPermitTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     addTransaction(
       receiver: PromiseOrValue<string>,
       unixTime: PromiseOrValue<BigNumberish>,
@@ -755,6 +835,15 @@ export interface Clocktower extends BaseContract {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addPermitTransaction(
+      receiver: PromiseOrValue<string>,
+      unixTime: PromiseOrValue<BigNumberish>,
+      payload: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      permit: Clocktower.PermitStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     addTransaction(
