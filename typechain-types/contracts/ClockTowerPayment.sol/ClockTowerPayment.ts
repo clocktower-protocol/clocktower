@@ -67,16 +67,35 @@ export declare namespace ClockTowerPayment {
     s: string;
   };
 
+  export type SubIndexStruct = {
+    id: PromiseOrValue<BytesLike>;
+    dueDay: PromiseOrValue<BigNumberish>;
+    subType: PromiseOrValue<BigNumberish>;
+  };
+
+  export type SubIndexStructOutput = [string, number, number] & {
+    id: string;
+    dueDay: number;
+    subType: number;
+  };
+
   export type AccountStruct = {
     accountAddress: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
     timeTriggers: PromiseOrValue<BigNumberish>[];
+    subscriptions: ClockTowerPayment.SubIndexStruct[];
   };
 
-  export type AccountStructOutput = [string, boolean, number[]] & {
+  export type AccountStructOutput = [
+    string,
+    boolean,
+    number[],
+    ClockTowerPayment.SubIndexStructOutput[]
+  ] & {
     accountAddress: string;
     exists: boolean;
     timeTriggers: number[];
+    subscriptions: ClockTowerPayment.SubIndexStructOutput[];
   };
 
   export type TransactionStruct = {

@@ -58,6 +58,11 @@ contract ClockTowerPayment {
         CANCELLED
     }
 
+    enum SubType {
+        MONTHLY,
+        YEARLY
+    }
+
     //global struct for future transactions
     struct Transaction {
         bytes32 id;
@@ -79,7 +84,14 @@ contract ClockTowerPayment {
         //indexs of timeTriggers and tokens stored per account. 
         //Timetrigger to lookup transactions. Token index to lookup balances
         uint40[] timeTriggers;
-        //SubIndex[] subscriptions;
+        SubIndex[] subscriptions;
+    }
+
+     //struct of Subscription indexes
+    struct SubIndex {
+        bytes32 id;
+        uint40 dueDay;
+        SubType subType;
     }
 
     //batch struct
