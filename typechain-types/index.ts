@@ -22,5 +22,3 @@ export type { Clocktower } from "./contracts/Clocktower.sol/Clocktower";
 export { Clocktower__factory } from "./factories/contracts/Clocktower.sol/Clocktower__factory";
 export type { ClockTowerLibrary } from "./contracts/ClockTowerLibrary";
 export { ClockTowerLibrary__factory } from "./factories/contracts/ClockTowerLibrary__factory";
-export type { ClocktowerPure } from "./contracts/ClocktowerPure";
-export { ClocktowerPure__factory } from "./factories/contracts/ClocktowerPure__factory";
