@@ -46,6 +46,7 @@ contract ClockTowerSubscribe {
     uint fixedFee = 10000000000000000;
 
     enum SubType {
+        WEEKLY,
         MONTHLY,
         YEARLY
     }
@@ -70,7 +71,7 @@ contract ClockTowerSubscribe {
         bool exists;
         bool cancelled;
         SubType subType;
-        uint40 dueDay;
+        uint16 dueDay;
         string description;
         //address[] subscribers;
     }
@@ -79,7 +80,7 @@ contract ClockTowerSubscribe {
     //struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
-        uint40 dueDay;
+        uint16 dueDay;
         SubType subType;
     }
 
@@ -102,7 +103,7 @@ contract ClockTowerSubscribe {
     //--------------Subscription mappings------------ 
 
     //Subscription master map keyed on type
-    mapping(uint => mapping(uint40 => Subscription[])) subscriptionMap;
+    mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
@@ -229,25 +230,32 @@ contract ClockTowerSubscribe {
 
         //loops through months to get current day of year
         for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
-            dayCounter += _getDaysInMonth(uintyear, month);
+            dayCounter += getDaysInMonth(uintyear, month);
         }
 
         yearDays = uint16(dayCounter);
     }
 
-    function _isLeapYear(uint year) internal pure returns (bool leapYear) {
+    function isLeapYear(uint year) internal pure returns (bool leapYear) {
         leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
     }
 
-    function _getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+    function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
         if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
             daysInMonth = 31;
         } else if (month != 2) {
             daysInMonth = 30;
         } else {
-            daysInMonth = _isLeapYear(year) ? 29 : 28;
+            daysInMonth = isLeapYear(year) ? 29 : 28;
         }
     }
+
+    // 1 = Monday, 7 = Sunday
+    function getDayOfWeek(uint unixTime) internal pure returns (uint dayOfWeek) {
+        uint _days = unixTime / 86400;
+        dayOfWeek = (_days + 3) % 7 + 1;
+    }
+
 
       //converts unixTime to hours
     function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
@@ -313,7 +321,7 @@ contract ClockTowerSubscribe {
     }
 
     //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint40 dueDay) private view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
 
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
@@ -322,7 +330,7 @@ contract ClockTowerSubscribe {
     }
     
     //checks subscription exists
-    function subExists(bytes32 id, uint40 dueDay, SubType subType) private view returns(bool) {
+    function subExists(bytes32 id, uint16 dueDay, SubType subType) private view returns(bool) {
         //check subscription exists
         SubIndex memory index = SubIndex(id, dueDay, subType);
 
@@ -442,7 +450,9 @@ contract ClockTowerSubscribe {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
-        
+        if(subtype == SubType.WEEKLY) {
+            require(0 < dueDay && dueDay <= 7, "Weekly due date must be between 1 and 7");
+        }
         if(subtype == SubType.MONTHLY) {
             require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
         }
@@ -479,13 +489,19 @@ contract ClockTowerSubscribe {
         //calls library function
         //(uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
         (uint16 yearDays, uint16 _days) = unixToDays(block.timestamp);
-        
+
+        uint weekdayuint = getDayOfWeek(block.timestamp);
+        uint16 weekday = uint16(weekdayuint);
+    
         //gets subscriptions from mappings
 
         //loops through types
-        for(uint s = 0; s <= 1; s++) {
+        for(uint s = 0; s <= 2; s++) {
 
-            uint40 timeTrigger;
+            uint16 timeTrigger;
+            if(s == uint(SubType.WEEKLY)){
+                timeTrigger = weekday;
+            }
             if(s == uint(SubType.MONTHLY)) {
                 timeTrigger = _days;
             }
