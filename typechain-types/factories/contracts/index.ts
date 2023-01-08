@@ -4,4 +4,3 @@
 export * as clocKtokenSol from "./CLOCKtoken.sol";
 export * as clocktowerSol from "./Clocktower.sol";
 export { ClockTowerLibrary__factory } from "./ClockTowerLibrary__factory";
-export { ClocktowerPure__factory } from "./ClocktowerPure__factory";

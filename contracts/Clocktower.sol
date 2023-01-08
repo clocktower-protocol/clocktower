@@ -15,17 +15,6 @@ interface ERC20Permit{
   function allowance(address owner, address spender) external returns (uint);
 } 
 
-
-/*
-abstract contract ERC20Permit{
-  function transferFrom(address from, address to, uint value) public virtual returns (bool);
-  function balanceOf(address tokenOwner) public virtual returns (uint);
-  function approve(address spender, uint tokens) public virtual returns (bool);
-  function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) public virtual;
-  function allowance(address owner, address spender) public virtual returns (uint);
-} 
-*/
-
 contract Clocktower {
 
     constructor() payable {
@@ -65,9 +54,6 @@ contract Clocktower {
     uint fee = 100;
     //0.01 eth in wei
     uint fixedFee = 10000000000000000;
-
-    //offset for time calc
-    //int constant OFFSET19700101 = 2440588;
 
     //global enums
     enum Status {
@@ -163,10 +149,14 @@ contract Clocktower {
         bytes32 s;
     }
 
+    //--------------Account Mappings-------------
+
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
     address[] private accountLookup;
+
+    //---------------------------------------------
 
     //Map of transactions based on hour to be sent
     mapping(uint40 => Transaction[]) private timeMap;
@@ -174,12 +164,8 @@ contract Clocktower {
     //creates lookup table for transactions
     bytes32[] private transactionLookup;
 
-    //Subscription maps monthly, quarterly, yearly
-    //day of month 
-    //mapping(uint40 => Subscription[]) monthMap;
-    //day of year
-   // mapping(uint40 => Subscription[]) yearMap;
-    
+   //--------------Subscription mappings------------ 
+
     //Subscription master map keyed on type
     mapping(uint => mapping(uint40 => Subscription[])) subscriptionMap;
 
@@ -189,6 +175,8 @@ contract Clocktower {
     //&&
     //log of subscription payments
     mapping(address => SubLog) paymentLog;
+
+    //--------------------------------------------
 
     //per account address per token balance for scheduled transactions
     mapping(address => mapping(address => uint)) tokenClaims;
@@ -533,30 +521,6 @@ contract Clocktower {
         return fee;
     }
 
-    /*
-
-    function getBalance() private view returns (uint) {
-        return address(this).balance;
-    }
-    */
-
-    
-    /*
-    function getTokenBalance(address account, address token) private view returns (uint) {
-        return tokenClaims[account][token];
-    }
-    */
-    
-    //////////////////////
-
-    //gets time TESTING FUNCTION
-    /*
-    function getTime() external view returns (uint) {
-        return block.timestamp;
-    }
-    */
-
-   
     //gets claims per token
     function getTotalClaims(address token) external view returns (uint) {
         return tokenClaims[msg.sender][token];
@@ -585,8 +549,6 @@ contract Clocktower {
         return false;
     }
     
-
-
     //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
 
@@ -598,35 +560,9 @@ contract Clocktower {
                         subscription = subList[j];
                 }
             }
-
-          /*
-          if(index.subType == SubType.MONTHLY){
-            
-            Subscription[] memory subList = monthMap[index.dueDay];
-
-                //searchs for subscription in day map
-                for(uint j; j < subList.length; j++) {
-                    if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                    }
-                }
-          }
-           if(index.subType == SubType.YEARLY){
-            Subscription[] memory subList = yearMap[index.dueDay];
-
-                //searchs for subscription in day map
-                for(uint j; j < subList.length; j++) {
-                    if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                    }
-                }
-          }
-          */
-
           return subscription;
     }
  
-    //&&
     //converts unixTime to hours
     function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
         hourCount = unixTime/3600;
@@ -791,8 +727,6 @@ contract Clocktower {
         require(fixedFee <= msg.value, "5");
 
         deleteSubFromAccount(id, msg.sender);
-
-        //deleteSubFromAccount(id, msg.sender);
     }
         
 
@@ -808,7 +742,6 @@ contract Clocktower {
         for(uint i; i < subscribers.length; i++) {
             //gets location of subscription index in array
             deleteSubFromAccount(subscription.id, subscribers[i]);
-            //subscribers[i].deleteSubFromAccount(subscribersMap[subscription.id]);
         }
 
         Subscription[] memory subscriptions = subscriptionMap[uint(subscription.subType)][subscription.dueDay];
@@ -818,30 +751,6 @@ contract Clocktower {
                subscriptionMap[uint(subscription.subType)][subscription.dueDay];
             }
         }
-        /*
-        //sets cancelled bool to true
-        if(subscription.subType == SubType.MONTHLY) {
-            Subscription[] memory subscriptions = monthMap[subscription.dueDay];
-
-            for(uint i; i < subscribers.length; i++) {
-                if(subscriptions[i].id == subscription.id) {
-                    monthMap[subscription.dueDay][i].cancelled = true;
-                }
-            }
-
-        }
-
-        if(subscription.subType == SubType.YEARLY) {
-             Subscription[] memory subscriptions = yearMap[subscription.dueDay];
-
-            for(uint i; i < subscribers.length; i++) {
-                if(subscriptions[i].id == subscription.id) {
-                    yearMap[subscription.dueDay][i].cancelled = true;
-                }
-            }
-        }
-        */
-        
     }
     
     
@@ -849,8 +758,7 @@ contract Clocktower {
     //allows provider user to create a subscription
     function createSubscription(uint amount, address token, string calldata description, SubType subtype, uint16 dueDay) external payable {
         
-         //cannot be sent from zero address
-        //require(msg.sender != address(0), "No zero address call");
+        //cannot be sent from zero address
         userNotZero();
 
         //cannot be ETH or zero address
@@ -865,7 +773,6 @@ contract Clocktower {
         //amount must be greater than zero
         require(amount > 0, "10");
 
-        //Subscription memory subscriptionTest = test.setSubscription(amount, token, description, subtype, dueDay);
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
@@ -877,27 +784,7 @@ contract Clocktower {
             require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
         }
         subscriptionMap[uint(subtype)][dueDay].push() = subscription;
-        
-
-        /*
-        //%%
-         //month subscription
-        if(subtype == SubType.MONTHLY) {
-            //recurring day must be between 1 and 28
-            require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
-
-            //creates subscription
-            monthMap[dueDay].push() = subscription;
-        }
-
-        if(subtype == SubType.YEARLY) {
-            //recurring annual day must be between 1 and 365
-            require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
-
-            yearMap[dueDay].push() = subscription;
-        }
-        */
-
+ 
          //creates subscription index
         //SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
 
@@ -943,7 +830,6 @@ contract Clocktower {
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
 
          //cannot be sent from zero address
-        //require(msg.sender != address(0), "No zero address call");
         userNotZero();
 
         //converts time trigger to hour
@@ -987,13 +873,9 @@ contract Clocktower {
     function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
 
          //cannot be sent from zero address
-       // require(msg.sender != address(0), "No zero address call");
-       userNotZero();
+        userNotZero();
         
         //require transactions to be in the future and to be on the hour
-        //require(unixTime > block.timestamp, "Time must be in the future");
-
-        //require(unixTime % 3600 == 0, "Time must be on the hour");
         futureOnHour(unixTime);
         
         if(token == address(0)) {
@@ -1035,13 +917,9 @@ contract Clocktower {
     function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
          //cannot be sent from zero address
-       // require(msg.sender != address(0), "No zero address call");
-       userNotZero();
+        userNotZero();
         
         //require transactions to be in the future and to be on the hour
-        //require(unixTime > block.timestamp, "Time must be in the future");
-
-        //require(unixTime % 3600 == 0, "Time must be on the hour");
         futureOnHour(unixTime);
         
         if(token == address(0)) {
@@ -1086,8 +964,7 @@ contract Clocktower {
     //REQUIRE approval for token totals to be done in advance of calling this function
     function addBatchTransactions(Batch[] memory batch) stopInEmergency payable external {
 
-         //cannot be sent from zero address
-        //require(msg.sender != address(0), "No zero address call");
+        //cannot be sent from zero address
         userNotZero();
 
         //Batch needs more than one transaction (single batch transaction uses more gas than addTransaction)
@@ -1111,12 +988,8 @@ contract Clocktower {
         for(i = 0; i < batch.length; i++) {
 
             //require transactions to be in the future and to be on the hour
-            //require(batch[i].unixTime > block.timestamp, "Time must be in the future");
-
-            //require(batch[i].unixTime % 3600 == 0, "Time must be on the hour");
             futureOnHour(batch[i].unixTime);
 
-            
             //if time trigger is unique we put it in the list
             uint40 timeTrigger2 = unixToHours(batch[i].unixTime);
 
@@ -1303,10 +1176,7 @@ contract Clocktower {
         (uint16 yearDays, uint16 _days) = unixToDays(block.timestamp);
         
         //gets subscriptions from mappings
-        //Subscription[] memory monthlySubs = monthMap[_days];
-        //Subscription[] memory yearlySubs = yearMap[yearDays];
 
-        //TODO: possibly add onetime later
         //loops through types
         for(uint s = 0; s <= 1; s++) {
 
@@ -1350,71 +1220,5 @@ contract Clocktower {
                 }
             }
         }
-        
-        /*
-        //loops through monthly subscriptions
-        for(uint i; i < monthMap[_days].length; i++) {
-
-            if(!monthMap[_days][i].cancelled) {
-
-                bytes32 id = monthMap[_days][i].id;
-                address token = monthMap[_days][i].token;
-                uint amount = monthMap[_days][i].amount;
-                //loops through subscribers
-                for(uint j; j < subscribersMap[id].length; j++) {
-                    
-                    //checks for failure (balance and unlimited allowance)
-                    address subscriber = subscribersMap[id][j];
-
-                    //check if there is enough allowance and balance
-                    if(ERC20Permit(monthMap[_days][i].token).allowance(subscriber, address(this)) >= amount
-                    && 
-                    ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
-                        //log as failed
-                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
-                    } else {
-
-                         //log as succeeded
-                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
-                        //completes transaction
-                        require(ERC20Permit(token).transferFrom(subscriber, monthMap[_days][i].owner, amount));
-                    }
-                    
-                }
-            }
-        }
-
-        //loops through yearly subscriptions
-        for(uint i; i < yearMap[yearDays].length; i++) {
-
-            if(!yearMap[_days][i].cancelled) {
-
-                bytes32 id = yearMap[_days][i].id;
-                address token = yearMap[_days][i].token;
-                uint amount = yearMap[_days][i].amount;
-                //loops through subscribers
-                for(uint j; j < subscribersMap[id].length; j++) {
-                    
-                    //checks for failure (balance and unlimited allowance)
-                    address subscriber = subscribersMap[id][j];
-
-                    //check if there is enough allowance and balance
-                    if(ERC20Permit(yearMap[_days][i].token).allowance(subscriber, address(this)) >= amount
-                    && 
-                    ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
-                        //log as failed
-                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
-                    } else {
-
-                         //log as succeeded
-                        paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
-                        //completes transaction
-                        require(ERC20Permit(token).transferFrom(subscriber, yearMap[_days][i].owner, amount));
-                    }
-                    
-                }
-            }
-        }
-        */
     }
 }

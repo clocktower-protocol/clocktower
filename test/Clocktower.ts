@@ -372,7 +372,7 @@ describe("Clocktower", function(){
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(ethers.utils.parseEther("2.0"))
         })
 
-        /*
+        
         it("Should accept Permit signatures", async function() {
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
@@ -405,12 +405,12 @@ describe("Clocktower", function(){
             console.log(_permit2)
             */
             
-        /*
+        
             expect(await hardhatClocktower.addPermitTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams))
            // expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(ethers.utils.parseEther("1"));
 
         })
-        */
+        
 
     })
     describe("Subscriptions", function() {
@@ -461,6 +461,7 @@ describe("Clocktower", function(){
             let subscriptions = await hardhatClocktower.getAccountSubscriptions()
 
             await hardhatClocktower.subscribe(subscriptions[0], testParams2)
+            
         })
         it("Should allow user to unsubscribe", async function() {
             const {hardhatCLOCKToken, hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
