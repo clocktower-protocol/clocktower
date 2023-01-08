@@ -149,6 +149,12 @@ contract Clocktower {
         bytes32 s;
     }
 
+    //Snapshot struct
+    struct Snapshot {
+        address[] accounts;
+        Account[] accountStructs;
+    }
+
     //--------------Account Mappings-------------
 
     //Account map
@@ -280,6 +286,7 @@ contract Clocktower {
     function changeFixedFee(uint _fixed_fee) isAdmin external {
         fixedFee = _fixed_fee;
     }
+
     
     //TODO: do these functions offchain
 
@@ -307,7 +314,7 @@ contract Clocktower {
         return totalTransactions;
     }
 
-    //returns all accounts
+      //returns all accounts
     function allAccounts() isAdmin external view returns(Account[] memory){
 
         Account[] memory totalAccounts = new Account[](accountLookup.length);
@@ -361,6 +368,7 @@ contract Clocktower {
     
     //**************************************************
 
+   
     //UTILITY FUNCTIONS-----------------------------------
     function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 day) {
        
