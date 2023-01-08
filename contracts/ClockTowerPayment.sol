@@ -223,6 +223,81 @@ contract ClockTowerPayment {
         require(msg.sender != address(0), "3");
     }
 
+     
+    //returns array containing all transactions
+    function allTransactions() isAdmin external view returns (Transaction[] memory){
+
+        Transaction[] memory totalTransactions = new Transaction[](transactionLookup.length);
+
+        uint count = 0;
+
+        //for each account
+        for(uint i = 0; i < accountLookup.length; i++) {
+
+            Transaction[] memory accountTransactions = getTransactionsByAccount(accountLookup[i]);
+                        
+            //adds each transaction to total array
+            for(uint j = 0; j < accountTransactions.length; j++) {
+                //Transaction memory transaction = accountTransactions[j];
+                totalTransactions[count] = accountTransactions[j];
+                count++;
+            }     
+        }
+        
+        return totalTransactions;
+    }
+
+      //returns all accounts
+    function allAccounts() isAdmin external view returns(Account[] memory){
+
+        Account[] memory totalAccounts = new Account[](accountLookup.length);
+
+        //for each account
+        for(uint i = 0; i < accountLookup.length; i++) {
+            totalAccounts[i] = accountMap[accountLookup[i]];
+        }
+
+        return totalAccounts;
+    }
+
+    function getTransactionsByAccount(address account) isAdmin public view returns (Transaction[] memory){
+       
+        uint40[] memory timeTriggers = accountMap[account].timeTriggers;
+
+        //gets total amount of transactions
+        uint total = 0;
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            Transaction[] memory lengthArray = timeMap[timeTriggers[i]];
+            total += lengthArray.length;
+        }
+        
+        Transaction[] memory subsetTransactions = new Transaction[](total);
+        Transaction[] memory totalTransactions = new Transaction[](total);
+        uint count = 0;
+
+        //loops through time triggers
+        for(uint i = 0; i < timeTriggers.length; i++) {
+            subsetTransactions = timeMap[timeTriggers[i]];
+
+            //adds transactions to total
+            for(uint j = 0; j < subsetTransactions.length; j++) {
+                if(subsetTransactions[j].sender == account){
+                    totalTransactions[count] = subsetTransactions[j];
+                    count++;
+                }
+            }
+        }
+ 
+         //iterates through array and changes dates to unixEpochTime
+        for(uint i = 0; i < totalTransactions.length; i++) {
+                totalTransactions[i].timeTrigger = hourstoUnix(totalTransactions[i].timeTrigger);
+        }
+    
+        //return transactions;
+        return totalTransactions;
+    }
+    
+
     function futureOnHour(uint40 unixTime) view private {
          //require transactions to be in the future and to be on the hour
         require(unixTime > block.timestamp, "4");

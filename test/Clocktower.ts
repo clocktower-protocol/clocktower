@@ -291,7 +291,7 @@ describe("Clocktower", function(){
         })
       
     })
-/*
+
     describe("Admin Functions", function() {
 
         const testParams = {
@@ -299,28 +299,28 @@ describe("Clocktower", function(){
         };
 
         it("Should get transaction snapshot", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
-            let returnTransactions: any = await hardhatClocktower.allTransactions();
+            let returnTransactions: any = await hardhatClockPayment.allTransactions();
 
             expect(returnTransactions.length).to.equal(2)
             expect(returnTransactions[1].payload).to.equal(eth)
             
         })
         it("Should get accounts snapshot", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
-            let returnAccounts: any = await hardhatClocktower.allAccounts();
+            let returnAccounts: any = await hardhatClockPayment.allAccounts();
 
             expect(returnAccounts.length).to.equal(1)
             expect(returnAccounts[0].accountAddress).to.equal(owner.address)
         })
         it("Should allow to remove ERC20", async function(){
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
 
-            await hardhatClocktower.addERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
-            await hardhatClocktower.addERC20Contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
-            expect(await hardhatClocktower.removeERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F"))
+            await hardhatClockPayment.addERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F")
+            await hardhatClockPayment.addERC20Contract("0xdAC17F958D2ee523a2206206994597C13D831ec7")
+            expect(await hardhatClockPayment.removeERC20Contract("0x6B175474E89094C44Da98b954EedeAC495271d0F"))
         })
         it("Should get balance of CLOCK token", async function() {
             const {hardhatCLOCKToken, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -330,15 +330,15 @@ describe("Clocktower", function(){
             expect(amount).to.equal(ethers.utils.parseEther("100000"))
         })
         it("Should change fee", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClocktower.changeFee(102);
-            await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
-            let returnTransactions: any = await hardhatClocktower.allTransactions();
+            const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClockPayment.changeFee(102);
+            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
+            let returnTransactions: any = await hardhatClockPayment.allTransactions();
             expect(returnTransactions.length).to.equal(3)
         })
        
     })
-*/
+
  
     describe("ERC20 Functions", function() {
         const testParams = {
