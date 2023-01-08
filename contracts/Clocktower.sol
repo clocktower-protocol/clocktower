@@ -21,7 +21,7 @@ contract Clocktower {
     }
 
     //using BokkyPooBahsDateTimeLibrary for uint;
-    using ClockTowerLibrary for uint;
+   // using ClockTowerLibrary for uint;
     //using ClockTowerLibrary for address;
 
     /*
@@ -147,12 +147,6 @@ contract Clocktower {
         uint8 v;
         bytes32 r;
         bytes32 s;
-    }
-
-    //Snapshot struct
-    struct Snapshot {
-        address[] accounts;
-        Account[] accountStructs;
     }
 
     //--------------Account Mappings-------------

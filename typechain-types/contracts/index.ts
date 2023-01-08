@@ -3,6 +3,10 @@
 /* eslint-disable */
 import type * as clocKtokenSol from "./CLOCKtoken.sol";
 export type { clocKtokenSol };
+import type * as clockTowerPaymentSol from "./ClockTowerPayment.sol";
+export type { clockTowerPaymentSol };
+import type * as clockTowerSubscribeSol from "./ClockTowerSubscribe.sol";
+export type { clockTowerSubscribeSol };
 import type * as clocktowerSol from "./Clocktower.sol";
 export type { clocktowerSol };
 export type { ClockTowerLibrary } from "./ClockTowerLibrary";

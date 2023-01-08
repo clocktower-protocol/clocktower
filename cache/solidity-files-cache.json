@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1673191102006,
-      "contentHash": "4bb3f055d06e5e44e11b2fdd3e3a6a36",
+      "lastModificationDate": 1673195185190,
+      "contentHash": "00bc6f2897a9da78e21269c74122cb6c",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -583,6 +583,78 @@
       ],
       "artifacts": [
         "ClockTowerLibrary"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
+      "lastModificationDate": 1673200723181,
+      "contentHash": "2aec24cc10937485d1e6fcdf2a0b1484",
+      "sourceName": "contracts/ClockTowerSubscribe.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "ClockTowerSubscribe",
+        "ERC20Permit"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
+      "lastModificationDate": 1673202375381,
+      "contentHash": "7887c886f87a196a8862c9adf72a2ac7",
+      "sourceName": "contracts/ClockTowerPayment.sol",
+      "solcConfig": {
+        "version": "0.8.9",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.9"
+      ],
+      "artifacts": [
+        "ClockTowerPayment",
+        "ERC20Permit"
       ]
     }
   }
