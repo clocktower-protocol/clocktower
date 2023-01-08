@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 library ClockTowerLibrary {
 
-     enum SubType {
+    enum SubType {
         MONTHLY,
         YEARLY
     }
@@ -56,24 +56,30 @@ library ClockTowerLibrary {
 
         //loops through months to get current day of year
         for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
-            dayCounter += _getDaysInMonth(uintyear, month);
+            dayCounter += getDaysInMonth(uintyear, month);
         }
 
         yearDays = uint16(dayCounter);
     }
 
-    function _isLeapYear(uint year) internal pure returns (bool leapYear) {
+    function isLeapYear(uint year) internal pure returns (bool leapYear) {
         leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
     }
 
-     function _getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+     function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
         if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
             daysInMonth = 31;
         } else if (month != 2) {
             daysInMonth = 30;
         } else {
-            daysInMonth = _isLeapYear(year) ? 29 : 28;
+            daysInMonth = isLeapYear(year) ? 29 : 28;
         }
+    }
+
+    // 1 = Monday, 7 = Sunday
+    function getDayOfWeek(uint unixTime) internal pure returns (uint dayOfWeek) {
+        uint _days = unixTime / 86400;
+        dayOfWeek = (_days + 3) % 7 + 1;
     }
 
     /*

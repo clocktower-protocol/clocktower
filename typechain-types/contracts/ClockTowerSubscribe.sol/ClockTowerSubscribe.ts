@@ -63,7 +63,7 @@ export declare namespace ClockTowerSubscribe {
 export interface ClockTowerSubscribeInterface extends utils.Interface {
   functions: {
     "addERC20Contract(address)": FunctionFragment;
-    "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint40,string))": FunctionFragment;
+    "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeFee(uint256)": FunctionFragment;
     "changeFixedFee(uint256)": FunctionFragment;
@@ -72,7 +72,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "getAccountSubscriptions()": FunctionFragment;
     "getFee()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
-    "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint40,string))": FunctionFragment;
+    "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unixToDays(uint256)": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
