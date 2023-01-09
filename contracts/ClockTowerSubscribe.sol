@@ -49,6 +49,7 @@ contract ClockTowerSubscribe {
     enum SubType {
         WEEKLY,
         MONTHLY,
+        QUARTERLY,
         YEARLY
     }
 
@@ -489,6 +490,9 @@ contract ClockTowerSubscribe {
         if(subtype == SubType.MONTHLY) {
             require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
         }
+        if(subtype == SubType.QUARTERLY){
+             require(0 < dueDay && dueDay <= 90, "Monthly due date must be between 1 and 90");
+        }
         if(subtype == SubType.YEARLY) {
             require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
         }
@@ -533,7 +537,7 @@ contract ClockTowerSubscribe {
         //gets subscriptions from mappings
 
         //loops through types
-        for(uint s = 0; s <= 2; s++) {
+        for(uint s = 0; s <= 3; s++) {
 
             uint16 timeTrigger;
             if(s == uint(SubType.WEEKLY)){
