@@ -289,7 +289,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     unixToDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[number, number] & { yearDays: number; day: number }>;
+    ): Promise<
+      [number, number, number] & {
+        yearDays: number;
+        quarterDay: number;
+        day: number;
+      }
+    >;
 
     unsubscribe(
       id: PromiseOrValue<BytesLike>,
@@ -358,7 +364,13 @@ export interface ClockTowerSubscribe extends BaseContract {
   unixToDays(
     unix: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<[number, number] & { yearDays: number; day: number }>;
+  ): Promise<
+    [number, number, number] & {
+      yearDays: number;
+      quarterDay: number;
+      day: number;
+    }
+  >;
 
   unsubscribe(
     id: PromiseOrValue<BytesLike>,
@@ -423,7 +435,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     unixToDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[number, number] & { yearDays: number; day: number }>;
+    ): Promise<
+      [number, number, number] & {
+        yearDays: number;
+        quarterDay: number;
+        day: number;
+      }
+    >;
 
     unsubscribe(
       id: PromiseOrValue<BytesLike>,

@@ -204,7 +204,7 @@ contract ClockTowerSubscribe {
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
-    function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 day) {
+    function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 quarterDay, uint16 day) {
        
         uint _days = unix/86400;
        
@@ -239,6 +239,11 @@ contract ClockTowerSubscribe {
         }
 
         yearDays = uint16(dayCounter);
+
+        uint quarterDayuint;
+        //gets day of quarter
+        quarterDayuint = getdayOfQuarter(yearDays, uintyear);
+        quarterDay = uint16(quarterDayuint);
     }
 
     function isLeapYear(uint year) internal pure returns (bool leapYear) {
@@ -262,18 +267,24 @@ contract ClockTowerSubscribe {
     }
 
     //get day of quarter
-    function getdayOfQuarter(uint unixTime) internal pure returns (uint quarterDay) {
-        (uint yearDays, uint _days) = unixToDays(unixTime);
-        //console.log(yearDays);
-        _days += 0;
-        if(yearDays <= 90) {
-            quarterDay = yearDays;
-        } else if(90 < yearDays && yearDays <= 181) {
-            quarterDay = yearDays - 90;
-        } else if(181 < yearDays && yearDays <= 273) {
-            quarterDay = yearDays - 181;
+    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint quarterDay) {
+       // (uint yearDays, uint _days) = unixToDays(unixTime);
+        
+        uint leapDay;
+        if(isLeapYear(year)) {
+            leapDay = 1;
         } else {
-            quarterDay = yearDays - 273;
+            leapDay = 0;
+        }
+
+        if(yearDays <= (90 + leapDay)) {
+            quarterDay = yearDays;
+        } else if((90 + leapDay) < yearDays && yearDays <= (181 + leapDay)) {
+            quarterDay = yearDays - (90 + leapDay);
+        } else if((181 + leapDay) < yearDays && yearDays <= (273 + leapDay)) {
+            quarterDay = yearDays - (181 + leapDay);
+        } else {
+            quarterDay = yearDays - (273 + leapDay);
         }
     }
 
@@ -510,18 +521,15 @@ contract ClockTowerSubscribe {
 
         //calls library function
         //(uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
-        (uint16 yearDays, uint16 _days) = unixToDays(1680325200);
+        (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(1680325200);
 
         uint weekdayuint = getDayOfWeek(block.timestamp);
         uint16 weekday = uint16(weekdayuint);
-        uint quarterDay = getdayOfQuarter(1680325200);
 
-        
         console.log(yearDays);
         console.log(quarterDay);
         console.log(_days);
         
-    
         //gets subscriptions from mappings
 
         //loops through types
