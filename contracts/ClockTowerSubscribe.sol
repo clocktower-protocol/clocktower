@@ -177,7 +177,7 @@ contract ClockTowerSubscribe {
 
         address[] memory memoryArray = approvedERC20;
         
-        uint index = 0;
+        uint index;
 
         //finds index of address
         for(uint i; i < memoryArray.length; i++) {
@@ -498,21 +498,28 @@ contract ClockTowerSubscribe {
         //amount must be greater than zero
         require(amount > 0, "10");
 
+        //description must be 32 bytes or less
+        require(bytes(description).length <= 32, "String must be <= 32 bytes");
+
+        //validates dueDay
+         if(subtype == SubType.WEEKLY) {
+            require(0 < dueDay && dueDay <= 7, "Must be between 1 and 7");
+        }
+        if(subtype == SubType.MONTHLY) {
+            require(0 < dueDay && dueDay <= 28, "Mustust be between 1 and 28");
+        }
+        if(subtype == SubType.QUARTERLY){
+             require(0 < dueDay && dueDay <= 90, "Must be between 1 and 90");
+        }
+        if(subtype == SubType.YEARLY) {
+            require(0 < dueDay && dueDay <= 365, "Must be between 1 and 365");
+        }
+
+        //TODO: might want to set a token minimum
+
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
-        if(subtype == SubType.WEEKLY) {
-            require(0 < dueDay && dueDay <= 7, "Weekly due date must be between 1 and 7");
-        }
-        if(subtype == SubType.MONTHLY) {
-            require(0 < dueDay && dueDay <= 28, "Monthly due date must be between 1 and 28");
-        }
-        if(subtype == SubType.QUARTERLY){
-             require(0 < dueDay && dueDay <= 90, "Monthly due date must be between 1 and 90");
-        }
-        if(subtype == SubType.YEARLY) {
-            require(0 < dueDay && dueDay <= 365, "Yearly due date must be between 1 and 365");
-        }
         subscriptionMap[uint(subtype)][dueDay].push() = subscription;
  
          //creates subscription index
@@ -530,7 +537,7 @@ contract ClockTowerSubscribe {
     function chargeSubs() external isAdmin {
 
         //calls library function
-        (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(1680325200);
+        (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(block.timestamp);
 
         uint weekdayuint = getDayOfWeek(block.timestamp);
         uint16 weekday = uint16(weekdayuint);
@@ -562,6 +569,7 @@ contract ClockTowerSubscribe {
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
+                    address owner = subscriptionMap[s][timeTrigger][i].owner;
 
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
@@ -574,7 +582,7 @@ contract ClockTowerSubscribe {
                         address subscriber = subscribersMap[id][j];
 
                         //check if there is enough allowance and balance
-                        if(ERC20Permit(subscriptionMap[s][timeTrigger][i].token).allowance(subscriber, address(this)) >= amount
+                        if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                         && 
                         ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
                             //log as failed
@@ -586,7 +594,7 @@ contract ClockTowerSubscribe {
                             //log as succeeded
                             paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
                             //remits to provider
-                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
+                            require(ERC20Permit(token).transferFrom(subscriber, owner, remit));
                         }
                     }
                 }
