@@ -2,6 +2,7 @@
 //Copyright Hugo Marx 2023
 //Written by Hugo Marx
 pragma solidity ^0.8.9;
+import "hardhat/console.sol";
 
 interface ERC20Permit{
 function transferFrom(address from, address to, uint value) external returns (bool);
@@ -202,7 +203,7 @@ contract ClockTowerSubscribe {
 
     //-------------------------------------------------------
 
-     //UTILITY FUNCTIONS-----------------------------------
+     //TIME FUNCTIONS-----------------------------------
     function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 day) {
        
         uint _days = unix/86400;
@@ -230,7 +231,11 @@ contract ClockTowerSubscribe {
 
         //loops through months to get current day of year
         for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
-            dayCounter += getDaysInMonth(uintyear, month);
+            if(monthCounter == month) {
+                dayCounter += day;
+            } else {
+                dayCounter += getDaysInMonth(uintyear, month);
+            }
         }
 
         yearDays = uint16(dayCounter);
@@ -256,6 +261,22 @@ contract ClockTowerSubscribe {
         dayOfWeek = (_days + 3) % 7 + 1;
     }
 
+    //get day of quarter
+    function getdayOfQuarter(uint unixTime) internal pure returns (uint quarterDay) {
+        (uint yearDays, uint _days) = unixToDays(unixTime);
+        //console.log(yearDays);
+        _days += 0;
+        if(yearDays <= 90) {
+            quarterDay = yearDays;
+        } else if(90 < yearDays && yearDays <= 181) {
+            quarterDay = yearDays - 90;
+        } else if(181 < yearDays && yearDays <= 273) {
+            quarterDay = yearDays - 181;
+        } else {
+            quarterDay = yearDays - 273;
+        }
+    }
+
 
       //converts unixTime to hours
     function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
@@ -263,12 +284,13 @@ contract ClockTowerSubscribe {
         return hourCount;
     }
 
-    //&&
     //converts hours since merge to unix epoch utc time
     function hourstoUnix(uint40 timeTrigger) private pure returns(uint40 unixTime) {
         unixTime = timeTrigger*3600;
         return unixTime;
     }
+
+    //UTILITY FUNCTIONS -----------------------------------------------
 
     function userNotZero() view private {
         require(msg.sender != address(0), "3");
@@ -488,10 +510,17 @@ contract ClockTowerSubscribe {
 
         //calls library function
         //(uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
-        (uint16 yearDays, uint16 _days) = unixToDays(block.timestamp);
+        (uint16 yearDays, uint16 _days) = unixToDays(1680325200);
 
         uint weekdayuint = getDayOfWeek(block.timestamp);
         uint16 weekday = uint16(weekdayuint);
+        uint quarterDay = getdayOfQuarter(1680325200);
+
+        
+        console.log(yearDays);
+        console.log(quarterDay);
+        console.log(_days);
+        
     
         //gets subscriptions from mappings
 

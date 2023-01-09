@@ -586,8 +586,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1673216026522,
-      "contentHash": "52111a57dd1ff64ccd8013b6482762df",
+      "lastModificationDate": 1673271499333,
+      "contentHash": "975d47384915b091c39ac6b49e729bcb",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -612,7 +612,9 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "hardhat/console.sol"
+      ],
       "versionPragmas": [
         "^0.8.9"
       ],
@@ -622,8 +624,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
-      "lastModificationDate": 1673214575845,
-      "contentHash": "353b1a04ac70e088812376f3f0246140",
+      "lastModificationDate": 1673269948453,
+      "contentHash": "0cbbbecad6a0f754dbc94d1a0fc21b64",
       "sourceName": "contracts/ClockTowerPayment.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -648,7 +650,9 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "hardhat/console.sol"
+      ],
       "versionPragmas": [
         "^0.8.9"
       ],
