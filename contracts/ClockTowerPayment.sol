@@ -2,6 +2,7 @@
 //Copyright Hugo Marx 2023
 //Written by Hugo Marx
 pragma solidity ^0.8.9;
+import "hardhat/console.sol";
 
 interface ERC20Permit{
 function transferFrom(address from, address to, uint value) external returns (bool);
