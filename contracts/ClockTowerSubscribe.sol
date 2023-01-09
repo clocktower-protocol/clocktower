@@ -86,6 +86,7 @@ contract ClockTowerSubscribe {
         SubType subType;
     }
 
+    //TODO: might need to add more parameters
     //struct of subscription payments
     struct SubLog {
         bytes32 subId;
@@ -302,7 +303,7 @@ contract ClockTowerSubscribe {
         return unixTime;
     }
 
-    //UTILITY FUNCTIONS -----------------------------------------------
+    //VIEW FUNCTIONS -----------------------------------------------
 
     function userNotZero() view private {
         require(msg.sender != address(0), "3");
@@ -354,6 +355,9 @@ contract ClockTowerSubscribe {
         return subscriptions;
     }
 
+    //PRIVATE FUNCTIONS----------------------------------------------
+
+
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
 
@@ -397,7 +401,19 @@ contract ClockTowerSubscribe {
         }
     }
 
-    //Subscription functions----------------------------------------
+    function addAccountSubscription(SubIndex memory subIndex) private {
+          //new account
+        if(accountMap[msg.sender].exists == false) {
+            accountMap[msg.sender].accountAddress = msg.sender;
+            //adds to lookup table
+            accountLookup.push() = msg.sender;
+            accountMap[msg.sender].exists = true;
+        } 
+        accountMap[msg.sender].subscriptions.push() = subIndex;
+    }
+
+
+    //EXTERNAL FUNCTIONS----------------------------------------
     //TODO: could try to lower gas: only pass parameters, use requires instead of existence check
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
@@ -506,17 +522,6 @@ contract ClockTowerSubscribe {
 
     }
 
-    function addAccountSubscription(SubIndex memory subIndex) private {
-          //new account
-        if(accountMap[msg.sender].exists == false) {
-            accountMap[msg.sender].accountAddress = msg.sender;
-            //adds to lookup table
-            accountLookup.push() = msg.sender;
-            accountMap[msg.sender].exists = true;
-        } 
-        accountMap[msg.sender].subscriptions.push() = subIndex;
-    }
-
     //TODO:
     //Might want to require unlimited allowance for subscriptions
 
@@ -545,6 +550,9 @@ contract ClockTowerSubscribe {
             }
             if(s == uint(SubType.MONTHLY)) {
                 timeTrigger = _days;
+            }
+            if(s == uint(SubType.QUARTERLY)) {
+                timeTrigger = quarterDay;
             }
             if(s == uint(SubType.YEARLY)) {
                 timeTrigger = yearDays;
