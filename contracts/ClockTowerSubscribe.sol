@@ -41,8 +41,9 @@ contract ClockTowerSubscribe {
     //admin addresses
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
-    //100 = 100%
-    uint fee = 100;
+    //10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    uint fee = 10200;
+
     //0.01 eth in wei
     uint fixedFee = 10000000000000000;
 
@@ -357,7 +358,6 @@ contract ClockTowerSubscribe {
 
     //PRIVATE FUNCTIONS----------------------------------------------
 
-
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
 
@@ -421,8 +421,9 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
+        //TODO: determine if you want a fee on subscribe and unsubscribe
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "5");
+        //require(fixedFee <= msg.value, "5");
 
         //check if there is enough allowance
         require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
@@ -431,7 +432,6 @@ contract ClockTowerSubscribe {
         //cant subscribe to subscription you own
         //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
 
-        //require(memSubscription.exists, "Subscription doesn't exist");
         require(subExists(subscription.id, subscription.dueDay, subscription.subType), "7");
 
         //adds to subscriber map
@@ -447,8 +447,9 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
+        //TODO: determine if you want a fee on subscribe and unsubscribe
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "5");
+        //require(fixedFee <= msg.value, "5");
 
         deleteSubFromAccount(id, msg.sender);
     }
@@ -529,16 +530,11 @@ contract ClockTowerSubscribe {
     function chargeSubs() external isAdmin {
 
         //calls library function
-        //(uint16 yearDays, uint16 _days) = (block.timestamp).unixToDays();
         (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(1680325200);
 
         uint weekdayuint = getDayOfWeek(block.timestamp);
         uint16 weekday = uint16(weekdayuint);
 
-        console.log(yearDays);
-        console.log(quarterDay);
-        console.log(_days);
-        
         //gets subscriptions from mappings
 
         //loops through types
@@ -566,6 +562,11 @@ contract ClockTowerSubscribe {
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
+
+                    //calculates fee balance
+                    uint subFee = (amount * fee / 10000) - amount;
+                    uint remit = amount - subFee;
+                    
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
                         
@@ -579,13 +580,14 @@ contract ClockTowerSubscribe {
                             //log as failed
                             paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
                         } else {
-
+                            //TODO: TEST
+                            //pays fee to msg.sender
+                            require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
                             //log as succeeded
                             paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
-                            //completes transaction
-                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, amount));
+                            //remits to provider
+                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
                         }
-                        
                     }
                 }
             }
