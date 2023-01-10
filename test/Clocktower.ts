@@ -23,6 +23,7 @@ describe("Clocktower", function(){
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     //eth sent
     let eth = ethers.utils.parseEther("1.0")
+    let centEth = ethers.utils.parseEther("100.0")
 
     //sends test data of an hour ago
     let hourAgo = currentTime - 3600;
@@ -105,7 +106,7 @@ describe("Clocktower", function(){
         const [owner, otherAccount] = await ethers.getSigners();
 
         const hardhatClocktower = await Clocktower.deploy();
-        const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
+        const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribe.deploy();
         const hardhatClockPayment = await ClockPayment.deploy();
        // const hardhatClockPure = await ClockPure.deploy();
@@ -123,13 +124,23 @@ describe("Clocktower", function(){
         //await hardhatClockLibrary.deployed();
         //await hardhatClockPure.deployed();
 
+
          //starts contract with 100 ETH
          const params = {
             from: owner.address,
             to: hardhatClockPayment.address,
-            value: ethers.utils.parseEther("100.0")
+            value: centEth
         };
         await owner.sendTransaction(params);
+
+        //funds other account with eth
+        const paramsOther = {
+            from: owner.address,
+            to: otherAccount.address,
+            value: centEth
+        };
+        await owner.sendTransaction(paramsOther)
+
 
         let params2 = {
             value: eth
@@ -143,15 +154,18 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.approve(hardhatClocktower.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockSubscribe.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
+        await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
 
         //creates several transaactions to test transaction list
        // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
         await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
         await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
     
-
+         //sends 100 clocktoken to other account
+        // await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
         //moves time 2 hours to 2023/01/01 3:00
         //await time.increaseTo(1672563600);
+        await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
 
 
         return { Clocktower, hardhatClocktower, owner, otherAccount, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
@@ -375,7 +389,7 @@ describe("Clocktower", function(){
             //await time.increaseTo(1672563600);
             await time.increaseTo(twoHoursAhead);
             await hardhatClockPayment.sendTime();
-            expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(ethers.utils.parseEther("2.0"))
+            expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(ethers.utils.parseEther("102.0"))
         })
 
         
@@ -517,10 +531,24 @@ describe("Clocktower", function(){
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
 
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,1, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            await time.increaseTo(twoHoursAhead);
 
             await hardhatClockSubscribe.chargeSubs();
+
+            let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
+
+            let expected = ethers.utils.parseEther("99.0");
+
+            expect(otherBalance).to.equal(expected)
+
+            
         })
         
     })

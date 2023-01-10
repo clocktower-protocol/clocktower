@@ -619,7 +619,9 @@ contract ClockTowerSubscribe {
         require(_currentTimeSlot > lastCheckedHour, "14");
 
         //calls library function
-        (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(block.timestamp);
+        (uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToDays(block.timestamp);
+
+        console.log(_days);
 
         uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
