@@ -47,6 +47,9 @@ contract ClockTowerSubscribe {
     //0.01 eth in wei
     uint fixedFee = 10000000000000000;
 
+    //maximum gas value before waiting (in gigawei)
+    uint maxGasPrice = 50000000000;
+
     enum SubType {
         WEEKLY,
         MONTHLY,
@@ -202,6 +205,11 @@ contract ClockTowerSubscribe {
     //change fixed fee
     function changeFixedFee(uint _fixed_fee) isAdmin external {
         fixedFee = _fixed_fee;
+    }
+
+    //change max gas
+    function changeMaxGasPrice(uint _maxGas) isAdmin external {
+        maxGasPrice = _maxGas;
     }
 
     //-------------------------------------------------------
@@ -535,6 +543,9 @@ contract ClockTowerSubscribe {
 
     //completes money transfer for subscribers
     function chargeSubs() external isAdmin {
+
+        //if gas is above max gas don't call function
+        require(tx.gasprice < maxGasPrice, "Gas price too high");
 
         //calls library function
         (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(block.timestamp);
