@@ -63,6 +63,12 @@ contract ClockTowerSubscribe {
         YEARLY
     }
 
+    enum Status {
+        ACTIVE,
+        CANCELLED,
+        UNSUBSCRIBED
+    }
+
     //acount struct
     struct Account {
         address accountAddress;
@@ -94,6 +100,7 @@ contract ClockTowerSubscribe {
         bytes32 id;
         uint16 dueDay;
         SubType subType;
+        Status status;
     }
 
     //TODO: might need to add more parameters
@@ -125,7 +132,6 @@ contract ClockTowerSubscribe {
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
-    //mapping(bytes32 => address) providerMap;
 
     //&&
     //log of subscription payments
@@ -417,9 +423,10 @@ contract ClockTowerSubscribe {
     }
     
     //checks subscription exists
-    function subExists(bytes32 id, uint16 dueDay, SubType subType) private view returns(bool) {
+    function subExists(bytes32 id, uint16 dueDay, SubType subType, Status status) private view returns(bool) {
+        
         //check subscription exists
-        SubIndex memory index = SubIndex(id, dueDay, subType);
+        SubIndex memory index = SubIndex(id, dueDay, subType, status);
 
         Subscription memory memSubscription = getSubByIndex(index);
 
@@ -428,10 +435,11 @@ contract ClockTowerSubscribe {
         } else {
             return false;
         }
+        
     }
 
-    //deletes subscription index from account
-    function deleteSubFromAccount(bytes32 id, address account) private {
+    //deletes subscribers from Subscription
+    function deleteSubFromSubscription(bytes32 id, address account) private {
         
         //deletes index in account
         address[] storage subscribers = subscribersMap[id];
@@ -485,13 +493,13 @@ contract ClockTowerSubscribe {
         //cant subscribe to subscription you own
         //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "7");
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), "7");
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType), false);
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), false);
 
     }
     
@@ -503,8 +511,17 @@ contract ClockTowerSubscribe {
         //TODO: determine if you want a fee on subscribe and unsubscribe
          //require sent ETH to be higher than fixed token fee
         //require(fixedFee <= msg.value, "5");
+        
+        //sets account subscription status as unsubscribed
+        SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
+        indexes = accountMap[msg.sender].subscriptions;
+        for(uint j; j < accountMap[msg.sender].subscriptions.length; j++){
+            if(indexes[j].id == id) {
+                accountMap[msg.sender].subscriptions[j].status = Status.UNSUBSCRIBED;
+            }
+        }
 
-        deleteSubFromAccount(id, msg.sender);
+        deleteSubFromSubscription(id, msg.sender);
     }
         
 
@@ -512,18 +529,25 @@ contract ClockTowerSubscribe {
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType), "7");
+        //checks subscription exists
+        require(subExists(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), "7");
 
-        //gets list of subscribers and deletes all entries in their accounts
+
+        //gets list of subscribers and deletes subscriber list
         address[] memory subscribers = subscribersMap[subscription.id];
 
         for(uint i; i < subscribers.length; i++) {
-            //gets location of subscription index in array
-            deleteSubFromAccount(subscription.id, subscribers[i]);
+            //sets account subscription status as cancelled
+            SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
+            indexes = accountMap[subscribers[i]].subscriptions;
+            for(uint j; j < accountMap[subscribers[i]].subscriptions.length; j++){
+                if(indexes[j].id == subscription.id) {
+                    accountMap[subscribers[i]].subscriptions[j].status = Status.CANCELLED;
+                }
+            }
+            //deletes subscriber list
+            deleteSubFromSubscription(subscription.id, subscribers[i]);
         }
-
-        //gets provider and deletes from their account
-        //delete providerMap[subscription.id];
 
         //sets cancelled bool to true for subscription
         Subscription[] memory subscriptions = subscriptionMap[uint(subscription.subType)][subscription.dueDay];
@@ -582,7 +606,7 @@ contract ClockTowerSubscribe {
         //SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType), true);
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), true);
         //adds provider to map
         //providerMap[subscription.id] = msg.sender;
 
