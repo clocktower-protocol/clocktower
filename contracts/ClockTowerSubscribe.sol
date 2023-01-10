@@ -116,6 +116,13 @@ contract ClockTowerSubscribe {
         uint subsriberIndex;
     }
 
+    //same as subscription but adds the status for subscriber
+    struct SubView {
+        Subscription subscription;
+        Status status;
+        SubLog[] subLog;
+    }
+
     //--------------Account Mappings-------------
 
     //Account map
@@ -135,7 +142,7 @@ contract ClockTowerSubscribe {
 
     //&&
     //log of subscription payments
-    mapping(address => SubLog) paymentLog;
+    mapping(address => mapping(bytes32 => SubLog[])) paymentLog;
 
     //--------------------------------------------
 
@@ -374,7 +381,7 @@ contract ClockTowerSubscribe {
     }
 
     //subscriptions by account
-    function getAccountSubscriptions(bool bySubscribers) external view returns (Subscription[] memory) {
+    function getAccountSubscriptions(bool bySubscribers) external view returns (SubView[] memory) {
         
         SubIndex[] memory indexes;
         //gets account indexes
@@ -384,31 +391,16 @@ contract ClockTowerSubscribe {
             indexes = accountMap[msg.sender].provSubs;
         }
 
-        Subscription[] memory subscriptions = new Subscription[](indexes.length);
+        SubView[] memory subViews = new SubView[](indexes.length);
 
-        //loops through account index and fetchs subscriptions
+        //loops through account index and fetchs subscriptions, status and logs
         for(uint i; i < indexes.length; i++){
-            subscriptions[i] = getSubByIndex(indexes[i]);
+            subViews[i].subscription = getSubByIndex(indexes[i]);
+            subViews[i].status = indexes[i].status;
+            subViews[i].subLog = paymentLog[msg.sender][indexes[i].id];
         }
         
-        return subscriptions;
-    }
-
-    //TODO:
-    //subscriptions by provider
-    function getProviderSubscriptions() external view returns (Subscription[] memory) {
-
-        //gets account indexes
-        SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
-
-        Subscription[] memory subscriptions = new Subscription[](indexes.length);
-
-        //loops through account index and fetchs subscriptions
-        for(uint i; i < indexes.length; i++){
-            subscriptions[i] = getSubByIndex(indexes[i]);
-        }
-
-        return subscriptions;
+        return subViews;
     }
 
     //PRIVATE FUNCTIONS----------------------------------------------
@@ -693,14 +685,14 @@ contract ClockTowerSubscribe {
                             ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
                                 remitCounter++;
                                 //log as failed
-                                paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
+                                paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), false);
                             } else {
                                 //TODO: TEST
                                 remitCounter++;
                                 //pays fee to msg.sender
                                 require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
                                 //log as succeeded
-                                paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
+                                paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), true);
                                 //remits to provider
                                 require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remit));
                             }

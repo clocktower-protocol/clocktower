@@ -58,6 +58,34 @@ export declare namespace ClockTowerSubscribe {
     dueDay: number;
     description: string;
   };
+
+  export type SubLogStruct = {
+    subId: PromiseOrValue<BytesLike>;
+    timestamp: PromiseOrValue<BigNumberish>;
+    success: PromiseOrValue<boolean>;
+  };
+
+  export type SubLogStructOutput = [string, number, boolean] & {
+    subId: string;
+    timestamp: number;
+    success: boolean;
+  };
+
+  export type SubViewStruct = {
+    subscription: ClockTowerSubscribe.SubscriptionStruct;
+    status: PromiseOrValue<BigNumberish>;
+    subLog: ClockTowerSubscribe.SubLogStruct[];
+  };
+
+  export type SubViewStructOutput = [
+    ClockTowerSubscribe.SubscriptionStructOutput,
+    number,
+    ClockTowerSubscribe.SubLogStructOutput[]
+  ] & {
+    subscription: ClockTowerSubscribe.SubscriptionStructOutput;
+    status: number;
+    subLog: ClockTowerSubscribe.SubLogStructOutput[];
+  };
 }
 
 export interface ClockTowerSubscribeInterface extends utils.Interface {
@@ -73,7 +101,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "createSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
     "getAccountSubscriptions(bool)": FunctionFragment;
     "getFee()": FunctionFragment;
-    "getProviderSubscriptions()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
@@ -94,7 +121,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "createSubscription"
       | "getAccountSubscriptions"
       | "getFee"
-      | "getProviderSubscriptions"
       | "removeERC20Contract"
       | "subscribe"
       | "toggleContractActive"
@@ -149,10 +175,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(functionFragment: "getFee", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getProviderSubscriptions",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
     values: [PromiseOrValue<string>]
@@ -209,10 +231,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getProviderSubscriptions",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
     data: BytesLike
@@ -309,13 +327,9 @@ export interface ClockTowerSubscribe extends BaseContract {
     getAccountSubscriptions(
       bySubscribers: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.SubscriptionStructOutput[]]>;
+    ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
     getFee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getProviderSubscriptions(
-      overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.SubscriptionStructOutput[]]>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -399,13 +413,9 @@ export interface ClockTowerSubscribe extends BaseContract {
   getAccountSubscriptions(
     bySubscribers: PromiseOrValue<boolean>,
     overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput[]>;
+  ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
   getFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getProviderSubscriptions(
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput[]>;
 
   removeERC20Contract(
     erc20Contract: PromiseOrValue<string>,
@@ -487,13 +497,9 @@ export interface ClockTowerSubscribe extends BaseContract {
     getAccountSubscriptions(
       bySubscribers: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput[]>;
+    ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getProviderSubscriptions(
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput[]>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -582,8 +588,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getProviderSubscriptions(overrides?: CallOverrides): Promise<BigNumber>;
-
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -664,10 +668,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getProviderSubscriptions(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
