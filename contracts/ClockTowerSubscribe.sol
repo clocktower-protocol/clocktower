@@ -51,6 +51,10 @@ contract ClockTowerSubscribe {
     uint maxGasPrice = 50000000000;
     //maximum remits per transaction
     uint maxRemits = 1000;
+    //index if transaction pagination needed due to remit amount being larger than block
+    PageStart pageStart;
+    uint pageCount;
+    bool pageGo;
 
     enum SubType {
         WEEKLY,
@@ -98,6 +102,11 @@ contract ClockTowerSubscribe {
         bytes32 subId;
         uint40 timestamp; 
         bool success;
+    }
+
+    struct PageStart {
+        bytes32 id;
+        uint subsriberIndex;
     }
 
     //--------------Account Mappings-------------
@@ -279,9 +288,11 @@ contract ClockTowerSubscribe {
     }
 
     // 1 = Monday, 7 = Sunday
-    function getDayOfWeek(uint unixTime) internal pure returns (uint dayOfWeek) {
+    function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
         uint _days = unixTime / 86400;
-        dayOfWeek = (_days + 3) % 7 + 1;
+        uint dayOfWeekuint = (_days + 3) % 7 + 1;
+        dayOfWeek = uint16(dayOfWeekuint);
+
     }
 
     //get day of quarter
@@ -554,12 +565,18 @@ contract ClockTowerSubscribe {
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
 
+        //gets current time slot based on hour
+        uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
+
+        require(_currentTimeSlot > lastCheckedHour, "14");
+
         //calls library function
         (uint16 yearDays, uint16 _days, uint16 quarterDay) = unixToDays(block.timestamp);
 
-        uint weekdayuint = getDayOfWeek(block.timestamp);
-        uint16 weekday = uint16(weekdayuint);
+        uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
+
+        //TODO: figure way to start at last item if maxed out remits
 
         //gets subscriptions from mappings
 
@@ -588,7 +605,6 @@ contract ClockTowerSubscribe {
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
-                    //address owner = subscriptionMap[s][timeTrigger][i].owner;
 
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
@@ -598,34 +614,51 @@ contract ClockTowerSubscribe {
                     for(uint j; j < subscribersMap[id].length; j++) {
 
                         //checks for max remit and returns false if limit hit
-                        if(remitCounter >= maxRemits) {
+                        if(remitCounter > maxRemits) {
+                            pageStart = PageStart(id, j);
+                            pageGo = false;
                             return false;
                         }
-                        
-                        //checks for failure (balance and unlimited allowance)
-                        address subscriber = subscribersMap[id][j];
 
-                        //check if there is enough allowance and balance
-                        if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
-                        && 
-                        ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
-                            //log as failed
-                            paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
-                        } else {
-                            //TODO: TEST
-                            remitCounter++;
-                            //pays fee to msg.sender
-                            require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
-                            //log as succeeded
-                            paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
-                            //remits to provider
-                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
+                        if(id == pageStart.id && j == pageStart.subsriberIndex) {
+                            pageGo = true;
+                        } 
+
+                        //TODO: add way to skip already sent transactions and start at pageStart
+                        //if remits are less than max remits
+                        if(pageStart.id == 0 || pageGo == true) {
+
+                            //checks for failure (balance and unlimited allowance)
+                            address subscriber = subscribersMap[id][j];
+
+                            //check if there is enough allowance and balance
+                            if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
+                            && 
+                            ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
+                                remitCounter++;
+                                //log as failed
+                                paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
+                            } else {
+                                //TODO: TEST
+                                remitCounter++;
+                                //pays fee to msg.sender
+                                require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
+                                //log as succeeded
+                                paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
+                                //remits to provider
+                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
+                            }
                         }
                     }
                 }
             }
         }
-
+        
+        //updates lastCheckedTimeSlot
+        delete pageStart;
+        pageGo = false;
+        lastCheckedHour = _currentTimeSlot;
         return true;
+        
     }
 }
