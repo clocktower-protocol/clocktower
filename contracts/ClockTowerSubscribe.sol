@@ -153,7 +153,7 @@ contract ClockTowerSubscribe {
     bool stopped = false;
 
     //variable for last checked by hour
-    uint40 lastCheckedHour = (unixToHours(uint40(block.timestamp)) - 1);
+    uint40 lastCheckedHour = (unixToDays(uint40(block.timestamp)) - 1);
 
     //functions for receiving ether
     receive() external payable{
@@ -245,7 +245,7 @@ contract ClockTowerSubscribe {
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
-    function unixToDays(uint unix) public pure returns (uint16 yearDays, uint16 quarterDay, uint16 day) {
+    function unixToYearQuarterMonthDays(uint unix) public pure returns (uint16 yearDays, uint16 quarterDay, uint16 day) {
        
         uint _days = unix/86400;
        
@@ -331,7 +331,7 @@ contract ClockTowerSubscribe {
         }
     }
 
-
+/*
       //converts unixTime to hours
     function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
         hourCount = unixTime/3600;
@@ -342,6 +342,11 @@ contract ClockTowerSubscribe {
     function hourstoUnix(uint40 timeTrigger) private pure returns(uint40 unixTime) {
         unixTime = timeTrigger*3600;
         return unixTime;
+    }
+*/
+    //converts unixTime to days
+    function unixToDays(uint40 unixTime) private pure returns(uint40 dayCount) {
+        dayCount = unixTime/86400;
     }
 
     //VIEW FUNCTIONS -----------------------------------------------
@@ -614,12 +619,12 @@ contract ClockTowerSubscribe {
         require(tx.gasprice < maxGasPrice, "Gas price too high");
 
         //gets current time slot based on hour
-        uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
+        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedHour, "14");
 
         //calls library function
-        (uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToDays(block.timestamp);
+        (uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToYearQuarterMonthDays(block.timestamp);
 
         console.log(_days);
 

@@ -104,7 +104,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
-    "unixToDays(uint256)": FunctionFragment;
+    "unixToYearQuarterMonthDays(uint256)": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
   };
 
@@ -124,7 +124,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "removeERC20Contract"
       | "subscribe"
       | "toggleContractActive"
-      | "unixToDays"
+      | "unixToYearQuarterMonthDays"
       | "unsubscribe"
   ): FunctionFragment;
 
@@ -188,7 +188,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "unixToDays",
+    functionFragment: "unixToYearQuarterMonthDays",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -240,7 +240,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "toggleContractActive",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "unixToDays", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "unixToYearQuarterMonthDays",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "unsubscribe",
     data: BytesLike
@@ -345,7 +348,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    unixToDays(
+    unixToYearQuarterMonthDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
@@ -431,7 +434,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unixToDays(
+  unixToYearQuarterMonthDays(
     unix: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
@@ -513,7 +516,7 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
 
-    unixToDays(
+    unixToYearQuarterMonthDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
@@ -602,7 +605,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    unixToDays(
+    unixToYearQuarterMonthDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -683,7 +686,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    unixToDays(
+    unixToYearQuarterMonthDays(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
