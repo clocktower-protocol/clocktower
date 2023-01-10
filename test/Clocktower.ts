@@ -555,10 +555,12 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.chargeSubs();
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
+            let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)
 
             let expected = ethers.utils.parseEther("93.0");
 
             expect(otherBalance).to.equal(expected)
+            //expect(ownerBalance).to.equal()
 
             
         })

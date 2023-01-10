@@ -626,8 +626,6 @@ contract ClockTowerSubscribe {
         //calls library function
         (uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToYearQuarterMonthDays(block.timestamp);
 
-        console.log(_days);
-
         uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
 
@@ -682,7 +680,7 @@ contract ClockTowerSubscribe {
                         //TODO: add way to skip already sent transactions and start at pageStart
                         //if remits are less than max remits
                         if(pageStart.id == 0 || pageGo == true) {
-
+                            
                             //checks for failure (balance and unlimited allowance)
                             address subscriber = subscribersMap[id][j];
 
