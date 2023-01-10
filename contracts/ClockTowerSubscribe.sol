@@ -49,6 +49,8 @@ contract ClockTowerSubscribe {
 
     //maximum gas value before waiting (in gigawei)
     uint maxGasPrice = 50000000000;
+    //maximum remits per transaction
+    uint maxRemits = 1000;
 
     enum SubType {
         WEEKLY,
@@ -210,6 +212,11 @@ contract ClockTowerSubscribe {
     //change max gas
     function changeMaxGasPrice(uint _maxGas) isAdmin external {
         maxGasPrice = _maxGas;
+    }
+
+      //change max gas
+    function changeMaxRemits(uint _maxRemits) isAdmin external {
+        maxRemits = _maxRemits;
     }
 
     //-------------------------------------------------------
@@ -542,7 +549,7 @@ contract ClockTowerSubscribe {
     //Might want to require unlimited allowance for subscriptions
 
     //completes money transfer for subscribers
-    function chargeSubs() external isAdmin {
+    function chargeSubs() external isAdmin returns (bool finished) {
 
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
@@ -552,6 +559,7 @@ contract ClockTowerSubscribe {
 
         uint weekdayuint = getDayOfWeek(block.timestamp);
         uint16 weekday = uint16(weekdayuint);
+        uint remitCounter;
 
         //gets subscriptions from mappings
 
@@ -580,7 +588,7 @@ contract ClockTowerSubscribe {
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
-                    address owner = subscriptionMap[s][timeTrigger][i].owner;
+                    //address owner = subscriptionMap[s][timeTrigger][i].owner;
 
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
@@ -588,6 +596,11 @@ contract ClockTowerSubscribe {
                     
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
+
+                        //checks for max remit and returns false if limit hit
+                        if(remitCounter >= maxRemits) {
+                            return false;
+                        }
                         
                         //checks for failure (balance and unlimited allowance)
                         address subscriber = subscribersMap[id][j];
@@ -600,20 +613,19 @@ contract ClockTowerSubscribe {
                             paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), false);
                         } else {
                             //TODO: TEST
+                            remitCounter++;
                             //pays fee to msg.sender
                             require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
                             //log as succeeded
                             paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
                             //remits to provider
-                            require(ERC20Permit(token).transferFrom(subscriber, owner, remit));
+                            require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
                         }
                     }
                 }
             }
         }
+
+        return true;
     }
-
-    //--------------------------------------------------------------
- 
-
 }
