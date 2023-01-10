@@ -532,11 +532,23 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
 
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[1].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[2].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[3].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[4].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[5].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[6].subscription, testParams)
+
 
             await time.increaseTo(twoHoursAhead);
 
@@ -544,7 +556,7 @@ describe("Clocktower", function(){
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
 
-            let expected = ethers.utils.parseEther("99.0");
+            let expected = ethers.utils.parseEther("93.0");
 
             expect(otherBalance).to.equal(expected)
 
