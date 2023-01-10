@@ -443,10 +443,10 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test" ,2, 15, testParams)
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
-            expect(subscriptions[1].description).to.equal("Test")
-            expect(subscriptions[1].amount).to.equal(eth);
-            expect(subscriptions[1].token).to.equal(hardhatCLOCKToken.address);
-            expect(subscriptions[1].dueDay).to.equal(15);
+            expect(subscriptions[1].subscription.description).to.equal("Test")
+            expect(subscriptions[1].subscription.amount).to.equal(eth);
+            expect(subscriptions[1].subscription.token).to.equal(hardhatCLOCKToken.address);
+            expect(subscriptions[1].subscription.dueDay).to.equal(15);
         })
         
         it("Should allow user to subscribe", async function() {
@@ -466,11 +466,11 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
-            await hardhatClockSubscribe.subscribe(subscriptions[1], testParams2)
+            await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams2)
 
             let aSubscriptions = await hardhatClockSubscribe.getAccountSubscriptions(true)
 
-            expect(aSubscriptions[0].description).to.equal("Test2");
+            expect(aSubscriptions[0].subscription.description).to.equal("Test2");
             
         })
         it("Should allow user to unsubscribe", async function() {
@@ -483,9 +483,9 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
-            await hardhatClockSubscribe.subscribe(subscriptions[1], testParams)
+            await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams)
 
-            await hardhatClockSubscribe.unsubscribe(subscriptions[1].id, testParams);
+            await hardhatClockSubscribe.unsubscribe(subscriptions[1].subscription.id, testParams);
         })
         it("Should delete subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -497,7 +497,7 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
-            await hardhatClockSubscribe.cancelSubscription(subscriptions[1])
+            await hardhatClockSubscribe.cancelSubscription(subscriptions[1].subscription)
         })
         it("Should complete transactions at the right time", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
