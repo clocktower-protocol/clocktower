@@ -381,11 +381,11 @@ contract ClockTowerSubscribe {
     }
 
     //subscriptions by account
-    function getAccountSubscriptions(bool bySubscribers) external view returns (SubView[] memory) {
+    function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
         SubIndex[] memory indexes;
         //gets account indexes
-        if(bySubscribers) {
+        if(bySubscriber) {
             indexes = accountMap[msg.sender].subscriptions;
         } else {
             indexes = accountMap[msg.sender].provSubs;

@@ -486,8 +486,12 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams)
 
             await hardhatClockSubscribe.unsubscribe(subscriptions[1].subscription.id, testParams);
+
+            let result = await hardhatClockSubscribe.getAccountSubscriptions(true)
+            
+            expect(result[0].status).to.equal(2)
         })
-        it("Should delete subscription", async function(){
+        it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
@@ -497,7 +501,15 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
+            await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams)
+
             await hardhatClockSubscribe.cancelSubscription(subscriptions[1].subscription)
+
+            let result = await hardhatClockSubscribe.getAccountSubscriptions(true)
+            //let subscriptions2 = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            //sees if subscriber sees cancelled status
+            expect(result[0].status).to.equal(1);
+            expect(result[0].subscription.cancelled).to.equal(true)
         })
         it("Should complete transactions at the right time", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);

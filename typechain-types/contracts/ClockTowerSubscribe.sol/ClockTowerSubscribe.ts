@@ -325,7 +325,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<ContractTransaction>;
 
     getAccountSubscriptions(
-      bySubscribers: PromiseOrValue<boolean>,
+      bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
@@ -411,7 +411,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): Promise<ContractTransaction>;
 
   getAccountSubscriptions(
-    bySubscribers: PromiseOrValue<boolean>,
+    bySubscriber: PromiseOrValue<boolean>,
     overrides?: CallOverrides
   ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
@@ -495,7 +495,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<void>;
 
     getAccountSubscriptions(
-      bySubscribers: PromiseOrValue<boolean>,
+      bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
@@ -582,7 +582,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     getAccountSubscriptions(
-      bySubscribers: PromiseOrValue<boolean>,
+      bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -663,7 +663,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getAccountSubscriptions(
-      bySubscribers: PromiseOrValue<boolean>,
+      bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
