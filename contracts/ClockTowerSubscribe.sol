@@ -68,17 +68,17 @@ contract ClockTowerSubscribe {
         address accountAddress;
         //string description;
         bool exists;
-        //indexs of timeTriggers and tokens stored per account. 
-        //Timetrigger to lookup transactions. Token index to lookup balances
+        //timeTriggers is empty for subscriptions
         uint40[] timeTriggers;
         SubIndex[] subscriptions;
+        SubIndex[] provSubs;
     }
 
     //Subscription struct
     struct Subscription {
         bytes32 id;
         uint amount;
-        address owner;
+        address provider;
         address token;
         bool exists;
         bool cancelled;
@@ -125,6 +125,7 @@ contract ClockTowerSubscribe {
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
+    //mapping(bytes32 => address) providerMap;
 
     //&&
     //log of subscription payments
@@ -367,18 +368,40 @@ contract ClockTowerSubscribe {
     }
 
     //subscriptions by account
-    function getAccountSubscriptions() external view returns (Subscription[] memory) {
+    function getAccountSubscriptions(bool bySubscribers) external view returns (Subscription[] memory) {
         
-        //gets account index
-        SubIndex[] memory index = accountMap[msg.sender].subscriptions;
+        SubIndex[] memory indexes;
+        //gets account indexes
+        if(bySubscribers) {
+            indexes = accountMap[msg.sender].subscriptions;
+        } else {
+            indexes = accountMap[msg.sender].provSubs;
+        }
 
-        Subscription[] memory subscriptions = new Subscription[](index.length);
+        Subscription[] memory subscriptions = new Subscription[](indexes.length);
 
         //loops through account index and fetchs subscriptions
-        for(uint i; i < index.length; i++){
-            subscriptions[i] = getSubByIndex(index[i]);
+        for(uint i; i < indexes.length; i++){
+            subscriptions[i] = getSubByIndex(indexes[i]);
         }
         
+        return subscriptions;
+    }
+
+    //TODO:
+    //subscriptions by provider
+    function getProviderSubscriptions() external view returns (Subscription[] memory) {
+
+        //gets account indexes
+        SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
+
+        Subscription[] memory subscriptions = new Subscription[](indexes.length);
+
+        //loops through account index and fetchs subscriptions
+        for(uint i; i < indexes.length; i++){
+            subscriptions[i] = getSubByIndex(indexes[i]);
+        }
+
         return subscriptions;
     }
 
@@ -427,7 +450,7 @@ contract ClockTowerSubscribe {
         }
     }
 
-    function addAccountSubscription(SubIndex memory subIndex) private {
+    function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
           //new account
         if(accountMap[msg.sender].exists == false) {
             accountMap[msg.sender].accountAddress = msg.sender;
@@ -435,7 +458,11 @@ contract ClockTowerSubscribe {
             accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
         } 
-        accountMap[msg.sender].subscriptions.push() = subIndex;
+        if(isProvider){
+            accountMap[msg.sender].provSubs.push() = subIndex;
+        } else {
+            accountMap[msg.sender].subscriptions.push() = subIndex;
+        }
     }
 
 
@@ -464,7 +491,7 @@ contract ClockTowerSubscribe {
         subscribersMap[subscription.id].push() = msg.sender;
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType));
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType), false);
 
     }
     
@@ -481,7 +508,7 @@ contract ClockTowerSubscribe {
     }
         
 
-    //TODO: test 
+    //TODO: test and delete provider entry
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
@@ -495,11 +522,14 @@ contract ClockTowerSubscribe {
             deleteSubFromAccount(subscription.id, subscribers[i]);
         }
 
+        //gets provider and deletes from their account
+        //delete providerMap[subscription.id];
+
+        //sets cancelled bool to true for subscription
         Subscription[] memory subscriptions = subscriptionMap[uint(subscription.subType)][subscription.dueDay];
-        for(uint i; i < subscribers.length; i++) {
+        for(uint i; i < subscriptions.length; i++) {
             if(subscriptions[i].id == subscription.id) {
-               // monthMap[subscription.dueDay][i].cancelled = true;
-               subscriptionMap[uint(subscription.subType)][subscription.dueDay];
+               subscriptionMap[uint(subscription.subType)][subscription.dueDay][i].cancelled = true;
             }
         }
     }
@@ -552,7 +582,9 @@ contract ClockTowerSubscribe {
         //SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType));
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType), true);
+        //adds provider to map
+        //providerMap[subscription.id] = msg.sender;
 
     }
 
@@ -646,7 +678,7 @@ contract ClockTowerSubscribe {
                                 //log as succeeded
                                 paymentLog[subscriber] = SubLog(id, uint40(block.timestamp), true);
                                 //remits to provider
-                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].owner, remit));
+                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remit));
                             }
                         }
                     }
@@ -654,9 +686,10 @@ contract ClockTowerSubscribe {
             }
         }
         
-        //updates lastCheckedTimeSlot
+        //resets pagination variables
         delete pageStart;
         pageGo = false;
+        //updates lastCheckedTimeSlot
         lastCheckedHour = _currentTimeSlot;
         return true;
         

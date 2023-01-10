@@ -434,14 +434,14 @@ describe("Clocktower", function(){
 
         })
 
-        it("Should get subscriptions", async function() {
+        it("Should get created subscriptions", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test" ,1, 15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test" ,2, 15, testParams)
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions()
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
             expect(subscriptions[1].description).to.equal("Test")
             expect(subscriptions[1].amount).to.equal(eth);
@@ -462,11 +462,15 @@ describe("Clocktower", function(){
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test2",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions()
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
             await hardhatClockSubscribe.subscribe(subscriptions[1], testParams2)
+
+            let aSubscriptions = await hardhatClockSubscribe.getAccountSubscriptions(true)
+
+            expect(aSubscriptions[0].description).to.equal("Test2");
             
         })
         it("Should allow user to unsubscribe", async function() {
@@ -477,7 +481,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions()
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
             await hardhatClockSubscribe.subscribe(subscriptions[1], testParams)
 
@@ -491,7 +495,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions()
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
             await hardhatClockSubscribe.cancelSubscription(subscriptions[1])
         })
