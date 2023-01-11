@@ -105,11 +105,13 @@ contract ClockTowerSubscribe {
 
     //TODO: might need to add more parameters
     //struct of subscription payments
+    /*
     struct SubLog {
         bytes32 subId;
         uint40 timestamp; 
         bool success;
     }
+    */
 
     struct PageStart {
         bytes32 id;
@@ -120,8 +122,26 @@ contract ClockTowerSubscribe {
     struct SubView {
         Subscription subscription;
         Status status;
-        SubLog[] subLog;
+       // SubLog[] subLog;
     }
+
+    //struct of time return values
+    struct Time {
+        uint16 day;
+        uint16 weekDay;
+        uint16 quarterDay;
+        uint16 yearDay;
+    }
+
+    //Events-------------------------------------
+    event SubLog(
+        bytes32 indexed subId,
+        address indexed subscriber,
+        uint40 timestamp,
+        bool success
+    );
+
+    //-------------------------------------------
 
     //--------------Account Mappings-------------
 
@@ -143,7 +163,7 @@ contract ClockTowerSubscribe {
 
     //&&
     //log of subscription payments
-    mapping(address => mapping(bytes32 => SubLog[])) paymentLog;
+    //mapping(address => mapping(bytes32 => SubLog[])) paymentLog;
 
     //--------------------------------------------
 
@@ -246,9 +266,11 @@ contract ClockTowerSubscribe {
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
-    function unixToYearQuarterMonthDays(uint unix) public pure returns (uint16 yearDays, uint16 quarterDay, uint16 day) {
+    function unixToTime(uint unix) public pure returns (Time memory time) {
        
         uint _days = unix/86400;
+        uint16 day;
+        uint16 yearDay;
        
         int __days = int(_days);
 
@@ -280,12 +302,19 @@ contract ClockTowerSubscribe {
             }
         }
 
-        yearDays = uint16(dayCounter);
+        yearDay = uint16(dayCounter);
 
-        uint quarterDayuint;
+        //uint quarterDayuint;
         //gets day of quarter
-        quarterDayuint = getdayOfQuarter(yearDays, uintyear);
-        quarterDay = uint16(quarterDayuint);
+        time.quarterDay = getdayOfQuarter(yearDay, uintyear);
+        //uint16 quarterDay = uint16(quarterDayuint);
+       // time.quarterDay = uint16(quarterDayuint);
+        time.weekDay = getDayOfWeek(unix);
+        time.day = day;
+        time.yearDay = yearDay;
+
+
+        //time = Time(day, weekDay, quarterDay, yearDay);
     }
 
     function isLeapYear(uint year) internal pure returns (bool leapYear) {
@@ -311,7 +340,7 @@ contract ClockTowerSubscribe {
     }
 
     //get day of quarter
-    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint quarterDay) {
+    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
        // (uint yearDays, uint _days) = unixToDays(unixTime);
         
         uint leapDay;
@@ -322,13 +351,13 @@ contract ClockTowerSubscribe {
         }
 
         if(yearDays <= (90 + leapDay)) {
-            quarterDay = yearDays;
+            quarterDay = uint16(yearDays);
         } else if((90 + leapDay) < yearDays && yearDays <= (181 + leapDay)) {
-            quarterDay = yearDays - (90 + leapDay);
+            quarterDay = uint16(yearDays - (90 + leapDay));
         } else if((181 + leapDay) < yearDays && yearDays <= (273 + leapDay)) {
-            quarterDay = yearDays - (181 + leapDay);
+            quarterDay = uint16(yearDays - (181 + leapDay));
         } else {
-            quarterDay = yearDays - (273 + leapDay);
+            quarterDay = uint16(yearDays - (273 + leapDay));
         }
     }
 
@@ -403,7 +432,7 @@ contract ClockTowerSubscribe {
         for(uint i; i < indexes.length; i++){
             subViews[i].subscription = getSubByIndex(indexes[i]);
             subViews[i].status = indexes[i].status;
-            subViews[i].subLog = paymentLog[msg.sender][indexes[i].id];
+          //  subViews[i].subLog = paymentLog[msg.sender][indexes[i].id];
         }
         
         return subViews;
@@ -624,9 +653,10 @@ contract ClockTowerSubscribe {
         require(_currentTimeSlot > lastCheckedHour, "14");
 
         //calls library function
-        (uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToYearQuarterMonthDays(block.timestamp);
+        //(uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToTime(block.timestamp);
+        Time memory time = unixToTime(block.timestamp);
 
-        uint16 weekday = getDayOfWeek(block.timestamp);
+        //uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
 
         //gets subscriptions from mappings
@@ -636,21 +666,23 @@ contract ClockTowerSubscribe {
 
             uint16 timeTrigger;
             if(s == uint(SubType.WEEKLY)){
-                timeTrigger = weekday;
+                timeTrigger = time.weekDay;
             } 
             if(s == uint(SubType.MONTHLY)) {
-                timeTrigger = _days;
+                timeTrigger = time.day;
             } 
             if(s == uint(SubType.QUARTERLY)) {
-                timeTrigger = quarterDay;
+                timeTrigger = time.quarterDay;
             } 
             if(s == uint(SubType.YEARLY)) {
-                timeTrigger = yearDays;
+                timeTrigger = time.yearDay;
             }
 
             console.log(subscriptionMap[s][timeTrigger].length);
-            //loops through monthly subscriptions
-            for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+            uint length = subscriptionMap[s][timeTrigger].length;
+            
+            //loops through subscriptions
+            for(uint i; i < length; i++) {
 
                 //checks if cancelled
                 if(!subscriptionMap[s][timeTrigger][i].cancelled) {
@@ -694,13 +726,17 @@ contract ClockTowerSubscribe {
                             ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
                                 remitCounter++;
                                 //log as failed
-                                paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), false);
+                                emit SubLog(id, subscriber, uint40(block.timestamp), false);
+                               // paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), false);
                             } else {
                                 remitCounter++;
                                 //pays fee to msg.sender
                                 require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
+
                                 //log as succeeded
-                                paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), true);
+                                emit SubLog(id, subscriber, uint40(block.timestamp), true);
+
+                                //paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), true);
                                 //remits to provider
                                 require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
                             }

@@ -14,7 +14,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -59,32 +63,31 @@ export declare namespace ClockTowerSubscribe {
     description: string;
   };
 
-  export type SubLogStruct = {
-    subId: PromiseOrValue<BytesLike>;
-    timestamp: PromiseOrValue<BigNumberish>;
-    success: PromiseOrValue<boolean>;
-  };
-
-  export type SubLogStructOutput = [string, number, boolean] & {
-    subId: string;
-    timestamp: number;
-    success: boolean;
-  };
-
   export type SubViewStruct = {
     subscription: ClockTowerSubscribe.SubscriptionStruct;
     status: PromiseOrValue<BigNumberish>;
-    subLog: ClockTowerSubscribe.SubLogStruct[];
   };
 
   export type SubViewStructOutput = [
     ClockTowerSubscribe.SubscriptionStructOutput,
-    number,
-    ClockTowerSubscribe.SubLogStructOutput[]
+    number
   ] & {
     subscription: ClockTowerSubscribe.SubscriptionStructOutput;
     status: number;
-    subLog: ClockTowerSubscribe.SubLogStructOutput[];
+  };
+
+  export type TimeStruct = {
+    day: PromiseOrValue<BigNumberish>;
+    weekDay: PromiseOrValue<BigNumberish>;
+    quarterDay: PromiseOrValue<BigNumberish>;
+    yearDay: PromiseOrValue<BigNumberish>;
+  };
+
+  export type TimeStructOutput = [number, number, number, number] & {
+    day: number;
+    weekDay: number;
+    quarterDay: number;
+    yearDay: number;
   };
 }
 
@@ -104,7 +107,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
-    "unixToYearQuarterMonthDays(uint256)": FunctionFragment;
+    "unixToTime(uint256)": FunctionFragment;
     "unsubscribe(bytes32)": FunctionFragment;
   };
 
@@ -124,7 +127,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "removeERC20Contract"
       | "subscribe"
       | "toggleContractActive"
-      | "unixToYearQuarterMonthDays"
+      | "unixToTime"
       | "unsubscribe"
   ): FunctionFragment;
 
@@ -185,7 +188,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "unixToYearQuarterMonthDays",
+    functionFragment: "unixToTime",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -237,17 +240,31 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "toggleContractActive",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "unixToYearQuarterMonthDays",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "unixToTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "unsubscribe",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "SubLog(bytes32,address,uint40,bool)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "SubLog"): EventFragment;
 }
+
+export interface SubLogEventObject {
+  subId: string;
+  subscriber: string;
+  timestamp: number;
+  success: boolean;
+}
+export type SubLogEvent = TypedEvent<
+  [string, string, number, boolean],
+  SubLogEventObject
+>;
+
+export type SubLogEventFilter = TypedEventFilter<SubLogEvent>;
 
 export interface ClockTowerSubscribe extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -345,14 +362,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    unixToYearQuarterMonthDays(
+    unixToTime(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [number, number, number] & {
-        yearDays: number;
-        quarterDay: number;
-        day: number;
+      [ClockTowerSubscribe.TimeStructOutput] & {
+        time: ClockTowerSubscribe.TimeStructOutput;
       }
     >;
 
@@ -431,16 +446,10 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unixToYearQuarterMonthDays(
+  unixToTime(
     unix: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<
-    [number, number, number] & {
-      yearDays: number;
-      quarterDay: number;
-      day: number;
-    }
-  >;
+  ): Promise<ClockTowerSubscribe.TimeStructOutput>;
 
   unsubscribe(
     id: PromiseOrValue<BytesLike>,
@@ -513,16 +522,10 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     toggleContractActive(overrides?: CallOverrides): Promise<void>;
 
-    unixToYearQuarterMonthDays(
+    unixToTime(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<
-      [number, number, number] & {
-        yearDays: number;
-        quarterDay: number;
-        day: number;
-      }
-    >;
+    ): Promise<ClockTowerSubscribe.TimeStructOutput>;
 
     unsubscribe(
       id: PromiseOrValue<BytesLike>,
@@ -530,7 +533,20 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "SubLog(bytes32,address,uint40,bool)"(
+      subId?: PromiseOrValue<BytesLike> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      success?: null
+    ): SubLogEventFilter;
+    SubLog(
+      subId?: PromiseOrValue<BytesLike> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      success?: null
+    ): SubLogEventFilter;
+  };
 
   estimateGas: {
     addERC20Contract(
@@ -602,7 +618,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    unixToYearQuarterMonthDays(
+    unixToTime(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -683,7 +699,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    unixToYearQuarterMonthDays(
+    unixToTime(
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
