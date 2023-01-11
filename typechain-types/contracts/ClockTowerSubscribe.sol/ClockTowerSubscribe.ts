@@ -97,10 +97,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "changeFixedFee(uint256)": FunctionFragment;
     "changeMaxGasPrice(uint256)": FunctionFragment;
     "changeMaxRemits(uint256)": FunctionFragment;
-    "chargeSubs()": FunctionFragment;
     "createSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
     "getAccountSubscriptions(bool)": FunctionFragment;
     "getFee()": FunctionFragment;
+    "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
@@ -117,10 +117,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "changeFixedFee"
       | "changeMaxGasPrice"
       | "changeMaxRemits"
-      | "chargeSubs"
       | "createSubscription"
       | "getAccountSubscriptions"
       | "getFee"
+      | "remit"
       | "removeERC20Contract"
       | "subscribe"
       | "toggleContractActive"
@@ -157,10 +157,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "chargeSubs",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "createSubscription",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -175,6 +171,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(functionFragment: "getFee", values?: undefined): string;
+  encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
     values: [PromiseOrValue<string>]
@@ -221,7 +218,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "changeMaxRemits",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "chargeSubs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createSubscription",
     data: BytesLike
@@ -231,6 +227,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
     data: BytesLike
@@ -314,10 +311,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    chargeSubs(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     createSubscription(
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -333,6 +326,10 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
     getFee(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    remit(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -400,10 +397,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  chargeSubs(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   createSubscription(
     amount: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
@@ -419,6 +412,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
   getFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+  remit(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   removeERC20Contract(
     erc20Contract: PromiseOrValue<string>,
@@ -486,8 +483,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    chargeSubs(overrides?: CallOverrides): Promise<boolean>;
-
     createSubscription(
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -503,6 +498,8 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    remit(overrides?: CallOverrides): Promise<boolean>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -571,10 +568,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    chargeSubs(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     createSubscription(
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -590,6 +583,10 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    remit(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -652,10 +649,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    chargeSubs(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     createSubscription(
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -671,6 +664,10 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    remit(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
