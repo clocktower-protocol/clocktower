@@ -620,11 +620,12 @@ contract ClockTowerSubscribe {
 
     //TODO:
     //Might want to require unlimited allowance for subscriptions
+    //TODO: probably need to require unlimited allowance for provider account so fees can be drawn
+    //this is necessary due to the need for charging for fails
 
     //completes money transfer for subscribers
     function remit() external isAdmin returns (bool finished) {
 
-        console.log(gasleft());
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
 
@@ -749,9 +750,6 @@ contract ClockTowerSubscribe {
         pageGo = false;
         //updates lastCheckedTimeSlot
         lastCheckedHour = _currentTimeSlot;
-        console.log(gasleft());
         return true;
-        
-        
     }
 }
