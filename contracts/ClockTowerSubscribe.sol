@@ -53,7 +53,7 @@ contract ClockTowerSubscribe {
     uint maxRemits = 250;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
-    uint pageCount;
+   // uint pageCount;
     bool pageGo;
 
     enum SubType {
@@ -94,7 +94,6 @@ contract ClockTowerSubscribe {
         //address[] subscribers;
     }
 
-
     //struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
@@ -102,16 +101,6 @@ contract ClockTowerSubscribe {
         SubType subType;
         Status status;
     }
-
-    //TODO: might need to add more parameters
-    //struct of subscription payments
-    /*
-    struct SubLog {
-        bytes32 subId;
-        uint40 timestamp; 
-        bool success;
-    }
-    */
 
     struct PageStart {
         bytes32 id;
@@ -156,7 +145,6 @@ contract ClockTowerSubscribe {
 
     //Subscription master map keyed on type
     mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
-   // mapping(uint => mapping(uint16 => mapping(bytes32 => Subscription))) newSubscriptionMap;
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
@@ -304,17 +292,11 @@ contract ClockTowerSubscribe {
 
         yearDay = uint16(dayCounter);
 
-        //uint quarterDayuint;
         //gets day of quarter
         time.quarterDay = getdayOfQuarter(yearDay, uintyear);
-        //uint16 quarterDay = uint16(quarterDayuint);
-       // time.quarterDay = uint16(quarterDayuint);
         time.weekDay = getDayOfWeek(unix);
         time.day = day;
         time.yearDay = yearDay;
-
-
-        //time = Time(day, weekDay, quarterDay, yearDay);
     }
 
     function isLeapYear(uint year) internal pure returns (bool leapYear) {
@@ -432,7 +414,6 @@ contract ClockTowerSubscribe {
         for(uint i; i < indexes.length; i++){
             subViews[i].subscription = getSubByIndex(indexes[i]);
             subViews[i].status = indexes[i].status;
-          //  subViews[i].subLog = paymentLog[msg.sender][indexes[i].id];
         }
         
         return subViews;
@@ -486,7 +467,7 @@ contract ClockTowerSubscribe {
     }
 
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
-          //new account
+        //new account
         if(accountMap[msg.sender].exists == false) {
             accountMap[msg.sender].accountAddress = msg.sender;
             //adds to lookup table
@@ -652,11 +633,9 @@ contract ClockTowerSubscribe {
 
         require(_currentTimeSlot > lastCheckedHour, "14");
 
-        //calls library function
-        //(uint16 yearDays, uint16 quarterDay, uint16 _days) = unixToTime(block.timestamp);
+        //calls time function
         Time memory time = unixToTime(block.timestamp);
 
-        //uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
 
         //gets subscriptions from mappings
@@ -678,7 +657,6 @@ contract ClockTowerSubscribe {
                 timeTrigger = time.yearDay;
             }
 
-            console.log(subscriptionMap[s][timeTrigger].length);
             uint length = subscriptionMap[s][timeTrigger].length;
             
             //loops through subscriptions
@@ -687,17 +665,18 @@ contract ClockTowerSubscribe {
                 //checks if cancelled
                 if(!subscriptionMap[s][timeTrigger][i].cancelled) {
 
-                    console.log(gasleft());
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
+                    address provider = subscriptionMap[s][timeTrigger][i].provider;
 
                     //calculates fee balance
-                    uint subFee = (amount * fee / 10000) - amount;
-                    uint remitAmount = amount - subFee;
-
-                    console.log(gasleft());
-                    console.log("here");
+                    //&&
+                   uint subFee = (amount * fee / 10000) - amount;
+                   uint totalFee;
+                   //&&
+                   //uint remitAmount = amount - subFee;
+                   //uint feeRemit = (amount - ((amount * fee / 10000) - amount)) * length;
 
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
@@ -706,8 +685,15 @@ contract ClockTowerSubscribe {
                         if(remitCounter > maxRemits) {
                             pageStart = PageStart(id, j);
                             pageGo = false;
+                            //charges total fee to provider for batch
+                            if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
+                            && 
+                            ERC20Permit(token).balanceOf(provider) < totalFee) {
+                                require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
+                            }   
                             return false;
                         }
+
 
                         if(id == pageStart.id && j == pageStart.subsriberIndex) {
                             pageGo = true;
@@ -719,26 +705,38 @@ contract ClockTowerSubscribe {
                             //checks for failure (balance and unlimited allowance)
                             address subscriber = subscribersMap[id][j];
 
-                            
                             //check if there is enough allowance and balance
                             if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20Permit(token).balanceOf(subscribersMap[id][j]) < amount) {
+                            ERC20Permit(token).balanceOf(subscriber) < amount) {
                                 remitCounter++;
+                                //charges fee on fails 
+                                totalFee += subFee;
                                 //log as failed
                                 emit SubLog(id, subscriber, uint40(block.timestamp), false);
-                               // paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), false);
                             } else {
                                 remitCounter++;
-                                //pays fee to msg.sender
-                                require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
+                                //adds fee
+                                totalFee += subFee;
+                                //&&
+                                //require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
 
                                 //log as succeeded
                                 emit SubLog(id, subscriber, uint40(block.timestamp), true);
 
-                                //paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), true);
                                 //remits to provider
-                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
+                                //&&
+                                //require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
+                               
+                               require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
+                            }
+                            //charges provider on last subscriber in list
+                            if(j == (subscribersMap[id].length - 1)) {
+                                if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
+                                && 
+                                ERC20Permit(token).balanceOf(provider) < totalFee) {
+                                    require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
+                                }   
                             }
                         }
                     }
