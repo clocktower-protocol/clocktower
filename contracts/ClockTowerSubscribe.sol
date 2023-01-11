@@ -50,7 +50,7 @@ contract ClockTowerSubscribe {
     //maximum gas value before waiting (in gigawei)
     uint maxGasPrice = 50000000000;
     //maximum remits per transaction
-    uint maxRemits = 1000;
+    uint maxRemits = 250;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
     uint pageCount;
@@ -136,6 +136,7 @@ contract ClockTowerSubscribe {
 
     //Subscription master map keyed on type
     mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
+   // mapping(uint => mapping(uint16 => mapping(bytes32 => Subscription))) newSubscriptionMap;
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
@@ -521,8 +522,6 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(id, msg.sender);
     }
         
-
-    //TODO: test and delete provider entry
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
@@ -613,8 +612,9 @@ contract ClockTowerSubscribe {
     //Might want to require unlimited allowance for subscriptions
 
     //completes money transfer for subscribers
-    function chargeSubs() external isAdmin returns (bool finished) {
+    function remit() external isAdmin returns (bool finished) {
 
+        console.log(gasleft());
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
 
@@ -629,40 +629,44 @@ contract ClockTowerSubscribe {
         uint16 weekday = getDayOfWeek(block.timestamp);
         uint remitCounter;
 
-        //TODO: figure way to start at last item if maxed out remits
-
         //gets subscriptions from mappings
-
+       
         //loops through types
         for(uint s = 0; s <= 3; s++) {
 
             uint16 timeTrigger;
             if(s == uint(SubType.WEEKLY)){
                 timeTrigger = weekday;
-            }
+            } 
             if(s == uint(SubType.MONTHLY)) {
                 timeTrigger = _days;
-            }
+            } 
             if(s == uint(SubType.QUARTERLY)) {
                 timeTrigger = quarterDay;
-            }
+            } 
             if(s == uint(SubType.YEARLY)) {
                 timeTrigger = yearDays;
             }
 
-             //loops through monthly subscriptions
+            console.log(subscriptionMap[s][timeTrigger].length);
+            //loops through monthly subscriptions
             for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+
                 //checks if cancelled
                 if(!subscriptionMap[s][timeTrigger][i].cancelled) {
 
+                    console.log(gasleft());
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
 
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
-                    uint remit = amount - subFee;
-                    
+                    uint remitAmount = amount - subFee;
+
+                    console.log(gasleft());
+                    console.log("here");
+
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
 
@@ -677,13 +681,13 @@ contract ClockTowerSubscribe {
                             pageGo = true;
                         } 
 
-                        //TODO: add way to skip already sent transactions and start at pageStart
                         //if remits are less than max remits
                         if(pageStart.id == 0 || pageGo == true) {
                             
                             //checks for failure (balance and unlimited allowance)
                             address subscriber = subscribersMap[id][j];
 
+                            
                             //check if there is enough allowance and balance
                             if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                             && 
@@ -692,14 +696,13 @@ contract ClockTowerSubscribe {
                                 //log as failed
                                 paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), false);
                             } else {
-                                //TODO: TEST
                                 remitCounter++;
                                 //pays fee to msg.sender
                                 require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
                                 //log as succeeded
                                 paymentLog[subscriber][id].push() = SubLog(id, uint40(block.timestamp), true);
                                 //remits to provider
-                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remit));
+                                require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
                             }
                         }
                     }
@@ -712,7 +715,9 @@ contract ClockTowerSubscribe {
         pageGo = false;
         //updates lastCheckedTimeSlot
         lastCheckedHour = _currentTimeSlot;
+        console.log(gasleft());
         return true;
+        
         
     }
 }

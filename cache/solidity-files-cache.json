@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Clocktower.sol": {
-      "lastModificationDate": 1673201405177,
+      "lastModificationDate": 1673275382415,
       "contentHash": "00bc6f2897a9da78e21269c74122cb6c",
       "sourceName": "contracts/Clocktower.sol",
       "solcConfig": {
@@ -10,7 +10,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -49,7 +49,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -84,7 +84,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -121,7 +121,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -160,7 +160,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -195,7 +195,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -230,7 +230,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -267,7 +267,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -308,7 +308,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -343,7 +343,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -380,7 +380,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -417,7 +417,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -452,7 +452,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -489,7 +489,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -516,7 +516,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/Timelibrary.sol": {
-      "lastModificationDate": 1672952242236,
+      "lastModificationDate": 1673191894925,
       "contentHash": "ac70549c6e6ce3103f097f83b9da948a",
       "sourceName": "contracts/Timelibrary.sol",
       "solcConfig": {
@@ -524,7 +524,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -551,7 +551,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerLibrary.sol": {
-      "lastModificationDate": 1673215285548,
+      "lastModificationDate": 1673275382415,
       "contentHash": "1af3ff2258b369ae2809965c0c8c657b",
       "sourceName": "contracts/ClockTowerLibrary.sol",
       "solcConfig": {
@@ -559,7 +559,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -586,15 +586,15 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1673389332016,
-      "contentHash": "517fb154c9502e8eda23570f93e0b762",
+      "lastModificationDate": 1673443379768,
+      "contentHash": "4aa89e2e3fd9cfffe55dfbef765c7225",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.9",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {
@@ -624,7 +624,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
-      "lastModificationDate": 1673269948453,
+      "lastModificationDate": 1673275382415,
       "contentHash": "0cbbbecad6a0f754dbc94d1a0fc21b64",
       "sourceName": "contracts/ClockTowerPayment.sol",
       "solcConfig": {
@@ -632,7 +632,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 500
           },
           "outputSelection": {
             "*": {

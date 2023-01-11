@@ -538,9 +538,10 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-
+            
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[1].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[2].subscription, testParams)
@@ -548,11 +549,10 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[4].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[5].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[6].subscription, testParams)
-
-
+            
             await time.increaseTo(twoHoursAhead);
 
-            await hardhatClockSubscribe.chargeSubs();
+            await hardhatClockSubscribe.remit();
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
             let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)
