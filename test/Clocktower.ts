@@ -561,7 +561,7 @@ describe("Clocktower", function(){
                 //gets emit
                 let tx = await hardhatClockSubscribe.remit();
                 let rc = await tx.wait();
-                let event = rc.events?.find(event => event.event === 'RemitLog')
+                let event = rc.events?.find(event => event.event === 'CallerLog')
                 let args = event?.args
                 isFinished = args?.isFinished;
             }
