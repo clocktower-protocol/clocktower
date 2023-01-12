@@ -132,6 +132,7 @@ contract ClockTowerSubscribe {
 
     event RemitLog(
         uint40 timestamp,
+        uint40 checkedDay,
         address caller,
         bool isFinished
     );
@@ -638,7 +639,7 @@ contract ClockTowerSubscribe {
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
-        console.log("check");
+        console.log("in");
 
         require(_currentTimeSlot > lastCheckedDay, "14");
 
@@ -701,7 +702,7 @@ contract ClockTowerSubscribe {
                                 require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                             }   
                             console.log("out");
-                            emit RemitLog(uint40(block.timestamp), msg.sender, false);
+                            emit RemitLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
                             return;
                         }
 
@@ -760,8 +761,9 @@ contract ClockTowerSubscribe {
         pageGo = false;
         //updates lastCheckedTimeSlot
         console.log("movetime");
-         emit RemitLog(uint40(block.timestamp), msg.sender, true);
+         emit RemitLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
         lastCheckedDay = _currentTimeSlot;
+        console.log("out");
         return;
     }
 }
