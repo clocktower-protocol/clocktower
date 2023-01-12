@@ -247,7 +247,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "RemitLog(uint40,address,bool)": EventFragment;
+    "RemitLog(uint40,uint40,address,bool)": EventFragment;
     "SubPaymentLog(bytes32,address,uint40,bool)": EventFragment;
   };
 
@@ -257,11 +257,12 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
 export interface RemitLogEventObject {
   timestamp: number;
+  checkedDay: number;
   caller: string;
   isFinished: boolean;
 }
 export type RemitLogEvent = TypedEvent<
-  [number, string, boolean],
+  [number, number, string, boolean],
   RemitLogEventObject
 >;
 
@@ -548,13 +549,15 @@ export interface ClockTowerSubscribe extends BaseContract {
   };
 
   filters: {
-    "RemitLog(uint40,address,bool)"(
+    "RemitLog(uint40,uint40,address,bool)"(
       timestamp?: null,
+      checkedDay?: null,
       caller?: null,
       isFinished?: null
     ): RemitLogEventFilter;
     RemitLog(
       timestamp?: null,
+      checkedDay?: null,
       caller?: null,
       isFinished?: null
     ): RemitLogEventFilter;

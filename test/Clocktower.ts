@@ -556,6 +556,7 @@ describe("Clocktower", function(){
 
             let isFinished = false;
 
+            //loops through remit calls to test max remit
             while(!isFinished) {
                 //gets emit
                 let tx = await hardhatClockSubscribe.remit();
