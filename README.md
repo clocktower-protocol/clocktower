@@ -20,11 +20,11 @@ Things are further complicated when considering that timed transactions need to 
 
 With this in mind we have chosen the following time trigger ranges that can represent the most common schedules:
 
-Future Transactions -- Unixtime / 3600 (Unix Hours)
-Weekly Subscriptions -- 1 - 7 (Weekdays)
-Monthly Subscriptions -- 1 - 28 (Day of Month)
-Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
-Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
+- Future Transactions -- Unixtime / 3600 (Unix Hours)
+- Weekly Subscriptions -- 1 - 7 (Weekdays)
+- Monthly Subscriptions -- 1 - 28 (Day of Month)
+- Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
+- Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
 
 ## Data Structures
 
@@ -40,16 +40,16 @@ createSubscription(uint amount, address token, string description, Frequency fre
 Description: Allows provider to create a new subscription. 
 
 Frequency Options
--Weekly
--Monthly
--Quarterly
--Yearly
+- Weekly
+- Monthly
+- Quarterly
+- Yearly
 
 DueDay Ranges
--Weekly Subscriptions -- 1 - 7 (Weekdays)
--Monthly Subscriptions -- 1 - 28 (Day of Month)
--Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
--Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
+- Weekly Subscriptions -- 1 - 7 (Weekdays)
+- Monthly Subscriptions -- 1 - 28 (Day of Month)
+- Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
+- Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
 #### Cancel Subscription
 ```
 cancelSubscription(Subscription subscription)
