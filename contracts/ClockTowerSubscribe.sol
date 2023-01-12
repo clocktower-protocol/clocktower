@@ -612,7 +612,6 @@ contract ClockTowerSubscribe {
 
     //TODO:
     //Might want to require unlimited allowance for subscriptions
-    //this is necessary due to the need for charging for fails
 
     //REQUIRES PROVIDERS AND SUBSCRIBERS TO HAVE ALLOWANCES SET
 
@@ -624,8 +623,6 @@ contract ClockTowerSubscribe {
 
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
-
-        console.log("in");
 
         require(_currentTimeSlot > lastCheckedDay, "14");
 
@@ -670,7 +667,6 @@ contract ClockTowerSubscribe {
                     //checks if provider still has required unlimited allowance
                     if(ERC20(token).allowance(provider, address(this)) < 2**255) {
                         emit ProviderLog(id, provider, uint40(block.timestamp), false, 15);
-                        console.log("test");
                         break;
                     }
 
@@ -691,7 +687,6 @@ contract ClockTowerSubscribe {
                             ERC20(token).balanceOf(provider) < totalFee) {
                                 require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
                             }   
-                            console.log("out");
                             emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
                             return;
                         }
@@ -748,12 +743,10 @@ contract ClockTowerSubscribe {
         pageGo = false;
 
         //Makes caller log
-        console.log("movetime");
         emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
 
         //updates lastCheckedTimeSlot
         lastCheckedDay += 1;
-        console.log("out");
         return;
     }
 }
