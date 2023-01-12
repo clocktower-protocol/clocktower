@@ -19,7 +19,7 @@ contract ClockTowerSubscribe {
 
      /*
     //Require error codes
-    0 = Must have admin privileges
+    0 = No error
     1 = ERC20 token already added
     2 = ERC20 token not added yet
     3 = No zero address call
@@ -35,6 +35,8 @@ contract ClockTowerSubscribe {
     13 = Requires token allowance to be increased
     14 = Time already checked
     15 = Token allowance must be unlimited for subscriptions
+    16 = Must have admin privileges
+    17 = Token balance insufficient
 
     */
 
@@ -53,8 +55,17 @@ contract ClockTowerSubscribe {
     uint maxRemits = 5;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
-   // uint pageCount;
+    // uint pageCount;
     bool pageGo;
+
+    //approved contract addresses
+    address[] approvedERC20;
+
+    //circuit breaker
+    bool stopped = false;
+
+    //variable for last checked by hour
+    uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
 
     enum SubType {
         WEEKLY,
@@ -111,7 +122,6 @@ contract ClockTowerSubscribe {
     struct SubView {
         Subscription subscription;
         Status status;
-       // SubLog[] subLog;
     }
 
     //struct of time return values
@@ -134,10 +144,17 @@ contract ClockTowerSubscribe {
     event CallerLog(
         uint40 timestamp,
         uint40 checkedDay,
-        address caller,
+        address indexed caller,
         bool isFinished
     );
 
+    event ProviderLog(
+        bytes32 indexed id,
+        address indexed provider,
+        uint40 timestamp,
+        bool success,
+        uint8 errorCode
+    );
     //-------------------------------------------
 
     //--------------Account Mappings-------------
@@ -159,15 +176,6 @@ contract ClockTowerSubscribe {
 
     //--------------------------------------------
 
-    //approved contract addresses
-    address[] approvedERC20;
-
-    //circuit breaker
-    bool stopped = false;
-
-    //variable for last checked by hour
-    uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
-
     //functions for receiving ether
     receive() external payable{
         //emit ReceiveETH(msg.sender, msg.value);
@@ -179,7 +187,7 @@ contract ClockTowerSubscribe {
     //ADMIN METHODS*************************************
 
     function adminRequire() private view {
-        require(msg.sender == admin, "0");
+        require(msg.sender == admin, "16");
     }
     
     //checks if user is admin
@@ -604,7 +612,6 @@ contract ClockTowerSubscribe {
 
     //TODO:
     //Might want to require unlimited allowance for subscriptions
-    //TODO: probably need to require unlimited allowance for provider account so fees can be drawn
     //this is necessary due to the need for charging for fails
 
     //REQUIRES PROVIDERS AND SUBSCRIBERS TO HAVE ALLOWANCES SET
@@ -659,11 +666,18 @@ contract ClockTowerSubscribe {
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
                     address provider = subscriptionMap[s][timeTrigger][i].provider;
 
+                    //TODO: do we mark the subscriber transactions as failed or just skip them?
+                    //checks if provider still has required unlimited allowance
+                    if(ERC20(token).allowance(provider, address(this)) < 2**255) {
+                        emit ProviderLog(id, provider, uint40(block.timestamp), false, 15);
+                        console.log("test");
+                        break;
+                    }
+
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
                     uint totalFee;
                  
-
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
 
@@ -711,17 +725,17 @@ contract ClockTowerSubscribe {
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
 
                                 //remits from subscriber to provider
-            
                                 console.log(remitCounter);
                                 require(ERC20(token).transferFrom(subscriber, provider, amount));
                             }
                             //charges provider on last subscriber in list
                             if(j == (subscribersMap[id].length - 1)) {
-                                if(ERC20(token).allowance(provider, address(this)) >= totalFee
-                                && 
-                                ERC20(token).balanceOf(provider) < totalFee) {
+                                if(ERC20(token).balanceOf(provider) < totalFee) {
+                                    emit ProviderLog(id, provider, uint40(block.timestamp), true, 0);
                                     require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
-                                }   
+                                } else {
+                                    emit ProviderLog(id, provider, uint40(block.timestamp), true, 17);
+                                } 
                             }
                         }
                     }
@@ -732,10 +746,13 @@ contract ClockTowerSubscribe {
         //resets pagination variables
         delete pageStart;
         pageGo = false;
-        //updates lastCheckedTimeSlot
+
+        //Makes caller log
         console.log("movetime");
-         emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
-        lastCheckedDay = _currentTimeSlot;
+        emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
+
+        //updates lastCheckedTimeSlot
+        lastCheckedDay += 1;
         console.log("out");
         return;
     }
