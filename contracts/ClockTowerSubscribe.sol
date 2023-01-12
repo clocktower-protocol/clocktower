@@ -4,7 +4,7 @@
 pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
-interface ERC20Permit{
+interface ERC20{
 function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
   function approve(address spender, uint tokens) external returns (bool);
@@ -123,10 +123,11 @@ contract ClockTowerSubscribe {
     }
 
     //Events-------------------------------------
-    event SubPaymentLog(
+    event SubscriberLog(
         bytes32 indexed id,
         address indexed subscriber,
         uint40 timestamp,
+        uint amount,
         bool success
     );
 
@@ -155,10 +156,6 @@ contract ClockTowerSubscribe {
 
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
-
-    //&&
-    //log of subscription payments
-    //mapping(address => mapping(bytes32 => SubLog[])) paymentLog;
 
     //--------------------------------------------
 
@@ -330,7 +327,6 @@ contract ClockTowerSubscribe {
 
     //get day of quarter
     function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
-       // (uint yearDays, uint _days) = unixToDays(unixTime);
         
         uint leapDay;
         if(isLeapYear(year)) {
@@ -350,19 +346,6 @@ contract ClockTowerSubscribe {
         }
     }
 
-/*
-      //converts unixTime to hours
-    function unixToHours(uint40 unixTime) private pure returns(uint40 hourCount){
-        hourCount = unixTime/3600;
-        return hourCount;
-    }
-
-    //converts hours since merge to unix epoch utc time
-    function hourstoUnix(uint40 timeTrigger) private pure returns(uint40 unixTime) {
-        unixTime = timeTrigger*3600;
-        return unixTime;
-    }
-*/
     //converts unixTime to days
     function unixToDays(uint40 unixTime) private pure returns(uint40 dayCount) {
         dayCount = unixTime/86400;
@@ -502,7 +485,7 @@ contract ClockTowerSubscribe {
         //require(fixedFee <= msg.value, "5");
 
         //check if there is enough allowance
-        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
+        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
     
         //TODO: turn on after testing
         //cant subscribe to subscription you own
@@ -614,21 +597,17 @@ contract ClockTowerSubscribe {
         Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
 
         subscriptionMap[uint(subtype)][dueDay].push() = subscription;
- 
-         //creates subscription index
-        //SubIndex memory subindex = SubIndex(subscription.id, subscription.dueDay, subscription.subType);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), true);
-        //adds provider to map
-        //providerMap[subscription.id] = msg.sender;
-
     }
 
     //TODO:
     //Might want to require unlimited allowance for subscriptions
     //TODO: probably need to require unlimited allowance for provider account so fees can be drawn
     //this is necessary due to the need for charging for fails
+
+    //REQUIRES PROVIDERS AND SUBSCRIBERS TO HAVE ALLOWANCES SET
 
     //completes money transfer for subscribers
     function remit() external isAdmin {
@@ -681,12 +660,9 @@ contract ClockTowerSubscribe {
                     address provider = subscriptionMap[s][timeTrigger][i].provider;
 
                     //calculates fee balance
-                    //&&
-                   uint subFee = (amount * fee / 10000) - amount;
-                   uint totalFee;
-                   //&&
-                   //uint remitAmount = amount - subFee;
-                   //uint feeRemit = (amount - ((amount * fee / 10000) - amount)) * length;
+                    uint subFee = (amount * fee / 10000) - amount;
+                    uint totalFee;
+                 
 
                     //loops through subscribers
                     for(uint j; j < subscribersMap[id].length; j++) {
@@ -696,10 +672,10 @@ contract ClockTowerSubscribe {
                             pageStart = PageStart(id, j);
                             pageGo = false;
                             //charges total fee to provider for batch
-                            if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
+                            if(ERC20(token).allowance(provider, address(this)) >= totalFee
                             && 
-                            ERC20Permit(token).balanceOf(provider) < totalFee) {
-                                require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
+                            ERC20(token).balanceOf(provider) < totalFee) {
+                                require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
                             }   
                             console.log("out");
                             emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
@@ -718,36 +694,33 @@ contract ClockTowerSubscribe {
                             address subscriber = subscribersMap[id][j];
 
                             //check if there is enough allowance and balance
-                            if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
+                            if(ERC20(token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20Permit(token).balanceOf(subscriber) < amount) {
+                            ERC20(token).balanceOf(subscriber) < amount) {
                                 remitCounter++;
                                 //charges fee on fails 
                                 totalFee += subFee;
                                 //log as failed
-                                emit SubPaymentLog(id, subscriber, uint40(block.timestamp), false);
+                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
                             } else {
                                 remitCounter++;
                                 //adds fee
                                 totalFee += subFee;
-                                //&&
-                                //require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
 
                                 //log as succeeded
-                                emit SubPaymentLog(id, subscriber, uint40(block.timestamp), true);
+                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
 
-                                //remits to provider
-                                //&&
-                                //require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
-                               console.log(remitCounter);
-                               require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
+                                //remits from subscriber to provider
+            
+                                console.log(remitCounter);
+                                require(ERC20(token).transferFrom(subscriber, provider, amount));
                             }
                             //charges provider on last subscriber in list
                             if(j == (subscribersMap[id].length - 1)) {
-                                if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
+                                if(ERC20(token).allowance(provider, address(this)) >= totalFee
                                 && 
-                                ERC20Permit(token).balanceOf(provider) < totalFee) {
-                                    require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
+                                ERC20(token).balanceOf(provider) < totalFee) {
+                                    require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
                                 }   
                             }
                         }

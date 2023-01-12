@@ -248,11 +248,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
-    "SubPaymentLog(bytes32,address,uint40,bool)": EventFragment;
+    "SubscriberLog(bytes32,address,uint40,uint256,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SubPaymentLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SubscriberLog"): EventFragment;
 }
 
 export interface CallerLogEventObject {
@@ -268,18 +268,19 @@ export type CallerLogEvent = TypedEvent<
 
 export type CallerLogEventFilter = TypedEventFilter<CallerLogEvent>;
 
-export interface SubPaymentLogEventObject {
+export interface SubscriberLogEventObject {
   id: string;
   subscriber: string;
   timestamp: number;
+  amount: BigNumber;
   success: boolean;
 }
-export type SubPaymentLogEvent = TypedEvent<
-  [string, string, number, boolean],
-  SubPaymentLogEventObject
+export type SubscriberLogEvent = TypedEvent<
+  [string, string, number, BigNumber, boolean],
+  SubscriberLogEventObject
 >;
 
-export type SubPaymentLogEventFilter = TypedEventFilter<SubPaymentLogEvent>;
+export type SubscriberLogEventFilter = TypedEventFilter<SubscriberLogEvent>;
 
 export interface ClockTowerSubscribe extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -562,18 +563,20 @@ export interface ClockTowerSubscribe extends BaseContract {
       isFinished?: null
     ): CallerLogEventFilter;
 
-    "SubPaymentLog(bytes32,address,uint40,bool)"(
+    "SubscriberLog(bytes32,address,uint40,uint256,bool)"(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
+      amount?: null,
       success?: null
-    ): SubPaymentLogEventFilter;
-    SubPaymentLog(
+    ): SubscriberLogEventFilter;
+    SubscriberLog(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
+      amount?: null,
       success?: null
-    ): SubPaymentLogEventFilter;
+    ): SubscriberLogEventFilter;
   };
 
   estimateGas: {
