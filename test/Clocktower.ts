@@ -552,7 +552,7 @@ describe("Clocktower", function(){
             
             await time.increaseTo(twoHoursAhead);
 
-            await hardhatClockSubscribe.remit();
+            while(await hardhatClockSubscribe.remit());
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
             let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)

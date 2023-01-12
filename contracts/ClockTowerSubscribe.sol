@@ -50,7 +50,7 @@ contract ClockTowerSubscribe {
     //maximum gas value before waiting (in gigawei)
     uint maxGasPrice = 50000000000;
     //maximum remits per transaction
-    uint maxRemits = 250;
+    uint maxRemits = 5;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
    // uint pageCount;
@@ -123,11 +123,17 @@ contract ClockTowerSubscribe {
     }
 
     //Events-------------------------------------
-    event SubLog(
-        bytes32 indexed subId,
+    event SubPaymentLog(
+        bytes32 indexed id,
         address indexed subscriber,
         uint40 timestamp,
         bool success
+    );
+
+    event RemitLog(
+        uint40 timestamp,
+        address caller,
+        bool isFinished
     );
 
     //-------------------------------------------
@@ -162,7 +168,7 @@ contract ClockTowerSubscribe {
     bool stopped = false;
 
     //variable for last checked by hour
-    uint40 lastCheckedHour = (unixToDays(uint40(block.timestamp)) - 1);
+    uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
 
     //functions for receiving ether
     receive() external payable{
@@ -624,7 +630,7 @@ contract ClockTowerSubscribe {
     //this is necessary due to the need for charging for fails
 
     //completes money transfer for subscribers
-    function remit() external isAdmin returns (bool finished) {
+    function remit() external isAdmin {
 
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
@@ -632,7 +638,9 @@ contract ClockTowerSubscribe {
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedHour, "14");
+        console.log("check");
+
+        require(_currentTimeSlot > lastCheckedDay, "14");
 
         //calls time function
         Time memory time = unixToTime(block.timestamp);
@@ -683,7 +691,7 @@ contract ClockTowerSubscribe {
                     for(uint j; j < subscribersMap[id].length; j++) {
 
                         //checks for max remit and returns false if limit hit
-                        if(remitCounter > maxRemits) {
+                        if(remitCounter == maxRemits) {
                             pageStart = PageStart(id, j);
                             pageGo = false;
                             //charges total fee to provider for batch
@@ -692,7 +700,9 @@ contract ClockTowerSubscribe {
                             ERC20Permit(token).balanceOf(provider) < totalFee) {
                                 require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                             }   
-                            return false;
+                            console.log("out");
+                            emit RemitLog(uint40(block.timestamp), msg.sender, false);
+                            return;
                         }
 
 
@@ -714,7 +724,7 @@ contract ClockTowerSubscribe {
                                 //charges fee on fails 
                                 totalFee += subFee;
                                 //log as failed
-                                emit SubLog(id, subscriber, uint40(block.timestamp), false);
+                                emit SubPaymentLog(id, subscriber, uint40(block.timestamp), false);
                             } else {
                                 remitCounter++;
                                 //adds fee
@@ -723,12 +733,12 @@ contract ClockTowerSubscribe {
                                 //require(ERC20Permit(token).transferFrom(subscriber, msg.sender, subFee));
 
                                 //log as succeeded
-                                emit SubLog(id, subscriber, uint40(block.timestamp), true);
+                                emit SubPaymentLog(id, subscriber, uint40(block.timestamp), true);
 
                                 //remits to provider
                                 //&&
                                 //require(ERC20Permit(token).transferFrom(subscriber, subscriptionMap[s][timeTrigger][i].provider, remitAmount));
-                               
+                               console.log(remitCounter);
                                require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                             }
                             //charges provider on last subscriber in list
@@ -749,7 +759,9 @@ contract ClockTowerSubscribe {
         delete pageStart;
         pageGo = false;
         //updates lastCheckedTimeSlot
-        lastCheckedHour = _currentTimeSlot;
-        return true;
+        console.log("movetime");
+         emit RemitLog(uint40(block.timestamp), msg.sender, true);
+        lastCheckedDay = _currentTimeSlot;
+        return;
     }
 }
