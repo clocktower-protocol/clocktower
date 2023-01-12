@@ -247,26 +247,26 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "RemitLog(uint40,uint40,address,bool)": EventFragment;
+    "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "SubPaymentLog(bytes32,address,uint40,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "RemitLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubPaymentLog"): EventFragment;
 }
 
-export interface RemitLogEventObject {
+export interface CallerLogEventObject {
   timestamp: number;
   checkedDay: number;
   caller: string;
   isFinished: boolean;
 }
-export type RemitLogEvent = TypedEvent<
+export type CallerLogEvent = TypedEvent<
   [number, number, string, boolean],
-  RemitLogEventObject
+  CallerLogEventObject
 >;
 
-export type RemitLogEventFilter = TypedEventFilter<RemitLogEvent>;
+export type CallerLogEventFilter = TypedEventFilter<CallerLogEvent>;
 
 export interface SubPaymentLogEventObject {
   id: string;
@@ -549,18 +549,18 @@ export interface ClockTowerSubscribe extends BaseContract {
   };
 
   filters: {
-    "RemitLog(uint40,uint40,address,bool)"(
+    "CallerLog(uint40,uint40,address,bool)"(
       timestamp?: null,
       checkedDay?: null,
       caller?: null,
       isFinished?: null
-    ): RemitLogEventFilter;
-    RemitLog(
+    ): CallerLogEventFilter;
+    CallerLog(
       timestamp?: null,
       checkedDay?: null,
       caller?: null,
       isFinished?: null
-    ): RemitLogEventFilter;
+    ): CallerLogEventFilter;
 
     "SubPaymentLog(bytes32,address,uint40,bool)"(
       id?: PromiseOrValue<BytesLike> | null,

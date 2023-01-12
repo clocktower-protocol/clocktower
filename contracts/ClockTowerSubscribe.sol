@@ -130,7 +130,7 @@ contract ClockTowerSubscribe {
         bool success
     );
 
-    event RemitLog(
+    event CallerLog(
         uint40 timestamp,
         uint40 checkedDay,
         address caller,
@@ -702,7 +702,7 @@ contract ClockTowerSubscribe {
                                 require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                             }   
                             console.log("out");
-                            emit RemitLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
+                            emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
                             return;
                         }
 
@@ -761,7 +761,7 @@ contract ClockTowerSubscribe {
         pageGo = false;
         //updates lastCheckedTimeSlot
         console.log("movetime");
-         emit RemitLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
+         emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
         lastCheckedDay = _currentTimeSlot;
         console.log("out");
         return;
