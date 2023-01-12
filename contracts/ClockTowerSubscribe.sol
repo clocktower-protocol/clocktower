@@ -67,7 +67,7 @@ contract ClockTowerSubscribe {
     //variable for last checked by hour
     uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
 
-    enum SubType {
+    enum Frequency {
         WEEKLY,
         MONTHLY,
         QUARTERLY,
@@ -99,7 +99,7 @@ contract ClockTowerSubscribe {
         address token;
         bool exists;
         bool cancelled;
-        SubType subType;
+        Frequency frequency;
         uint16 dueDay;
         string description;
         //address[] subscribers;
@@ -109,7 +109,7 @@ contract ClockTowerSubscribe {
     struct SubIndex {
         bytes32 id;
         uint16 dueDay;
-        SubType subType;
+        Frequency frequency;
         Status status;
     }
 
@@ -384,7 +384,7 @@ contract ClockTowerSubscribe {
       //fetches subscription from day maps by id
     function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
 
-          Subscription[] memory subList = subscriptionMap[uint(index.subType)][index.dueDay];
+          Subscription[] memory subList = subscriptionMap[uint(index.frequency)][index.dueDay];
 
             //searchs for subscription in day map
             for(uint j; j < subList.length; j++) {
@@ -420,19 +420,19 @@ contract ClockTowerSubscribe {
     //PRIVATE FUNCTIONS----------------------------------------------
 
     //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, SubType subType, uint16 dueDay) private view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
          //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
 
-        subscription = Subscription(id, amount, msg.sender, token, true, false, subType, dueDay, description);
+        subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay, description);
     }
     
     //checks subscription exists
-    function subExists(bytes32 id, uint16 dueDay, SubType subType, Status status) private view returns(bool) {
+    function subExists(bytes32 id, uint16 dueDay, Frequency frequency, Status status) private view returns(bool) {
         
         //check subscription exists
-        SubIndex memory index = SubIndex(id, dueDay, subType, status);
+        SubIndex memory index = SubIndex(id, dueDay, frequency, status);
 
         Subscription memory memSubscription = getSubByIndex(index);
 
@@ -499,13 +499,13 @@ contract ClockTowerSubscribe {
         //cant subscribe to subscription you own
         //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), "7");
+        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), false);
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
 
     }
     
@@ -534,7 +534,7 @@ contract ClockTowerSubscribe {
         userNotZero();
 
         //checks subscription exists
-        require(subExists(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), "7");
+        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
 
 
         //gets list of subscribers and deletes subscriber list
@@ -554,10 +554,10 @@ contract ClockTowerSubscribe {
         }
 
         //sets cancelled bool to true for subscription
-        Subscription[] memory subscriptions = subscriptionMap[uint(subscription.subType)][subscription.dueDay];
+        Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
         for(uint i; i < subscriptions.length; i++) {
             if(subscriptions[i].id == subscription.id) {
-               subscriptionMap[uint(subscription.subType)][subscription.dueDay][i].cancelled = true;
+               subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
             }
         }
     }
@@ -565,7 +565,7 @@ contract ClockTowerSubscribe {
     
     
     //allows provider user to create a subscription
-    function createSubscription(uint amount, address token, string calldata description, SubType subtype, uint16 dueDay) external payable {
+    function createSubscription(uint amount, address token, string calldata description, Frequency frequency, uint16 dueDay) external payable {
         
         //cannot be sent from zero address
         userNotZero();
@@ -586,28 +586,28 @@ contract ClockTowerSubscribe {
         require(bytes(description).length <= 32, "String must be <= 32 bytes");
 
         //validates dueDay
-         if(subtype == SubType.WEEKLY) {
+         if(frequency == Frequency.WEEKLY) {
             require(0 < dueDay && dueDay <= 7, "Must be between 1 and 7");
         }
-        if(subtype == SubType.MONTHLY) {
+        if(frequency == Frequency.MONTHLY) {
             require(0 < dueDay && dueDay <= 28, "Mustust be between 1 and 28");
         }
-        if(subtype == SubType.QUARTERLY){
+        if(frequency == Frequency.QUARTERLY){
              require(0 < dueDay && dueDay <= 90, "Must be between 1 and 90");
         }
-        if(subtype == SubType.YEARLY) {
+        if(frequency == Frequency.YEARLY) {
             require(0 < dueDay && dueDay <= 365, "Must be between 1 and 365");
         }
 
         //TODO: might want to set a token minimum
 
         //creates subscription
-        Subscription memory subscription = setSubscription(amount,token, description, subtype, dueDay);
+        Subscription memory subscription = setSubscription(amount,token, description, frequency, dueDay);
 
-        subscriptionMap[uint(subtype)][dueDay].push() = subscription;
+        subscriptionMap[uint(frequency)][dueDay].push() = subscription;
 
         //adds it to account
-        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.subType, Status.ACTIVE), true);
+        addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
     }
 
     //TODO:
@@ -637,16 +637,16 @@ contract ClockTowerSubscribe {
         for(uint s = 0; s <= 3; s++) {
 
             uint16 timeTrigger;
-            if(s == uint(SubType.WEEKLY)){
+            if(s == uint(Frequency.WEEKLY)){
                 timeTrigger = time.weekDay;
             } 
-            if(s == uint(SubType.MONTHLY)) {
+            if(s == uint(Frequency.MONTHLY)) {
                 timeTrigger = time.day;
             } 
-            if(s == uint(SubType.QUARTERLY)) {
+            if(s == uint(Frequency.QUARTERLY)) {
                 timeTrigger = time.quarterDay;
             } 
-            if(s == uint(SubType.YEARLY)) {
+            if(s == uint(Frequency.YEARLY)) {
                 timeTrigger = time.yearDay;
             }
 
