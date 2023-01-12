@@ -36,7 +36,7 @@ export declare namespace ClockTowerSubscribe {
     token: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
     cancelled: PromiseOrValue<boolean>;
-    subType: PromiseOrValue<BigNumberish>;
+    frequency: PromiseOrValue<BigNumberish>;
     dueDay: PromiseOrValue<BigNumberish>;
     description: PromiseOrValue<string>;
   };
@@ -58,7 +58,7 @@ export declare namespace ClockTowerSubscribe {
     token: string;
     exists: boolean;
     cancelled: boolean;
-    subType: number;
+    frequency: number;
     dueDay: number;
     description: string;
   };
@@ -364,7 +364,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
-      subtype: PromiseOrValue<BigNumberish>,
+      frequency: PromiseOrValue<BigNumberish>,
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -448,7 +448,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     description: PromiseOrValue<string>,
-    subtype: PromiseOrValue<BigNumberish>,
+    frequency: PromiseOrValue<BigNumberish>,
     dueDay: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -528,7 +528,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
-      subtype: PromiseOrValue<BigNumberish>,
+      frequency: PromiseOrValue<BigNumberish>,
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -650,7 +650,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
-      subtype: PromiseOrValue<BigNumberish>,
+      frequency: PromiseOrValue<BigNumberish>,
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -731,7 +731,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       description: PromiseOrValue<string>,
-      subtype: PromiseOrValue<BigNumberish>,
+      frequency: PromiseOrValue<BigNumberish>,
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
