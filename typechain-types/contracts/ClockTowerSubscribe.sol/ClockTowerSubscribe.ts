@@ -248,10 +248,12 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
+    "ProviderLog(bytes32,address,uint40,bool,uint8)": EventFragment;
     "SubscriberLog(bytes32,address,uint40,uint256,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProviderLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubscriberLog"): EventFragment;
 }
 
@@ -267,6 +269,20 @@ export type CallerLogEvent = TypedEvent<
 >;
 
 export type CallerLogEventFilter = TypedEventFilter<CallerLogEvent>;
+
+export interface ProviderLogEventObject {
+  id: string;
+  provider: string;
+  timestamp: number;
+  success: boolean;
+  errorCode: number;
+}
+export type ProviderLogEvent = TypedEvent<
+  [string, string, number, boolean, number],
+  ProviderLogEventObject
+>;
+
+export type ProviderLogEventFilter = TypedEventFilter<ProviderLogEvent>;
 
 export interface SubscriberLogEventObject {
   id: string;
@@ -553,15 +569,30 @@ export interface ClockTowerSubscribe extends BaseContract {
     "CallerLog(uint40,uint40,address,bool)"(
       timestamp?: null,
       checkedDay?: null,
-      caller?: null,
+      caller?: PromiseOrValue<string> | null,
       isFinished?: null
     ): CallerLogEventFilter;
     CallerLog(
       timestamp?: null,
       checkedDay?: null,
-      caller?: null,
+      caller?: PromiseOrValue<string> | null,
       isFinished?: null
     ): CallerLogEventFilter;
+
+    "ProviderLog(bytes32,address,uint40,bool,uint8)"(
+      id?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      success?: null,
+      errorCode?: null
+    ): ProviderLogEventFilter;
+    ProviderLog(
+      id?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      success?: null,
+      errorCode?: null
+    ): ProviderLogEventFilter;
 
     "SubscriberLog(bytes32,address,uint40,uint256,bool)"(
       id?: PromiseOrValue<BytesLike> | null,

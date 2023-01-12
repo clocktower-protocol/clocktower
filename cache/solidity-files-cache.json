@@ -586,8 +586,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1673541874780,
-      "contentHash": "fcc5897dc14dd38b951452946e6b2e61",
+      "lastModificationDate": 1673549512385,
+      "contentHash": "f76ab5242977e83aa40839d8adf46e89",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.9",
@@ -620,7 +620,7 @@
       ],
       "artifacts": [
         "ClockTowerSubscribe",
-        "ERC20Permit"
+        "ERC20"
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
