@@ -552,7 +552,36 @@ describe("Clocktower", function(){
             
             await time.increaseTo(twoHoursAhead);
 
-            while(await hardhatClockSubscribe.remit());
+            //await hardhatClockSubscribe.remit();
+
+            let isFinished = false;
+
+            while(!isFinished) {
+                //gets emit
+                let tx = await hardhatClockSubscribe.remit();
+                let rc = await tx.wait();
+                let event = rc.events?.find(event => event.event === 'RemitLog')
+                let args = event?.args
+                isFinished = args?.isFinished;
+            }
+
+            /*
+            //gets emit
+            const tx = await hardhatClockSubscribe.remit();
+            const rc = await tx.wait();
+            const event = rc.events?.find(event => event.event === 'RemitLog')
+            const args = event?.args
+            console.log(args?.isFinished);
+
+            //gets emit
+            const tx2 = await hardhatClockSubscribe.remit();
+            const rc2 = await tx2.wait();
+            const event2 = rc2.events?.find(event => event.event === 'RemitLog')
+            const args2 = event2?.args
+            console.log(args2?.isFinished);
+            */
+
+            //while(await hardhatClockSubscribe.remit());
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
             let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)
