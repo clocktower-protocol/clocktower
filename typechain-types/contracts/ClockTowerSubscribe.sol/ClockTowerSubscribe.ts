@@ -247,24 +247,38 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "SubLog(bytes32,address,uint40,bool)": EventFragment;
+    "RemitLog(uint40,address,bool)": EventFragment;
+    "SubPaymentLog(bytes32,address,uint40,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "SubLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RemitLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SubPaymentLog"): EventFragment;
 }
 
-export interface SubLogEventObject {
-  subId: string;
+export interface RemitLogEventObject {
+  timestamp: number;
+  caller: string;
+  isFinished: boolean;
+}
+export type RemitLogEvent = TypedEvent<
+  [number, string, boolean],
+  RemitLogEventObject
+>;
+
+export type RemitLogEventFilter = TypedEventFilter<RemitLogEvent>;
+
+export interface SubPaymentLogEventObject {
+  id: string;
   subscriber: string;
   timestamp: number;
   success: boolean;
 }
-export type SubLogEvent = TypedEvent<
+export type SubPaymentLogEvent = TypedEvent<
   [string, string, number, boolean],
-  SubLogEventObject
+  SubPaymentLogEventObject
 >;
 
-export type SubLogEventFilter = TypedEventFilter<SubLogEvent>;
+export type SubPaymentLogEventFilter = TypedEventFilter<SubPaymentLogEvent>;
 
 export interface ClockTowerSubscribe extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -508,7 +522,7 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
-    remit(overrides?: CallOverrides): Promise<boolean>;
+    remit(overrides?: CallOverrides): Promise<void>;
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
@@ -534,18 +548,29 @@ export interface ClockTowerSubscribe extends BaseContract {
   };
 
   filters: {
-    "SubLog(bytes32,address,uint40,bool)"(
-      subId?: PromiseOrValue<BytesLike> | null,
+    "RemitLog(uint40,address,bool)"(
+      timestamp?: null,
+      caller?: null,
+      isFinished?: null
+    ): RemitLogEventFilter;
+    RemitLog(
+      timestamp?: null,
+      caller?: null,
+      isFinished?: null
+    ): RemitLogEventFilter;
+
+    "SubPaymentLog(bytes32,address,uint40,bool)"(
+      id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       success?: null
-    ): SubLogEventFilter;
-    SubLog(
-      subId?: PromiseOrValue<BytesLike> | null,
+    ): SubPaymentLogEventFilter;
+    SubPaymentLog(
+      id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       success?: null
-    ): SubLogEventFilter;
+    ): SubPaymentLogEventFilter;
   };
 
   estimateGas: {
