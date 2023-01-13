@@ -369,38 +369,8 @@ contract ClockTowerSubscribe {
 
     //VIEW FUNCTIONS -----------------------------------------------
 
-    function userNotZero() view private {
-        require(msg.sender != address(0), "3");
-    }
-
-    function erc20IsApproved(address erc20Contract) private view returns(bool result) {
-        address[] memory approved = approvedERC20;
-
-        result = false;
-
-        for(uint i; i < approved.length; i++) {
-            if(erc20Contract == approved[i]) {
-                result = true;
-            }
-        }
-    }
-
     function getFee() external view returns (uint) {
         return fee;
-    }
-
-      //fetches subscription from day maps by id
-    function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
-
-          Subscription[] memory subList = subscriptionMap[uint(index.frequency)][index.dueDay];
-
-            //searchs for subscription in day map
-            for(uint j; j < subList.length; j++) {
-                if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                }
-            }
-          return subscription;
     }
 
     //subscriptions by account
@@ -511,6 +481,36 @@ contract ClockTowerSubscribe {
 
     //PRIVATE FUNCTIONS----------------------------------------------
 
+     //fetches subscription from day maps by id
+    function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
+
+          Subscription[] memory subList = subscriptionMap[uint(index.frequency)][index.dueDay];
+
+            //searchs for subscription in day map
+            for(uint j; j < subList.length; j++) {
+                if(subList[j].id == index.id) {
+                        subscription = subList[j];
+                }
+            }
+          return subscription;
+    }
+
+     function userNotZero() view private {
+        require(msg.sender != address(0), "3");
+    }
+
+    function erc20IsApproved(address erc20Contract) private view returns(bool result) {
+        address[] memory approved = approvedERC20;
+
+        result = false;
+
+        for(uint i; i < approved.length; i++) {
+            if(erc20Contract == approved[i]) {
+                result = true;
+            }
+        }
+    }
+
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
@@ -573,7 +573,7 @@ contract ClockTowerSubscribe {
 
 
     //EXTERNAL FUNCTIONS----------------------------------------
-    //FIXME: Malicious subscriber could subscribe lots of times to subscription and then call remit()
+    //If fee on fails is on, Malicious subscriber could subscribe lots of times to subscription and then call remit()
     //Need to make sure subscribe() is always more expensive than the fee on a single subscription remit
     //Or in other words, a fee can never be higher than gas cost to subscribe
 
@@ -845,7 +845,7 @@ contract ClockTowerSubscribe {
                             } else {
                                 remitCounter++;
                 
-                                //FIXME: could be an exploit
+                                //could be an exploit
                                 //adds fee on fails
                                // totalFee += subFee;
 
