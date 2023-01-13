@@ -4,7 +4,7 @@
 pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
-interface ERC20{
+interface ERC20Permit{
 function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
   function approve(address spender, uint tokens) external returns (bool);
@@ -130,6 +130,12 @@ contract ClockTowerSubscribe {
         uint16 weekDay;
         uint16 quarterDay;
         uint16 yearDay;
+    }
+
+    //struct for fee estimates
+    struct FeeEstimate {
+        uint fee;
+        address token;
     }
 
     //Events-------------------------------------
@@ -417,6 +423,90 @@ contract ClockTowerSubscribe {
         return subViews;
     }
 
+    //function that sends back array of fees per subscription
+    function feeEstimate() external view returns(FeeEstimate[] memory) {
+         //if gas is above max gas don't call function
+        require(tx.gasprice < maxGasPrice, "Gas price too high");
+
+        //gets current time slot based on day
+        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
+
+        require(_currentTimeSlot > lastCheckedDay, "14");
+
+        //calls time function
+        Time memory time = unixToTime(block.timestamp);
+
+        uint remitCounter;
+        uint subCounter;
+
+        FeeEstimate[] memory feeArray = new FeeEstimate[](maxRemits);
+
+        //gets subscriptions from mappings
+       
+        //loops through types
+        for(uint s = 0; s <= 3; s++) {
+
+            uint16 timeTrigger;
+            if(s == uint(Frequency.WEEKLY)){
+                timeTrigger = time.weekDay;
+            } 
+            if(s == uint(Frequency.MONTHLY)) {
+                timeTrigger = time.day;
+            } 
+            if(s == uint(Frequency.QUARTERLY)) {
+                timeTrigger = time.quarterDay;
+            } 
+            if(s == uint(Frequency.YEARLY)) {
+                timeTrigger = time.yearDay;
+            }
+            
+            //loops through subscriptions
+            for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+
+                //checks if cancelled
+                if(!subscriptionMap[s][timeTrigger][i].cancelled) {
+
+                    bytes32 id = subscriptionMap[s][timeTrigger][i].id;
+                    address token = subscriptionMap[s][timeTrigger][i].token;
+                    uint amount = subscriptionMap[s][timeTrigger][i].amount;
+
+                    FeeEstimate memory feeEst;
+              
+                    //calculates fee balance
+                    uint subFee = (amount * fee / 10000) - amount;
+                    uint totalFee;
+                 
+                    //loops through subscribers
+                    for(uint j; j < subscribersMap[id].length; j++) {
+
+                        //checks for max remit and returns false if limit hit
+                        if(remitCounter == maxRemits) {
+                       
+                            return feeArray;
+                        }
+
+                        //if remits are less than max remits
+                        if(pageStart.id == 0 || pageGo == true) {
+                        
+                            remitCounter++;
+                                
+                            //adds fee 
+                            totalFee += subFee;
+                          
+                           
+                            feeEst = FeeEstimate(totalFee, token);
+                            feeArray[subCounter] = feeEst;
+                            subCounter++;
+                        }
+                    }
+                }
+            }
+        }
+        return feeArray;
+    }
+    
+    
+
     //PRIVATE FUNCTIONS----------------------------------------------
 
     //sets Subscription
@@ -482,9 +572,8 @@ contract ClockTowerSubscribe {
 
     //EXTERNAL FUNCTIONS----------------------------------------
     //FIXME: Malicious subscriber could subscribe lots of times to subscription and then call remit()
-    //Could make this uneconomical through fee on subscribe
+    //Need to make sure subscribe() is always more expensive than the fee on a single subscription remit
 
-    //TODO: could try to lower gas: only pass parameters, use requires instead of existence check
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
@@ -496,7 +585,7 @@ contract ClockTowerSubscribe {
         //require(fixedFee <= msg.value, "5");
 
         //check if there is enough allowance
-        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
+        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
     
         //TODO: turn on after testing
         //cant subscribe to subscription you own
@@ -512,6 +601,7 @@ contract ClockTowerSubscribe {
 
     }
     
+    //TODO: add ability for provider to unsubscribe user
     function unsubscribe(bytes32 id) external payable {
 
         //cannot be sent from zero address
@@ -615,6 +705,7 @@ contract ClockTowerSubscribe {
     //Might want to require unlimited allowance for subscriptions
 
     //REQUIRES PROVIDERS AND SUBSCRIBERS TO HAVE ALLOWANCES SET
+    //REQUIRES UNLIMITED ALLOWANCE FOR PROVIDERS
 
     //completes money transfer for subscribers
     function remit() external isAdmin {
@@ -622,7 +713,7 @@ contract ClockTowerSubscribe {
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
 
-        //gets current time slot based on hour
+        //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedDay, "14");
@@ -666,7 +757,7 @@ contract ClockTowerSubscribe {
 
                     //TODO: do we mark the subscriber transactions as failed or just skip them?
                     //checks if provider still has required unlimited allowance
-                    if(ERC20(token).allowance(provider, address(this)) < 2**255) {
+                    if(ERC20Permit(token).allowance(provider, address(this)) < 2**255) {
                         emit ProviderLog(id, provider, uint40(block.timestamp), false, 15);
                         break;
                     }
@@ -683,10 +774,10 @@ contract ClockTowerSubscribe {
                             pageStart = PageStart(id, j);
                             pageGo = false;
                             //charges total fee to provider for batch
-                            if(ERC20(token).allowance(provider, address(this)) >= totalFee
+                            if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
                             && 
-                            ERC20(token).balanceOf(provider) < totalFee) {
-                                require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
+                            ERC20Permit(token).balanceOf(provider) < totalFee) {
+                                require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                             }   
                             emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
                             return;
@@ -704,9 +795,9 @@ contract ClockTowerSubscribe {
                             address subscriber = subscribersMap[id][j];
 
                             //check if there is enough allowance and balance
-                            if(ERC20(token).allowance(subscriber, address(this)) >= amount
+                            if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20(token).balanceOf(subscriber) > amount) {
+                            ERC20Permit(token).balanceOf(subscriber) > amount) {
                                 remitCounter++;
                                 
                                 //charges fee 
@@ -716,13 +807,13 @@ contract ClockTowerSubscribe {
 
                                 //remits from subscriber to provider
                                 console.log(remitCounter);
-                                require(ERC20(token).transferFrom(subscriber, provider, amount));
+                                require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                             } else {
                                 remitCounter++;
                 
                                 //FIXME: could be an exploit
                                 //adds fee on fails
-                               // totalFee += subFee;
+                                totalFee += subFee;
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
@@ -730,9 +821,9 @@ contract ClockTowerSubscribe {
                             }
                             //charges provider on last subscriber in list
                             if(j == (subscribersMap[id].length - 1)) {
-                                if(ERC20(token).balanceOf(provider) < totalFee) {
+                                if(ERC20Permit(token).balanceOf(provider) < totalFee) {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), true, 0);
-                                    require(ERC20(token).transferFrom(provider, msg.sender, totalFee));
+                                    require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                                 } else {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), true, 17);
                                 } 

@@ -552,6 +552,9 @@ describe("Clocktower", function(){
             
             await time.increaseTo(twoHoursAhead);
 
+            let feeEstimate = await hardhatClockSubscribe.feeEstimate();
+            console.log(String(feeEstimate[1].fee) + "------" + feeEstimate[1].token);
+
             //await hardhatClockSubscribe.remit();
 
             let isFinished = false;

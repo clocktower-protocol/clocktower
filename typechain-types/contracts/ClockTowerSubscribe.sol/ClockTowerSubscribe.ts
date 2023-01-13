@@ -63,6 +63,16 @@ export declare namespace ClockTowerSubscribe {
     description: string;
   };
 
+  export type FeeEstimateStruct = {
+    fee: PromiseOrValue<BigNumberish>;
+    token: PromiseOrValue<string>;
+  };
+
+  export type FeeEstimateStructOutput = [BigNumber, string] & {
+    fee: BigNumber;
+    token: string;
+  };
+
   export type SubViewStruct = {
     subscription: ClockTowerSubscribe.SubscriptionStruct;
     status: PromiseOrValue<BigNumberish>;
@@ -101,6 +111,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "changeMaxGasPrice(uint256)": FunctionFragment;
     "changeMaxRemits(uint256)": FunctionFragment;
     "createSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
+    "feeEstimate()": FunctionFragment;
     "getAccountSubscriptions(bool)": FunctionFragment;
     "getFee()": FunctionFragment;
     "remit()": FunctionFragment;
@@ -121,6 +132,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "changeMaxGasPrice"
       | "changeMaxRemits"
       | "createSubscription"
+      | "feeEstimate"
       | "getAccountSubscriptions"
       | "getFee"
       | "remit"
@@ -168,6 +180,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "feeEstimate",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getAccountSubscriptions",
@@ -223,6 +239,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "createSubscription",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "feeEstimate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -369,6 +389,10 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    feeEstimate(
+      overrides?: CallOverrides
+    ): Promise<[ClockTowerSubscribe.FeeEstimateStructOutput[]]>;
+
     getAccountSubscriptions(
       bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -453,6 +477,10 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  feeEstimate(
+    overrides?: CallOverrides
+  ): Promise<ClockTowerSubscribe.FeeEstimateStructOutput[]>;
+
   getAccountSubscriptions(
     bySubscriber: PromiseOrValue<boolean>,
     overrides?: CallOverrides
@@ -532,6 +560,10 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    feeEstimate(
+      overrides?: CallOverrides
+    ): Promise<ClockTowerSubscribe.FeeEstimateStructOutput[]>;
 
     getAccountSubscriptions(
       bySubscriber: PromiseOrValue<boolean>,
@@ -655,6 +687,8 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    feeEstimate(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAccountSubscriptions(
       bySubscriber: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -735,6 +769,8 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    feeEstimate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAccountSubscriptions(
       bySubscriber: PromiseOrValue<boolean>,
