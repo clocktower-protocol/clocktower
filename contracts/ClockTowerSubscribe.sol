@@ -481,6 +481,9 @@ contract ClockTowerSubscribe {
 
 
     //EXTERNAL FUNCTIONS----------------------------------------
+    //FIXME: Malicious subscriber could subscribe lots of times to subscription and then call remit()
+    //Could make this uneconomical through fee on subscribe
+
     //TODO: could try to lower gas: only pass parameters, use requires instead of existence check
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
@@ -560,9 +563,7 @@ contract ClockTowerSubscribe {
                subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
             }
         }
-    }
-    
-    
+    } 
     
     //allows provider user to create a subscription
     function createSubscription(uint amount, address token, string calldata description, Frequency frequency, uint16 dueDay) external payable {
@@ -705,23 +706,27 @@ contract ClockTowerSubscribe {
                             //check if there is enough allowance and balance
                             if(ERC20(token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20(token).balanceOf(subscriber) < amount) {
+                            ERC20(token).balanceOf(subscriber) > amount) {
                                 remitCounter++;
-                                //charges fee on fails 
+                                
+                                //charges fee 
                                 totalFee += subFee;
-                                //log as failed
-                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
-                            } else {
-                                remitCounter++;
-                                //adds fee
-                                totalFee += subFee;
-
                                 //log as succeeded
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
 
                                 //remits from subscriber to provider
                                 console.log(remitCounter);
                                 require(ERC20(token).transferFrom(subscriber, provider, amount));
+                            } else {
+                                remitCounter++;
+                
+                                //FIXME: could be an exploit
+                                //adds fee on fails
+                               // totalFee += subFee;
+
+                                //log as failed
+                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
+                            
                             }
                             //charges provider on last subscriber in list
                             if(j == (subscribersMap[id].length - 1)) {
