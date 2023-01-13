@@ -549,6 +549,8 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[4].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[5].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[6].subscription, testParams)
+
+            //await hardhatClockSubscribe.unsubscribeByProvider(otherAccount.address, subscriptions[6].subscription.id)
             
             await time.increaseTo(twoHoursAhead);
 
