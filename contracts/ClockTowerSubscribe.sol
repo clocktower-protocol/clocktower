@@ -37,6 +37,8 @@ contract ClockTowerSubscribe {
     15 = Token allowance must be unlimited for subscriptions
     16 = Must have admin privileges
     17 = Token balance insufficient
+    18 = Must be provider of subscription
+    19 = Subscriber not subscribed
 
     */
 
@@ -573,6 +575,7 @@ contract ClockTowerSubscribe {
     //EXTERNAL FUNCTIONS----------------------------------------
     //FIXME: Malicious subscriber could subscribe lots of times to subscription and then call remit()
     //Need to make sure subscribe() is always more expensive than the fee on a single subscription remit
+    //Or in other words, a fee can never be higher than gas cost to subscribe
 
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
@@ -621,6 +624,36 @@ contract ClockTowerSubscribe {
         }
 
         deleteSubFromSubscription(id, msg.sender);
+    }
+
+     //lets provider unsubscribe subscriber
+    function unsubscribeByProvider(address subscriber, bytes32 id) external {
+
+        userNotZero();
+
+        //checks mgs.sender is provider of sub
+        SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
+        bool isProvider;
+        for(uint i; i < indexes.length; i++) {
+            if(indexes[i].id == id) {
+                isProvider = true;
+            }
+        }
+        require(isProvider, "18");
+        
+        //checks subscriber is subscribed if so marks them as unsubscribed
+        address[] memory subscribers = subscribersMap[id];
+        bool isSubscribed;
+        for(uint i; i < subscribers.length; i++) {
+            if(subscribers[i] == subscriber){
+                isSubscribed = true;
+                accountMap[subscriber].subscriptions[i].status = Status.UNSUBSCRIBED;
+            }
+        }
+        require(isSubscribed, "19");
+
+        deleteSubFromSubscription(id, subscriber);
+
     }
         
     function cancelSubscription(Subscription calldata subscription) external {
