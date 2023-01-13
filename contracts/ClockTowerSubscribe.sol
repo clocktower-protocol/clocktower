@@ -631,6 +631,7 @@ contract ClockTowerSubscribe {
 
         userNotZero();
 
+        
         //checks mgs.sender is provider of sub
         SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
         bool isProvider;
@@ -846,7 +847,7 @@ contract ClockTowerSubscribe {
                 
                                 //FIXME: could be an exploit
                                 //adds fee on fails
-                                totalFee += subFee;
+                               // totalFee += subFee;
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
