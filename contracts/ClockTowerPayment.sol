@@ -310,6 +310,83 @@ contract ClockTowerPayment {
         return totalTransactions;
     }
     
+//PRIVATE TRANSACTIONS------------------------------------------------
+      //TODO: could add emit of transaction confirm hash
+    function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
+
+        uint ethTotal;
+        uint index;
+        Transaction[] memory sortedTransactions = new Transaction[](transactions.length);
+
+        //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
+        for(uint i; i < transactions.length; i++) {
+            
+            if(transactions[i].token == address(0)) {
+                ethTotal += transactions[i].payload;
+                sortedTransactions[index] = transactions[i];
+                index++;
+                } else {
+                //if account doesn't have enough allowance consider transaction to have failed and delete it
+                if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
+                    timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
+                } else {
+                    sortedTransactions[index] = transactions[i];
+                    index++;
+                    timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
+                }
+            }
+        }
+
+        //reverts entire procedure if theres not enough eth
+        require(address(this).balance > ethTotal, "11");
+
+        for(uint j; j < sortedTransactions.length; j++) {
+            //decreases claimsBalance
+            tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
+            
+            if(sortedTransactions[j].token == address(0)){
+                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
+                bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
+                require(success, "12");
+            } else {
+                //transfers Token
+                require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
+            }
+        }        
+    }
+
+     //sets Transaction
+    function setTransaction(address sender, address payable receiver, address token, uint40 timeTrigger, uint payload) private view returns(Transaction memory _transaction){
+        
+            //creates id hash
+            bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
+            
+            _transaction = Transaction(id, sender, receiver, token,timeTrigger, Status.PENDING, payload);
+
+            return _transaction;
+    }
+
+     function addAccountTransaction(uint40 timeTrigger) private {
+
+        //new account
+        if(accountMap[msg.sender].exists == false) {
+            accountMap[msg.sender].accountAddress = msg.sender;
+            //adds to lookup table
+            accountLookup.push() = msg.sender;
+            accountMap[msg.sender].exists = true;
+            accountMap[msg.sender].timeTriggers.push() = timeTrigger;
+        } else {
+
+            //gets lookup arrays from account struct
+            uint40[] memory accountTriggers = accountMap[msg.sender].timeTriggers;
+            
+            //if doesn't already exist adds time trigger to account list
+            if(!isInTimeArray(timeTrigger, accountTriggers)) {
+                accountMap[msg.sender].timeTriggers.push() = timeTrigger;
+            }
+            
+        }
+    }
 
     function futureOnHour(uint40 unixTime) view private {
          //require transactions to be in the future and to be on the hour
@@ -412,18 +489,7 @@ contract ClockTowerPayment {
             }
         }
     }
-
-    
-    function getFee() external view returns (uint) {
-        return fee;
-    }
-
-    //gets claims per token
-    function getTotalClaims(address token) external view returns (uint) {
-        return tokenClaims[msg.sender][token];
-    }
-    
-    
+  
     //checks if value is in array
     function isInTimeArray(uint40 value, uint40[] memory array) private pure returns (bool) {
     
@@ -458,6 +524,19 @@ contract ClockTowerPayment {
         unixTime = timeTrigger*3600;
         return unixTime;
     }
+
+    //VIEW FUNCTIONS------------------------------------------------------------
+
+      
+    function getFee() external view returns (uint) {
+        return fee;
+    }
+
+    //gets claims per token
+    function getTotalClaims(address token) external view returns (uint) {
+        return tokenClaims[msg.sender][token];
+    }
+    
 
      //gets transactions from account
     function getAccountTransactions() external view returns (Transaction[] memory){
@@ -499,38 +578,7 @@ contract ClockTowerPayment {
         return totalTransactions;
     }
     
-    //sets Transaction
-    function setTransaction(address sender, address payable receiver, address token, uint40 timeTrigger, uint payload) private view returns(Transaction memory _transaction){
-        
-            //creates id hash
-            bytes32 id = keccak256(abi.encodePacked(sender, timeTrigger, block.timestamp));
-            
-            _transaction = Transaction(id, sender, receiver, token,timeTrigger, Status.PENDING, payload);
-
-            return _transaction;
-    }
-
-     function addAccountTransaction(uint40 timeTrigger) private {
-
-        //new account
-        if(accountMap[msg.sender].exists == false) {
-            accountMap[msg.sender].accountAddress = msg.sender;
-            //adds to lookup table
-            accountLookup.push() = msg.sender;
-            accountMap[msg.sender].exists = true;
-            accountMap[msg.sender].timeTriggers.push() = timeTrigger;
-        } else {
-
-            //gets lookup arrays from account struct
-            uint40[] memory accountTriggers = accountMap[msg.sender].timeTriggers;
-            
-            //if doesn't already exist adds time trigger to account list
-            if(!isInTimeArray(timeTrigger, accountTriggers)) {
-                accountMap[msg.sender].timeTriggers.push() = timeTrigger;
-            }
-            
-        }
-    }
+  //EXTERNAL FUNCTIONS------------------------------------------------------------------
 
     function cancelTransaction(bytes32 id, uint40 unixTrigger, address token) payable external {
 
@@ -784,50 +832,6 @@ contract ClockTowerPayment {
             accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
         }
-    }
-
-     //TODO: could add emit of transaction confirm hash
-    function sendTransactions(Transaction[] memory transactions) stopInEmergency private {
-
-        uint ethTotal;
-        uint index;
-        Transaction[] memory sortedTransactions = new Transaction[](transactions.length);
-
-        //makes sure contract has enough ETH or tokens to pay for transaction strips out failed transactions
-        for(uint i; i < transactions.length; i++) {
-            
-            if(transactions[i].token == address(0)) {
-                ethTotal += transactions[i].payload;
-                sortedTransactions[index] = transactions[i];
-                index++;
-                } else {
-                //if account doesn't have enough allowance consider transaction to have failed and delete it
-                if(ERC20Permit(transactions[i].token).allowance(transactions[i].sender, address(this)) < transactions[i].payload || ERC20Permit(transactions[i].token).balanceOf(transactions[i].sender) < transactions[i].payload) {
-                    timeMap[transactions[i].timeTrigger][i].status = Status.FAILED;
-                } else {
-                    sortedTransactions[index] = transactions[i];
-                    index++;
-                    timeMap[transactions[i].timeTrigger][i].status = Status.SENT;
-                }
-            }
-        }
-
-        //reverts entire procedure if theres not enough eth
-        require(address(this).balance > ethTotal, "11");
-
-        for(uint j; j < sortedTransactions.length; j++) {
-            //decreases claimsBalance
-            tokenClaims[sortedTransactions[j].sender][sortedTransactions[j].token] -= sortedTransactions[j].payload;
-            
-            if(sortedTransactions[j].token == address(0)){
-                //transfers ETH (Note: this doesn't need to be composible so send() is more secure than call() to avoid re-entry)
-                bool success = sortedTransactions[j].receiver.send(sortedTransactions[j].payload);
-                require(success, "12");
-            } else {
-                //transfers Token
-                require(ERC20Permit(sortedTransactions[j].token).transferFrom(sortedTransactions[j].sender, sortedTransactions[j].receiver, sortedTransactions[j].payload));
-            }
-        }        
     }
 
     //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
