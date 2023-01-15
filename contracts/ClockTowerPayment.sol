@@ -539,7 +539,7 @@ contract ClockTowerPayment {
     
 
      //gets transactions from account
-    function getAccountTransactions() external view returns (Transaction[] memory){
+    function getAccountPayments() external view returns (Transaction[] memory){
         //account info can only be accessed by itself
        
         uint40[] memory timeTriggers = accountMap[msg.sender].timeTriggers;
@@ -622,7 +622,7 @@ contract ClockTowerPayment {
 
     //REQUIRES unlimited allowance per token
    //adds to list of transactions 
-    function addTransaction(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
+    function addPayment(address payable receiver, uint40 unixTime, uint payload, address token) stopInEmergency payable external {
 
          //cannot be sent from zero address
         userNotZero();
@@ -666,7 +666,7 @@ contract ClockTowerPayment {
 
 
     //adds to list of transactions 
-    function addPermitTransaction(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
+    function addPermitPayment(address payable receiver, uint40 unixTime, uint payload, address token, Permit calldata permit) stopInEmergency payable external {
 
          //cannot be sent from zero address
         userNotZero();
@@ -714,7 +714,7 @@ contract ClockTowerPayment {
 
     //REQUIRE maximum 100 transactions (based on gas limit per block)
     //REQUIRE approval for token totals to be done in advance of calling this function
-    function addBatchTransactions(Batch[] memory batch) stopInEmergency payable external {
+    function addBatchPayments(Batch[] memory batch) stopInEmergency payable external {
 
         //cannot be sent from zero address
         userNotZero();
@@ -835,7 +835,7 @@ contract ClockTowerPayment {
     }
 
     //checks list of blocks between now and when it was last checked (ONLY CAN BE CALLED BY ADMIN CURRENTLY)
-    function sendTime() external isAdmin {
+    function sendPayments() external isAdmin {
 
         //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
@@ -856,7 +856,7 @@ contract ClockTowerPayment {
     }
 
     //view function that checks if any transactions are in line to be sent
-    function checkTime() external view isAdmin returns (bool) {
+    function checkPayments() external view isAdmin returns (bool) {
          //gets current time slot based on hour
         uint40 _currentTimeSlot = unixToHours(uint40(block.timestamp));
 
