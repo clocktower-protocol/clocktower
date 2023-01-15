@@ -29,6 +29,8 @@ With this in mind we have chosen the following time trigger ranges that can repr
 ## Data Structures
 The following are the data structs required by external functions:
 
+### Subscription Data
+
  struct Subscription {
     bytes32 id;
     uint amount;
@@ -75,6 +77,48 @@ enum Status {
 - CANCELLED = 1
 - UNSUBSCRIBED = 3
 
+### Future Payment Data
+
+struct Permit {
+    address owner;
+    address spender;
+    uint value;
+    uint deadline;
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+
+struct Batch {
+    address payable receiver;
+    uint40 unixTime;
+    uint payload;
+    address token;
+}
+
+struct Transaction {
+    bytes32 id;
+    address sender;
+    address payable receiver;
+    address token;
+    uint40 timeTrigger;
+    Status status;
+    uint payload;
+}
+
+enum Status {
+    PENDING,
+    SENT,
+    FAILED,
+    CANCELLED
+}
+
+- PENDING = 0
+- SENT = 1
+- FAILED = 2
+- CANCELLED = 3
+
+
 ## Global Variables
 
 ## Functions
@@ -116,11 +160,6 @@ Allows provider to cancel subscription. All existing subscribers will no longer 
 createSubscription(uint amount, address token, string description, Frequency frequency, uint16 dueDay)
 ```
 Allows provider to create a new subscription
-##### Remit
-```
-remit()
-```
-Allows caller to remit latest subcriptions
 #### View Functions
 ##### Get Account Subscriptions
 ```
@@ -134,8 +173,47 @@ If bySubscriber is true it gets a list of subscriptions they are subscribed to. 
 feeEstimate() returns(FeeEstimate[]) 
 ```
 Returns an object showing the next batch of remits and possible fees
+### Future Payment Functions
+#### Input Functions
+##### Add Payment
+```
+addPayment(address receiver, uint40 unixTime, uint payload, address token)
+```
+Allows user to add future payment. 
 
+Requires 
+- Allowance to be set.
+##### Add Permit Payment
+```
+addPermitTransaction(address receiver, uint40 unixTime, uint payload, address token, Permit permit)
+```
+Allows user to add future payment in one transaction using passed permit object. 
+##### Add Batch Payment
+```
+addBatchPayments(Batch[] batch)
+```
+Allows user to add a batch future payment using batch object. 
 
+Requires:
+- Allowance to be set
+- Batch amount must be less than 100 payments
+##### Cancel Payment
+```
+cancelPayment(bytes32 id, uint40 unixTrigger, address token)
+```
+Allows user to cancel a pending payment
+
+Requires:
+- Payment must have been created by user
+#### View Functions
+##### Get Account Payments
+```
+getAccountPayments() returns (Transaction[])
+```
+Returns an array of transaction objects
+
+Requires:
+- Only for user's account
 
 ```shell
 REPORT_GAS=true npx hardhat test

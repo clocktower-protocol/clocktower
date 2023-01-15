@@ -158,8 +158,8 @@ describe("Clocktower", function(){
 
         //creates several transaactions to test transaction list
        // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
-        await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
-        await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
+        await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
+        await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
     
          //sends 100 clocktoken to other account
         // await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
@@ -201,8 +201,8 @@ describe("Clocktower", function(){
 
         it("Should get transactions by account", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
-            let transactions: any = await hardhatClockPayment.getAccountTransactions();
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
+            let transactions: any = await hardhatClockPayment.getAccountPayments();
             
             expect(transactions[0].payload).to.equal(eth)
             expect(transactions[0].sender).to.equal(owner.address)
@@ -223,7 +223,7 @@ describe("Clocktower", function(){
         it("Should send eth with the transaction", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
            
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
             expect(
                 await ethers.provider.getBalance(hardhatClockPayment.address)
             ).to.equals(ethers.utils.parseEther("103.0"))
@@ -233,9 +233,9 @@ describe("Clocktower", function(){
         it("Should remove transaction", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //await hardhatClocktower.addTransaction(otherAccount.address, hourAhead, eth, testParams)
-            let transactions: any = await hardhatClockPayment.getAccountTransactions();
+            let transactions: any = await hardhatClockPayment.getAccountPayments();
             await hardhatClockPayment.cancelTransaction(transactions[0].id, transactions[0].timeTrigger, transactions[0].token)
-            let transactions2: any = await hardhatClockPayment.getAccountTransactions();
+            let transactions2: any = await hardhatClockPayment.getAccountPayments();
             expect(
                 transactions2.length
             ).lessThan(transactions.length);
@@ -249,7 +249,7 @@ describe("Clocktower", function(){
 
         it("Should send ether to addresses", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClockPayment.sendTime();
+            await hardhatClockPayment.sendPayments();
             expect(
                 await ethers.provider.getBalance(otherAccount.address)
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
@@ -289,12 +289,12 @@ describe("Clocktower", function(){
 
             //add batch
             // await hardhatClocktower.addBatchTransactions(transactions, testParams)
-            await hardhatClockPayment.addBatchTransactions(transactions, testParams)
+            await hardhatClockPayment.addBatchPayments(transactions, testParams)
 
             //gets total claims
             let claims = await hardhatClockPayment.getTotalClaims(clockTokenAddress);
 
-            let returnTransactions: any = await hardhatClockPayment.getAccountTransactions();
+            let returnTransactions: any = await hardhatClockPayment.getAccountPayments();
 
 
             expect(returnTransactions.length).to.equal(5)
@@ -346,7 +346,7 @@ describe("Clocktower", function(){
         it("Should change fee", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             await hardhatClockPayment.changeFee(102);
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero, testParams)
             let returnTransactions: any = await hardhatClockPayment.allTransactions();
             expect(returnTransactions.length).to.equal(3)
         })
@@ -367,7 +367,7 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
            // let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
 
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
 
             //expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(eth)
         })
@@ -381,14 +381,14 @@ describe("Clocktower", function(){
             //await hardhatCLOCKToken.approve(hardhatClocktower.address, eth)
             //signs permit
             let signedPermit = await setPermit(owner, hardhatClockPayment.address, "1", 1766556423)
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
             let signedPermit2 = await setPermit(owner, hardhatClockPayment.address, "1", 1766556423)
-            await hardhatClockPayment.addTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
 
             //moves time 2 hours to 2023/01/01 3:00
             //await time.increaseTo(1672563600);
             await time.increaseTo(twoHoursAhead);
-            await hardhatClockPayment.sendTime();
+            await hardhatClockPayment.sendPayments();
             expect(await hardhatCLOCKToken.balanceOf(otherAccount.address)).to.equal(ethers.utils.parseEther("102.0"))
         })
 
@@ -426,7 +426,7 @@ describe("Clocktower", function(){
             */
             
         
-            expect(await hardhatClockPayment.addPermitTransaction(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams))
+            expect(await hardhatClockPayment.addPermitPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams))
            // expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(ethers.utils.parseEther("1"));
 
         })
