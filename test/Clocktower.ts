@@ -32,9 +32,9 @@ describe("Clocktower", function(){
     let threeHoursAhead = twoHoursAhead + 3600;
 
     //CLOCKtoken address
-    const clockTokenAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+    const clockTokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
     //DAI address
-    const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+    //const daiAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
     const clockLibraryAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
     const clockPureAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
 
@@ -94,7 +94,7 @@ describe("Clocktower", function(){
         });
         */
         
-        const Clocktower = await ethers.getContractFactory("Clocktower")
+       // const Clocktower = await ethers.getContractFactory("Clocktower")
 
         const ClockToken = await ethers.getContractFactory("CLOCKToken");
 
@@ -105,7 +105,7 @@ describe("Clocktower", function(){
 
         const [owner, otherAccount] = await ethers.getSigners();
 
-        const hardhatClocktower = await Clocktower.deploy();
+        //const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribe.deploy();
         const hardhatClockPayment = await ClockPayment.deploy();
@@ -113,7 +113,7 @@ describe("Clocktower", function(){
 
         const addressZero = ethers.constants.AddressZero;
 
-        await hardhatClocktower.deployed();
+       // await hardhatClocktower.deployed();
         await hardhatCLOCKToken.deployed();
         await hardhatClockSubscribe.deployed();
         await hardhatClockPayment.deployed();
@@ -124,7 +124,7 @@ describe("Clocktower", function(){
         //await hardhatClockLibrary.deployed();
         //await hardhatClockPure.deployed();
 
-
+        console.log(hardhatCLOCKToken.address);
          //starts contract with 100 ETH
          const params = {
             from: owner.address,
@@ -151,7 +151,7 @@ describe("Clocktower", function(){
          //signs permit
          //let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
 
-        await hardhatCLOCKToken.approve(hardhatClocktower.address, infiniteApproval)
+      //  await hardhatCLOCKToken.approve(hardhatClocktower.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockSubscribe.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
         await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
@@ -168,13 +168,13 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
 
 
-        return { Clocktower, hardhatClocktower, owner, otherAccount, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
+        return {owner, otherAccount, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
     }
 
     //test sending ether
     describe("Sending Ether", function() {
         it("Should receive ether", async function() {
-            const {hardhatClocktower, owner, otherAccount, hardhatClockPayment} = await loadFixture(deployClocktowerFixture);
+            const {owner, otherAccount, hardhatClockPayment} = await loadFixture(deployClocktowerFixture);
             
             const params = {
                 from: owner.address,
@@ -255,7 +255,7 @@ describe("Clocktower", function(){
             ).to.greaterThan(ethers.utils.parseEther("1007.0"))
         })
         it("Should find day of month", async function() {
-            const {hardhatClocktower, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //expect(await hardhatClocktower.unixTimeToDayMonthYear(1739340000))
 
         })
@@ -281,8 +281,8 @@ describe("Clocktower", function(){
            // let transactions = [transaction1]
 
             //adds CLOCK to approved tokens
-            await hardhatClockPayment.addERC20Contract(clockTokenAddress)
-            await hardhatClockPayment.addERC20Contract(daiAddress)
+            await hardhatClockPayment.addERC20Contract(hardhatCLOCKToken.address)
+            //await hardhatClockPayment.addERC20Contract(daiAddress)
 
             //gives approval to token transfer
             await hardhatCLOCKToken.approve(hardhatClockPayment.address, eths)
@@ -292,7 +292,7 @@ describe("Clocktower", function(){
             await hardhatClockPayment.addBatchPayments(transactions, testParams)
 
             //gets total claims
-            let claims = await hardhatClockPayment.getTotalClaims(clockTokenAddress);
+            let claims = await hardhatClockPayment.getTotalClaims(hardhatCLOCKToken.address);
 
             let returnTransactions: any = await hardhatClockPayment.getAccountPayments();
 
@@ -362,12 +362,12 @@ describe("Clocktower", function(){
         it("Should add an ERC20 Transaction", async function() {
             const {hardhatCLOCKToken, hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockPayment.addERC20Contract(clockTokenAddress)
+            await hardhatClockPayment.addERC20Contract(hardhatCLOCKToken.address)
             //User gives approval for clocktower to use their tokens
             await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
            // let signedPermit = await setPermit(owner, hardhatClocktower.address, "1", 1766556423)
 
-            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(hardhatCLOCKToken.address), testParams)
 
             //expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(eth)
         })
@@ -375,15 +375,15 @@ describe("Clocktower", function(){
         it("Should send ERC20 Tokens", async function() {
             const {hardhatCLOCKToken, hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockPayment.addERC20Contract(clockTokenAddress)
+            await hardhatClockPayment.addERC20Contract(hardhatCLOCKToken.address)
 
             //User gives approval for clocktower to use their tokens
             //await hardhatCLOCKToken.approve(hardhatClocktower.address, eth)
             //signs permit
             let signedPermit = await setPermit(owner, hardhatClockPayment.address, "1", 1766556423)
-            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(hardhatCLOCKToken.address), testParams)
             let signedPermit2 = await setPermit(owner, hardhatClockPayment.address, "1", 1766556423)
-            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), testParams)
+            await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(hardhatCLOCKToken.address), testParams)
 
             //moves time 2 hours to 2023/01/01 3:00
             //await time.increaseTo(1672563600);
@@ -396,7 +396,7 @@ describe("Clocktower", function(){
         it("Should accept Permit signatures", async function() {
             const {hardhatCLOCKToken, hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockPayment.addERC20Contract(clockTokenAddress)
+            await hardhatClockPayment.addERC20Contract(hardhatCLOCKToken.address)
 
             //console.log(await hardhatCLOCKToken.DOMAIN_SEPARATOR());
             
@@ -426,7 +426,7 @@ describe("Clocktower", function(){
             */
             
         
-            expect(await hardhatClockPayment.addPermitPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(clockTokenAddress), signedPermit, testParams))
+            expect(await hardhatClockPayment.addPermitPayment(otherAccount.address, hourAhead, eth, ethers.utils.getAddress(hardhatCLOCKToken.address), signedPermit, testParams))
            // expect(await hardhatCLOCKToken.balanceOf(hardhatClocktower.address)).to.equal(ethers.utils.parseEther("1"));
 
         })
@@ -442,7 +442,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
 
             expect(await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
 
@@ -452,7 +452,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test" ,1, 15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test" ,2, 15, testParams)
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
@@ -474,7 +474,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test2",2,15, testParams)
 
@@ -491,7 +491,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
@@ -509,7 +509,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
@@ -529,7 +529,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress)
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
 
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
