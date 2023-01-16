@@ -929,7 +929,11 @@ contract ClockTowerSubscribe {
                                 //decrease feeBalance
                                 feeBalance[subscriber] -= subFee;
 
-                                //TODO: could force to unsubscribe
+                                //unsubscribes on failure
+                                deleteSubFromSubscription(id, subscriber);
+
+                                 //emit unsubscribe to log
+                                emit SubscribeLog(id, msg.sender, uint40(block.timestamp), amount, false);
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
