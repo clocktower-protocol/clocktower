@@ -8,6 +8,7 @@ interface ERC20Permit{
 function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
   function approve(address spender, uint tokens) external returns (bool);
+  function transfer(address to, uint value) external returns (bool);
   function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
   function allowance(address owner, address spender) external returns (uint);
 } 
@@ -39,7 +40,9 @@ contract ClockTowerSubscribe {
     17 = Token balance insufficient
     18 = Must be provider of subscription
     19 = Subscriber not subscribed
-
+    20 = Either token allowance or balance insufficient
+    21 = Problem sending refund
+    22 = Problem sending fees
     */
 
     //admin addresses
@@ -163,6 +166,14 @@ contract ClockTowerSubscribe {
         bool success,
         uint8 errorCode
     );
+
+    event SubscribeLog(
+        bytes32 indexed id,
+        address indexed subscriber,
+        uint40 timestamp,
+        uint amount,
+        bool subscribe
+    );
     //-------------------------------------------
 
     //--------------Account Mappings-------------
@@ -171,6 +182,9 @@ contract ClockTowerSubscribe {
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
     address[] private accountLookup;
+
+    //fee balance
+    mapping(address => uint) private feeBalance;
 
     //---------------------------------------------
 
@@ -588,7 +602,9 @@ contract ClockTowerSubscribe {
         //require(fixedFee <= msg.value, "5");
 
         //check if there is enough allowance
-        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount, "13");
+        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount
+                &&
+                ERC20Permit(subscription.token).balanceOf(msg.sender) >= subscription.amount, "20");
     
         //TODO: turn on after testing
         //cant subscribe to subscription you own
@@ -602,10 +618,19 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
 
+        //pays first subscription to fee balance
+        feeBalance[msg.sender] += subscription.amount;
+
+        //emit subscription to log
+        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+
+        //funds contract with fee balance
+        require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), subscription.amount));
+
     }
     
     //TODO: add ability for provider to unsubscribe user
-    function unsubscribe(bytes32 id) external payable {
+    function unsubscribe(Subscription memory subscription) external payable {
 
         //cannot be sent from zero address
         userNotZero();
@@ -618,16 +643,30 @@ contract ClockTowerSubscribe {
         SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
         indexes = accountMap[msg.sender].subscriptions;
         for(uint j; j < accountMap[msg.sender].subscriptions.length; j++){
-            if(indexes[j].id == id) {
+            if(indexes[j].id == subscription.id) {
                 accountMap[msg.sender].subscriptions[j].status = Status.UNSUBSCRIBED;
             }
         }
 
-        deleteSubFromSubscription(id, msg.sender);
+        deleteSubFromSubscription(subscription.id, msg.sender);
+
+        //emit unsubscribe to log
+        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, false);
+
+        //TODO: decide if you want to refund fees
+        /*
+        uint balance = feeBalance[msg.sender];
+
+        //zeros out fee balance
+        delete feeBalance[msg.sender];
+
+        //Refunds fee balance
+        require(ERC20Permit(subscription.token).transfer(msg.sender, balance), "21");
+        */
     }
 
      //lets provider unsubscribe subscriber
-    function unsubscribeByProvider(address subscriber, bytes32 id) external {
+    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
         userNotZero();
 
@@ -636,14 +675,14 @@ contract ClockTowerSubscribe {
         SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
         bool isProvider;
         for(uint i; i < indexes.length; i++) {
-            if(indexes[i].id == id) {
+            if(indexes[i].id == subscription.id) {
                 isProvider = true;
             }
         }
         require(isProvider, "18");
         
         //checks subscriber is subscribed if so marks them as unsubscribed
-        address[] memory subscribers = subscribersMap[id];
+        address[] memory subscribers = subscribersMap[subscription.id];
         bool isSubscribed;
         for(uint i; i < subscribers.length; i++) {
             if(subscribers[i] == subscriber){
@@ -653,7 +692,22 @@ contract ClockTowerSubscribe {
         }
         require(isSubscribed, "19");
 
-        deleteSubFromSubscription(id, subscriber);
+        deleteSubFromSubscription(subscription.id, subscriber);
+
+        //emit unsubscribe to log
+        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, false);
+
+        //TODO: decide if you want to refund fees
+        /*
+
+        uint balance = feeBalance[msg.sender];
+
+        //zeros out fee balance
+        delete feeBalance[msg.sender];
+
+        //Refunds fee balance
+        require(ERC20Permit(subscription.token).transfer(msg.sender, balance), "21");
+        */
 
     }
         
@@ -791,10 +845,12 @@ contract ClockTowerSubscribe {
 
                     //TODO: do we mark the subscriber transactions as failed or just skip them?
                     //checks if provider still has required unlimited allowance
+                    /*
                     if(ERC20Permit(token).allowance(provider, address(this)) < 2**255) {
                         emit ProviderLog(id, provider, uint40(block.timestamp), false, 15);
                         break;
                     }
+                    */
 
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
@@ -807,12 +863,18 @@ contract ClockTowerSubscribe {
                         if(remitCounter == maxRemits) {
                             pageStart = PageStart(id, j);
                             pageGo = false;
+                            
+                            /*
                             //charges total fee to provider for batch
                             if(ERC20Permit(token).allowance(provider, address(this)) >= totalFee
                             && 
                             ERC20Permit(token).balanceOf(provider) < totalFee) {
                                 require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                             }   
+                            */
+                            //sends fees to caller
+                            require(ERC20Permit(token).transfer(msg.sender, totalFee), "22");
+                            
                             emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
                             return;
                         }
@@ -832,35 +894,59 @@ contract ClockTowerSubscribe {
                             if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                             && 
                             ERC20Permit(token).balanceOf(subscriber) > amount) {
+                                //SUCCESS
                                 remitCounter++;
                                 
                                 //charges fee 
                                 totalFee += subFee;
-                                //log as succeeded
-                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
 
-                                //remits from subscriber to provider
-                                console.log(remitCounter);
-                                require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
+                                //checks feeBalance. If positive it decreases balance. 
+                                //If zero it sends subscription to contract as fee payment.
+                                if(feeBalance[subscriber] > subFee) {
+                                    feeBalance[subscriber] -= subFee;
+                               
+                                    //log as succeeded
+                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
+
+                                    //remits from subscriber to provider
+                                    console.log(remitCounter);
+                                    require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
+                                } else {
+                                    //log as succeeded
+                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
+
+                                    //remits to contract to refill fee balance
+                                    feeBalance[subscriber] += amount;
+                                    require(ERC20Permit(token).transferFrom(subscriber, address(this), amount));
+                                }
                             } else {
+                                //FAILURE
                                 remitCounter++;
                 
-                                //could be an exploit
                                 //adds fee on fails
-                               // totalFee += subFee;
+                                totalFee += subFee;
+
+                                //decrease feeBalance
+                                feeBalance[subscriber] -= subFee;
+
+                                //TODO: could force to unsubscribe
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
                             
                             }
-                            //charges provider on last subscriber in list
+                            //sends fees to caller on last subscriber in list
                             if(j == (subscribersMap[id].length - 1)) {
+                                /*
                                 if(ERC20Permit(token).balanceOf(provider) < totalFee) {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), true, 0);
                                     require(ERC20Permit(token).transferFrom(provider, msg.sender, totalFee));
                                 } else {
-                                    emit ProviderLog(id, provider, uint40(block.timestamp), true, 17);
+                                    emit ProviderLog(id, provider, uint40(block.timestamp), false, 17);
                                 } 
+                                */
+                               //sends fees to caller
+                               require(ERC20Permit(token).transfer(msg.sender, totalFee), "22");
                             }
                         }
                     }
