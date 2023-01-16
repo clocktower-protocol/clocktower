@@ -499,7 +499,7 @@ describe("Clocktower", function(){
 
             await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams)
 
-            await hardhatClockSubscribe.unsubscribe(subscriptions[1].subscription.id, testParams);
+            await hardhatClockSubscribe.unsubscribe(subscriptions[1].subscription, testParams);
 
             let result = await hardhatClockSubscribe.getAccountSubscriptions(true)
             
@@ -592,7 +592,7 @@ describe("Clocktower", function(){
             let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
             let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)
 
-            let expected = ethers.utils.parseEther("93.0");
+            let expected = ethers.utils.parseEther("86.0");
 
             expect(otherBalance).to.equal(expected)
             //expect(ownerBalance).to.equal()

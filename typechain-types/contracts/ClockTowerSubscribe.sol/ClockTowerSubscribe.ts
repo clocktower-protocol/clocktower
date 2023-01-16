@@ -119,8 +119,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unixToTime(uint256)": FunctionFragment;
-    "unsubscribe(bytes32)": FunctionFragment;
-    "unsubscribeByProvider(address,bytes32)": FunctionFragment;
+    "unsubscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
+    "unsubscribeByProvider((bytes32,uint256,address,address,bool,bool,uint8,uint16,string),address)": FunctionFragment;
   };
 
   getFunction(
@@ -211,11 +211,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "unsubscribe",
-    values: [PromiseOrValue<BytesLike>]
+    values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "unsubscribeByProvider",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [ClockTowerSubscribe.SubscriptionStruct, PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(
@@ -279,11 +279,13 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "ProviderLog(bytes32,address,uint40,bool,uint8)": EventFragment;
+    "SubscribeLog(bytes32,address,uint40,uint256,bool)": EventFragment;
     "SubscriberLog(bytes32,address,uint40,uint256,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProviderLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SubscribeLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubscriberLog"): EventFragment;
 }
 
@@ -313,6 +315,20 @@ export type ProviderLogEvent = TypedEvent<
 >;
 
 export type ProviderLogEventFilter = TypedEventFilter<ProviderLogEvent>;
+
+export interface SubscribeLogEventObject {
+  id: string;
+  subscriber: string;
+  timestamp: number;
+  amount: BigNumber;
+  subscribe: boolean;
+}
+export type SubscribeLogEvent = TypedEvent<
+  [string, string, number, BigNumber, boolean],
+  SubscribeLogEventObject
+>;
+
+export type SubscribeLogEventFilter = TypedEventFilter<SubscribeLogEvent>;
 
 export interface SubscriberLogEventObject {
   id: string;
@@ -438,13 +454,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     >;
 
     unsubscribe(
-      id: PromiseOrValue<BytesLike>,
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     unsubscribeByProvider(
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: PromiseOrValue<string>,
-      id: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -528,13 +544,13 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): Promise<ClockTowerSubscribe.TimeStructOutput>;
 
   unsubscribe(
-    id: PromiseOrValue<BytesLike>,
+    subscription: ClockTowerSubscribe.SubscriptionStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   unsubscribeByProvider(
+    subscription: ClockTowerSubscribe.SubscriptionStruct,
     subscriber: PromiseOrValue<string>,
-    id: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -614,13 +630,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<ClockTowerSubscribe.TimeStructOutput>;
 
     unsubscribe(
-      id: PromiseOrValue<BytesLike>,
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     unsubscribeByProvider(
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: PromiseOrValue<string>,
-      id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -653,6 +669,21 @@ export interface ClockTowerSubscribe extends BaseContract {
       success?: null,
       errorCode?: null
     ): ProviderLogEventFilter;
+
+    "SubscribeLog(bytes32,address,uint40,uint256,bool)"(
+      id?: PromiseOrValue<BytesLike> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      amount?: null,
+      subscribe?: null
+    ): SubscribeLogEventFilter;
+    SubscribeLog(
+      id?: PromiseOrValue<BytesLike> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      amount?: null,
+      subscribe?: null
+    ): SubscribeLogEventFilter;
 
     "SubscriberLog(bytes32,address,uint40,uint256,bool)"(
       id?: PromiseOrValue<BytesLike> | null,
@@ -748,13 +779,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     unsubscribe(
-      id: PromiseOrValue<BytesLike>,
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     unsubscribeByProvider(
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: PromiseOrValue<string>,
-      id: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -837,13 +868,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     unsubscribe(
-      id: PromiseOrValue<BytesLike>,
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     unsubscribeByProvider(
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: PromiseOrValue<string>,
-      id: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
