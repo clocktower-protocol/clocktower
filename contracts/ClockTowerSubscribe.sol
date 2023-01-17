@@ -618,6 +618,48 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
 
+
+        //Makes fee balance draw different for different frequencies
+        if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY) {
+            //pays first subscription to fee balance
+            feeBalance[msg.sender] += subscription.amount;
+
+            //emit subscription to log
+            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+
+            //funds contract with fee balance
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), subscription.amount));
+        }
+        else if(subscription.frequency == Frequency.QUARTERLY){
+            uint quarterFee = subscription.amount / 3;
+
+             //pays first subscription to fee balance
+            feeBalance[msg.sender] += quarterFee;
+
+            //emit subscription to log
+            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+
+            //funds 1/3 of cost with fee balance
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), quarterFee));
+            //funds the other 2/3 to the provider
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, quarterFee * 2));
+        }
+        else if(subscription.frequency == Frequency.YEARLY) {
+             uint yearlyFee = subscription.amount / 12;
+
+             //pays first subscription to fee balance
+            feeBalance[msg.sender] += yearlyFee;
+
+            //emit subscription to log
+            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+
+            //funds 1/3 of cost with fee balance
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), yearlyFee));
+            //funds the other 2/3 to the provider
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, yearlyFee * 11));
+        }
+
+        /*
         //pays first subscription to fee balance
         feeBalance[msg.sender] += subscription.amount;
 
@@ -626,7 +668,7 @@ contract ClockTowerSubscribe {
 
         //funds contract with fee balance
         require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), subscription.amount));
-
+        */
     }
     
     //TODO: add ability for provider to unsubscribe user
@@ -765,7 +807,7 @@ contract ClockTowerSubscribe {
         require(bytes(description).length <= 32, "String must be <= 32 bytes");
 
         //validates dueDay
-         if(frequency == Frequency.WEEKLY) {
+        if(frequency == Frequency.WEEKLY) {
             require(0 < dueDay && dueDay <= 7, "Must be between 1 and 7");
         }
         if(frequency == Frequency.MONTHLY) {
