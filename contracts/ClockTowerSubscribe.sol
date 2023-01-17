@@ -587,10 +587,7 @@ contract ClockTowerSubscribe {
 
 
     //EXTERNAL FUNCTIONS----------------------------------------
-    //If fee on fails is on, Malicious subscriber could subscribe lots of times to subscription and then call remit()
-    //Need to make sure subscribe() is always more expensive than the fee on a single subscription remit
-    //Or in other words, a fee can never be higher than gas cost to subscribe
-
+    
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
@@ -834,8 +831,7 @@ contract ClockTowerSubscribe {
     //TODO:
     //Might want to require unlimited allowance for subscriptions
 
-    //REQUIRES PROVIDERS AND SUBSCRIBERS TO HAVE ALLOWANCES SET
-    //REQUIRES UNLIMITED ALLOWANCE FOR PROVIDERS
+    //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
     //completes money transfer for subscribers
     function remit() external isAdmin {
@@ -885,7 +881,6 @@ contract ClockTowerSubscribe {
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
                     address provider = subscriptionMap[s][timeTrigger][i].provider;
 
-                    //TODO: do we mark the subscriber transactions as failed or just skip them?
                     //checks if provider still has required unlimited allowance
                     /*
                     if(ERC20Permit(token).allowance(provider, address(this)) < 2**255) {
@@ -971,7 +966,7 @@ contract ClockTowerSubscribe {
                                 //decrease feeBalance
                                 feeBalance[subscriber] -= subFee;
 
-                                //unsubscribes on failure
+                                //TODO: unsubscribes on failure?
                                 deleteSubFromSubscription(id, subscriber);
 
                                  //emit unsubscribe to log
