@@ -525,6 +525,7 @@ contract ClockTowerSubscribe {
         }
     }
 
+    //TODO: need to make sure the ID is unique
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
