@@ -76,14 +76,17 @@ export declare namespace ClockTowerSubscribe {
   export type SubViewStruct = {
     subscription: ClockTowerSubscribe.SubscriptionStruct;
     status: PromiseOrValue<BigNumberish>;
+    totalSubscribers: PromiseOrValue<BigNumberish>;
   };
 
   export type SubViewStructOutput = [
     ClockTowerSubscribe.SubscriptionStructOutput,
-    number
+    number,
+    BigNumber
   ] & {
     subscription: ClockTowerSubscribe.SubscriptionStructOutput;
     status: number;
+    totalSubscribers: BigNumber;
   };
 
   export type TimeStruct = {
