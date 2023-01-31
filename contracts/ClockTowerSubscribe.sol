@@ -127,6 +127,7 @@ contract ClockTowerSubscribe {
     struct SubView {
         Subscription subscription;
         Status status;
+        uint totalSubscribers;
     }
 
     //struct of time return values
@@ -403,7 +404,9 @@ contract ClockTowerSubscribe {
         //loops through account index and fetchs subscriptions, status and logs
         for(uint i; i < indexes.length; i++){
             subViews[i].subscription = getSubByIndex(indexes[i]);
-            subViews[i].status = indexes[i].status;
+            subViews[i].status = indexes[i].status;  
+            subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
+            //console.log(totalSubscribers);
         }
         
         return subViews;
