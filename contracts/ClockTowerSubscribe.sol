@@ -388,6 +388,18 @@ contract ClockTowerSubscribe {
         return fee;
     }
 
+    //gets subscribers by subscription id
+    function getSubscribers(bytes32 id) external view returns (address[] memory) {
+        return subscribersMap[id];
+    }
+
+    //gets subscription TODO:
+    /*
+    function getSubscription(bytes32 id) external view returns (Subscription memory) {
+        
+    }
+    */
+
     //subscriptions by account
     function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
