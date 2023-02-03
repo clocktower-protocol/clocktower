@@ -117,6 +117,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "feeEstimate()": FunctionFragment;
     "getAccountSubscriptions(bool)": FunctionFragment;
     "getFee()": FunctionFragment;
+    "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
+    "getSubscribers(bytes32)": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
@@ -139,6 +141,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "feeEstimate"
       | "getAccountSubscriptions"
       | "getFee"
+      | "getSubByIndex"
+      | "getSubscribers"
       | "remit"
       | "removeERC20Contract"
       | "subscribe"
@@ -195,6 +199,18 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(functionFragment: "getFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getSubByIndex",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSubscribers",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
@@ -259,6 +275,14 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getSubByIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSubscribers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
@@ -282,13 +306,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "ProviderLog(bytes32,address,uint40,bool,uint8)": EventFragment;
-    "SubscribeLog(bytes32,address,uint40,uint256,bool)": EventFragment;
-    "SubscriberLog(bytes32,address,uint40,uint256,bool)": EventFragment;
+    "SubscriberLog(bytes32,address,uint40,uint256,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProviderLog"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SubscribeLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubscriberLog"): EventFragment;
 }
 
@@ -319,29 +341,15 @@ export type ProviderLogEvent = TypedEvent<
 
 export type ProviderLogEventFilter = TypedEventFilter<ProviderLogEvent>;
 
-export interface SubscribeLogEventObject {
-  id: string;
-  subscriber: string;
-  timestamp: number;
-  amount: BigNumber;
-  subscribe: boolean;
-}
-export type SubscribeLogEvent = TypedEvent<
-  [string, string, number, BigNumber, boolean],
-  SubscribeLogEventObject
->;
-
-export type SubscribeLogEventFilter = TypedEventFilter<SubscribeLogEvent>;
-
 export interface SubscriberLogEventObject {
   id: string;
   subscriber: string;
   timestamp: number;
   amount: BigNumber;
-  success: boolean;
+  subEvent: number;
 }
 export type SubscriberLogEvent = TypedEvent<
-  [string, string, number, BigNumber, boolean],
+  [string, string, number, BigNumber, number],
   SubscriberLogEventObject
 >;
 
@@ -428,6 +436,22 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
     getFee(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [ClockTowerSubscribe.SubscriptionStructOutput] & {
+        subscription: ClockTowerSubscribe.SubscriptionStructOutput;
+      }
+    >;
+
+    getSubscribers(
+      id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
 
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -523,6 +547,18 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getSubByIndex(
+    id: PromiseOrValue<BytesLike>,
+    frequency: PromiseOrValue<BigNumberish>,
+    dueDay: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
+
+  getSubscribers(
+    id: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
   remit(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -613,6 +649,18 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
+
+    getSubscribers(
+      id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
     remit(overrides?: CallOverrides): Promise<void>;
 
     removeERC20Contract(
@@ -673,34 +721,19 @@ export interface ClockTowerSubscribe extends BaseContract {
       errorCode?: null
     ): ProviderLogEventFilter;
 
-    "SubscribeLog(bytes32,address,uint40,uint256,bool)"(
+    "SubscriberLog(bytes32,address,uint40,uint256,uint8)"(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       amount?: null,
-      subscribe?: null
-    ): SubscribeLogEventFilter;
-    SubscribeLog(
-      id?: PromiseOrValue<BytesLike> | null,
-      subscriber?: PromiseOrValue<string> | null,
-      timestamp?: null,
-      amount?: null,
-      subscribe?: null
-    ): SubscribeLogEventFilter;
-
-    "SubscriberLog(bytes32,address,uint40,uint256,bool)"(
-      id?: PromiseOrValue<BytesLike> | null,
-      subscriber?: PromiseOrValue<string> | null,
-      timestamp?: null,
-      amount?: null,
-      success?: null
+      subEvent?: null
     ): SubscriberLogEventFilter;
     SubscriberLog(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       amount?: null,
-      success?: null
+      subEvent?: null
     ): SubscriberLogEventFilter;
   };
 
@@ -757,6 +790,18 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     getFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getSubscribers(
+      id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -846,6 +891,18 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSubscribers(
+      id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

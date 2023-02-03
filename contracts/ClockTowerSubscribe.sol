@@ -85,6 +85,14 @@ contract ClockTowerSubscribe {
         UNSUBSCRIBED
     }
 
+    enum SubEvent {
+        PAID,
+        FAILED,
+        SUBSCRIBED, 
+        UNSUBSCRIBED,
+        FEEFILL
+    }
+
     //acount struct
     struct Account {
         address accountAddress;
@@ -150,7 +158,7 @@ contract ClockTowerSubscribe {
         address indexed subscriber,
         uint40 timestamp,
         uint amount,
-        bool success
+        SubEvent subEvent
     );
 
     event CallerLog(
@@ -168,6 +176,7 @@ contract ClockTowerSubscribe {
         uint8 errorCode
     );
 
+    /*
     event SubscribeLog(
         bytes32 indexed id,
         address indexed subscriber,
@@ -175,6 +184,7 @@ contract ClockTowerSubscribe {
         uint amount,
         bool subscribe
     );
+    */
     //-------------------------------------------
 
     //--------------Account Mappings-------------
@@ -415,7 +425,7 @@ contract ClockTowerSubscribe {
 
         //loops through account index and fetchs subscriptions, status and logs
         for(uint i; i < indexes.length; i++){
-            subViews[i].subscription = getSubByIndex(indexes[i]);
+            subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
             subViews[i].status = indexes[i].status;  
             subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
             //console.log(totalSubscribers);
@@ -423,6 +433,21 @@ contract ClockTowerSubscribe {
         
         return subViews;
     }
+
+    //fetches subscription from day maps by id
+    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
+
+          Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
+
+        //searchs for subscription in day map
+            for(uint j; j < subList.length; j++) {
+                if(subList[j].id == id) {
+                        subscription = subList[j];
+                }
+            }
+          return subscription;
+    }
+
 
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
@@ -509,22 +534,7 @@ contract ClockTowerSubscribe {
     
 
     //PRIVATE FUNCTIONS----------------------------------------------
-
-     //fetches subscription from day maps by id
-    function getSubByIndex(SubIndex memory index) view private returns(Subscription memory subscription){
-
-          Subscription[] memory subList = subscriptionMap[uint(index.frequency)][index.dueDay];
-
-            //searchs for subscription in day map
-            for(uint j; j < subList.length; j++) {
-                if(subList[j].id == index.id) {
-                        subscription = subList[j];
-                }
-            }
-          return subscription;
-    }
-
-     function userNotZero() view private {
+    function userNotZero() view private {
         require(msg.sender != address(0), "3");
     }
 
@@ -556,7 +566,7 @@ contract ClockTowerSubscribe {
         //check subscription exists
         SubIndex memory index = SubIndex(id, dueDay, frequency, status);
 
-        Subscription memory memSubscription = getSubByIndex(index);
+        Subscription memory memSubscription = getSubByIndex(index.id, index.frequency, index.dueDay);
 
         if(memSubscription.exists) {
             return true;
@@ -638,7 +648,8 @@ contract ClockTowerSubscribe {
             feeBalance[msg.sender] += subscription.amount;
 
             //emit subscription to log
-            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
 
             //funds contract with fee balance
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), subscription.amount));
@@ -650,7 +661,8 @@ contract ClockTowerSubscribe {
             feeBalance[msg.sender] += quarterFee;
 
             //emit subscription to log
-            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
 
             //funds 1/3 of cost with fee balance
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), quarterFee));
@@ -664,7 +676,8 @@ contract ClockTowerSubscribe {
             feeBalance[msg.sender] += yearlyFee;
 
             //emit subscription to log
-            emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
+            emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
 
             //funds 1/3 of cost with fee balance
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), yearlyFee));
@@ -706,7 +719,7 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(subscription.id, msg.sender);
 
         //emit unsubscribe to log
-        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, false);
+        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
         //TODO: decide if you want to refund fees
         /*
@@ -750,7 +763,7 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(subscription.id, subscriber);
 
         //emit unsubscribe to log
-        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, false);
+        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
         //TODO: decide if you want to refund fees
         /*
@@ -959,14 +972,14 @@ contract ClockTowerSubscribe {
                                     feeBalance[subscriber] -= subFee;
                                
                                     //log as succeeded
-                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
+                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.PAID);
 
                                     //remits from subscriber to provider
                                     console.log(remitCounter);
                                     require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
                                     //log as succeeded
-                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, true);
+                                    emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
                                     //remits to contract to refill fee balance
                                     feeBalance[subscriber] += amount;
@@ -986,10 +999,10 @@ contract ClockTowerSubscribe {
                                 deleteSubFromSubscription(id, subscriber);
 
                                  //emit unsubscribe to log
-                                emit SubscribeLog(id, msg.sender, uint40(block.timestamp), amount, false);
+                                emit SubscriberLog(id, msg.sender, uint40(block.timestamp), amount, SubEvent.UNSUBSCRIBED);
 
                                 //log as failed
-                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, false);
+                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FAILED);
                             
                             }
                             //sends fees to caller on last subscriber in list
