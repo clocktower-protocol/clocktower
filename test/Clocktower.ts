@@ -599,6 +599,34 @@ describe("Clocktower", function(){
 
             
         })
+        it("Should emit SubscriberLog", async function(){
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+           // await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            let tx = await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+            let rc = await tx.wait();
+            let event = rc.events?.find(event => event.event === 'SubscriberLog')
+            console.log(event)
+
+           /*
+            expect(await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams))
+            .to.emit(hardhatClockSubscribe, 'SubcriberLog')
+            .withArgs(otherAccount.address)
+            */
+
+            /*
+            let tx = await hardhatClockSubscribe.remit();
+            let rc = await tx.wait();
+            let event = rc.events?.find(event => event.event === 'CallerLog')
+            let args = event?.args
+            isFinished = args?.isFinished;
+            */
+
+        })
         
     })
 })
