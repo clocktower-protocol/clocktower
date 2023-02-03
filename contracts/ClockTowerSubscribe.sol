@@ -855,6 +855,8 @@ contract ClockTowerSubscribe {
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
+
+        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0);
     }
 
     //TODO:
