@@ -43,6 +43,7 @@ contract ClockTowerSubscribe {
     20 = Either token allowance or balance insufficient
     21 = Problem sending refund
     22 = Problem sending fees
+    23 = Only provider can cancel subscription
     */
 
     //admin addresses
@@ -779,11 +780,24 @@ contract ClockTowerSubscribe {
 
     }
         
+    //FIXME: Need to make sure indexes are marked as cancelled in provider list and limit to provider
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
         //checks subscription exists
         require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
+
+        //require user be provider
+        require(msg.sender == subscription.provider, "23");
+
+        SubIndex[] memory provIndex = accountMap[msg.sender].provSubs;
+
+        //marks provider index in provider account as cancelled
+        for(uint j; j < accountMap[msg.sender].provSubs.length; j++) {
+            if(provIndex[j].id == subscription.id) {
+                accountMap[msg.sender].provSubs[j].status = Status.CANCELLED;
+            }
+        }
 
 
         //gets list of subscribers and deletes subscriber list
