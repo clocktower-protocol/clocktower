@@ -698,7 +698,6 @@ contract ClockTowerSubscribe {
         */
     }
     
-    //TODO: add ability for provider to unsubscribe user
     function unsubscribe(Subscription memory subscription) external payable {
 
         //cannot be sent from zero address
@@ -780,7 +779,7 @@ contract ClockTowerSubscribe {
 
     }
         
-    //FIXME: Need to make sure indexes are marked as cancelled in provider list and limit to provider
+    //Allows provider to cancel subscription
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
