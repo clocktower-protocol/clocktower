@@ -499,11 +499,15 @@ describe("Clocktower", function(){
 
             await hardhatClockSubscribe.subscribe(subscriptions[1].subscription, testParams)
 
+            let result2 = await hardhatClockSubscribe.getSubscribers(subscriptions[1].subscription.id)
             await hardhatClockSubscribe.unsubscribe(subscriptions[1].subscription, testParams);
 
             let result = await hardhatClockSubscribe.getAccountSubscriptions(true)
+            let result3 = await hardhatClockSubscribe.getSubscribers(subscriptions[1].subscription.id)
             
             expect(result[0].status).to.equal(2)
+            expect(result2.length).to.equal(1)
+            expect(result3.length).to.equal(0)
         })
         it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);

@@ -429,7 +429,6 @@ contract ClockTowerSubscribe {
             subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
             subViews[i].status = indexes[i].status;  
             subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
-            //console.log(totalSubscribers);
         }
         
         return subViews;
@@ -591,10 +590,10 @@ contract ClockTowerSubscribe {
                 delete subscribers[i];
                 break; 
             }
-
-            subscribers[index2] = subscribers[subscribers.length - 1];
-            subscribers.pop();
         }
+
+        subscribers[index2] = subscribers[subscribers.length - 1];
+        subscribers.pop();
     }
 
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
