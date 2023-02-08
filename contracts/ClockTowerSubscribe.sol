@@ -297,6 +297,20 @@ contract ClockTowerSubscribe {
         maxRemits = _maxRemits;
     }
 
+    //gets all account
+    function getAllAccounts() isAdmin external view returns(Account[] memory) {
+        
+        address[] memory allAddresses = accountLookup;
+
+        Account[] memory allAccounts = new Account[](allAddresses.length);
+
+        for(uint i; i < allAddresses.length; i++) {
+            allAccounts[i] = accountMap[allAddresses[i]];
+        }
+
+        return allAccounts;
+    }
+
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
