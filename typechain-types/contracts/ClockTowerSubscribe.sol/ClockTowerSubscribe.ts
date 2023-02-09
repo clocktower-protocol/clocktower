@@ -351,7 +351,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
-    "ProviderLog(bytes32,address,uint40,bool,uint8)": EventFragment;
+    "ProviderLog(bytes32,address,uint40,bool,uint8,uint8)": EventFragment;
     "SubscriberLog(bytes32,address,uint40,uint256,uint8)": EventFragment;
   };
 
@@ -379,9 +379,10 @@ export interface ProviderLogEventObject {
   timestamp: number;
   success: boolean;
   errorCode: number;
+  provEvent: number;
 }
 export type ProviderLogEvent = TypedEvent<
-  [string, string, number, boolean, number],
+  [string, string, number, boolean, number, number],
   ProviderLogEventObject
 >;
 
@@ -764,19 +765,21 @@ export interface ClockTowerSubscribe extends BaseContract {
       isFinished?: null
     ): CallerLogEventFilter;
 
-    "ProviderLog(bytes32,address,uint40,bool,uint8)"(
+    "ProviderLog(bytes32,address,uint40,bool,uint8,uint8)"(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
       timestamp?: null,
       success?: null,
-      errorCode?: null
+      errorCode?: null,
+      provEvent?: null
     ): ProviderLogEventFilter;
     ProviderLog(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
       timestamp?: null,
       success?: null,
-      errorCode?: null
+      errorCode?: null,
+      provEvent?: null
     ): ProviderLogEventFilter;
 
     "SubscriberLog(bytes32,address,uint40,uint256,uint8)"(
