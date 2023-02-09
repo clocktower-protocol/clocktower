@@ -94,6 +94,13 @@ contract ClockTowerSubscribe {
         FEEFILL
     }
 
+    enum ProvEvent {
+        CREATE,
+        CANCEL,
+        PAID,
+        FAILED
+    }
+
     //acount struct
     struct Account {
         address accountAddress;
@@ -174,7 +181,8 @@ contract ClockTowerSubscribe {
         address indexed provider,
         uint40 timestamp,
         bool success,
-        uint8 errorCode
+        uint8 errorCode,
+        ProvEvent provEvent
     );
 
     /*
@@ -835,6 +843,8 @@ contract ClockTowerSubscribe {
                subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
             }
         }
+
+        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0, ProvEvent.CANCEL);
     } 
     
     //allows provider user to create a subscription
@@ -882,7 +892,7 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
 
-        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0);
+        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0, ProvEvent.CREATE);
     }
 
     //TODO:
@@ -1001,6 +1011,7 @@ contract ClockTowerSubscribe {
                                
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.PAID);
+                                    emit ProviderLog(id, provider, uint40(block.timestamp),true, 0, ProvEvent.PAID);
 
                                     //remits from subscriber to provider
                                     console.log(remitCounter);
@@ -1031,6 +1042,7 @@ contract ClockTowerSubscribe {
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FAILED);
+                                emit ProviderLog(id, provider, uint40(block.timestamp),true, 0, ProvEvent.FAILED);
                             
                             }
                             //sends fees to caller on last subscriber in list
