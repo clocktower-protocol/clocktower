@@ -34,7 +34,10 @@ With this in mind we have chosen the following standard time trigger ranges that
 
 ## Protocol Overview
 
-The Clocktower system begins with a provider configuring basic parameters of a paid web service they would like to provide at a fixed interval (weekly, monthly, yearly, etc). This could be done through direct interaction with the contract or, more likely, through a web front-end. After signing the transaction, the subscription is now available to anyone who would like to become a subscriber. Off-chain, provider advertises service to potential subscribers and sends a link for signup. When a potential subscriber wants to signup, they sign two transactions. The first gives unlimited allowance to the contract to take a given ERC20 token from the wallet. The second subscribes to the subscription. 
+The Clocktower system begins with a provider configuring basic parameters of a paid web service they would like to provide at a fixed interval (weekly, monthly, yearly, etc). This could be done through direct interaction with the contract or, in most circumstances, through a web front-end. After signing the transaction, the subscription is now available to anyone who would like to become a subscriber. Off-chain, provider advertises service to potential subscribers and can send a link for signup. When a potential subscriber wants to signup, they sign two transactions. The first gives unlimited allowance to the contract to take a preferred ERC20 token from the wallet. The second approves the subscription and pays the first interval payment in addition to filling the fee balance for the account. The fee will be kept as low as possible while still incentivizing a population of Callers to call the remit function on the clocktower contract. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions.
+
+
+
 
 
 
