@@ -67,6 +67,12 @@
         "internalType": "uint8",
         "name": "errorCode",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum ClockTowerSubscribe.ProvEvent",
+        "name": "provEvent",
+        "type": "uint8"
       }
     ],
     "name": "ProviderLog",
