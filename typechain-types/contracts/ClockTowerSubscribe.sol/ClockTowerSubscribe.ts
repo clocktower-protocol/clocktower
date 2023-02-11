@@ -156,6 +156,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "getFee()": FunctionFragment;
     "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
     "getSubscribers(bytes32)": FunctionFragment;
+    "getSubscriptionsByAccount(bool,address)": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
@@ -181,6 +182,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "getFee"
       | "getSubByIndex"
       | "getSubscribers"
+      | "getSubscriptionsByAccount"
       | "remit"
       | "removeERC20Contract"
       | "subscribe"
@@ -252,6 +254,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getSubscribers",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSubscriptionsByAccount",
+    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
@@ -327,6 +333,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getSubscribers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSubscriptionsByAccount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
@@ -504,6 +514,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
+    getSubscriptionsByAccount(
+      bySubscriber: PromiseOrValue<boolean>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
+
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -614,6 +630,12 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
+  getSubscriptionsByAccount(
+    bySubscriber: PromiseOrValue<boolean>,
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
+
   remit(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -719,6 +741,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
+
+    getSubscriptionsByAccount(
+      bySubscriber: PromiseOrValue<boolean>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
     remit(overrides?: CallOverrides): Promise<void>;
 
@@ -866,6 +894,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getSubscriptionsByAccount(
+      bySubscriber: PromiseOrValue<boolean>,
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -966,6 +1000,12 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     getSubscribers(
       id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSubscriptionsByAccount(
+      bySubscriber: PromiseOrValue<boolean>,
+      account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
