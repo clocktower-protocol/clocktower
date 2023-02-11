@@ -631,6 +631,20 @@ describe("Clocktower", function(){
             */
 
         })
+        it("Should test getSubscriptionsByAccount", async function(){
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            let returnSubs = await hardhatClockSubscribe.getSubscriptionsByAccount(true, otherAccount.address)
+
+            console.log(returnSubs.length)
+        })
+
         
     })
 })
