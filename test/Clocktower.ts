@@ -567,7 +567,7 @@ describe("Clocktower", function(){
 
             //loops through remit calls to test max remit
             while(!isFinished) {
-                console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(otherAccount.address)))
+                console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id, otherAccount.address)))
                 console.log("here")
                 //gets emit
                 let tx = await hardhatClockSubscribe.remit();
@@ -601,8 +601,8 @@ describe("Clocktower", function(){
             let expected = ethers.utils.parseEther("86.0");
 
             //gets fee balance
-            let feeBalance = await hardhatClockSubscribe.feeBalance(otherAccount.address)
-            console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(otherAccount.address)))
+            let feeBalance = await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,otherAccount.address)
+            console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,otherAccount.address)))
 
             expect(otherBalance).to.equal(expected)
             //expect(ownerBalance).to.equal()

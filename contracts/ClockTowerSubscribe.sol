@@ -204,7 +204,7 @@ contract ClockTowerSubscribe {
     address[] private accountLookup;
 
     //fee balance
-    mapping(address => uint) public feeBalance;
+    mapping(bytes32 => mapping(address => uint)) public feeBalance;
 
     //---------------------------------------------
 
@@ -690,7 +690,7 @@ contract ClockTowerSubscribe {
         //Makes fee balance draw different for different frequencies
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY) {
             //pays first subscription to fee balance
-            feeBalance[msg.sender] += subscription.amount;
+            feeBalance[subscription.id][msg.sender] += subscription.amount;
 
             //emit subscription to log
             emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
@@ -703,7 +703,7 @@ contract ClockTowerSubscribe {
             uint quarterFee = subscription.amount / 3;
 
              //pays first subscription to fee balance
-            feeBalance[msg.sender] += quarterFee;
+            feeBalance[subscription.id][msg.sender] += quarterFee;
 
             //emit subscription to log
             emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
@@ -718,7 +718,7 @@ contract ClockTowerSubscribe {
              uint yearlyFee = subscription.amount / 12;
 
              //pays first subscription to fee balance
-            feeBalance[msg.sender] += yearlyFee;
+            feeBalance[subscription.id][msg.sender] += yearlyFee;
 
             //emit subscription to log
             emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
@@ -1029,8 +1029,8 @@ contract ClockTowerSubscribe {
 
                                 //checks feeBalance. If positive it decreases balance. 
                                 //If zero it sends subscription to contract as fee payment.
-                                if(feeBalance[subscriber] > subFee) {
-                                    feeBalance[subscriber] -= subFee;
+                                if(feeBalance[id][subscriber] > subFee) {
+                                    feeBalance[id][subscriber] -= subFee;
                                
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.PAID);
@@ -1044,7 +1044,7 @@ contract ClockTowerSubscribe {
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
                                     //remits to contract to refill fee balance
-                                    feeBalance[subscriber] += amount;
+                                    feeBalance[id][subscriber] += amount;
                                     require(ERC20Permit(token).transferFrom(subscriber, address(this), amount));
                                 }
                             } else {
@@ -1055,7 +1055,7 @@ contract ClockTowerSubscribe {
                                 totalFee += subFee;
 
                                 //decrease feeBalance
-                                feeBalance[subscriber] -= subFee;
+                                feeBalance[id][subscriber] -= subFee;
 
                                 //TODO: unsubscribes on failure?
                                 deleteSubFromSubscription(id, subscriber);
