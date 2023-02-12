@@ -204,7 +204,7 @@ contract ClockTowerSubscribe {
     address[] private accountLookup;
 
     //fee balance
-    mapping(address => uint) private feeBalance;
+    mapping(address => uint) public feeBalance;
 
     //---------------------------------------------
 
