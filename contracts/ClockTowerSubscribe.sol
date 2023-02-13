@@ -146,6 +146,12 @@ contract ClockTowerSubscribe {
         uint totalSubscribers;
     }
 
+    //Subscriber struct for views
+    struct SubscriberView {
+        address subscriber;
+        uint feeBalance;
+    }
+
     //struct of time return values
     struct Time {
         uint16 day;
@@ -477,6 +483,26 @@ contract ClockTowerSubscribe {
         }
         
         return subViews;
+    }
+
+    //TODO:
+    //gets subscribers by subscription id
+    function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
+
+        address[] memory scriberArray = new address[](subscribersMap[id].length);
+
+        scriberArray = subscribersMap[id];
+
+        SubscriberView[] memory scriberViews = new SubscriberView[](subscribersMap[id].length);
+
+        for(uint i; i < scriberArray.length; i++) {
+
+            uint feeBalanceTemp = feeBalance[id][scriberArray[i]];
+            SubscriberView memory scriberView = SubscriberView(scriberArray[i], feeBalanceTemp);
+            scriberViews[i] = scriberView;
+        }
+
+        return scriberViews;
     }
 
     //fetches subscription from day maps by id
