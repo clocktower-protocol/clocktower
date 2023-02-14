@@ -50,7 +50,7 @@ contract ClockTowerSubscribe {
     address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    uint fee = 10200;
+    uint public fee = 10200;
 
     //0.01 eth in wei
     uint fixedFee = 10000000000000000;
