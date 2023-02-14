@@ -558,17 +558,19 @@ describe("Clocktower", function(){
             
             await time.increaseTo(twoHoursAhead);
 
-            let feeEstimate = await hardhatClockSubscribe.feeEstimate();
-           // console.log(String(feeEstimate[1].fee) + "------" + feeEstimate[1].token);
-
             //await hardhatClockSubscribe.remit();
+
+            let subscribersId = await hardhatClockSubscribe.getSubscribersById(subscriptions[0].subscription.id)
+
+            console.log(subscribersId[0].subscriber)
+            console.log(ethers.utils.formatEther(subscribersId[0].feeBalance))
 
             let isFinished = false;
 
             //loops through remit calls to test max remit
             while(!isFinished) {
-                console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id, otherAccount.address)))
-                console.log("here")
+                //console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id, otherAccount.address)))
+                //console.log("here")
                 //gets emit
                 let tx = await hardhatClockSubscribe.remit();
                 let rc = await tx.wait();

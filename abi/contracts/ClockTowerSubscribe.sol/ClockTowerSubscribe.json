@@ -291,7 +291,25 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "fee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
       {
         "internalType": "address",
         "name": "",
@@ -604,6 +622,37 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSubscribersById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "subscriber",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "feeBalance",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ClockTowerSubscribe.SubscriberView[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
