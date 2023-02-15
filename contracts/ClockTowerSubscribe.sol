@@ -172,7 +172,7 @@ contract ClockTowerSubscribe {
         address indexed subscriber,
         uint40 timestamp,
         uint amount,
-        SubEvent subEvent
+        SubEvent indexed subEvent
     );
 
     event CallerLog(
@@ -188,7 +188,7 @@ contract ClockTowerSubscribe {
         uint40 timestamp,
         bool success,
         uint8 errorCode,
-        ProvEvent provEvent
+        ProvEvent indexed provEvent
     );
 
     /*
