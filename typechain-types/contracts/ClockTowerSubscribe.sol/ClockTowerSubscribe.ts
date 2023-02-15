@@ -869,7 +869,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       timestamp?: null,
       success?: null,
       errorCode?: null,
-      provEvent?: null
+      provEvent?: PromiseOrValue<BigNumberish> | null
     ): ProviderLogEventFilter;
     ProviderLog(
       id?: PromiseOrValue<BytesLike> | null,
@@ -877,7 +877,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       timestamp?: null,
       success?: null,
       errorCode?: null,
-      provEvent?: null
+      provEvent?: PromiseOrValue<BigNumberish> | null
     ): ProviderLogEventFilter;
 
     "SubscriberLog(bytes32,address,uint40,uint256,uint8)"(
@@ -885,14 +885,14 @@ export interface ClockTowerSubscribe extends BaseContract {
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       amount?: null,
-      subEvent?: null
+      subEvent?: PromiseOrValue<BigNumberish> | null
     ): SubscriberLogEventFilter;
     SubscriberLog(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
       timestamp?: null,
       amount?: null,
-      subEvent?: null
+      subEvent?: PromiseOrValue<BigNumberish> | null
     ): SubscriberLogEventFilter;
   };
 
