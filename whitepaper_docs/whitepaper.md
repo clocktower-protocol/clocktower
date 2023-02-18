@@ -32,9 +32,30 @@ With this in mind we have chosen the following standard time trigger ranges that
 - Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
 
 
-## Protocol Overview
+## Protocol Lifecycle
 
-The Clocktower system begins with a provider configuring basic parameters of a paid web service they would like to provide at a fixed interval (weekly, monthly, yearly, etc). This could be done through direct interaction with the contract or, in most circumstances, through a web front-end. After signing the transaction, the subscription is now available to anyone who would like to become a subscriber. Off-chain, provider advertises service to potential subscribers and can send a link for signup. When a potential subscriber wants to signup, they sign two transactions. The first gives unlimited allowance to the contract to take a preferred ERC20 token from the wallet. The second approves the subscription and pays the first interval payment in addition to filling the fee balance for the account. The fee will be kept as low as possible while still incentivizing a population of Callers to call the remit function on the clocktower contract. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions.
+The Clocktower system begins with a provider configuring basic parameters of a paid web service they would like to provide at a fixed interval (weekly, monthly, yearly, etc). This could be done through direct interaction with the contract or, in most circumstances, through a web front-end. After signing the transaction, the subscription is now available to anyone who would like to become a subscriber. Off-chain, the provider advertises service to potential subscribers and can send a link for signup. When a potential subscriber wants to signup, they sign two transactions on the blockchain. The first gives unlimited allowance to the contract to take a preferred ERC20 token from the wallet. The second approves the subscription and pays the first payment of the schedule, in addition to filling the fee balance for the account. 
+
+At this point, the clocktower payment system will automate future payments for the subscription until one of three scenarios occur:
+1. the subscriber unsubscribes
+2. the provider cancels the subscription for one or more subscribers (TODO: is there a single method / function to unsubscribe all? I see a delete function (ln 539 of ClockTowerSubscribe.sol), does this just get iterated per unsubscribe? If so, is this efficient, or would a separate 'unsubscribe all' be useful?)
+3. a subscriber that does not meet a payment obligation due to insufficient funds will be auto-unsubcribed from a given subscription
+
+This final scenario is built-in to the protocol and necessary for preventing the build-up of ethereum gas fees on accounts with insufficient funds. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions. 
+
+
+## The Caller
+
+As stated previously, clocktower is decentralized--parameters are fixed in an immutable contract with permissionless access available to any provider or subscriber that would like to use it. We have not yet discussed another decentralized feature--the role of the Caller. The Caller is responsible for checking the protocol for any due payments and, if any are found, sending these payments to the appropriate provider. The complexity of this process is abstracted, as all is managed through a single smart-contract call to the remit function. Each time the Caller calls the remit function, she is required to pay all of the required gas for the on-chain transactions. In exchange, the Caller will receive fees from the subscriber fee balance. As long as [total fee balance - total gas fees] > 0, a bot or manual caller in the system will call the remit function and collect profit. This economic incentive ensures that all subscriptions are checked regularly. 
+
+Those familiar with use of Ethereum mainnet since the advent of NFT releases have no doubt observed that short periods of very heavy network congestion do occur, though typically not longer than a few hours at a time. In this situation, the clocktower economic incentive transiently breaks, as [total fee balance - total gas fees] < 0. During these times, the pool of Callers would not be expected to call the remit function, since they would owe more in gas fees than they would receive in reward. To account for high-gas periods, clocktower V1 has a minimum period of weekly. Future versions may decrease subscription intervals as we expect L2 scaling solutions to provide a more consistent gas price environment. We also expect that with enough adoption of the clocktower protocol, a professional class of Callers will come into being, similar to the MEV market. These entities will make a science of calculating potential remit rewards and monitoring gas prices for opportunities to turn a profit. These professional Callers will further increase the efficiency of the protocol. (TODO: would the )
+
+
+
+
+
+
+The fee will be kept as low as possible while still incentivizing a population of Callers to call the remit function on the clocktower contract. 
 
 
 
