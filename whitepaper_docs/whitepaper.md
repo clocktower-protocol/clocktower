@@ -48,8 +48,16 @@ This final scenario is built-in to the protocol and necessary for preventing the
 
 As stated previously, clocktower is decentralized--parameters are fixed in an immutable contract with permissionless access available to any provider or subscriber that would like to use it. We have not yet discussed another decentralized feature--the role of the Caller. The Caller is responsible for checking the protocol for any due payments and, if any are found, sending these payments to the appropriate provider. The complexity of this process is abstracted, as all is managed through a single smart-contract call to the remit function. Each time the Caller calls the remit function, she is required to pay all of the required gas for the on-chain transactions. In exchange, the Caller will receive fees from the subscriber fee balance. As long as [total fee balance - total gas fees] > 0, a bot or manual caller in the system will call the remit function and collect profit. This economic incentive ensures that all subscriptions are checked regularly. 
 
-Those familiar with use of Ethereum mainnet since the advent of NFT releases have no doubt observed that short periods of very heavy network congestion do occur, though typically not longer than a few hours at a time. In this situation, the clocktower economic incentive transiently breaks, as [total fee balance - total gas fees] < 0. During these times, the pool of Callers would not be expected to call the remit function, since they would owe more in gas fees than they would receive in reward. To account for high-gas periods, clocktower V1 has a minimum period of weekly. Future versions may decrease subscription intervals as we expect L2 scaling solutions to provide a more consistent gas price environment. We also expect that with enough adoption of the clocktower protocol, a professional class of Callers will come into being, similar to the MEV market. These entities will make a science of calculating potential remit rewards and monitoring gas prices for opportunities to turn a profit. These professional Callers will further increase the efficiency of the protocol. (TODO: would the )
+Those familiar with use of Ethereum mainnet since the advent of NFT releases have no doubt observed that short periods of very heavy network congestion do occur, though typically not longer than a few hours at a time. In this situation, the clocktower economic incentive transiently breaks, as [total fee balance - total gas fees] < 0. During these times, the pool of Callers would not be expected to call the remit function, since they would owe more in gas fees than they would receive in reward. To account for high-gas periods, clocktower V1 has a minimum period of weekly. Future versions may decrease subscription intervals as we expect L2 scaling solutions to provide a more consistent gas price environment. We also expect that with enough adoption of the clocktower protocol, a professional class of Callers will come into being, similar to the MEV market. These entities will make a science of calculating potential remit rewards and monitoring gas prices for opportunities to turn a profit. These professional Callers will further increase the efficiency of the protocol. (TODO: atomic swaps? )
 
+
+## Fee Balance Calculation
+
+The ability to incentivise a Caller to pay the gas on future transactions is critical to the clocktower protocol. As such, a fee structure accompanies subscriptions and relies on certain assumptions.
+
+cost remit:   35000 gwei
+gas price:    20
+eth price:    1500
 
 
 
