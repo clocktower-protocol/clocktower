@@ -41,7 +41,12 @@ At this point, the clocktower payment system will automate future payments for t
 2. the provider cancels the subscription for one or more subscribers
 3. a subscriber that does not meet a payment obligation due to insufficient funds will be auto-unsubcribed from a given subscription
 
-This final scenario is built-in to the protocol and necessary for preventing the build-up of ethereum gas fees on accounts with insufficient funds. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions. 
+This final scenario is built-in to the protocol and necessary for preventing the build-up of [ethereum gas fees](https://ethereum.org/en/developers/docs/gas/) on accounts with insufficient funds. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions. 
+
+Example:
+Bob's favorite crypto market analyist is offering a monthly subscription to her newsletter for $50 USD. Bob would like access and so he inputs his email to her website, receives a custom link for sign-up. The link takes him to a page where he is able to put in his details including his ethereum wallet address. After confirming the details of his subscription, the UI walks him through the two on-chain transactions with his metamask browser extension.
+
+50 USDC + 
 
 
 ## The Caller
