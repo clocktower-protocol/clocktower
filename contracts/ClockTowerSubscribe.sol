@@ -47,7 +47,7 @@ contract ClockTowerSubscribe {
     */
 
     //admin addresses
-    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+   // address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
     uint public fee = 10200;
@@ -62,16 +62,22 @@ contract ClockTowerSubscribe {
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
     // uint pageCount;
-    bool pageGo;
+    //bool pageGo;
 
     //approved contract addresses
     address[] approvedERC20;
 
+    // uint pageCount;
+    bool pageGo;
+
     //circuit breaker
     bool stopped = false;
 
-    //variable for last checked by hour
+    //variable for last checked by day
     uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
+
+    //admin addresses
+    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     enum Frequency {
         WEEKLY,
