@@ -44,9 +44,13 @@ At this point, the clocktower payment system will automate future payments for t
 This final scenario is built-in to the protocol and necessary for preventing the build-up of [ethereum gas fees](https://ethereum.org/en/developers/docs/gas/) on accounts with insufficient funds. As long as this balance has sufficient funding to cover the fees and the subscription price, a given subscriber will continue to be in good standing and current. If there is not enough to cover the subscription, but enough to cover the fee, the fee will be taken until the account can no longer cover the fee. At this point, clocktower will automatically remove this account from the list of active subsciptions. 
 
 Example:
-Bob's favorite crypto market analyist is offering a monthly subscription to her newsletter for $50 USD. Bob would like access and so he inputs his email to her website, receives a custom link for sign-up. The link takes him to a page where he is able to put in his details including his ethereum wallet address. After confirming the details of his subscription, the UI walks him through the two on-chain transactions with his metamask browser extension.
+Bob's favorite crypto market analyst is offering a monthly subscription to her newsletter for 50 USD/Month. Bob would like access and so he inputs his email to her website, receives a custom link for sign-up. The link takes him to a page where he is able to put in his details including his ethereum wallet address. After confirming the details of his subscription, the UI walks him through the two on-chain transactions with his metamask browser extension. His first payment of $50 is pulled from his wallet in the form of USDC. This entire process takes less than 5 minutes. 
 
-50 USDC + 
+Behind the scenes, the clocktower protocol distributes part of Bob's first payment to the Provider (see table below) and part to his fee bucket within the contract. Each time his subscription payment is remitted in the future, a 1% fee is taken from this fee bucket and passed to the Caller as a reward for calling Remit--in this case, 0.5 USDC. 
+
+| Subscription Interval | 
+Monthly - 12 payments x 1% = 12$
+Weekly - 
 
 
 ## The Caller
