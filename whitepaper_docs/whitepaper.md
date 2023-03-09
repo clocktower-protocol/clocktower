@@ -48,16 +48,29 @@ Bob's favorite crypto market analyst, Alice, is offering a monthly subscription 
 
 Behind the scenes, the clocktower protocol distributes part of Bob's first payment to the Provider (see table below) and part to his fee bucket within the contract. Each time his subscription payment is remitted in the future, a 1% fee is taken from this fee bucket and passed to the Caller as a reward for calling Remit--in this case, 0.5 USDC. When his fee bucket is exhausted, a similar split as the first transaction will occur again with the next payment.
 
-From Bob's standpoint, all of this is opaque--all he knows is that he is being charged $50 for access to Alice's newsletter. As long as he wishes to continue the subscription and keeps his wallet topped off with enough USDC to cover the charge, there is nothing more for him to do except to enjoy the content. Alice gets her payments automatically and pays zero percent in fees except in the case of the "key payments" and over time she saves about 2.5% vs her subscribers who still use Stripe.
+From Bob's standpoint, all of this is opaque--all he knows is that he is being charged $50 for access to Alice's newsletter. As long as he wishes to continue the subscription and keeps his wallet topped off with enough USDC to cover the charge, there is nothing more for him to do except to enjoy the content. Alice gets her payments automatically and pays zero percent in fees except in the case of the "key payments" and over time she saves about 2.5% on clocktower-based subscribers vs those who still use Stripe.
 
 | Subscription Interval | 
 Monthly - 12 payments x 1% = 12$
 Weekly - 
 
 
+## Fee Market and Incentive Structure
+
+symbols:
+
+subscription triggered by call      lower case sigma        σ
+value of a subscription triggered   lower case sigma sub v  σᵥ
+fee %                               lower case phi          φ
+gas per subscription                lower case gamma        γ
+
+total sum of the value of all subscriptions per remit call * fee percentage = Per subscription gas cost *  # of subscriptions per call
+φ * Σσᵥⁿ   =  γ * Σσⁿ
+
+
 ## The Caller
 
-As stated previously, clocktower is decentralized--parameters are fixed in an immutable contract with permissionless access available to any provider or subscriber that would like to use it. We have not yet discussed another decentralized feature--the role of the Caller. The Caller is responsible for checking the protocol for any due payments and, if any are found, sending these payments to the appropriate provider. The complexity of this process is abstracted, as all is managed through a single smart-contract call to the remit function. Each time the Caller calls the remit function, she is required to pay all of the required gas for the on-chain transactions. In exchange, the Caller will receive fees from the subscriber fee balance. As long as [total fee balance - total gas fees] > 0, a bot or manual caller in the system will call the remit function and collect profit. This economic incentive ensures that all subscriptions are checked regularly. 
+As stated previously, clocktower is decentralized--parameters are^v fixed in an immutable contract with permissionless access available to any provider or subscriber that would like to use it. We have not yet discussed another decentralized feature--the role of the Caller. The Caller is responsible for checking the protocol for any due payments and, if any are found, sending these payments to the appropriate provider. The complexity of this process is abstracted, as all is managed through a single smart-contract call to the remit function. Each time the Caller calls the remit function, she is required to pay all of the required gas for the on-chain transactions. In exchange, the Caller will receive fees from the subscriber fee balance. As long as [total fee balance - total gas fees] > 0, a bot or manual caller in the system will call the remit function and collect profit. This economic incentive ensures that all subscriptions are checked regularly. 
 
 Those familiar with use of Ethereum mainnet since the advent of NFT releases have no doubt observed that short periods of very heavy network congestion do occur, though typically not longer than a few hours at a time. In this situation, the clocktower economic incentive transiently breaks, as [total fee balance - total gas fees] < 0. During these times, the pool of Callers would not be expected to call the remit function, since they would owe more in gas fees than they would receive in reward. To account for high-gas periods, clocktower V1 has a minimum period of weekly. Future versions may decrease subscription intervals as we expect L2 scaling solutions to provide a more consistent gas price environment. We also expect that with enough adoption of the clocktower protocol, a professional class of Callers will come into being, similar to the MEV market. These entities will make a science of calculating potential remit rewards and monitoring gas prices for opportunities to turn a profit. These professional Callers will further increase the efficiency of the protocol. 
 
