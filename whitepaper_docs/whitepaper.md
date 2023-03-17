@@ -100,12 +100,16 @@ fee x # of subs * avg sub transaction value($) * ETH/$  = [Per subscription gas 
 
 [# of subs cancels on both sides]
 
-fee x avg sub tx value ($)  x ETH/$                     =  Per sub gas cost  * gas price * 1 Eth / 1x10^9 Gwei
+fee    x     avg sub tx value ($)  x     ETH/$          =  Per sub gas cost  * gas price * 1 Eth / 1x10^9 Gwei
 
 0.02 * 100 *120 * 1/$1700         =  35000 Gwei * 20 * 100
 $240 * 1 Eth / $1700 = 7.0 x 10 ^7 Gwei / 10
 141,176,471 > 70,000,000
 profit = ~0.07 Eth
+
+
+
+major variables are the gas price and the avg sub tx value (or the sum value in dollars of all subscription payments to be remitted by this call)
 
 The fee will be kept as low as possible while still incentivizing a population of Callers to call the remit function on the clocktower contract. 
 
