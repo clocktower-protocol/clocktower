@@ -93,10 +93,17 @@ n = 100 subs
 fee = 2%
 avg remit = $120
 
+Example
+Find equilibrium in Eth for fee total vs gas total
 
-fee x # of subs * avg sub transaction value ($) * ETH/$ * 1x10^9 Gwei/ETH = Per subscription gas cost *  gas price * # of subscriptions remitted
-0.02 * 100 *120          =  35000 Gwei * 20 * 100
-$240 = 7.0 x 10 ^7 Gwei
+fee x # of subs * avg sub transaction value($) * ETH/$  = [Per subscription gas cost *  gas price * # of subscriptions remitted] * 1Eth/ 1x10^9 Gwei
+
+[# of subs cancels on both sides]
+
+fee x avg sub tx value ($)  x ETH/$                     =  Per sub gas cost  * gas price * 1 Eth / 1x10^9 Gwei
+
+0.02 * 100 *120 * 1/$1700         =  35000 Gwei * 20 * 100
+$240 * 1 Eth / $1700 = 7.0 x 10 ^7 Gwei / 10
 141,176,471 > 70,000,000
 profit = ~0.07 Eth
 
