@@ -678,7 +678,8 @@ contract ClockTowerSubscribe {
 
         uint index2;
 
-        for(uint i; i < subscribers.length; i++) {
+        uint length = subscribers.length;
+        for(uint i; i < length; i++) {
             if(subscribers[i] == account) {
                 index2 = i;
                 delete subscribers[i];
@@ -803,7 +804,9 @@ contract ClockTowerSubscribe {
         //sets account subscription status as unsubscribed
         SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
         indexes = accountMap[msg.sender].subscriptions;
-        for(uint j; j < accountMap[msg.sender].subscriptions.length; j++){
+        
+        uint length = accountMap[msg.sender].subscriptions.length;
+        for(uint j; j < length; j++){
             if(indexes[j].id == subscription.id) {
                 accountMap[msg.sender].subscriptions[j].status = Status.UNSUBSCRIBED;
             }
@@ -831,7 +834,6 @@ contract ClockTowerSubscribe {
 
         userNotZero();
 
-        
         //checks mgs.sender is provider of sub
         SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
         bool isProvider;
@@ -884,8 +886,10 @@ contract ClockTowerSubscribe {
 
         SubIndex[] memory provIndex = accountMap[msg.sender].provSubs;
 
+        uint length = accountMap[msg.sender].provSubs.length;
+
         //marks provider index in provider account as cancelled
-        for(uint j; j < accountMap[msg.sender].provSubs.length; j++) {
+        for(uint j; j < length; j++) {
             if(provIndex[j].id == subscription.id) {
                 accountMap[msg.sender].provSubs[j].status = Status.CANCELLED;
             }
@@ -1032,9 +1036,11 @@ contract ClockTowerSubscribe {
                     //calculates fee balance
                     uint subFee = (amount * fee / 10000) - amount;
                     uint totalFee;
+
+                    uint sublength = subscribersMap[id].length;
                  
                     //loops through subscribers
-                    for(uint j; j < subscribersMap[id].length; j++) {
+                    for(uint j; j < sublength; j++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
