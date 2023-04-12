@@ -15,10 +15,7 @@ function transferFrom(address from, address to, uint value) external returns (bo
 
 contract ClockTowerSubscribe {
 
-    constructor() payable {
-    }
-
-     /*
+      /*
     //Require error codes
     0 = No error
     1 = ERC20 token already added
@@ -50,15 +47,15 @@ contract ClockTowerSubscribe {
    // address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    uint public fee = 10200;
+    uint public fee;
 
     //0.01 eth in wei
-    uint fixedFee = 10000000000000000;
+    uint fixedFee;
 
     //maximum gas value before waiting (in gigawei)
-    uint maxGasPrice = 50000000000;
+    uint maxGasPrice;
     //maximum remits per transaction
-    uint maxRemits = 5;
+    uint maxRemits;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
     // uint pageCount;
@@ -71,13 +68,15 @@ contract ClockTowerSubscribe {
     bool pageGo;
 
     //circuit breaker
-    bool stopped = false;
+    bool stopped;
 
     //variable for last checked by day
-    uint40 lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
+    uint40 lastCheckedDay;
 
     //admin addresses
-    address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+    address admin;
+
+  
 
     enum Frequency {
         WEEKLY,
@@ -206,6 +205,42 @@ contract ClockTowerSubscribe {
         bool subscribe
     );
     */
+
+   constructor() payable {
+         //admin addresses
+   // address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    //10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    fee = 10200;
+
+    //0.01 eth in wei
+    fixedFee = 10000000000000000;
+
+    //maximum gas value before waiting (in gigawei)
+    maxGasPrice = 50000000000;
+    //maximum remits per transaction
+    maxRemits = 5;
+    //index if transaction pagination needed due to remit amount being larger than block
+    //PageStart pageStart;
+    // uint pageCount;
+    //bool pageGo;
+
+    //approved contract addresses
+    //address[] approvedERC20;
+
+    // uint pageCount;
+    //bool pageGo;
+
+    //circuit breaker
+    stopped = false;
+
+    //variable for last checked by day
+    lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
+
+    //admin addresses
+    admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    }
     //-------------------------------------------
 
     //--------------Account Mappings-------------
