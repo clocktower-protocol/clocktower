@@ -43,9 +43,6 @@ contract ClockTowerSubscribe {
     23 = Only provider can cancel subscription
     */
 
-    //admin addresses
-   // address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
     uint public fee;
 
@@ -59,7 +56,6 @@ contract ClockTowerSubscribe {
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
     // uint pageCount;
-    //bool pageGo;
 
     //approved contract addresses
     address[] approvedERC20;
@@ -75,8 +71,6 @@ contract ClockTowerSubscribe {
 
     //admin addresses
     address admin;
-
-  
 
     enum Frequency {
         WEEKLY,
@@ -207,9 +201,7 @@ contract ClockTowerSubscribe {
     */
 
    constructor() payable {
-         //admin addresses
-   // address admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-
+        
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
     fee = 10200;
 
@@ -220,16 +212,6 @@ contract ClockTowerSubscribe {
     maxGasPrice = 50000000000;
     //maximum remits per transaction
     maxRemits = 5;
-    //index if transaction pagination needed due to remit amount being larger than block
-    //PageStart pageStart;
-    // uint pageCount;
-    //bool pageGo;
-
-    //approved contract addresses
-    //address[] approvedERC20;
-
-    // uint pageCount;
-    //bool pageGo;
 
     //circuit breaker
     stopped = false;
@@ -496,13 +478,6 @@ contract ClockTowerSubscribe {
         return subscribersMap[id];
     }
 
-    //gets subscription TODO:
-    /*
-    function getSubscription(bytes32 id) external view returns (Subscription memory) {
-        
-    }
-    */
-
     //subscriptions by account
     function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
@@ -526,7 +501,6 @@ contract ClockTowerSubscribe {
         return subViews;
     }
 
-    //TODO:
     //gets subscribers by subscription id
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
@@ -984,9 +958,6 @@ contract ClockTowerSubscribe {
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0, ProvEvent.CREATE);
     }
-
-    //TODO:
-    //Might want to require unlimited allowance for subscriptions
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
