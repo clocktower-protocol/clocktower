@@ -172,6 +172,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "getSubscriptionsByAccount(bool,address)": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
+    "setExternalCallers(bool)": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "toggleContractActive()": FunctionFragment;
     "unixToTime(uint256)": FunctionFragment;
@@ -201,6 +202,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "getSubscriptionsByAccount"
       | "remit"
       | "removeERC20Contract"
+      | "setExternalCallers"
       | "subscribe"
       | "toggleContractActive"
       | "unixToTime"
@@ -290,6 +292,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setExternalCallers",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -373,6 +379,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setExternalCallers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
@@ -573,6 +583,11 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setExternalCallers(
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -702,6 +717,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setExternalCallers(
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   subscribe(
     subscription: ClockTowerSubscribe.SubscriptionStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -822,6 +842,11 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setExternalCallers(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -992,6 +1017,11 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setExternalCallers(
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1111,6 +1141,11 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     removeERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setExternalCallers(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
