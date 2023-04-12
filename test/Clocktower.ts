@@ -652,6 +652,20 @@ describe("Clocktower", function(){
 
             console.log(returnSubs.length)
         })
+        it("Should allow external callers", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+             //adds CLOCK to approved tokens
+             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+             //creates subscription and subscribes
+             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            //sets external callers
+            await hardhatClockSubscribe.setExternalCallers(true)
+
+            expect(await hardhatClockSubscribe.connect(otherAccount).remit())
+        })
 
         
     })

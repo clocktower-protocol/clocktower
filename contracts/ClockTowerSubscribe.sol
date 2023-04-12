@@ -72,6 +72,9 @@ contract ClockTowerSubscribe {
     //admin addresses
     address admin;
 
+    //external callers
+    bool allowExternalCallers;
+
     enum Frequency {
         WEEKLY,
         MONTHLY,
@@ -271,6 +274,11 @@ contract ClockTowerSubscribe {
         require((msg.sender == newAddress) && (newAddress != address(0)));
 
         admin = newAddress;
+    }
+
+    //allow external callers
+    function setExternalCallers(bool status) isAdmin external {
+        allowExternalCallers = status;
     }
 
     //emergency circuit breaker controls
@@ -962,7 +970,11 @@ contract ClockTowerSubscribe {
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
     //completes money transfer for subscribers
-    function remit() external isAdmin {
+    function remit() external {
+
+        if(!allowExternalCallers) {
+            adminRequire();
+        }
 
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "Gas price too high");
