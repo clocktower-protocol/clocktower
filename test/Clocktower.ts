@@ -666,6 +666,31 @@ describe("Clocktower", function(){
 
             expect(await hardhatClockSubscribe.connect(otherAccount).remit())
         })
+        it("Should predict fees", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            //moves time
+            await time.increaseTo(twoHoursAhead);
+
+            //gets fee estimate
+            let feeArray = await hardhatClockSubscribe.feeEstimate();
+
+            console.log((feeArray).length)
+
+            feeArray.forEach((estimate) =>{
+
+                console.log(estimate.fee)
+                console.log("--------------------")
+                console.log(estimate.token)
+
+            })
+        })
 
         
     })

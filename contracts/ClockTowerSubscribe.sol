@@ -560,7 +560,7 @@ contract ClockTowerSubscribe {
         uint subCounter;
 
         FeeEstimate[] memory feeArray = new FeeEstimate[](maxRemits);
-
+    
         //gets subscriptions from mappings
        
         //loops through types
@@ -622,7 +622,22 @@ contract ClockTowerSubscribe {
                 }
             }
         }
-        return feeArray;
+
+        //strips out unused array elements
+        uint totalSubs;
+        for(uint j; j < feeArray.length; j++) {
+            if(feeArray[j].token == address(0)){
+                totalSubs = j;
+                break;
+            }
+        }
+        FeeEstimate[] memory feeArray2 = new FeeEstimate[](totalSubs);
+
+        for(uint k; k < totalSubs; k++) {
+            feeArray2[k] = feeArray[k];
+        }
+        
+        return feeArray2;
     }
     
     
