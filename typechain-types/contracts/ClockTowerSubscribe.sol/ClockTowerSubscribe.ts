@@ -154,7 +154,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   functions: {
     "addERC20Contract(address)": FunctionFragment;
     "admin()": FunctionFragment;
-    "allowExternalCallers()": FunctionFragment;
     "callerFee()": FunctionFragment;
     "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
@@ -162,6 +161,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "changeMaxGasPrice(uint256)": FunctionFragment;
     "changeMaxRemits(uint256)": FunctionFragment;
     "changeSystemFee(uint256)": FunctionFragment;
+    "collectFees()": FunctionFragment;
     "createSubscription(uint256,address,string,uint8,uint16)": FunctionFragment;
     "feeBalance(bytes32,address)": FunctionFragment;
     "feeEstimate()": FunctionFragment;
@@ -190,7 +190,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addERC20Contract"
       | "admin"
-      | "allowExternalCallers"
       | "callerFee"
       | "cancelSubscription"
       | "changeAdmin"
@@ -198,6 +197,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "changeMaxGasPrice"
       | "changeMaxRemits"
       | "changeSystemFee"
+      | "collectFees"
       | "createSubscription"
       | "feeBalance"
       | "feeEstimate"
@@ -227,10 +227,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "allowExternalCallers",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "cancelSubscription",
@@ -255,6 +251,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "changeSystemFee",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "collectFees",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "createSubscription",
@@ -348,10 +348,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "allowExternalCallers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "cancelSubscription",
@@ -375,6 +371,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "changeSystemFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "collectFees",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -532,8 +532,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<[string]>;
 
-    allowExternalCallers(overrides?: CallOverrides): Promise<[boolean]>;
-
     callerFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cancelSubscription(
@@ -563,6 +561,10 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     changeSystemFee(
       _fixed_fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    collectFees(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -683,8 +685,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   admin(overrides?: CallOverrides): Promise<string>;
 
-  allowExternalCallers(overrides?: CallOverrides): Promise<boolean>;
-
   callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   cancelSubscription(
@@ -714,6 +714,10 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   changeSystemFee(
     _fixed_fee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  collectFees(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -826,8 +830,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<string>;
 
-    allowExternalCallers(overrides?: CallOverrides): Promise<boolean>;
-
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancelSubscription(
@@ -859,6 +861,8 @@ export interface ClockTowerSubscribe extends BaseContract {
       _fixed_fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    collectFees(overrides?: CallOverrides): Promise<void>;
 
     createSubscription(
       amount: PromiseOrValue<BigNumberish>,
@@ -1015,8 +1019,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowExternalCallers(overrides?: CallOverrides): Promise<BigNumber>;
-
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancelSubscription(
@@ -1046,6 +1048,10 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     changeSystemFee(
       _fixed_fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    collectFees(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1155,10 +1161,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    allowExternalCallers(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     callerFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cancelSubscription(
@@ -1188,6 +1190,10 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     changeSystemFee(
       _fixed_fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    collectFees(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
