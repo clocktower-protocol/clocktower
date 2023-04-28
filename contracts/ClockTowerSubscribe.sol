@@ -44,15 +44,15 @@ contract ClockTowerSubscribe {
     */
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    uint public fee;
+    uint public callerFee;
 
     //0.01 eth in wei
-    uint fixedFee;
+    uint public systemFee;
 
     //maximum gas value before waiting (in gigawei)
-    uint maxGasPrice;
+    uint public maxGasPrice;
     //maximum remits per transaction
-    uint maxRemits;
+    uint public maxRemits;
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
     // uint pageCount;
@@ -61,19 +61,19 @@ contract ClockTowerSubscribe {
     address[] approvedERC20;
 
     // uint pageCount;
-    bool pageGo;
+    bool public pageGo;
 
     //circuit breaker
-    bool stopped;
+    bool public stopped;
 
     //variable for last checked by day
-    uint40 lastCheckedDay;
+    uint40 public lastCheckedDay;
 
     //admin addresses
-    address admin;
+    address public admin;
 
     //external callers
-    bool allowExternalCallers;
+    bool public allowExternalCallers;
 
     enum Frequency {
         WEEKLY,
@@ -206,10 +206,10 @@ contract ClockTowerSubscribe {
    constructor() payable {
         
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    fee = 10200;
+    callerFee = 10200;
 
     //0.01 eth in wei
-    fixedFee = 10000000000000000;
+    systemFee = 10000000000000000;
 
     //maximum gas value before waiting (in gigawei)
     maxGasPrice = 50000000000;
@@ -324,12 +324,12 @@ contract ClockTowerSubscribe {
 
     //change fee
     function changeFee(uint _fee) isAdmin external {
-        fee = _fee;
+        callerFee = _fee;
     }
 
     //change fixed fee
     function changeFixedFee(uint _fixed_fee) isAdmin external {
-        fixedFee = _fixed_fee;
+        systemFee = _fixed_fee;
     }
 
     //change max gas
@@ -478,7 +478,7 @@ contract ClockTowerSubscribe {
     //VIEW FUNCTIONS -----------------------------------------------
 
     function getFee() external view returns (uint) {
-        return fee;
+        return callerFee;
     }
 
     //gets subscribers by subscription id
@@ -593,7 +593,7 @@ contract ClockTowerSubscribe {
                     FeeEstimate memory feeEst;
               
                     //calculates fee balance
-                    uint subFee = (amount * fee / 10000) - amount;
+                    uint subFee = (amount * callerFee / 10000) - amount;
                     uint totalFee;
                  
                     //loops through subscribers
@@ -948,7 +948,7 @@ contract ClockTowerSubscribe {
         require(token != address(0), "8");
 
          //require sent ETH to be higher than fixed token fee
-        require(fixedFee <= msg.value, "5");
+        require(systemFee <= msg.value, "5");
 
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
@@ -1049,7 +1049,7 @@ contract ClockTowerSubscribe {
                     */
 
                     //calculates fee balance
-                    uint subFee = (amount * fee / 10000) - amount;
+                    uint subFee = (amount * callerFee / 10000) - amount;
                     uint totalFee;
 
                     uint sublength = subscribersMap[id].length;
