@@ -281,7 +281,8 @@ contract ClockTowerSubscribe {
         _;
     }
 
-    //TODO: Create skim method to get accumulated systemFees
+    //TODO: need to test
+    //Create skim method to get accumulated systemFees
     function collectFees() isAdmin external {
         admin.transfer(address(this).balance - 5000);
     }
