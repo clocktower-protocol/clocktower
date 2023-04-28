@@ -323,12 +323,12 @@ contract ClockTowerSubscribe {
     }
 
     //change fee
-    function changeFee(uint _fee) isAdmin external {
+    function changeCallerFee(uint _fee) isAdmin external {
         callerFee = _fee;
     }
 
     //change fixed fee
-    function changeFixedFee(uint _fixed_fee) isAdmin external {
+    function changeSystemFee(uint _fixed_fee) isAdmin external {
         systemFee = _fixed_fee;
     }
 
