@@ -175,14 +175,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "lastCheckedDay()": FunctionFragment;
     "maxGasPrice()": FunctionFragment;
     "maxRemits()": FunctionFragment;
-    "pageGo()": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "setExternalCallers(bool)": FunctionFragment;
-    "stopped()": FunctionFragment;
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "systemFee()": FunctionFragment;
-    "toggleContractActive()": FunctionFragment;
     "unixToTime(uint256)": FunctionFragment;
     "unsubscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "unsubscribeByProvider((bytes32,uint256,address,address,bool,bool,uint8,uint16,string),address)": FunctionFragment;
@@ -213,14 +210,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "lastCheckedDay"
       | "maxGasPrice"
       | "maxRemits"
-      | "pageGo"
       | "remit"
       | "removeERC20Contract"
       | "setExternalCallers"
-      | "stopped"
       | "subscribe"
       | "systemFee"
-      | "toggleContractActive"
       | "unixToTime"
       | "unsubscribe"
       | "unsubscribeByProvider"
@@ -316,7 +310,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pageGo", values?: undefined): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
@@ -326,16 +319,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "setExternalCallers",
     values: [PromiseOrValue<boolean>]
   ): string;
-  encodeFunctionData(functionFragment: "stopped", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
   encodeFunctionData(functionFragment: "systemFee", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "toggleContractActive",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "unixToTime",
     values: [PromiseOrValue<BigNumberish>]
@@ -426,7 +414,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pageGo", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
@@ -436,13 +423,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "setExternalCallers",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "stopped", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "toggleContractActive",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "unixToTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "unsubscribe",
@@ -637,8 +619,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     maxRemits(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    pageGo(overrides?: CallOverrides): Promise<[boolean]>;
-
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -653,18 +633,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    stopped(overrides?: CallOverrides): Promise<[boolean]>;
-
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     systemFee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    toggleContractActive(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     unixToTime(
       unix: PromiseOrValue<BigNumberish>,
@@ -787,8 +761,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
-  pageGo(overrides?: CallOverrides): Promise<boolean>;
-
   remit(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -803,18 +775,12 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  stopped(overrides?: CallOverrides): Promise<boolean>;
-
   subscribe(
     subscription: ClockTowerSubscribe.SubscriptionStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  toggleContractActive(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   unixToTime(
     unix: PromiseOrValue<BigNumberish>,
@@ -933,8 +899,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pageGo(overrides?: CallOverrides): Promise<boolean>;
-
     remit(overrides?: CallOverrides): Promise<void>;
 
     removeERC20Contract(
@@ -947,16 +911,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    stopped(overrides?: CallOverrides): Promise<boolean>;
-
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    toggleContractActive(overrides?: CallOverrides): Promise<void>;
 
     unixToTime(
       unix: PromiseOrValue<BigNumberish>,
@@ -1119,8 +1079,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pageGo(overrides?: CallOverrides): Promise<BigNumber>;
-
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1135,18 +1093,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    stopped(overrides?: CallOverrides): Promise<BigNumber>;
-
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    toggleContractActive(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     unixToTime(
       unix: PromiseOrValue<BigNumberish>,
@@ -1264,8 +1216,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
     maxRemits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pageGo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     remit(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1280,18 +1230,12 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    stopped(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     subscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     systemFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    toggleContractActive(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     unixToTime(
       unix: PromiseOrValue<BigNumberish>,

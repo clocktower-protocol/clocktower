@@ -61,10 +61,10 @@ contract ClockTowerSubscribe {
     address[] approvedERC20;
 
     // uint pageCount;
-    bool public pageGo;
+    bool pageGo;
 
     //circuit breaker
-    bool public stopped;
+    bool stopped;
 
     //variable for last checked by day
     uint40 public lastCheckedDay;
@@ -282,13 +282,14 @@ contract ClockTowerSubscribe {
     }
 
     //emergency circuit breaker controls
+    /*
     function toggleContractActive() isAdmin external {
         // You can add an additional modifier that restricts stopping a contract to be based on another action, such as a vote of users
         stopped = !stopped;
     }
     modifier stopInEmergency { if (!stopped) _; }
     modifier onlyInEmergency { if (stopped) _; }
-
+    */
     
     //allows admin to add to approved contract addresses
     function addERC20Contract(address erc20Contract) isAdmin external {
@@ -832,7 +833,7 @@ contract ClockTowerSubscribe {
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //refunds fees
+        //refunds fees TODO: test
         
         uint balance = feeBalance[subscription.id][msg.sender];
 
@@ -873,20 +874,18 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(subscription.id, subscriber);
 
         //emit unsubscribe to log
-        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
+        emit SubscriberLog(subscription.id, subscriber, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //TODO: decide if you want to refund fees
-        /*
-
-        uint balance = feeBalance[msg.sender];
+        //refunds fees TODO: test
+        
+        uint balance = feeBalance[subscription.id][subscriber];
 
         //zeros out fee balance
-        delete feeBalance[msg.sender];
+        delete feeBalance[subscription.id][subscriber];
 
         //Refunds fee balance
-        require(ERC20Permit(subscription.token).transfer(msg.sender, balance), "21");
-        */
-
+        require(ERC20Permit(subscription.token).transfer(subscriber, balance), "21");
+        
     }
         
     //Allows provider to cancel subscription
