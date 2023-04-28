@@ -832,16 +832,16 @@ contract ClockTowerSubscribe {
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //TODO: decide if you want to refund fees
-        /*
-        uint balance = feeBalance[msg.sender];
+        //refunds fees
+        
+        uint balance = feeBalance[subscription.id][msg.sender];
 
         //zeros out fee balance
-        delete feeBalance[msg.sender];
+        delete feeBalance[subscription.id][msg.sender];
 
         //Refunds fee balance
         require(ERC20Permit(subscription.token).transfer(msg.sender, balance), "21");
-        */
+        
     }
 
      //lets provider unsubscribe subscriber
