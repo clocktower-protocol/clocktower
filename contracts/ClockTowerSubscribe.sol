@@ -76,10 +76,10 @@ contract ClockTowerSubscribe {
     uint40 public lastCheckedDay;
 
     //admin addresses
-    address public admin;
+    address payable public admin;
 
     //external callers
-    bool public allowExternalCallers;
+    bool allowExternalCallers;
 
     //system fee turned on
     bool allowSystemFee;
@@ -234,7 +234,7 @@ contract ClockTowerSubscribe {
     lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
 
     //admin addresses
-    admin = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+    admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
     }
     //-------------------------------------------
@@ -281,7 +281,12 @@ contract ClockTowerSubscribe {
         _;
     }
 
-    function changeAdmin(address newAddress) isAdmin external {
+    //TODO: Create skim method to get accumulated systemFees
+    function collectFees() isAdmin external {
+        admin.transfer(address(this).balance - 5000);
+    }
+
+    function changeAdmin(address payable newAddress) isAdmin external {
         require((msg.sender == newAddress) && (newAddress != address(0)));
 
         admin = newAddress;
