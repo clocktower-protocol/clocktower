@@ -1011,6 +1011,11 @@ contract ClockTowerSubscribe {
             adminRequire();
         }
 
+         //require sent ETH to be higher than fixed token fee
+        if(allowSystemFee) {
+            require(systemFee <= msg.value, "5");
+        }
+
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "24");
 
@@ -1018,11 +1023,6 @@ contract ClockTowerSubscribe {
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedDay, "14");
-
-        //require sent ETH to be higher than fixed token fee
-        if(allowSystemFee) {
-            require(systemFee <= msg.value, "5");
-        }
 
         //calls time function
         Time memory time = unixToTime(block.timestamp);
