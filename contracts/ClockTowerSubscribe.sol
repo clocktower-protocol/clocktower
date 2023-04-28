@@ -70,7 +70,7 @@ contract ClockTowerSubscribe {
     bool pageGo;
 
     //circuit breaker
-    bool stopped;
+    //bool stopped;
 
     //variable for last checked by day
     uint40 public lastCheckedDay;
@@ -80,6 +80,9 @@ contract ClockTowerSubscribe {
 
     //external callers
     bool public allowExternalCallers;
+
+    //system fee turned on
+    bool allowSystemFee;
 
     enum Frequency {
         WEEKLY,
@@ -223,7 +226,9 @@ contract ClockTowerSubscribe {
     maxRemits = 5;
 
     //circuit breaker
-    stopped = false;
+    //stopped = false;
+
+    allowSystemFee = false;
 
     //variable for last checked by day
     lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
@@ -285,6 +290,12 @@ contract ClockTowerSubscribe {
     //allow external callers
     function setExternalCallers(bool status) isAdmin external {
         allowExternalCallers = status;
+    }
+
+    //allow system fee
+     //allow external callers
+    function systemFeeActivate(bool status) isAdmin external {
+        allowSystemFee = status;
     }
 
     //emergency circuit breaker controls
@@ -994,7 +1005,7 @@ contract ClockTowerSubscribe {
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
     //completes money transfer for subscribers
-    function remit() external {
+    function remit() payable external {
 
         if(!allowExternalCallers) {
             adminRequire();
@@ -1007,6 +1018,11 @@ contract ClockTowerSubscribe {
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > lastCheckedDay, "14");
+
+        //require sent ETH to be higher than fixed token fee
+        if(allowSystemFee) {
+            require(systemFee <= msg.value, "5");
+        }
 
         //calls time function
         Time memory time = unixToTime(block.timestamp);
