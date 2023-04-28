@@ -41,6 +41,12 @@ contract ClockTowerSubscribe {
     21 = Problem sending refund
     22 = Problem sending fees
     23 = Only provider can cancel subscription
+    24 = Gas price too high
+    25 = String must be <= 32 bytes
+    26 = Must be between 1 and 7
+    27 = Must be between 1 and 28
+    28 = Must be between 1 and 90
+    29 = Must be between 1 and 365
     */
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
@@ -547,7 +553,7 @@ contract ClockTowerSubscribe {
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
          //if gas is above max gas don't call function
-        require(tx.gasprice < maxGasPrice, "Gas price too high");
+        require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
@@ -956,20 +962,20 @@ contract ClockTowerSubscribe {
         require(amount > 0, "10");
 
         //description must be 32 bytes or less
-        require(bytes(description).length <= 32, "String must be <= 32 bytes");
+        require(bytes(description).length <= 32, "25");
 
         //validates dueDay
         if(frequency == Frequency.WEEKLY) {
-            require(0 < dueDay && dueDay <= 7, "Must be between 1 and 7");
+            require(0 < dueDay && dueDay <= 7, "26");
         }
         if(frequency == Frequency.MONTHLY) {
-            require(0 < dueDay && dueDay <= 28, "Mustust be between 1 and 28");
+            require(0 < dueDay && dueDay <= 28, "27");
         }
         if(frequency == Frequency.QUARTERLY){
-             require(0 < dueDay && dueDay <= 90, "Must be between 1 and 90");
+             require(0 < dueDay && dueDay <= 90, "28");
         }
         if(frequency == Frequency.YEARLY) {
-            require(0 < dueDay && dueDay <= 365, "Must be between 1 and 365");
+            require(0 < dueDay && dueDay <= 365, "29");
         }
 
         //TODO: might want to set a token minimum
@@ -995,7 +1001,7 @@ contract ClockTowerSubscribe {
         }
 
         //if gas is above max gas don't call function
-        require(tx.gasprice < maxGasPrice, "Gas price too high");
+        require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
