@@ -533,6 +533,7 @@ contract ClockTowerSubscribe {
         return subViews;
     }
 
+    //TODO: Could use logs in frontend instead
     //gets subscribers by subscription id
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
@@ -969,9 +970,10 @@ contract ClockTowerSubscribe {
         //cannot be ETH or zero address
         require(token != address(0), "8");
 
-         //require sent ETH to be higher than fixed token fee
-        require(systemFee <= msg.value, "5");
-
+        //require sent ETH to be higher than fixed token fee
+        if(allowSystemFee) {
+            require(systemFee <= msg.value, "5");
+        }
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
@@ -1017,7 +1019,7 @@ contract ClockTowerSubscribe {
             adminRequire();
         }
 
-         //require sent ETH to be higher than fixed token fee
+        //require sent ETH to be higher than fixed token fee
         if(allowSystemFee) {
             require(systemFee <= msg.value, "5");
         }
