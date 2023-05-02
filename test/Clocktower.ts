@@ -691,6 +691,32 @@ describe("Clocktower", function(){
 
             })
         })
+        it("Should collect system fees", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+             //adds CLOCK to approved tokens
+             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+            //turns on system fee collection
+             await hardhatClockSubscribe.systemFeeActivate(true)
+
+             console.log(await owner.getBalance())
+
+             //creates subscription and subscribes
+             await hardhatClockSubscribe.connect(otherAccount).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+             //let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            // await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            console.log(owner.address)
+            // let ownerBalance1 = await hardhatCLOCKToken.balanceOf(owner.address)
+            let ownerBalance1 = await owner.getBalance()
+            console.log(ownerBalance1)
+            //collect fees
+            await hardhatClockSubscribe.collectFees()
+
+            let ownerBalance2 = await owner.getBalance()
+
+            console.log(ownerBalance2)
+        })
 
         
     })

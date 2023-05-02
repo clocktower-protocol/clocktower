@@ -316,6 +316,7 @@ contract ClockTowerSubscribe {
     
     //allows admin to add to approved contract addresses
     function addERC20Contract(address erc20Contract) isAdmin external {
+        
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
         
@@ -501,9 +502,11 @@ contract ClockTowerSubscribe {
 
     //VIEW FUNCTIONS -----------------------------------------------
 
+    /*
     function getFee() external view returns (uint) {
         return callerFee;
     }
+    */
 
     //gets subscribers by subscription id
     function getSubscribers(bytes32 id) external view returns (address[] memory) {
@@ -511,6 +514,7 @@ contract ClockTowerSubscribe {
     }
 
     //subscriptions by account
+    
     function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
         SubIndex[] memory indexes;
@@ -532,8 +536,10 @@ contract ClockTowerSubscribe {
         
         return subViews;
     }
+    
 
     //TODO: Could use logs in frontend instead
+    
     //gets subscribers by subscription id
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
@@ -552,6 +558,7 @@ contract ClockTowerSubscribe {
 
         return scriberViews;
     }
+    
 
     //fetches subscription from day maps by id
     function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
