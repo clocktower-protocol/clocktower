@@ -31,51 +31,51 @@ The following are the data structs required by external functions:
 
 ### Subscription Data
 
- struct Subscription {
-    bytes32 id;
-    uint amount;
-    address provider;
-    address token;
-    bool exists;
-    bool cancelled;
-    Frequency frequency;
-    uint16 dueDay;
-    string description;
-}
+#### Subscription (struct)
+- bytes32 id
+- uint amount
+- address provider
+- address token
+- bool exists
+- bool cancelled
+- Frequency frequency
+- uint16 dueDay
+- string description
 
-struct SubView {
-    Subscription subscription;
-    Status status;
-}
+#### SubView (struct)
+- Subscription subscription
+- Status status
+- uint totalSubscribers
 
-struct FeeEstimate {
-    uint fee;
-    address token;
-}
+#### FeeEstimate (struct)
+- uint fee
+- address token
 
-Enum values are represented by numbers starting at zero
+(Enum values are represented by numbers starting at zero)
 
-enum Frequency {
-    WEEKLY,
-    MONTHLY,
-    QUARTERLY,
-    YEARLY
-}
+#### Frequency (enum)
+- WEEKLY
+- MONTHLY
+- QUARTERLY
+- YEARLY
 
-- Weekly = 0
-- Monthly = 1
-- Quarterly = 2
-- Yearly = 3
+#### Status (enum)
+- ACTIVE
+- CANCELLED
+- UNSUBSCRIBED
 
-enum Status {
-    ACTIVE,
-    CANCELLED,
-    UNSUBSCRIBED
-}
+#### SubEvent (enum)
+- PAID
+- FAILED
+- SUBSCRIBED
+- UNSUBSCRIBED
+- FEEFILL
 
-- ACTIVE = 0
-- CANCELLED = 1
-- UNSUBSCRIBED = 3
+#### ProvEvent
+- CREATE
+- CANCEL
+- PAID
+- FAILED
 
 ### Future Payment Data
 
@@ -120,6 +120,33 @@ enum Status {
 
 
 ## Global Variables
+### Subscription Global Variables
+
+#### callerFee
+- uint
+- percentage paid to caller on remits
+- 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+
+#### systemFee
+- uint
+- flat fee paid to admin account when systemFee bool is true
+- in wei
+
+#### maxGasPrice
+- maximum gas value for remit function
+- in gwei
+
+#### maxRemits
+- uint
+- maximum number of remits per remit function (usually based on block maximum)
+
+#### admin
+- address
+- address for admin account
+
+#### lastCheckedDay
+- uint40
+- last time remit was called in epoch time
 
 ## Functions
 ### Subscription Functions
@@ -220,3 +247,35 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+## Error Codes
+### Subscription Error Codes
+    0 = No error
+    1 = ERC20 token already added
+    2 = ERC20 token not added yet
+    3 = No zero address call
+    4 = Time must be in the future
+    5 = Not enough ETH sent
+    6 = Time must be on the hour
+    7 = Subscription doesn't exist
+    8 = Token address cannot be zero
+    9 = Token not approved
+    10 = Amount must be greater than zero
+    11 = Not enough ETH in contract
+    12 = Transfer failed
+    13 = Requires token allowance to be increased
+    14 = Time already checked
+    15 = Token allowance must be unlimited for subscriptions
+    16 = Must have admin privileges
+    17 = Token balance insufficient
+    18 = Must be provider of subscription
+    19 = Subscriber not subscribed
+    20 = Either token allowance or balance insufficient
+    21 = Problem sending refund
+    22 = Problem sending fees
+    23 = Only provider can cancel subscription
+    24 = Gas price too high
+    25 = String must be <= 32 bytes
+    26 = Must be between 1 and 7
+    27 = Must be between 1 and 28
+    28 = Must be between 1 and 90
+    29 = Must be between 1 and 365
