@@ -90,70 +90,69 @@ struct FeeEstimate {
 #### Enums
 (Enum values are represented by numbers starting at zero)
 
-##### Frequency (enum)
-- WEEKLY
-- MONTHLY
-- QUARTERLY
-- YEARLY
+##### Frequency
+```
+enum Frequency {
+    WEEKLY,
+    MONTHLY,
+    QUARTERLY,
+    YEARLY
+}
+```
+| Value | Description|
+|---|---|
+| `0` | WEEKLY |
+| `1` | MONTHLY |
+| `2` | QUARTERLY |
+| `3` | YEARLY |
 
-##### Status (enum)
-- ACTIVE
-- CANCELLED
-- UNSUBSCRIBED
+##### Status
+```
+enum Status {
+    ACTIVE,
+    CANCELLED,
+    UNSUBSCRIBED
+}
+```
+| Value | Description|
+|---|---|
+| `0` | ACTIVE |
+| `1` | CANCELLED |
+| `2` | UNSUBSCRIBED |
 
-##### SubEvent (enum)
-- PAID
-- FAILED
-- SUBSCRIBED
-- UNSUBSCRIBED
-- FEEFILL
+##### SubEvent
+```
+enum SubEvent {
+    PAID,
+    FAILED,
+    SUBSCRIBED, 
+    UNSUBSCRIBED,
+    FEEFILL
+}
+```
+| Value | Description|
+|---|---|
+| `0` | PAID |
+| `1` | FAILED |
+| `2` | SUBSCRIBED |
+| `3` | UNSUBSCRIBED |
+| `4` | FEEFILL |
 
 ##### ProvEvent
-- CREATE
-- CANCEL
-- PAID
-- FAILED
-
-### Future Payment Data
-
-struct Permit {
-    address owner;
-    address spender;
-    uint value;
-    uint deadline;
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
+```
+enum ProvEvent {
+    CREATE,
+    CANCEL,
+    PAID,
+    FAILED
 }
-
-struct Batch {
-    address payable receiver;
-    uint40 unixTime;
-    uint payload;
-    address token;
-}
-
-struct Transaction {
-    bytes32 id;
-    address sender;
-    address payable receiver;
-    address token;
-    uint40 timeTrigger;
-    Status status;
-    uint payload;
-}
-
-enum Status {
-    PENDING,
-    SENT,
-    FAILED,
-    CANCELLED
-}
-
-- PENDING = 0
-- SENT = 1
-- FAILED = 2
-- CANCELLED = 3
+```
+| Value | Description|
+|---|---|
+| `0` | CREATE |
+| `1` | CANCEL |
+| `2` | PAID |
+| `3` | FAILED |
 
 
 ## Global Variables
@@ -298,6 +297,82 @@ Returns:
 |---|---|---|
 | `FeeEstimate[]` | FeeEstimate | See above struct |
 
+## Error Codes
+### Subscription Error Codes
+    0 = No error
+    1 = ERC20 token already added
+    2 = ERC20 token not added yet
+    3 = No zero address call
+    4 = Time must be in the future
+    5 = Not enough ETH sent
+    6 = Time must be on the hour
+    7 = Subscription doesn't exist
+    8 = Token address cannot be zero
+    9 = Token not approved
+    10 = Amount must be greater than zero
+    11 = Not enough ETH in contract
+    12 = Transfer failed
+    13 = Requires token allowance to be increased
+    14 = Time already checked
+    15 = Token allowance must be unlimited for subscriptions
+    16 = Must have admin privileges
+    17 = Token balance insufficient
+    18 = Must be provider of subscription
+    19 = Subscriber not subscribed
+    20 = Either token allowance or balance insufficient
+    21 = Problem sending refund
+    22 = Problem sending fees
+    23 = Only provider can cancel subscription
+    24 = Gas price too high
+    25 = String must be <= 32 bytes
+    26 = Must be between 1 and 7
+    27 = Must be between 1 and 28
+    28 = Must be between 1 and 90
+    29 = Must be between 1 and 365
+
+## Future Payments Contract
+
+### Future Payment Data
+
+struct Permit {
+    address owner;
+    address spender;
+    uint value;
+    uint deadline;
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+
+struct Batch {
+    address payable receiver;
+    uint40 unixTime;
+    uint payload;
+    address token;
+}
+
+struct Transaction {
+    bytes32 id;
+    address sender;
+    address payable receiver;
+    address token;
+    uint40 timeTrigger;
+    Status status;
+    uint payload;
+}
+
+enum Status {
+    PENDING,
+    SENT,
+    FAILED,
+    CANCELLED
+}
+
+- PENDING = 0
+- SENT = 1
+- FAILED = 2
+- CANCELLED = 3
+
 ### Future Payment Functions
 #### Input Functions
 ##### Add Payment
@@ -345,35 +420,3 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
-## Error Codes
-### Subscription Error Codes
-    0 = No error
-    1 = ERC20 token already added
-    2 = ERC20 token not added yet
-    3 = No zero address call
-    4 = Time must be in the future
-    5 = Not enough ETH sent
-    6 = Time must be on the hour
-    7 = Subscription doesn't exist
-    8 = Token address cannot be zero
-    9 = Token not approved
-    10 = Amount must be greater than zero
-    11 = Not enough ETH in contract
-    12 = Transfer failed
-    13 = Requires token allowance to be increased
-    14 = Time already checked
-    15 = Token allowance must be unlimited for subscriptions
-    16 = Must have admin privileges
-    17 = Token balance insufficient
-    18 = Must be provider of subscription
-    19 = Subscriber not subscribed
-    20 = Either token allowance or balance insufficient
-    21 = Problem sending refund
-    22 = Problem sending fees
-    23 = Only provider can cancel subscription
-    24 = Gas price too high
-    25 = String must be <= 32 bytes
-    26 = Must be between 1 and 7
-    27 = Must be between 1 and 28
-    28 = Must be between 1 and 90
-    29 = Must be between 1 and 365
