@@ -196,11 +196,11 @@ Log emitted during subscriber events
 
 | Name | Type | Indexed | Description |
 |---|---|---|---|
-| `id` | bytes32 | - [x] | Unique Subscription id |
-| `subscriber` | address | - [x] | Address of subscriber |
+| `id` | bytes32 | :heavy_check_mark: | Unique Subscription id |
+| `subscriber` | address | :heavy_check_mark: | Address of subscriber |
 | `timestamp` | uint40 | | Unix Epoch timestamp |
 | `amount` | uint | | ERC20 subscription amount in wei |
-| `subEvent` | SubEvent | - [x] | [SubEvent](https://github.com/vhmarx/clocktower#subevent)
+| `subEvent` | SubEvent | :heavy_check_mark: | [SubEvent](https://github.com/vhmarx/clocktower#subevent)
 
 ##### CallerLog
 ```
@@ -218,7 +218,7 @@ Log emitted during Caller events
 |---|---|---|---|
 | `timestamp` | uint40 | | Unix epoch timestamp |
 | `checkedDay` | uint40 | | Day in frequency range checked by Caller |
-| `caller` | address | - [x] | Address of caller |
+| `caller` | address | :heavy_check_mark: | Address of caller |
 | `isFinished` | bool | | Shows if Caller is done |
 
 ##### ProviderLog
@@ -237,12 +237,12 @@ Log emitted during Provider events
 
 | Name | Type | Indexed | Description |
 |---|---|---|---|
-| `id` | bytes32 | - [x] | Unique subscription id |
-| `provider` | address | - [x] | Provider address |
+| `id` | bytes32 | :heavy_check_mark: | Unique subscription id |
+| `provider` | address | :heavy_check_mark: | Provider address |
 | `timestamp` | uint40 | | Unix epoch timestamp |
 | `success` | bool | | Shows if event was successful |
 | `errorCode` | uint8 | | Errorcode if there was a problem |
-| `provEvent` | ProvEvent | - [x] | [ProvEvent](https://github.com/vhmarx/clocktower#provevent) |
+| `provEvent` | ProvEvent | :heavy_check_mark: | [ProvEvent](https://github.com/vhmarx/clocktower#provevent) |
 
 
 ## Functions
