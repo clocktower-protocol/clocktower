@@ -208,7 +208,7 @@ Parameters:
 | `amount` | uint | Amount of subscription in wei |
 | `token` | address | ERC20 address of token used in subscription |
 | `description` | string | Description of subscription |
-| `frequency` | Frequency | see [Frequency](https://github.com/vhmarx/clocktower#frequency) |
+| `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
 | `dueDay` | uint16 | Day in above range based on frequency when subscription is paid |
 
 ##### subscribe
@@ -222,7 +222,7 @@ Allows user to subscribe to subscription
 Parameters: 
 | Name | Type | Description |
 |---|---|---|
-| `subscription` | Subscription | see [Subscription](https://github.com/vhmarx/clocktower#subscription) |
+| `subscription` | Subscription | [Subscription](https://github.com/vhmarx/clocktower#subscription) |
 
 
 ##### unsubscribe
@@ -271,7 +271,7 @@ msg.sender must be creator of subscription
 Parameters: 
 | Name | Type | Description |
 |---|---|---|
-| `subscription` | Subscription | See [Subscription](https://github.com/vhmarx/clocktower#subscription) |
+| `subscription` | Subscription | [Subscription](https://github.com/vhmarx/clocktower#subscription) |
 
 
 #### View Functions
@@ -314,7 +314,7 @@ Parameters:
 Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `SubView[]` | SubView | Array of Subview structs [Subview](https://github.com/vhmarx/clocktower#subview) |
+| `SubView[]` | SubView | Array of [Subview](https://github.com/vhmarx/clocktower#subview) structs |
 
 ##### getSubscribersById
 ```
@@ -333,7 +333,7 @@ Parameters:
 Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `SubscriberView[]` | SubscriberView | Array of SubscriberView structs [SubscriberView](https://github.com/vhmarx/clocktower#subscriberview) |
+| `SubscriberView[]` | SubscriberView | Array of [SubscriberView](https://github.com/vhmarx/clocktower#subscriberview) structs |
 
 ##### getSubByIndex
 ```
@@ -350,13 +350,13 @@ Parameters:
 | Name | Type | Description |
 |---|---|---|
 | `id` | bytes32 | Unique subscription id |
-| `frequency` | Frequency | see [Frequency](https://github.com/vhmarx/clocktower#frequency) |
+| `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
 | `dueDay` | uint16 | Day in range based on frequency when subscription is paid |
 
 Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `subscription` | Subscription | See [Subscription](https://github.com/vhmarx/clocktower#subscription) |
+| `subscription` | Subscription | [Subscription](https://github.com/vhmarx/clocktower#subscription) |
 
 
 ##### feeEstimate
@@ -370,7 +370,7 @@ Returns an array of objects showing the next batch of remits and possible fees
 Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `FeeEstimate[]` | FeeEstimate | Array of FeeEstimate structs [FeeEstimate](https://github.com/vhmarx/clocktower#feeestimate) |
+| `FeeEstimate[]` | FeeEstimate | Array of [FeeEstimate](https://github.com/vhmarx/clocktower#feeestimate) structs |
 
 ## Error Codes
 ### Subscription Error Codes
