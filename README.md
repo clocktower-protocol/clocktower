@@ -61,7 +61,7 @@ The following are the data structs required by external functions:
 | `exists` | bool | True if subscription exists |
 | `cancelled` | bool | True if subscription is cancelled |
 | `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in [frequency range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) when subscription is paid |
+| `dueDay` | uint16 | Day in frequency [range](https://github.com/vhmarx/clocktower#allowed-time-ranges) when subscription is paid |
 | `description` | string | Description of subscription |
 
 
@@ -272,7 +272,7 @@ Parameters:
 | `token` | address | ERC20 address of token used in subscription |
 | `description` | string | Description of subscription |
 | `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) based on frequency when subscription is paid |
+| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower#allowed-time-ranges) based on frequency when subscription is paid |
 
 ##### subscribe
 ```
@@ -414,7 +414,7 @@ Parameters:
 |---|---|---|
 | `id` | bytes32 | Unique subscription id |
 | `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) based on frequency when subscription is paid |
+| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower#allowed-time-ranges) based on frequency when subscription is paid |
 
 Return Values:
 | Name | Type | Description |
