@@ -31,47 +31,84 @@ The following are the data structs required by external functions:
 
 ### Subscription Data
 
-#### Subscription (struct)
-- bytes32 id
-- uint amount
-- address provider
-- address token
-- bool exists
-- bool cancelled
-- Frequency frequency
-- uint16 dueDay
-- string description
+#### Structs
 
-#### SubView (struct)
-- Subscription subscription
-- Status status
-- uint totalSubscribers
+##### Subscription
 
-#### FeeEstimate (struct)
-- uint fee
-- address token
+```
+ struct Subscription {
+    bytes32 id;
+    uint amount;
+    address provider;
+    address token;
+    bool exists;
+    bool cancelled;
+    Frequency frequency;
+    uint16 dueDay;
+    string description;
+}
+```
+| Name | Type | Description|
+|---|---|---|
+| `id` | bytes32 | Unique hash generated for each subscription |
+| `amount` | uint | Amount of subscription in wei |
+| `provider` | address | Address of the creator of the subscription |
+| `token` | address | ERC20 address of token used in subscription |
+| `exists` | bool | True if subscription exists |
+| `cancelled` | bool | True if subscription is cancelled |
+| `frequency` | Frequency | See below |
+| `dueDay` | uint16 | Day in frequency range when subscription is paid |
+| `description` | string | Description of subscription |
 
+
+##### SubView
+```
+ struct SubView {
+    Subscription subscription;
+    Status status;
+    uint totalSubscribers;
+ }
+```
+| Name | Type | Description|
+|---|---|---|
+| `subscription` | Subscription | see above |
+| `status` | Status | See below |
+| `totalsubscribers` | uint | Total number of subscribers |
+
+##### FeeEstimate
+```
+struct FeeEstimate {
+    uint fee;
+    address token;
+}
+```
+| Name | Type | Description|
+|---|---|---|
+| `fee` | uint | Fee amount in wei
+| `token` | address | ERC20 address of token |
+
+#### Enums
 (Enum values are represented by numbers starting at zero)
 
-#### Frequency (enum)
+##### Frequency (enum)
 - WEEKLY
 - MONTHLY
 - QUARTERLY
 - YEARLY
 
-#### Status (enum)
+##### Status (enum)
 - ACTIVE
 - CANCELLED
 - UNSUBSCRIBED
 
-#### SubEvent (enum)
+##### SubEvent (enum)
 - PAID
 - FAILED
 - SUBSCRIBED
 - UNSUBSCRIBED
 - FEEFILL
 
-#### ProvEvent
+##### ProvEvent
 - CREATE
 - CANCEL
 - PAID
@@ -122,38 +159,28 @@ enum Status {
 ## Global Variables
 ### Subscription Global Variables
 
-#### callerFee
-- uint
-- percentage paid to caller on remits
-- 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+| Name | Type | Description| Format |
+|---|---|---|---|
+| `callerFee` | uint | Percentage paid to caller on remits | 10000 = No fee, 10100 = 1%, 10001 = 0.01% |
+| `systemFee` | uint | Flat fee paid to admin account when systemFee bool is true | wei |
+| `maxGasPrice` | uint | Maximum gas value for remit function | gwei |
+| `maxRemits` | uint | Maximum number of remits per remit function (usually based on block max) | |
+| `admin` | address | Address for admin account |
+| `lastCheckedDay` | uint40 | Last time remit ws called | Unix epoch time |
 
-#### systemFee
-- uint
-- flat fee paid to admin account when systemFee bool is true
-- in wei
-
-#### maxGasPrice
-- maximum gas value for remit function
-- in gwei
-
-#### maxRemits
-- uint
-- maximum number of remits per remit function (usually based on block maximum)
-
-#### admin
-- address
-- address for admin account
-
-#### lastCheckedDay
-- uint40
-- last time remit was called in epoch time
 
 ## Functions
 ### Subscription Functions
 #### Input Functions
-##### Create Subscription
+##### createSubscription
 ```
-createSubscription(uint amount, address token, string description, Frequency frequency, uint16 dueDay)
+createSubscription(
+    uint amount,
+    address token, 
+    string description, 
+    Frequency frequency, 
+    uint16 dueDay
+) external payable
 ```
 Allows provider to create a new subscription. 
 
@@ -161,45 +188,116 @@ Allowed DueDay Ranges
 - Weekly Subscriptions -- 1 - 7 (Weekdays)
 - Monthly Subscriptions -- 1 - 28 (Day of Month)
 - Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
-- Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
-##### Subscribe
+- Yearly Subscription -- 1 - 365 (Day of Year  (not including leap days))
+
+Parameters:
+
+| Name | Type | Description |
+|---|---|---|
+| `amount` | uint | Amount of subscription in wei |
+| `token` | address | ERC20 address of token used in subscription |
+| `description` | string | Description of subscription |
+| `frequency` | Frequency | see enum above |
+| `dueDay` | uint16 | Day in above range based on frequency when subscription is paid |
+
+##### subscribe
 ```
-subscribe(Subscription subscription)
+subscribe(
+    Subscription subscription
+) external payable
 ```
-Description: Allows user to subscribe to subscription
-##### Unsubscribe
+Allows user to subscribe to subscription
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `subscription` | Subscription | see Struct above |
+
+
+##### unsubscribe
 ```
-unsubscribe(bytes32 id)
+unsubscribe(
+    bytes32 id
+) external payable
 ```
-Allows user to unsubscribe to subscription
-##### Unsubscribe By Provider
+Allows user to unsubscribe from subscription. 
+
+msg.sender must be subscribed to subscription. 
+
+Parameters:
+| Name | Type | Description |
+|---|---|---|
+| `id` | bytes32 | Unique subscription id |
+
+##### unsubscribeByProvider
 ```
-unsubscribeByProvider(address subscriber, bytes32 id)
+unsubscribeByProvider(
+    address subscriber, 
+    bytes32 id
+) external
 ```
-Allows provider to cancel subscriber on their created subscriptions
-##### Cancel Subscription
+Allows provider to cancel subscriber from their created subscriptions. 
+
+msg.sender must be creator of subscription and subscriber must be subscribed. 
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `subscriber` | address | Subscriber address |
+| `id` | bytes32 | Unique subscription id |
+
+
+##### cancelSubscription
 ```
-cancelSubscription(Subscription subscription)
+cancelSubscription(
+    Subscription subscription
+) external
 ```
 Allows provider to cancel subscription. All existing subscribers will no longer be charged
-##### Create Subscription
-```
-createSubscription(uint amount, address token, string description, Frequency frequency, uint16 dueDay)
-```
-Allows provider to create a new subscription
-#### View Functions
-##### Get Account Subscriptions
-```
-getAccountSubscriptions(bool bySubscriber) returns (SubView[])
-```
-Returns array of objects containing subscription and status
 
-If bySubscriber is true it gets a list of subscriptions they are subscribed to. If false it gets a list of subscriptions they created as the provider. 
-##### Estimate Fees
+msg.sender must be creator of subscription
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `subscription` | Subscription | See above struct |
+
+
+#### View Functions
+##### getAccountSubscriptions
 ```
-feeEstimate() returns(FeeEstimate[]) 
+getAccountSubscriptions(
+    bool bySubscriber
+    ) returns (SubView[])
 ```
-Returns an object showing the next batch of remits and possible fees
+Returns an array of objects containing subscription and status
+
+If bySubscriber is true it gets a list of subscriptions msg.sender is subscribed to. 
+If false it gets a list of subscriptions msg.sender created as the provider. 
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `bySubscriber` | bool | See above description of bool |
+
+Returns:
+| Name | Type | Description |
+|---|---|---|
+| `SubView[]` | SubView | See above struct |
+
+##### feeEstimate
+```
+feeEstimate(
+
+) returns(FeeEstimate[]) 
+```
+Returns an array of objects showing the next batch of remits and possible fees
+
+Returns:
+| Name | Type | Description |
+|---|---|---|
+| `FeeEstimate[]` | FeeEstimate | See above struct |
+
 ### Future Payment Functions
 #### Input Functions
 ##### Add Payment
