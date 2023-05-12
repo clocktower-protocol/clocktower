@@ -508,6 +508,8 @@ contract ClockTowerSubscribe {
     }
     */
 
+    //TODO: is this redundant with getSubscribersById?
+
     //gets subscribers by subscription id
     function getSubscribers(bytes32 id) external view returns (address[] memory) {
         return subscribersMap[id];
@@ -559,7 +561,7 @@ contract ClockTowerSubscribe {
         return scriberViews;
     }
     
-
+    //TODO: Is this redundant with getSubscribers and getSubscibersById?
     //fetches subscription from day maps by id
     function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
 

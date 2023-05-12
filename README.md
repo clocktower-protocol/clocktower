@@ -84,8 +84,20 @@ struct FeeEstimate {
 ```
 | Name | Type | Description|
 |---|---|---|
-| `fee` | uint | Fee amount in wei
+| `fee` | uint | Fee amount in wei |
 | `token` | address | ERC20 address of token |
+
+##### SubscriberView
+```
+struct SubscriberView {
+    address subscriber;
+    uint feeBalance;
+}
+```
+| Name | Type | Description|
+|---|---|---|
+| `subscriber` | address | Subscriber address |
+| `feeBalance` | uint | Fee balance of subscriber in wei |
 
 #### Enums
 (Enum values are represented by numbers starting at zero)
@@ -173,7 +185,7 @@ enum ProvEvent {
 #### Input Functions
 ##### createSubscription
 ```
-createSubscription(
+function createSubscription(
     uint amount,
     address token, 
     string description, 
@@ -201,7 +213,7 @@ Parameters:
 
 ##### subscribe
 ```
-subscribe(
+function subscribe(
     Subscription subscription
 ) external payable
 ```
@@ -215,7 +227,7 @@ Parameters:
 
 ##### unsubscribe
 ```
-unsubscribe(
+function unsubscribe(
     bytes32 id
 ) external payable
 ```
@@ -230,7 +242,7 @@ Parameters:
 
 ##### unsubscribeByProvider
 ```
-unsubscribeByProvider(
+function unsubscribeByProvider(
     address subscriber, 
     bytes32 id
 ) external
@@ -248,7 +260,7 @@ Parameters:
 
 ##### cancelSubscription
 ```
-cancelSubscription(
+function cancelSubscription(
     Subscription subscription
 ) external
 ```
@@ -263,9 +275,29 @@ Parameters:
 
 
 #### View Functions
+##### getSubscribers
+```
+function getSubscribers(
+    bytes32 id
+) external view returns (address[] memory)
+```
+
+Returns an array of all subscriber addresses per subscription
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `id` | bytes32 | Unique subscription id |
+
+Return Values:
+| Name | Type | Description |
+|---|---|---|
+| `address[]` | address | Array of subscriber addresses |
+
+
 ##### getAccountSubscriptions
 ```
-getAccountSubscriptions(
+function getAccountSubscriptions(
     bool bySubscriber
     ) returns (SubView[])
 ```
@@ -279,23 +311,66 @@ Parameters:
 |---|---|---|
 | `bySubscriber` | bool | See above description of bool |
 
-Returns:
+Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `SubView[]` | SubView | See above struct |
+| `SubView[]` | SubView | Array of Subview structs (see above) |
+
+##### getSubscribersById
+```
+function getSubscribersById(
+    bytes32 id
+    ) external view returns (SubscriberView[] memory)
+```
+
+Returns array of objects containing subscriber info. 
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `id` | bytes32 | Unique subscription id |
+
+Return Values:
+| Name | Type | Description |
+|---|---|---|
+| `SubscriberView[]` | SubscriberView | Array of SubscriberView structs (see above) |
+
+##### getSubByIndex
+```
+function getSubByIndex(
+    bytes32 id, 
+    Frequency frequency, 
+    uint16 dueDay
+    ) view public returns(Subscription subscription)
+```
+
+Returns subscription object
+
+Parameters: 
+| Name | Type | Description |
+|---|---|---|
+| `id` | bytes32 | Unique subscription id |
+| `frequency` | Frequency | see enum above |
+| `dueDay` | uint16 | Day in range based on frequency when subscription is paid |
+
+Return Values:
+| Name | Type | Description |
+|---|---|---|
+| `subscription` | Subscription | See above struct |
+
 
 ##### feeEstimate
 ```
-feeEstimate(
+function feeEstimate(
 
 ) returns(FeeEstimate[]) 
 ```
 Returns an array of objects showing the next batch of remits and possible fees
 
-Returns:
+Return Values:
 | Name | Type | Description |
 |---|---|---|
-| `FeeEstimate[]` | FeeEstimate | See above struct |
+| `FeeEstimate[]` | FeeEstimate | Array of FeeEstimate structs (see above) |
 
 ## Error Codes
 ### Subscription Error Codes
