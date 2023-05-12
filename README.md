@@ -195,7 +195,7 @@ event SubscriberLog(
 Log emitted during subscriber events
 
 | Name | Type | Indexed | Description |
-|---|---:---:---|
+|---|---|:---:|---|
 | `id` | bytes32 | :heavy_check_mark: | Unique Subscription id |
 | `subscriber` | address | :heavy_check_mark: | Address of subscriber |
 | `timestamp` | uint40 | | Unix Epoch timestamp |
@@ -215,7 +215,7 @@ event CallerLog(
 Log emitted during Caller events
 
 | Name | Type | Indexed | Description |
-|---|---:---:---|
+|---|---|:---:|---|
 | `timestamp` | uint40 | | Unix epoch timestamp |
 | `checkedDay` | uint40 | | Day in frequency range checked by Caller |
 | `caller` | address | :heavy_check_mark: | Address of caller |
@@ -236,7 +236,7 @@ event ProviderLog(
 Log emitted during Provider events
 
 | Name | Type | Indexed | Description |
-|---|---:---:---|
+|---|---|:---:|---|
 | `id` | bytes32 | :heavy_check_mark: | Unique subscription id |
 | `provider` | address | :heavy_check_mark: | Provider address |
 | `timestamp` | uint40 | | Unix epoch timestamp |
