@@ -186,6 +186,7 @@ contract ClockTowerSubscribe {
         SubEvent indexed subEvent
     );
 
+    //TODO: isFinished is a weird name for this
     event CallerLog(
         uint40 timestamp,
         uint40 checkedDay,
