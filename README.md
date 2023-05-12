@@ -20,11 +20,15 @@ Things are further complicated when considering that timed transactions need to 
 
 With this in mind we have chosen the following increments that can represent the most common schedules:
 
-- Future Transactions -- Unixtime / 3600 (Unix Hours)
+### Allowed Time Ranges
+
 - Weekly Subscriptions -- 1 - 7 (Weekdays)
 - Monthly Subscriptions -- 1 - 28 (Day of Month)
 - Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
 - Yearly Subscription -- 1 - 365 (Day of Year  (not indcluding leap days))
+
+### Future Transaction Range
+- Future Transactions -- Unixtime / 3600 (Unix Hours)
 
 ## Data Structures
 The following are the data structs required by external functions:
@@ -56,8 +60,8 @@ The following are the data structs required by external functions:
 | `token` | address | ERC20 address of token used in subscription |
 | `exists` | bool | True if subscription exists |
 | `cancelled` | bool | True if subscription is cancelled |
-| `frequency` | Frequency | See [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in frequency range when subscription is paid |
+| `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
+| `dueDay` | uint16 | Day in [frequency range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) when subscription is paid |
 | `description` | string | Description of subscription |
 
 
@@ -71,8 +75,8 @@ The following are the data structs required by external functions:
 ```
 | Name | Type | Description|
 |---|---|---|
-| `subscription` | Subscription | see above |
-| `status` | Status | See below |
+| `subscription` | Subscription | [Subscription](https://github.com/vhmarx/clocktower#subscription) |
+| `status` | Status | [Status](https://github.com/vhmarx/clocktower#status) |
 | `totalsubscribers` | uint | Total number of subscribers |
 
 ##### FeeEstimate
@@ -260,12 +264,6 @@ function createSubscription(
 ```
 Allows provider to create a new subscription. 
 
-Allowed DueDay Ranges
-- Weekly Subscriptions -- 1 - 7 (Weekdays)
-- Monthly Subscriptions -- 1 - 28 (Day of Month)
-- Quarterly Subscriptions -- 1 - 90 (Day of Quarter)
-- Yearly Subscription -- 1 - 365 (Day of Year  (not including leap days))
-
 Parameters:
 
 | Name | Type | Description |
@@ -274,7 +272,7 @@ Parameters:
 | `token` | address | ERC20 address of token used in subscription |
 | `description` | string | Description of subscription |
 | `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in above range based on frequency when subscription is paid |
+| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) based on frequency when subscription is paid |
 
 ##### subscribe
 ```
@@ -416,7 +414,7 @@ Parameters:
 |---|---|---|
 | `id` | bytes32 | Unique subscription id |
 | `frequency` | Frequency | [Frequency](https://github.com/vhmarx/clocktower#frequency) |
-| `dueDay` | uint16 | Day in range based on frequency when subscription is paid |
+| `dueDay` | uint16 | Day in [range](https://github.com/vhmarx/clocktower/edit/master/README.md#allowed-time-ranges) based on frequency when subscription is paid |
 
 Return Values:
 | Name | Type | Description |
