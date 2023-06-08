@@ -1153,12 +1153,15 @@ contract ClockTowerSubscribe {
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
+                                    //TODO: need to adjust based on frequency
                                     //remits to contract to refill fee balance
                                     feeBalance[id][subscriber] += amount;
                                     require(ERC20Permit(token).transferFrom(subscriber, address(this), amount));
                                 }
                             } else {
                                 //FAILURE
+                                //TODO:Refunds to partial Provider or Sub or keep in contract
+
                                 remitCounter++;
                 
                                 //adds fee on fails
@@ -1167,7 +1170,7 @@ contract ClockTowerSubscribe {
                                 //decrease feeBalance
                                 feeBalance[id][subscriber] -= subFee;
 
-                                //TODO: unsubscribes on failure?
+                                //unsubscribes on failure
                                 deleteSubFromSubscription(id, subscriber);
 
                                  //emit unsubscribe to log
