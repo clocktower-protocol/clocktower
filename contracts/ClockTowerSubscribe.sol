@@ -786,9 +786,6 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
 
-        uint fee = subscription.amount;
-        uint multiple = 1;
-
         //Makes fee balance draw different for different frequencies
         /*
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY) {
@@ -833,6 +830,10 @@ contract ClockTowerSubscribe {
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, yearlyFee * 11));
         }
         */
+        
+        uint fee = subscription.amount;
+        uint multiple = 1;
+
         if(subscription.frequency == Frequency.QUARTERLY) {
             fee /= 3;
             multiple = 2;
