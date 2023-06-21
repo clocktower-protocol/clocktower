@@ -786,8 +786,11 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
 
+        uint fee = subscription.amount;
+        uint multiple = 1;
 
         //Makes fee balance draw different for different frequencies
+        /*
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY) {
             //pays first subscription to fee balance
             feeBalance[subscription.id][msg.sender] += subscription.amount;
@@ -815,7 +818,7 @@ contract ClockTowerSubscribe {
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, quarterFee * 2));
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-             uint yearlyFee = subscription.amount / 12;
+            uint yearlyFee = subscription.amount / 12;
 
              //pays first subscription to fee balance
             feeBalance[subscription.id][msg.sender] += yearlyFee;
@@ -828,6 +831,31 @@ contract ClockTowerSubscribe {
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), yearlyFee));
             //funds the other 2/3 to the provider
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, yearlyFee * 11));
+        }
+        */
+        if(subscription.frequency == Frequency.QUARTERLY) {
+            fee /= 3;
+            multiple = 2;
+        }
+        else if(subscription.frequency == Frequency.YEARLY) {
+            fee /= 12;
+            multiple = 11;
+        }
+
+        //pays first subscription to fee balance
+        feeBalance[subscription.id][msg.sender] += fee;
+
+        //emit subscription to log
+        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
+        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
+
+        //funds cost with fee balance
+        require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), fee));
+        if(subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) {
+            //funds the remainder to the provider
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
+            console.log(fee);
+            console.log(fee * multiple);
         }
 
         /*

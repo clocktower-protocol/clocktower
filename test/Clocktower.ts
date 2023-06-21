@@ -15,7 +15,8 @@ describe("Clocktower", function(){
 
     //let millis = Date.now();
     //let currentTime = Math.floor(millis / 1000);
-    let currentTime = 1685595600;
+    //let currentTime = 1685595600;
+    let currentTime = 1704088800;
     //let currentTime = 1673058466;
     //hour merge occured
     //let mergeTime = 1663264800;
@@ -476,7 +477,7 @@ describe("Clocktower", function(){
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test2",2,15, testParams)
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test2",3,15, testParams)
 
             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
 
@@ -716,6 +717,9 @@ describe("Clocktower", function(){
             let ownerBalance2 = await owner.getBalance()
 
             console.log(ownerBalance2)
+        })
+        it("Should test different frequencies", async function() {
+
         })
 
         
