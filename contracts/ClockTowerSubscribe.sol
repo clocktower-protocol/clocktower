@@ -855,8 +855,6 @@ contract ClockTowerSubscribe {
         if(subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) {
             //funds the remainder to the provider
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
-            console.log(fee);
-            console.log(fee * multiple);
         }
 
         /*
@@ -1183,9 +1181,28 @@ contract ClockTowerSubscribe {
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
                                     //TODO: need to adjust based on frequency
+                                    
+                                    //variables for feefill
+                                    uint feefill = amount;
+                                    uint multiple = 1;
+
+                                    if(s == 2) {
+                                        feefill /= 3;
+                                        multiple = 2;
+                                    }
+                                    else if(s == 3) {
+                                        feefill /= 12;
+                                        multiple = 11;
+                                    }
+                                   
                                     //remits to contract to refill fee balance
-                                    feeBalance[id][subscriber] += amount;
-                                    require(ERC20Permit(token).transferFrom(subscriber, address(this), amount));
+                                    feeBalance[id][subscriber] += feefill;
+                                    require(ERC20Permit(token).transferFrom(subscriber, address(this), feefill));
+
+                                    if(s == 3 || s == 4) {
+                                        //funds the remainder to the provider
+                                        require(ERC20Permit(token).transferFrom(msg.sender, provider, feefill * multiple));
+                                    }
                                 }
                             } else {
                                 //FAILURE
