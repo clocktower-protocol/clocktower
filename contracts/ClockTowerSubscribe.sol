@@ -1180,7 +1180,7 @@ contract ClockTowerSubscribe {
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
-                                    //TODO: need to adjust based on frequency
+                                    //adjusts feefill based on frequency
                                     
                                     //variables for feefill
                                     uint feefill = amount;
