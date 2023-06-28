@@ -1207,15 +1207,25 @@ contract ClockTowerSubscribe {
                                 }
                             } else {
                                 //FAILURE
-                                //TODO:Refunds to partial Provider or Sub or keep in contract
+                                //TODO:Refunds to partial Provider or keep in contract
 
                                 remitCounter++;
                 
-                                //adds fee on fails
-                                totalFee += subFee;
+                                //checks if theres is enough feebalance left to pay Caller
+                                if(feeBalance[id][subscriber] > subFee) {
+                                
+                                    //adds fee on fails
+                                    totalFee += subFee;
 
-                                //decrease feeBalance
-                                feeBalance[id][subscriber] -= subFee;
+                                    uint feeRemainder = feeBalance[id][subscriber] - subFee;
+
+                                    //decrease feeBalance by fee and then zeros out
+                                    //feeBalance[id][subscriber] -= subFee;
+                                    feeBalance[id][subscriber] = 0;
+
+                                    //pays remainder to provider
+                                    require(ERC20Permit(token).transferFrom(subscriber, provider, feeRemainder));
+                                }
 
                                 //unsubscribes on failure
                                 deleteSubFromSubscription(id, subscriber);
