@@ -4,6 +4,7 @@
 pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
+//TODO: need to standardize to normal ERC20
 interface ERC20Permit{
 function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
@@ -282,7 +283,6 @@ contract ClockTowerSubscribe {
         _;
     }
 
-    //TODO: need to test
     //Create skim method to get accumulated systemFees
     function collectFees() isAdmin external {
         admin.transfer(address(this).balance - 5000);
@@ -1165,8 +1165,9 @@ contract ClockTowerSubscribe {
                                 totalFee += subFee;
 
                                 //checks feeBalance. If positive it decreases balance. 
-                                //If zero it sends subscription to contract as fee payment.
+                                //If fee balance < fee amount it sends subscription amount to contract as fee payment.
                                 if(feeBalance[id][subscriber] > subFee) {
+
                                     feeBalance[id][subscriber] -= subFee;
                                
                                     //log as succeeded
