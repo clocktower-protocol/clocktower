@@ -1208,6 +1208,7 @@ contract ClockTowerSubscribe {
                             } else {
                                 //FAILURE
                                 //TODO:Refunds to partial Provider or keep in contract
+                                //Currently refunds remainder to Provider
 
                                 remitCounter++;
                 
