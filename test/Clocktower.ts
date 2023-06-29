@@ -104,7 +104,7 @@ describe("Clocktower", function(){
 
        // const ClockPure = await ethers.getContractFactory("contracts/ClocktowerPure.sol");
 
-        const [owner, otherAccount] = await ethers.getSigners();
+        const [owner, otherAccount, failAccount] = await ethers.getSigners();
 
         //const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
@@ -141,7 +141,6 @@ describe("Clocktower", function(){
             value: centEth
         };
         await owner.sendTransaction(paramsOther)
-
 
         let params2 = {
             value: eth
@@ -718,7 +717,29 @@ describe("Clocktower", function(){
 
             console.log(ownerBalance2)
         })
-        it("Should test different frequencies", async function() {
+        it("Should refund provider on fail", async function() {
+
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            //otherAccount stops approval
+            await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, 0)
+
+            let amount = await hardhatCLOCKToken.balanceOf(owner.address)
+            console.log(amount)
+
+            await hardhatClockSubscribe.remit();
+
+            //check that provider has been refunded
+            let amount2 = await hardhatCLOCKToken.balanceOf(owner.address)
+            console.log(amount2);
 
         })
 
