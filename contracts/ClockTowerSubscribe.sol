@@ -1233,6 +1233,8 @@ contract ClockTowerSubscribe {
                                 //unsubscribes on failure
                                 deleteSubFromSubscription(id, subscriber);
 
+                                //TODO: add caller payment on zero subscriber list
+
                                  //emit unsubscribe to log
                                 emit SubscriberLog(id, msg.sender, uint40(block.timestamp), amount, SubEvent.UNSUBSCRIBED);
 
@@ -1242,6 +1244,7 @@ contract ClockTowerSubscribe {
                             
                             }
                             //sends fees to caller on last subscriber in list
+                            //FIXME: Deleted subscribers problem. Below is checking for the last subscriber in order to send
                             if(subscribersMap[id].length != 0 && j == (subscribersMap[id].length - 1)) {
                                 /*
                                 if(ERC20Permit(token).balanceOf(provider) < totalFee) {
