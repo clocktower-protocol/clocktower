@@ -1119,7 +1119,7 @@ contract ClockTowerSubscribe {
                     uint totalFee;
 
                     uint sublength = subscribersMap[id].length;
-                    uint lastSub = subscribersMap[id].length - 1;
+                    uint lastSub = sublength - 1;
                  
                     //loops through subscribers
                     for(uint j; j < sublength; j++) {
