@@ -1224,10 +1224,8 @@ contract ClockTowerSubscribe {
                                     //feeBalance[id][subscriber] -= subFee;
                                     feeBalance[id][subscriber] = 0;
 
-                                    //TODO: check if we need to reset approval
                                     //pays remainder to provider
-                                    require(ERC20Permit(token).approve(address(this), feeRemainder));
-                                    require(ERC20Permit(token).transferFrom(address(this), provider, feeRemainder));
+                                    require(ERC20Permit(token).transfer(provider, feeRemainder));
                                 }
 
                                 //unsubscribes on failure
