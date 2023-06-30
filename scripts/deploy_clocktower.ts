@@ -10,6 +10,9 @@ async function main() {
 
     const TestUser = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
     const SecondUser = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
+    const Subscriber = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const Provider = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
+    const Caller = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
     
     const ClockToken = await ethers.getContractFactory("CLOCKToken");
     const ClockSubscribe = await ethers.getContractFactory("ClockTowerSubscribe")
@@ -41,7 +44,16 @@ async function main() {
 
     await clockToken.approve(SecondUser, ethers.utils.parseEther("10000"));
     await clockToken.transfer(SecondUser, ethers.utils.parseEther("10000"));
-    console.log("Funds test user 10000 CLOCK");
+
+    await clockToken.approve(Subscriber, ethers.utils.parseEther("10000"));
+    await clockToken.transfer(Subscriber, ethers.utils.parseEther("10000"));
+
+    await clockToken.approve(Provider, ethers.utils.parseEther("10000"));
+    await clockToken.transfer(Provider, ethers.utils.parseEther("10000"));
+
+    await clockToken.approve(Caller, ethers.utils.parseEther("10000"));
+    await clockToken.transfer(Caller, ethers.utils.parseEther("10000"));
+    console.log("Funds test users with 10000 CLOCK");
 
     console.log("ClocktowerSubscribe Deployed!")
     console.log("Contract address:", clockSubscribe.address);
