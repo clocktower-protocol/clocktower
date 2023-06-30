@@ -194,6 +194,9 @@ describe("Clocktower", function(){
         //moves time 2 hours to 2023/01/01 3:00
         //await time.increaseTo(1672563600);
         await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
+        await hardhatCLOCKToken.transfer(subscriber.address, centEth)
+        await hardhatCLOCKToken.transfer(provider.address, centEth)
+        await hardhatCLOCKToken.transfer(caller.address, centEth)
 
 
         return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
@@ -369,7 +372,7 @@ describe("Clocktower", function(){
 
             let amount = await hardhatCLOCKToken.balanceOf(owner.address)
 
-            expect(amount).to.equal(ethers.utils.parseEther("100000"))
+            expect(amount).to.equal(ethers.utils.parseEther("99700"))
         })
         it("Should change fee", async function() {
             const {hardhatClockPayment, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -758,6 +761,9 @@ describe("Clocktower", function(){
 
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+
+            let amount3 = await hardhatCLOCKToken.balanceOf(subscriber.address)
+            console.log(subscriber.address)
             
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
@@ -769,6 +775,8 @@ describe("Clocktower", function(){
 
             let amount = await hardhatCLOCKToken.balanceOf(subscriber.address)
             console.log(amount)
+
+            await hardhatClockSubscribe.setExternalCallers(true)
 
             await hardhatClockSubscribe.connect(caller).remit();
 
