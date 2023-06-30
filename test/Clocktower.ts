@@ -104,7 +104,7 @@ describe("Clocktower", function(){
 
        // const ClockPure = await ethers.getContractFactory("contracts/ClocktowerPure.sol");
 
-        const [owner, otherAccount, failAccount] = await ethers.getSigners();
+        const [owner, otherAccount, failAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         //const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
@@ -142,6 +142,31 @@ describe("Clocktower", function(){
         };
         await owner.sendTransaction(paramsOther)
 
+        //funds subscriber account with eth
+        const paramsSubscriber = {
+            from: owner.address,
+            to: subscriber.address,
+            value: centEth
+        };
+        await owner.sendTransaction(paramsSubscriber)
+
+        //funds subscriber account with eth
+        const paramsProvider = {
+            from: owner.address,
+            to: provider.address,
+            value: centEth
+        };
+        await owner.sendTransaction(paramsProvider)
+
+        //funds subscriber account with eth
+        const paramsCaller = {
+            from: owner.address,
+            to: caller.address,
+            value: centEth
+        };
+        await owner.sendTransaction(paramsCaller)
+
+
         let params2 = {
             value: eth
         }
@@ -155,6 +180,9 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.approve(hardhatClockSubscribe.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
         await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, infiniteApproval)
+        await hardhatCLOCKToken.connect(provider).approve(hardhatClockSubscribe.address, infiniteApproval)
+        await hardhatCLOCKToken.connect(caller).approve(hardhatClockSubscribe.address, infiniteApproval)
 
         //creates several transaactions to test transaction list
        // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
@@ -168,7 +196,7 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
 
 
-        return {owner, otherAccount, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
+        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
     }
 
     //test sending ether
