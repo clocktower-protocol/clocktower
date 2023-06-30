@@ -181,8 +181,8 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
         await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
         await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, infiniteApproval)
-        await hardhatCLOCKToken.connect(provider).approve(hardhatClockSubscribe.address, infiniteApproval)
-        await hardhatCLOCKToken.connect(caller).approve(hardhatClockSubscribe.address, infiniteApproval)
+        //await hardhatCLOCKToken.connect(provider).approve(hardhatClockSubscribe.address, infiniteApproval)
+        //await hardhatCLOCKToken.connect(caller).approve(hardhatClockSubscribe.address, infiniteApproval)
 
         //creates several transaactions to test transaction list
        // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
@@ -746,27 +746,34 @@ describe("Clocktower", function(){
             console.log(ownerBalance2)
         })
         it("Should refund provider on fail", async function() {
+            
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
-
+            const testParams = {
+                value: eth
+            };
+            
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
 
             //creates subscription and subscribes
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+
+            console.log(subscriptions.length)
 
             //otherAccount stops approval
-            await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, 0)
+            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
 
-            let amount = await hardhatCLOCKToken.balanceOf(owner.address)
+            let amount = await hardhatCLOCKToken.balanceOf(subscriber.address)
             console.log(amount)
 
-            await hardhatClockSubscribe.remit();
+            await hardhatClockSubscribe.connect(caller).remit();
 
             //check that provider has been refunded
-            let amount2 = await hardhatCLOCKToken.balanceOf(owner.address)
+            let amount2 = await hardhatCLOCKToken.balanceOf(provider.address)
             console.log(amount2);
 
         })
