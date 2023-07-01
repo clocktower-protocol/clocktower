@@ -285,7 +285,10 @@ contract ClockTowerSubscribe {
 
     //Create skim method to get accumulated systemFees
     function collectFees() isAdmin external {
-        admin.transfer(address(this).balance - 5000);
+
+        if(address(this).balance > 5000) {
+            admin.transfer(address(this).balance - 5000);
+        }
     }
 
     function changeAdmin(address payable newAddress) isAdmin external {
@@ -1208,7 +1211,6 @@ contract ClockTowerSubscribe {
                                 }
                             } else {
                                 //FAILURE
-                                //TODO:Refunds to partial Provider or keep in contract
                                 //Currently refunds remainder to Provider
 
                                 remitCounter++;
