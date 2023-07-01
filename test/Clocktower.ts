@@ -640,13 +640,19 @@ describe("Clocktower", function(){
             expect(await hardhatClockSubscribe.connect(otherAccount).remit())
         })
         it("Should predict fees", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
+            
             //creates subscription and subscribes
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+            //await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            
+            //let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
             //moves time
             await time.increaseTo(twoHoursAhead);
@@ -654,18 +660,12 @@ describe("Clocktower", function(){
             //gets fee estimate
             let feeArray = await hardhatClockSubscribe.feeEstimate();
 
-            console.log((feeArray).length)
-
-            feeArray.forEach((estimate) =>{
-
-                console.log(estimate.fee)
-                console.log("--------------------")
-                console.log(estimate.token)
-
-            })
+            expect(feeArray.length).to.equal(1)
+            expect(Number(ethers.utils.formatEther(feeArray[0].fee))).to.equal(0.02)
+            expect(feeArray[0].token).to.equal("0x5FbDB2315678afecb367f032d93F642f64180aa3")
         })
         it("Should collect system fees", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount, provider} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider} = await loadFixture(deployClocktowerFixture);
 
             const testParams = {
                 value: ethers.utils.parseEther("0.011")
