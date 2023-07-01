@@ -679,17 +679,14 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
 
-            let ownerBalance1 = await owner.getBalance()
-            console.log(Number(ethers.utils.formatEther(ownerBalance1)))
+            let ownerBalance1 = ethers.utils.formatEther(await owner.getBalance())
+
             //collect fees
             await hardhatClockSubscribe.collectFees()
 
-            let ownerBalance2 = await owner.getBalance()
+            let ownerBalance2 = ethers.utils.formatEther(await owner.getBalance())
 
-            console.log(Number(ethers.utils.formatEther(ownerBalance2)))
-
-            let providerBalance = await provider.getBalance();
-            console.log(Number(ethers.utils.formatEther(providerBalance)))
+            expect(Number(ownerBalance2) - Number(ownerBalance1)).to.greaterThan(0.01)
 
         })
         it("Should refund provider on fail", async function() {
