@@ -595,7 +595,7 @@ describe("Clocktower", function(){
             let tx = await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
             let rc = await tx.wait();
             let event = rc.events?.find(event => event.event === 'SubscriberLog')
-            console.log(event)
+            //console.log(event)
 
            /*
             expect(await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams))
@@ -626,26 +626,28 @@ describe("Clocktower", function(){
             console.log(returnSubs.length)
         })
         it("Should allow external callers", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
              //adds CLOCK to approved tokens
              await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
-             //creates subscription and subscribes
-             await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-             let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+           
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            
+            //let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+             
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
             //sets external callers
             await hardhatClockSubscribe.setExternalCallers(true)
 
-            expect(await hardhatClockSubscribe.connect(otherAccount).remit())
+            expect(await hardhatClockSubscribe.connect(caller).remit())
         })
         it("Should predict fees", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount, provider, subscriber} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
             
-            //creates subscription and subscribes
-            //await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
