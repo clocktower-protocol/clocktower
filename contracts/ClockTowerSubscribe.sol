@@ -1219,6 +1219,8 @@ contract ClockTowerSubscribe {
                                     //adds fee on fails
                                     totalFee += subFee;
 
+                                    //console.log(feeBalance[id][subscriber]);
+
                                     uint feeRemainder = feeBalance[id][subscriber] - subFee;
 
                                     //decrease feeBalance by fee and then zeros out

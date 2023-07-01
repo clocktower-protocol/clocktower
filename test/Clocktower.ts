@@ -761,28 +761,34 @@ describe("Clocktower", function(){
 
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-
-            let amount3 = await hardhatCLOCKToken.balanceOf(subscriber.address)
-            console.log(subscriber.address)
             
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
-            console.log(subscriptions.length)
-
             //otherAccount stops approval
             await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
 
-            let amount = await hardhatCLOCKToken.balanceOf(subscriber.address)
-            console.log(amount)
+            let subAmount = await hardhatCLOCKToken.balanceOf(subscriber.address)
+            console.log(ethers.utils.formatEther(subAmount))
+            console.log("subscriber ^")
 
             await hardhatClockSubscribe.setExternalCallers(true)
 
             await hardhatClockSubscribe.connect(caller).remit();
 
             //check that provider has been refunded
-            let amount2 = await hardhatCLOCKToken.balanceOf(provider.address)
-            console.log(amount2);
+            let provAmount = await hardhatCLOCKToken.balanceOf(provider.address)
+            console.log(ethers.utils.formatEther(provAmount))
+            console.log("provider ^")
+
+            //checks caller
+            let callerAmount = await hardhatCLOCKToken.balanceOf(caller.address)
+            console.log(ethers.utils.formatEther(callerAmount))
+            console.log("caller ^")
+
+            expect(ethers.utils.formatEther(subAmount)).to.equal("99.0")
+            expect(ethers.utils.formatEther(provAmount)).to.equal("100.98")    
+            expect(ethers.utils.formatEther(callerAmount)).to.equal("100.02")        
 
         })
 
