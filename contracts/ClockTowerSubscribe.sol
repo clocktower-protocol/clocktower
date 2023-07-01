@@ -366,7 +366,7 @@ contract ClockTowerSubscribe {
         maxGasPrice = _maxGas;
     }
 
-      //change max gas
+    //change max remits
     function changeMaxRemits(uint _maxRemits) isAdmin external {
         maxRemits = _maxRemits;
     }
