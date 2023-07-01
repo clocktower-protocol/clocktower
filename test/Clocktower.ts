@@ -502,86 +502,70 @@ describe("Clocktower", function(){
             expect(result[0].status).to.equal(1);
             expect(result[0].subscription.cancelled).to.equal(true)
         })
-        it("Should complete transactions at the right time", async function(){
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount} = await loadFixture(deployClocktowerFixture);
+        it("Should paginate remit transactions", async function(){
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, otherAccount, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
+            let remits = 5
+
+            //sets remits to 5
+            expect(await hardhatClockSubscribe.changeMaxRemits(remits))
+
+            //allows external callers
+            await hardhatClockSubscribe.setExternalCallers(true)
+
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address)
 
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            await hardhatClockSubscribe.createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
-            
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-            
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[1].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[2].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[3].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[4].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[5].subscription, testParams)
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[6].subscription, testParams)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
 
-            //await hardhatClockSubscribe.unsubscribeByProvider(otherAccount.address, subscriptions[6].subscription.id)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[2].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[3].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[4].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[5].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[6].subscription, testParams)
             
             await time.increaseTo(twoHoursAhead);
 
-            //await hardhatClockSubscribe.remit();
-
             let subscribersId = await hardhatClockSubscribe.getSubscribersById(subscriptions[0].subscription.id)
 
-            console.log(subscribersId[0].subscriber)
-            console.log(ethers.utils.formatEther(subscribersId[0].feeBalance))
+            expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
+            expect(ethers.utils.formatEther(subscribersId[0].feeBalance)).to.equal("1.0")
 
-            let isFinished = false;
+            let isFinished = false
+            let pageCounter = 0
 
             //loops through remit calls to test max remit
             while(!isFinished) {
-                //console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id, otherAccount.address)))
-                //console.log("here")
                 //gets emit
-                let tx = await hardhatClockSubscribe.remit();
+                let tx = await hardhatClockSubscribe.connect(caller).remit();
                 let rc = await tx.wait();
                 let event = rc.events?.find(event => event.event === 'CallerLog')
                 let args = event?.args
                 isFinished = args?.isFinished;
+
+                pageCounter++
             }
 
-            /*
-            //gets emit
-            const tx = await hardhatClockSubscribe.remit();
-            const rc = await tx.wait();
-            const event = rc.events?.find(event => event.event === 'RemitLog')
-            const args = event?.args
-            console.log(args?.isFinished);
-
-            //gets emit
-            const tx2 = await hardhatClockSubscribe.remit();
-            const rc2 = await tx2.wait();
-            const event2 = rc2.events?.find(event => event.event === 'RemitLog')
-            const args2 = event2?.args
-            console.log(args2?.isFinished);
-            */
-
-            //while(await hardhatClockSubscribe.remit());
-
-            let otherBalance = await hardhatCLOCKToken.balanceOf(otherAccount.address)
+            let otherBalance = await hardhatCLOCKToken.balanceOf(subscriber.address)
             let ownerBalance = await hardhatCLOCKToken.balanceOf(owner.address)
 
             let expected = ethers.utils.parseEther("86.0");
 
             //gets fee balance
-            let feeBalance = await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,otherAccount.address)
-            console.log(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,otherAccount.address)))
+            expect(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,subscriber.address))).to.equal("0.98")
 
             expect(otherBalance).to.equal(expected)
-            //expect(ownerBalance).to.equal()
-
+            expect(pageCounter).to.equal(2)
             
         })
         it("Should emit SubscriberLog", async function(){
