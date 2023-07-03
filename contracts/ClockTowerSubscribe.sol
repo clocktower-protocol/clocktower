@@ -1261,6 +1261,8 @@ contract ClockTowerSubscribe {
                                     //feeBalance[id][subscriber] -= subFee;
                                     delete feeBalance[id][subscriber];
 
+                                    //TODO: add refund event
+
                                     //pays remainder to provider
                                     require(ERC20Permit(token).transfer(provider, feeRemainder));
                                 }
