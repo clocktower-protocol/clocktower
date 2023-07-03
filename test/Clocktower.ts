@@ -418,7 +418,8 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
 
             expect(await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
-
+            //checks that too low an amount gets reverted
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther(".001"), hardhatCLOCKToken.address, "Test",1,15, testParams)).to.be.reverted
         })
 
         it("Should get created subscriptions", async function() {
@@ -484,6 +485,29 @@ describe("Clocktower", function(){
             expect(result[0].status).to.equal(2)
             expect(result2.length).to.equal(1)
             expect(result3.length).to.equal(0)
+        })
+        it("Should all provider to unsubscribe sub", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+            
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
+            //await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+    
+            //checks reverts
+            await expect(hardhatClockSubscribe.connect(caller).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
+            .to.be.revertedWith("18")
+            await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, caller.address))
+            .to.be.revertedWith("19")
+            //checks emits
+            await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, 3)
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("1"))
         })
         it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
@@ -715,7 +739,12 @@ describe("Clocktower", function(){
             expect(ethers.utils.formatEther(callerAmount)).to.equal("100.02")        
 
         })
+        it("Should add and remove ERC20 Tokens", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
+            //adds CLOCK to approved tokens
+            expect(await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01")))
+        })
         
     })
 })

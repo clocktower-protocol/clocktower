@@ -48,6 +48,7 @@ contract ClockTowerSubscribe {
     27 = Must be between 1 and 28
     28 = Must be between 1 and 90
     29 = Must be between 1 and 365
+    30 = Amount below token minimum
     */
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
@@ -974,8 +975,7 @@ contract ClockTowerSubscribe {
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, subscriber, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //refunds fees TODO: test
-        
+        //refunds fees
         uint balance = feeBalance[subscription.id][subscriber];
 
         //zeros out fee balance
@@ -1071,7 +1071,8 @@ contract ClockTowerSubscribe {
             require(0 < dueDay && dueDay <= 365, "29");
         }
 
-        //TODO: might want to set a token minimum
+        //sets a token minimum
+        require(amount >= approvedERC20[token].minimum, "30");
 
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, description, frequency, dueDay);
@@ -1261,7 +1262,7 @@ contract ClockTowerSubscribe {
 
                                     //decrease feeBalance by fee and then zeros out
                                     //feeBalance[id][subscriber] -= subFee;
-                                    feeBalance[id][subscriber] = 0;
+                                    delete feeBalance[id][subscriber];
 
                                     //pays remainder to provider
                                     require(ERC20Permit(token).transfer(provider, feeRemainder));
