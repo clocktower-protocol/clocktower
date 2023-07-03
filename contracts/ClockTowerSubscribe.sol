@@ -894,17 +894,6 @@ contract ClockTowerSubscribe {
             //funds the remainder to the provider
             require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
         }
-
-        /*
-        //pays first subscription to fee balance
-        feeBalance[msg.sender] += subscription.amount;
-
-        //emit subscription to log
-        emit SubscribeLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, true);
-
-        //funds contract with fee balance
-        require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), subscription.amount));
-        */
     }
     
     function unsubscribe(Subscription memory subscription) external payable {
@@ -932,15 +921,15 @@ contract ClockTowerSubscribe {
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //refunds fees TODO: test
-        
+        //refunds fees to provider
+    
         uint balance = feeBalance[subscription.id][msg.sender];
 
         //zeros out fee balance
         delete feeBalance[subscription.id][msg.sender];
 
         //Refunds fee balance
-        require(ERC20Permit(subscription.token).transfer(msg.sender, balance), "21");
+        require(ERC20Permit(subscription.token).transfer(subscription.provider, balance), "21");
         
     }
 
@@ -975,7 +964,7 @@ contract ClockTowerSubscribe {
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, subscriber, uint40(block.timestamp), subscription.amount, SubEvent.UNSUBSCRIBED);
 
-        //refunds fees
+        //refunds fees to subscriber
         uint balance = feeBalance[subscription.id][subscriber];
 
         //zeros out fee balance
