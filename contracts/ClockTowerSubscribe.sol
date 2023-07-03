@@ -973,6 +973,8 @@ contract ClockTowerSubscribe {
         //zeros out fee balance
         delete feeBalance[subscription.id][subscriber];
 
+        emit SubscriberLog(subscription.id, subscriber, uint40(block.timestamp), balance, SubEvent.REFUND);
+
         //Refunds fee balance
         require(ERC20Permit(subscription.token).transfer(subscriber, balance), "21");
         
