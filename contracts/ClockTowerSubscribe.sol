@@ -65,7 +65,9 @@ contract ClockTowerSubscribe {
     // uint pageCount;
 
     //approved contract addresses
-    address[] approvedERC20;
+    //address[] approvedERC20;
+
+    mapping (address => ApprovedToken) approvedERC20;
 
     // uint pageCount;
     bool pageGo;
@@ -176,6 +178,13 @@ contract ClockTowerSubscribe {
     struct FeeEstimate {
         uint fee;
         address token;
+    }
+
+    //approved ERC20 struct
+    struct ApprovedToken {
+        address tokenAddress;
+        uint minimum;
+        bool exists;
     }
 
     //Events-------------------------------------
@@ -318,6 +327,7 @@ contract ClockTowerSubscribe {
     modifier onlyInEmergency { if (stopped) _; }
     */
     
+    /*
     //allows admin to add to approved contract addresses
     function addERC20Contract(address erc20Contract) isAdmin external {
         
@@ -326,7 +336,17 @@ contract ClockTowerSubscribe {
         
         approvedERC20.push() = erc20Contract;
     }
+    */
 
+    function addERC20Contract(address erc20Contract, uint minimum) isAdmin external {
+
+        require(erc20Contract != address(0));
+        require(!erc20IsApproved(erc20Contract), "1");
+
+        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, true);
+    }
+
+    /*
     //allows admin to remove an erc20 contract from the approved list
     function removeERC20Contract(address erc20Contract) isAdmin external {
         require(erc20Contract != address(0));
@@ -350,6 +370,14 @@ contract ClockTowerSubscribe {
         }
         approvedERC20.pop();
     }
+    */
+
+   function removeERC20Contract(address erc20Contract) isAdmin external {
+        require(erc20Contract != address(0));
+        require(erc20IsApproved(erc20Contract), "2");
+
+        delete approvedERC20[erc20Contract];
+   }
 
     //change fee
     function changeCallerFee(uint _fee) isAdmin external {
@@ -685,6 +713,7 @@ contract ClockTowerSubscribe {
         require(msg.sender != address(0), "3");
     }
 
+    /*
     function erc20IsApproved(address erc20Contract) private view returns(bool result) {
         address[] memory approved = approvedERC20;
 
@@ -696,6 +725,11 @@ contract ClockTowerSubscribe {
             }
         }
     }
+    */
+
+   function erc20IsApproved(address erc20Contract) private view returns(bool result) {
+       return approvedERC20[erc20Contract].exists ? true:false;
+   }
 
     //TODO: need to make sure the ID is unique
     //sets Subscription

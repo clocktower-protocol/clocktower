@@ -152,7 +152,7 @@ export declare namespace ClockTowerSubscribe {
 
 export interface ClockTowerSubscribeInterface extends utils.Interface {
   functions: {
-    "addERC20Contract(address)": FunctionFragment;
+    "addERC20Contract(address,uint256)": FunctionFragment;
     "admin()": FunctionFragment;
     "callerFee()": FunctionFragment;
     "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
@@ -222,7 +222,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "addERC20Contract",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
@@ -523,6 +523,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   functions: {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      minimum: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -674,6 +675,7 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   addERC20Contract(
     erc20Contract: PromiseOrValue<string>,
+    minimum: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -817,6 +819,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   callStatic: {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      minimum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1004,6 +1007,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   estimateGas: {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      minimum: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1144,6 +1148,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   populateTransaction: {
     addERC20Contract(
       erc20Contract: PromiseOrValue<string>,
+      minimum: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
