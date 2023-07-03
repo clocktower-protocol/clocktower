@@ -35,7 +35,7 @@ async function main() {
 
     //approve token for clocktower
     await clockPayment.addERC20Contract(clockToken.address);
-    await clockSubscribe.addERC20Contract(clockToken.address);
+    await clockSubscribe.addERC20Contract(clockToken.address, ethers.utils.parseEther("0.01"));
     console.log("Approved contract..."+clockToken.address);
 
     //funds test users accounts with CLOCK

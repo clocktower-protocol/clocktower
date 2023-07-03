@@ -5,6 +5,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { signERC2612Permit } from "eth-permit";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { call } from "eth-permit/dist/rpc";
 //Written by Hugo Marx
 
 describe("Clocktower", function(){
@@ -446,7 +447,7 @@ describe("Clocktower", function(){
             };
     
             
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
@@ -456,11 +457,20 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false)
 
-            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2)
+            //checks reverts
+            await hardhatCLOCKToken.connect(subscriber).transfer(caller.address, ethers.utils.parseEther("100"))
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
+            .to.be.revertedWith("20")
+            await hardhatCLOCKToken.connect(caller).transfer(subscriber.address, ethers.utils.parseEther("100"))
 
-            let aSubscriptions = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
+            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: hardhatCLOCKToken.address, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
+            .to.be.rejectedWith("7")
 
-            expect(aSubscriptions[0].subscription.description).to.equal("Test2");
+            //tests emits
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 2)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 4)
             
         })
         it("Should allow user to unsubscribe", async function() {
