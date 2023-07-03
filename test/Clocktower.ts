@@ -499,7 +499,6 @@ describe("Clocktower", function(){
             //check emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 3)
-            //.to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, "333333333333333333", 4)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "333333333333333333")
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
@@ -536,10 +535,15 @@ describe("Clocktower", function(){
             //checks if subscriber is subscribed to subscription
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, caller.address))
             .to.be.revertedWith("19")
-            //checks emits
+            //checks first emit and token balance
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, 3)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue,subscriptions[0].subscription.amount, 3)
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("1"))
+            //checks second emit
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+            await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, "1000000000000000000", 3)
+
         })
         it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
