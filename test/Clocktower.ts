@@ -477,7 +477,8 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 2)
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 4)
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-1"))
+            .to.changeTokenBalance(hardhatCLOCKToken, hardhatClockSubscribe.address, "83333333333333333")
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, "916666666666666663")
             
         })
         it("Should allow user to unsubscribe", async function() {
