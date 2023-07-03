@@ -879,7 +879,6 @@ contract ClockTowerSubscribe {
         else if(subscription.frequency == Frequency.YEARLY) {
             fee /= 12;
             multiple = 11;
-            console.log(fee);
         }
 
         //pays first subscription to fee balance
