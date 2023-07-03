@@ -16,6 +16,7 @@ describe("Clocktower", function(){
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     //eth sent
     let eth = ethers.utils.parseEther("1.0")
+    console.log(eth)
     let centEth = ethers.utils.parseEther("100.0")
 
     //sends test data of an hour ago
@@ -470,10 +471,13 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
             .to.be.rejectedWith("7")
 
-            //tests emits
+            console.log(await hardhatCLOCKToken.connect(subscriber).balanceOf(subscriber.address))
+
+            //tests emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 2)
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 4)
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-1"))
             
         })
         it("Should allow user to unsubscribe", async function() {
@@ -513,8 +517,11 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
     
             //checks reverts
+
+            //checks if user is in fact the provider
             await expect(hardhatClockSubscribe.connect(caller).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
             .to.be.revertedWith("18")
+            //checks if subscriber is subscribed to subscription
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, caller.address))
             .to.be.revertedWith("19")
             //checks emits
