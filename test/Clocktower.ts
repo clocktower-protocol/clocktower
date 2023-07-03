@@ -458,11 +458,14 @@ describe("Clocktower", function(){
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false)
 
             //checks reverts
+
+            //checks bad balance
             await hardhatCLOCKToken.connect(subscriber).transfer(caller.address, ethers.utils.parseEther("100"))
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
             .to.be.revertedWith("20")
             await hardhatCLOCKToken.connect(caller).transfer(subscriber.address, ethers.utils.parseEther("100"))
 
+            //checks input of fake subscription
             let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: hardhatCLOCKToken.address, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
             .to.be.rejectedWith("7")
