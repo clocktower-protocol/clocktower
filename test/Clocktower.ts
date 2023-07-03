@@ -482,7 +482,7 @@ describe("Clocktower", function(){
             
         })
         it("Should allow user to unsubscribe", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
@@ -499,6 +499,7 @@ describe("Clocktower", function(){
             //check emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 3)
+            //.to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, "333333333333333333", 4)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "333333333333333333")
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
@@ -507,6 +508,12 @@ describe("Clocktower", function(){
             expect(result[0].status).to.equal(2)
             expect(result2.length).to.equal(1)
             expect(result3.length).to.equal(0)
+
+            //checks second emit
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
+
+            await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
+            .to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, "333333333333333333", 4)
         })
         it("Should allow provider to unsubscribe sub", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
