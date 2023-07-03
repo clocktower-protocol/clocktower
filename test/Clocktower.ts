@@ -495,7 +495,12 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
 
             let result2 = await hardhatClockSubscribe.getSubscribers(subscriptions[1].subscription.id)
-            await hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams);
+
+            //check emits and balances
+            await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 3)
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, "333333333333333333")
+
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
             let result3 = await hardhatClockSubscribe.getSubscribers(subscriptions[1].subscription.id)
