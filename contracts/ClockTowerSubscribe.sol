@@ -106,14 +106,16 @@ contract ClockTowerSubscribe {
         FAILED,
         SUBSCRIBED, 
         UNSUBSCRIBED,
-        FEEFILL
+        FEEFILL, 
+        REFUND
     }
 
     enum ProvEvent {
         CREATE,
         CANCEL,
         PAID,
-        FAILED
+        FAILED, 
+        REFUND
     }
 
     //acount struct
@@ -209,8 +211,7 @@ contract ClockTowerSubscribe {
         bytes32 indexed id,
         address indexed provider,
         uint40 timestamp,
-        bool success,
-        uint8 errorCode,
+        uint amount,
         ProvEvent indexed provEvent
     );
 
@@ -928,6 +929,8 @@ contract ClockTowerSubscribe {
         //zeros out fee balance
         delete feeBalance[subscription.id][msg.sender];
 
+        emit ProviderLog(subscription.id, subscription.provider, uint40(block.timestamp), balance, ProvEvent.REFUND);
+
         //Refunds fee balance
         require(ERC20Permit(subscription.token).transfer(subscription.provider, balance), "21");
         
@@ -1021,7 +1024,10 @@ contract ClockTowerSubscribe {
             }
         }
 
-        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0, ProvEvent.CANCEL);
+        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, ProvEvent.CANCEL);
+
+        //refunds feeBalances to subscribers TODO:
+
     } 
     
     //allows provider user to create a subscription
@@ -1071,7 +1077,7 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
 
-        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp),true, 0, ProvEvent.CREATE);
+        emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, ProvEvent.CREATE);
     }
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
@@ -1200,7 +1206,7 @@ contract ClockTowerSubscribe {
                                
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.PAID);
-                                    emit ProviderLog(id, provider, uint40(block.timestamp),true, 0, ProvEvent.PAID);
+                                    emit ProviderLog(id, provider, uint40(block.timestamp), 0, ProvEvent.PAID);
 
                                     //remits from subscriber to provider
                                     console.log(remitCounter);
@@ -1265,7 +1271,7 @@ contract ClockTowerSubscribe {
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FAILED);
-                                emit ProviderLog(id, provider, uint40(block.timestamp),true, 0, ProvEvent.FAILED);
+                                emit ProviderLog(id, provider, uint40(block.timestamp), 0, ProvEvent.FAILED);
                             
                             }
                             //sends fees to caller on last subscriber in list

@@ -501,7 +501,6 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 3)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "333333333333333333")
 
-
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
             let result3 = await hardhatClockSubscribe.getSubscribers(subscriptions[1].subscription.id)
             
@@ -509,7 +508,7 @@ describe("Clocktower", function(){
             expect(result2.length).to.equal(1)
             expect(result3.length).to.equal(0)
         })
-        it("Should all provider to unsubscribe sub", async function() {
+        it("Should allow provider to unsubscribe sub", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
