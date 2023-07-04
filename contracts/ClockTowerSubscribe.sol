@@ -1001,11 +1001,24 @@ contract ClockTowerSubscribe {
             }
         }
 
-
         //gets list of subscribers and deletes subscriber list
         address[] memory subscribers = subscribersMap[subscription.id];
 
         for(uint i; i < subscribers.length; i++) {
+
+            //refunds feeBalances to subscribers TODO:
+            /*
+            uint feeBal = feeBalance[subscription.id][subscribers[i]];
+
+            emit SubscriberLog(subscription.id, subscribers[i], uint40(block.timestamp), feeBal, SubEvent.REFUND);   
+
+            //zeros out fee balance
+            delete feeBalance[subscription.id][subscribers[i]];
+
+            //refunds fee balance
+            require(ERC20Permit(subscription.token).transfer(subscribers[i], feeBal), "21");
+            */
+            
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
             indexes = accountMap[subscribers[i]].subscriptions;
@@ -1027,8 +1040,6 @@ contract ClockTowerSubscribe {
         }
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, ProvEvent.CANCEL);
-
-        //refunds feeBalances to subscribers TODO:
 
     } 
     

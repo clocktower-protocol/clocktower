@@ -546,7 +546,7 @@ describe("Clocktower", function(){
 
         })
         it("Should cancel subscription", async function(){
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
@@ -557,6 +557,19 @@ describe("Clocktower", function(){
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
+           // await hardhatClockSubscribe.connect(caller).subscribe(subscriptions[1].subscription, testParams)
+
+            //checks reverts
+
+            //checks input of fake subscription
+            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: hardhatCLOCKToken.address, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
+            await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(fakeSub))
+            .to.be.rejectedWith("7")
+
+            await expect(hardhatClockSubscribe.connect(subscriber).cancelSubscription(subscriptions[1].subscription))
+            .to.be.rejectedWith("23")
+
+            //checks balances and emits
 
             await hardhatClockSubscribe.connect(provider).cancelSubscription(subscriptions[1].subscription)
 
