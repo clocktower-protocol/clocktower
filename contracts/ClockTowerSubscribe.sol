@@ -1060,8 +1060,8 @@ contract ClockTowerSubscribe {
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
-        //amount must be greater than zero
-        require(amount > 0, "10");
+        //amount must be greater than zero 
+        //require(amount > 0, "10");
 
         //description must be 32 bytes or less
         require(bytes(description).length <= 32, "25");

@@ -413,15 +413,50 @@ describe("Clocktower", function(){
             value: eth
         };
 
+        const testParams2 = {
+            value: ethers.utils.parseEther("0.001")
+        }
+
         it("Should create Subscription", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
 
-            expect(await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
+            //expect(await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
+            
+            //checks reverts
+
             //checks that too low an amount gets reverted
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther(".001"), hardhatCLOCKToken.address, "Test",1,15, testParams)).to.be.reverted
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther(".001"), hardhatCLOCKToken.address, "Test",1,15, testParams))
+            .to.be.reverted
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, ethers.constants.AddressZero, "Test",1,15, testParams))
+            .to.be.revertedWith("8")
+
+            await hardhatClockSubscribe.systemFeeActivate(true);
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams2))
+            .to.be.revertedWith("5")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, caller.address, "Test",1,15, testParams))
+            .to.be.revertedWith("9")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",1,15, testParams))
+            .to.be.revertedWith("25")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",0,15, testParams))
+            .to.be.revertedWith("26")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,29, testParams))
+            .to.be.revertedWith("27")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,91, testParams))
+            .to.be.revertedWith("28")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",3,366, testParams))
+            .to.be.revertedWith("29")
+
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
         })
 
         it("Should get created subscriptions", async function() {
