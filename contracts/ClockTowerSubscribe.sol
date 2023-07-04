@@ -1008,7 +1008,7 @@ contract ClockTowerSubscribe {
 
         for(uint i; i < subscribers.length; i++) {
 
-            //refunds feeBalances to subscribers TODO:
+            //refunds feeBalances to subscribers
             
             uint feeBal = feeBalance[subscription.id][subscribers[i]];
 
@@ -1019,7 +1019,6 @@ contract ClockTowerSubscribe {
 
             //refunds fee balance
             require(ERC20Permit(subscription.token).transfer(subscribers[i], feeBal), "21");
-            
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
