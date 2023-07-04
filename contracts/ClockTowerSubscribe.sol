@@ -544,10 +544,12 @@ contract ClockTowerSubscribe {
 
     //TODO: is this redundant with getSubscribersById?
 
+    /*
     //gets subscribers by subscription id
     function getSubscribers(bytes32 id) external view returns (address[] memory) {
         return subscribersMap[id];
     }
+    */
 
     //subscriptions by account
     
@@ -1007,7 +1009,7 @@ contract ClockTowerSubscribe {
         for(uint i; i < subscribers.length; i++) {
 
             //refunds feeBalances to subscribers TODO:
-            /*
+            
             uint feeBal = feeBalance[subscription.id][subscribers[i]];
 
             emit SubscriberLog(subscription.id, subscribers[i], uint40(block.timestamp), feeBal, SubEvent.REFUND);   
@@ -1017,7 +1019,7 @@ contract ClockTowerSubscribe {
 
             //refunds fee balance
             require(ERC20Permit(subscription.token).transfer(subscribers[i], feeBal), "21");
-            */
+            
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
