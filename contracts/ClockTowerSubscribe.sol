@@ -59,7 +59,8 @@ contract ClockTowerSubscribe {
     uint public systemFee;
 
     //maximum gas value before waiting (in gigawei)
-    uint public maxGasPrice;
+    //uint public maxGasPrice;
+
     //maximum remits per transaction
     uint public maxRemits;
     //index if transaction pagination needed due to remit amount being larger than block
@@ -235,7 +236,8 @@ contract ClockTowerSubscribe {
     systemFee = 10000000000000000;
 
     //maximum gas value before waiting (in gigawei)
-    maxGasPrice = 50000000000;
+    //maxGasPrice = 50000000000;
+
     //maximum remits per transaction
     maxRemits = 5;
 
@@ -392,10 +394,12 @@ contract ClockTowerSubscribe {
         systemFee = _fixed_fee;
     }
 
+    /*
     //change max gas
     function changeMaxGasPrice(uint _maxGas) isAdmin external {
         maxGasPrice = _maxGas;
     }
+    */
 
     //change max remits
     function changeMaxRemits(uint _maxRemits) isAdmin external {
@@ -617,7 +621,7 @@ contract ClockTowerSubscribe {
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
          //if gas is above max gas don't call function
-        require(tx.gasprice < maxGasPrice, "24");
+        //require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
@@ -1111,7 +1115,7 @@ contract ClockTowerSubscribe {
 
         //TODO: is this needed?
         //if gas is above max gas don't call function
-        require(tx.gasprice < maxGasPrice, "24");
+        //require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
