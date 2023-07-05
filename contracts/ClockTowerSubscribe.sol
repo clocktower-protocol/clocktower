@@ -1130,34 +1130,34 @@ contract ClockTowerSubscribe {
         //gets subscriptions from mappings
        
         //loops through types
-        for(uint s = 0; s <= 3; s++) {
+        for(uint f = 0; f <= 3; f++) {
 
             uint16 timeTrigger;
-            if(s == uint(Frequency.WEEKLY)){
+            if(f == uint(Frequency.WEEKLY)){
                 timeTrigger = time.weekDay;
             } 
-            if(s == uint(Frequency.MONTHLY)) {
+            if(f == uint(Frequency.MONTHLY)) {
                 timeTrigger = time.day;
             } 
-            if(s == uint(Frequency.QUARTERLY)) {
+            if(f == uint(Frequency.QUARTERLY)) {
                 timeTrigger = time.quarterDay;
             } 
-            if(s == uint(Frequency.YEARLY)) {
+            if(f == uint(Frequency.YEARLY)) {
                 timeTrigger = time.yearDay;
             }
 
-            uint length = subscriptionMap[s][timeTrigger].length;
+            uint length = subscriptionMap[f][timeTrigger].length;
             
             //loops through subscriptions
-            for(uint i; i < length; i++) {
+            for(uint s; s < length; s++) {
 
                 //checks if cancelled
-                if(!subscriptionMap[s][timeTrigger][i].cancelled) {
+                if(!subscriptionMap[f][timeTrigger][s].cancelled) {
 
-                    bytes32 id = subscriptionMap[s][timeTrigger][i].id;
-                    address token = subscriptionMap[s][timeTrigger][i].token;
-                    uint amount = subscriptionMap[s][timeTrigger][i].amount;
-                    address provider = subscriptionMap[s][timeTrigger][i].provider;
+                    bytes32 id = subscriptionMap[f][timeTrigger][s].id;
+                    address token = subscriptionMap[f][timeTrigger][s].token;
+                    uint amount = subscriptionMap[f][timeTrigger][s].amount;
+                    address provider = subscriptionMap[f][timeTrigger][s].provider;
 
                     //checks if provider still has required unlimited allowance
                     /*
@@ -1175,11 +1175,11 @@ contract ClockTowerSubscribe {
                     uint lastSub = sublength - 1;
                  
                     //loops through subscribers
-                    for(uint j; j < sublength; j++) {
+                    for(uint u; u < sublength; u++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
-                            pageStart = PageStart(id, j);
+                            pageStart = PageStart(id, u);
                             pageGo = false;
                             
                             /*
@@ -1198,7 +1198,7 @@ contract ClockTowerSubscribe {
                         }
 
 
-                        if(id == pageStart.id && j == pageStart.subsriberIndex) {
+                        if(id == pageStart.id && u == pageStart.subsriberIndex) {
                             pageGo = true;
                         } 
 
@@ -1206,7 +1206,7 @@ contract ClockTowerSubscribe {
                         if(pageStart.id == 0 || pageGo == true) {
                             
                             //checks for failure (balance and unlimited allowance)
-                            address subscriber = subscribersMap[id][j];
+                            address subscriber = subscribersMap[id][u];
 
                             //check if there is enough allowance and balance
                             if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
@@ -1241,11 +1241,11 @@ contract ClockTowerSubscribe {
                                     uint feefill = amount;
                                     uint multiple = 1;
 
-                                    if(s == 2) {
+                                    if(f == 2) {
                                         feefill /= 3;
                                         multiple = 2;
                                     }
-                                    else if(s == 3) {
+                                    else if(f == 3) {
                                         feefill /= 12;
                                         multiple = 11;
                                     }
@@ -1254,7 +1254,7 @@ contract ClockTowerSubscribe {
                                     feeBalance[id][subscriber] += feefill;
                                     require(ERC20Permit(token).transferFrom(subscriber, address(this), feefill));
 
-                                    if(s == 3 || s == 4) {
+                                    if(f == 3 || f == 4) {
                                         //funds the remainder to the provider
                                         require(ERC20Permit(token).transferFrom(msg.sender, provider, feefill * multiple));
                                     }
@@ -1297,7 +1297,7 @@ contract ClockTowerSubscribe {
                             
                             }
                             //sends fees to caller on last subscriber in list
-                            if(j == lastSub) {
+                            if(u == lastSub) {
                                 /*
                                 if(ERC20Permit(token).balanceOf(provider) < totalFee) {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), true, 0);
