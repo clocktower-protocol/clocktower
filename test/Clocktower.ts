@@ -24,6 +24,7 @@ describe("Clocktower", function(){
     let hourAhead = currentTime + 3600;
     let twoHoursAhead = hourAhead + 3600;
     let threeHoursAhead = twoHoursAhead + 3600;
+    let dayAhead = 86400;
 
     //CLOCKtoken address
     const clockTokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -843,25 +844,32 @@ describe("Clocktower", function(){
         it("Should remit transactions", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
-             //adds CLOCK to approved tokens
-             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
 
-             //creates subscription and subscribes
-             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
              
-             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
-             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
-             //checks that only admin can call if bool is set
-             await expect(hardhatClockSubscribe.connect(caller).remit())
-             .to.be.rejectedWith("16")
+            //checks that only admin can call if bool is set
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.be.rejectedWith("16")
 
-             await hardhatClockSubscribe.setExternalCallers(true)
-             await hardhatClockSubscribe.systemFeeActivate(true)
+            await hardhatClockSubscribe.setExternalCallers(true)
+            await hardhatClockSubscribe.systemFeeActivate(true)
 
-             //checks token fee is high enough
-             await expect(hardhatClockSubscribe.connect(caller).remit())
-             .to.be.rejectedWith("5")
+            //checks token fee is high enough
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.be.rejectedWith("5")
+
+            await hardhatClockSubscribe.systemFeeActivate(false)
+
+            //checks remit can't be called twice in same day
+            await hardhatClockSubscribe.connect(caller).remit()
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.be.rejectedWith("14")
 
         })
         
