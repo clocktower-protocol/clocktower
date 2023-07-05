@@ -1,3 +1,4 @@
+//TODO: change license to MYSQL
 // SPDX-License-Identifier: UNLICENSED
 //Copyright Hugo Marx 2023
 //Written by Hugo Marx
@@ -1108,6 +1109,7 @@ contract ClockTowerSubscribe {
             require(systemFee <= msg.value, "5");
         }
 
+        //TODO: is this needed?
         //if gas is above max gas don't call function
         require(tx.gasprice < maxGasPrice, "24");
 
