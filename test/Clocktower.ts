@@ -456,7 +456,11 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",3,366, testParams))
             .to.be.revertedWith("29")
 
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("0.001"), hardhatCLOCKToken.address, "Test",1,15, testParams))
+            .to.be.revertedWith("30")
+
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams))
+            .to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, 0, 0)
         })
 
         it("Should get created subscriptions", async function() {
