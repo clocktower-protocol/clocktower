@@ -158,7 +158,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeCallerFee(uint256)": FunctionFragment;
-    "changeMaxGasPrice(uint256)": FunctionFragment;
     "changeMaxRemits(uint256)": FunctionFragment;
     "changeSystemFee(uint256)": FunctionFragment;
     "collectFees()": FunctionFragment;
@@ -171,7 +170,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "getSubscribersById(bytes32)": FunctionFragment;
     "getSubscriptionsByAccount(bool,address)": FunctionFragment;
     "lastCheckedDay()": FunctionFragment;
-    "maxGasPrice()": FunctionFragment;
     "maxRemits()": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
@@ -192,7 +190,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "cancelSubscription"
       | "changeAdmin"
       | "changeCallerFee"
-      | "changeMaxGasPrice"
       | "changeMaxRemits"
       | "changeSystemFee"
       | "collectFees"
@@ -205,7 +202,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "getSubscribersById"
       | "getSubscriptionsByAccount"
       | "lastCheckedDay"
-      | "maxGasPrice"
       | "maxRemits"
       | "remit"
       | "removeERC20Contract"
@@ -234,10 +230,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "changeCallerFee",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "changeMaxGasPrice",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -298,10 +290,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "lastCheckedDay",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "maxGasPrice",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
@@ -353,10 +341,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "changeMaxGasPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "changeMaxRemits",
     data: BytesLike
   ): Result;
@@ -399,10 +383,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "lastCheckedDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "maxGasPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
@@ -535,11 +515,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    changeMaxGasPrice(
-      _maxGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     changeMaxRemits(
       _maxRemits: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -605,8 +580,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
     lastCheckedDay(overrides?: CallOverrides): Promise<[number]>;
-
-    maxGasPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maxRemits(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -682,11 +655,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  changeMaxGasPrice(
-    _maxGas: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   changeMaxRemits(
     _maxRemits: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -748,8 +716,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
   lastCheckedDay(overrides?: CallOverrides): Promise<number>;
-
-  maxGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
   maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -821,11 +787,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    changeMaxGasPrice(
-      _maxGas: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     changeMaxRemits(
       _maxRemits: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -885,8 +846,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
     lastCheckedDay(overrides?: CallOverrides): Promise<number>;
-
-    maxGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1002,11 +961,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    changeMaxGasPrice(
-      _maxGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     changeMaxRemits(
       _maxRemits: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1064,8 +1018,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     lastCheckedDay(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxGasPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1138,11 +1090,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    changeMaxGasPrice(
-      _maxGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     changeMaxRemits(
       _maxRemits: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1200,8 +1147,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     lastCheckedDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    maxGasPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     maxRemits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
