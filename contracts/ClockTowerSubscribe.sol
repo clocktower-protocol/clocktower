@@ -1322,7 +1322,9 @@ contract ClockTowerSubscribe {
         //Makes caller log
         emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
 
+        console.log(lastCheckedDay);
         //updates lastCheckedTimeSlot
+        //FIXME: shouldn't this be today?? How does the remit script catch up if it misses a day?
         lastCheckedDay += 1;
         return;
     }

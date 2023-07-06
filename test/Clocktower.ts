@@ -871,6 +871,27 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.be.rejectedWith("14")
 
+            //moves to next day and sets 5 new subscriptions
+            await time.increase(dayAhead)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test0",1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test1",1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test2",1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test3",1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test4",1,2, testParams)
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[2].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[3].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[4].subscription, testParams)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[5].subscription, testParams)
+
+            //checks that on max remit caller is paid and event is emitted
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.changeTokenBalance(hardhatCLOCKToken, caller, ethers.utils.parseEther("0.1"))
+            .to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 2, caller.address, true)
+
+
+
         })
         
     })
