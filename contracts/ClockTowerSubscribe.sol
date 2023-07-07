@@ -79,7 +79,7 @@ contract ClockTowerSubscribe {
     //bool stopped;
 
     //variable for last checked by day
-    uint40 public lastCheckedDay;
+    uint40 public nextUncheckedDay;
 
     //admin addresses
     address payable public admin;
@@ -247,7 +247,7 @@ contract ClockTowerSubscribe {
     allowSystemFee = false;
 
     //variable for last checked by day
-    lastCheckedDay = (unixToDays(uint40(block.timestamp)) - 1);
+    nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
     //admin addresses
     admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
@@ -626,7 +626,7 @@ contract ClockTowerSubscribe {
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedDay, "14");
+        require(_currentTimeSlot > nextUncheckedDay, "14");
 
         //calls time function
         Time memory time = unixToTime(block.timestamp);
@@ -1102,7 +1102,7 @@ contract ClockTowerSubscribe {
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
     //completes money transfer for subscribers
-    function remit() payable external {
+    function remit() payable public {
 
         if(!allowExternalCallers) {
             adminRequire();
@@ -1118,12 +1118,26 @@ contract ClockTowerSubscribe {
         //require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
-        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
+        uint40 currentDay = unixToDays(uint40(block.timestamp));
 
-        require(_currentTimeSlot > lastCheckedDay, "14");
+        require(currentDay >= nextUncheckedDay, "14");
+
+        bool isEmptyDay = true;
+
+        Time memory time;
+
+        //TODO: check if lastCheckedDay == currentDay
+        if(currentDay != nextUncheckedDay) {
+            time = unixToTime(nextUncheckedDay * 86400);
+            console.log(nextUncheckedDay);
+            //console.log("past");
+        }  else {
+            time = unixToTime(block.timestamp);
+            console.log(currentDay);
+        }
 
         //calls time function
-        Time memory time = unixToTime(block.timestamp);
+        //Time memory time = unixToTime(block.timestamp);
 
         uint remitCounter;
 
@@ -1150,6 +1164,10 @@ contract ClockTowerSubscribe {
             
             //loops through subscriptions
             for(uint s; s < length; s++) {
+
+                //console.log("test");
+                //FIXME: Marks day as not empty
+                isEmptyDay = false;
 
                 //checks if cancelled
                 if(!subscriptionMap[f][timeTrigger][s].cancelled) {
@@ -1193,7 +1211,7 @@ contract ClockTowerSubscribe {
                             //sends fees to caller
                             require(ERC20Permit(token).transfer(msg.sender, totalFee), "22");
                             
-                            emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, false);
+                            emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
                             return;
                         }
 
@@ -1320,12 +1338,20 @@ contract ClockTowerSubscribe {
         pageGo = false;
 
         //Makes caller log
-        emit CallerLog(uint40(block.timestamp), lastCheckedDay, msg.sender, true);
+        emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, true);
 
-        console.log(lastCheckedDay);
+       // console.log(lastCheckedDay);
         //updates lastCheckedTimeSlot
         //FIXME: shouldn't this be today?? How does the remit script catch up if it misses a day?
-        lastCheckedDay += 1;
+        nextUncheckedDay += 1;
+        
+        //!!!FIXME: keeps going until it hits a day with transactions
+        if(isEmptyDay){
+            return remit();
+        }
+
+        console.log("here");
+
         return;
     }
 }
