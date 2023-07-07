@@ -169,8 +169,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
     "getSubscribersById(bytes32)": FunctionFragment;
     "getSubscriptionsByAccount(bool,address)": FunctionFragment;
-    "lastCheckedDay()": FunctionFragment;
     "maxRemits()": FunctionFragment;
+    "nextUncheckedDay()": FunctionFragment;
     "remit()": FunctionFragment;
     "removeERC20Contract(address)": FunctionFragment;
     "setExternalCallers(bool)": FunctionFragment;
@@ -201,8 +201,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "getSubByIndex"
       | "getSubscribersById"
       | "getSubscriptionsByAccount"
-      | "lastCheckedDay"
       | "maxRemits"
+      | "nextUncheckedDay"
       | "remit"
       | "removeERC20Contract"
       | "setExternalCallers"
@@ -286,11 +286,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "getSubscriptionsByAccount",
     values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "lastCheckedDay",
+    functionFragment: "nextUncheckedDay",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
@@ -381,11 +381,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "getSubscriptionsByAccount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "lastCheckedDay",
+    functionFragment: "nextUncheckedDay",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeERC20Contract",
@@ -579,9 +579,9 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
-    lastCheckedDay(overrides?: CallOverrides): Promise<[number]>;
-
     maxRemits(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    nextUncheckedDay(overrides?: CallOverrides): Promise<[number]>;
 
     remit(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -715,9 +715,9 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
-  lastCheckedDay(overrides?: CallOverrides): Promise<number>;
-
   maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
+
+  nextUncheckedDay(overrides?: CallOverrides): Promise<number>;
 
   remit(
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -845,9 +845,9 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
-    lastCheckedDay(overrides?: CallOverrides): Promise<number>;
-
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nextUncheckedDay(overrides?: CallOverrides): Promise<number>;
 
     remit(overrides?: CallOverrides): Promise<void>;
 
@@ -1017,9 +1017,9 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    lastCheckedDay(overrides?: CallOverrides): Promise<BigNumber>;
-
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nextUncheckedDay(overrides?: CallOverrides): Promise<BigNumber>;
 
     remit(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1146,9 +1146,9 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    lastCheckedDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     maxRemits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    nextUncheckedDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     remit(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
