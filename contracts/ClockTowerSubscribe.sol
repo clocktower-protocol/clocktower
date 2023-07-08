@@ -811,7 +811,7 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
-        //TODO: determine if you want a fee on subscribe and unsubscribe
+        //determine if you want a fee on subscribe and unsubscribe
          //require sent ETH to be higher than fixed token fee
         //require(fixedFee <= msg.value, "5");
 
@@ -909,7 +909,7 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
-        //TODO: determine if you want a fee on subscribe and unsubscribe
+        //determine if you want a fee on subscribe and unsubscribe
          //require sent ETH to be higher than fixed token fee
         //require(fixedFee <= msg.value, "5");
         
@@ -1166,7 +1166,7 @@ contract ClockTowerSubscribe {
             for(uint s; s < length; s++) {
 
                 //console.log("test");
-                //FIXME: Marks day as not empty
+                //Marks day as not empty
                 isEmptyDay = false;
 
                 //checks if cancelled
@@ -1190,8 +1190,14 @@ contract ClockTowerSubscribe {
                     uint totalFee;
 
                     uint sublength = subscribersMap[id].length;
-                    uint lastSub = sublength - 1;
-                 
+                    uint lastSub;
+                    //FIXME: underflows when subscription has no subscribers
+                    
+                    //makes sure on an empty subscription lastSub doesn't underflow
+                    if(sublength > 0) {
+                        lastSub = sublength - 1;
+                    }
+                    
                     //loops through subscribers
                     for(uint u; u < sublength; u++) {
 
@@ -1215,12 +1221,12 @@ contract ClockTowerSubscribe {
                             return;
                         }
 
-
+                        //if this is the subscription and subscriber the page starts on
                         if(id == pageStart.id && u == pageStart.subsriberIndex) {
                             pageGo = true;
                         } 
 
-                        //if remits are less than max remits
+                        //if remits are less than max remits or beginning of next page
                         if(pageStart.id == 0 || pageGo == true) {
                             
                             //checks for failure (balance and unlimited allowance)
@@ -1314,8 +1320,8 @@ contract ClockTowerSubscribe {
                                 emit ProviderLog(id, provider, uint40(block.timestamp), 0, ProvEvent.FAILED);
                             
                             }
-                            //sends fees to caller on last subscriber in list
-                            if(u == lastSub) {
+                            //sends fees to caller on last subscriber in list (unless there are no subscribers)
+                            if(u == lastSub && sublength > 0) {
                                 /*
                                 if(ERC20Permit(token).balanceOf(provider) < totalFee) {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), true, 0);
@@ -1342,10 +1348,9 @@ contract ClockTowerSubscribe {
 
        // console.log(lastCheckedDay);
         //updates lastCheckedTimeSlot
-        //FIXME: shouldn't this be today?? How does the remit script catch up if it misses a day?
         nextUncheckedDay += 1;
         
-        //!!!FIXME: keeps going until it hits a day with transactions
+        //keeps going until it hits a day with transactions
         if(isEmptyDay){
             return remit();
         }
