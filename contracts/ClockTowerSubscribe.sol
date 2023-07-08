@@ -1191,7 +1191,6 @@ contract ClockTowerSubscribe {
 
                     uint sublength = subscribersMap[id].length;
                     uint lastSub;
-                    //FIXME: underflows when subscription has no subscribers
                     
                     //makes sure on an empty subscription lastSub doesn't underflow
                     if(sublength > 0) {

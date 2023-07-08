@@ -897,19 +897,15 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 19724, caller.address, true)
 
             //checks that successful transfer with enough fee balance
-            time.increase((dayAhead * 5))
+            time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test5",1,3, testParams)
-           // let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
-           // await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[0].subscription, testParams)
+            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[6].subscription, testParams)
             
-            /*
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("0.1"))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, 4)
-            */
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("1"))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions3[6].subscription.id, subscriber.address, anyValue, subscriptions3[6].subscription.amount, 0)
             
-
-
         })  
         
     })
