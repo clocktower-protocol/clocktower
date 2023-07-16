@@ -1256,7 +1256,8 @@ contract ClockTowerSubscribe {
                                     require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
 
-                                    //TODO: Caller doesn't get paid in this sitation because the balance is too low
+                                    //Caller gets paid remainder of feeBalance
+                                    totalFee += feeBalance[id][subscriber];
 
                                     //log as feefill
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
@@ -1276,7 +1277,7 @@ contract ClockTowerSubscribe {
                                         multiple = 11;
                                     }
 
-                                    console.log("feefill");
+                                  //  console.log("feefill");
                                    
                                     //remits to contract to refill fee balance
                                     feeBalance[id][subscriber] += feefill;
