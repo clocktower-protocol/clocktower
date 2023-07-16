@@ -53,6 +53,7 @@ contract ClockTowerSubscribe {
     */
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    //TODO: need to remember that caller fee should never be above 8.33% because that would require a second feefill where the caller wouldn't get paid
     uint public callerFee;
 
     //0.01 eth in wei
@@ -1237,14 +1238,13 @@ contract ClockTowerSubscribe {
                             ERC20Permit(token).balanceOf(subscriber) > amount) {
                                 //SUCCESS
                                 remitCounter++;
-                                
-                                //charges fee 
-                                totalFee += subFee;
 
                                 //checks feeBalance. If positive it decreases balance. 
                                 //If fee balance < fee amount it sends subscription amount to contract as fee payment.
                                 if(feeBalance[id][subscriber] > subFee) {
 
+                                    //accounts for fee
+                                    totalFee += subFee;
                                     feeBalance[id][subscriber] -= subFee;
                                
                                     //log as succeeded
@@ -1255,7 +1255,10 @@ contract ClockTowerSubscribe {
                                     console.log(remitCounter);
                                     require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
-                                    //log as succeeded
+
+                                    //TODO: Caller doesn't get paid in this sitation because the balance is too low
+
+                                    //log as feefill
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
 
                                     //adjusts feefill based on frequency
@@ -1272,14 +1275,16 @@ contract ClockTowerSubscribe {
                                         feefill /= 12;
                                         multiple = 11;
                                     }
+
+                                    console.log("feefill");
                                    
                                     //remits to contract to refill fee balance
                                     feeBalance[id][subscriber] += feefill;
                                     require(ERC20Permit(token).transferFrom(subscriber, address(this), feefill));
 
-                                    if(f == 3 || f == 4) {
+                                    if(f == 2 || f == 3) {
                                         //funds the remainder to the provider
-                                        require(ERC20Permit(token).transferFrom(msg.sender, provider, feefill * multiple));
+                                        require(ERC20Permit(token).transferFrom(subscriber, provider, feefill * multiple));
                                     }
                                 }
                             } else {
@@ -1354,7 +1359,7 @@ contract ClockTowerSubscribe {
             return remit();
         }
 
-        console.log("here");
+        //console.log("here");
 
         return;
     }

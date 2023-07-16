@@ -905,6 +905,42 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("1"))
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions3[6].subscription.id, subscriber.address, anyValue, subscriptions3[6].subscription.amount, 0)
+
+            time.increase((dayAhead))
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test6",1,4, testParams)
+            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[7].subscription, testParams)
+            
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, 0, 2)
+
+            //checks feefill events and token balances
+            await time.increase((dayAhead))
+            await hardhatClockSubscribe.changeCallerFee(13000)
+            
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test7",3,5, testParams)
+            let subscriptions5 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions5[8].subscription, testParams)
+
+            let feeBalance0 = ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions5[8].subscription.id, subscriber.address))
+            console.log(feeBalance0)
+            
+            expect(await hardhatClockSubscribe.connect(caller).remit())
+            
+            await time.increase((dayAhead * 95))
+            
+            let balance = ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            console.log(balance)
+
+            let feeBalance = ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions5[8].subscription.id, subscriber.address))
+            console.log(feeBalance)
+            
+            /*
+            await expect(hardhatClockSubscribe.connect(caller).remit())
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-1"))
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions5[8].subscription.id, subscriber.address, anyValue, subscriptions5[8].subscription.amount, 4)
+            */
+            
             
         })  
         
