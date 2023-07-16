@@ -715,7 +715,7 @@ contract ClockTowerSubscribe {
         
         return feeArray2;
     }
-    
+   
     
 
     //PRIVATE FUNCTIONS----------------------------------------------
@@ -1102,6 +1102,7 @@ contract ClockTowerSubscribe {
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
+    //TODO: Do we need to prorate first amount?
     //completes money transfer for subscribers
     function remit() payable public {
 
@@ -1226,6 +1227,8 @@ contract ClockTowerSubscribe {
                             pageGo = true;
                         } 
 
+                       // console.log(block.timestamp);
+
                         //if remits are less than max remits or beginning of next page
                         if(pageStart.id == 0 || pageGo == true) {
                             
@@ -1252,12 +1255,13 @@ contract ClockTowerSubscribe {
                                     emit ProviderLog(id, provider, uint40(block.timestamp), 0, ProvEvent.PAID);
 
                                     //remits from subscriber to provider
-                                    console.log(remitCounter);
+                                   // console.log(remitCounter);
                                     require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
 
                                     //Caller gets paid remainder of feeBalance
                                     totalFee += feeBalance[id][subscriber];
+                                    feeBalance[id][subscriber] = 0;
 
                                     //log as feefill
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
@@ -1277,7 +1281,7 @@ contract ClockTowerSubscribe {
                                         multiple = 11;
                                     }
 
-                                  //  console.log("feefill");
+                                   // console.log(block.timestamp);
                                    
                                     //remits to contract to refill fee balance
                                     feeBalance[id][subscriber] += feefill;
@@ -1360,7 +1364,7 @@ contract ClockTowerSubscribe {
             return remit();
         }
 
-        //console.log("here");
+       // console.log("here");
 
         return;
     }
