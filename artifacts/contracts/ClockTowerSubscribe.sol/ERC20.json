@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "ERC20Permit",
+  "contractName": "ERC20",
   "sourceName": "contracts/ClockTowerSubscribe.sol",
   "abi": [
     {

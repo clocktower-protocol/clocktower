@@ -96,7 +96,7 @@ describe("Clocktower", function(){
         await hardhatClockSubscribe.deployed();
         await hardhatClockPayment.deployed();
 
-        console.log(hardhatCLOCKToken.address);
+        //console.log(hardhatCLOCKToken.address);
          //starts contract with 100 ETH
          const params = {
             from: owner.address,
