@@ -292,6 +292,7 @@ contract ClockTowerSubscribe {
         require(msg.sender == admin, "16");
     }
     
+    
     //checks if user is admin
     modifier isAdmin() {
         adminRequire();
@@ -640,7 +641,7 @@ contract ClockTowerSubscribe {
         //gets subscriptions from mappings
        
         //loops through types
-        for(uint s = 0; s <= 3; s++) {
+        for(uint s; s <= 3; s++) {
 
             uint16 timeTrigger;
             if(s == uint(Frequency.WEEKLY)){
@@ -1128,14 +1129,14 @@ contract ClockTowerSubscribe {
 
         Time memory time;
 
-        //TODO: check if lastCheckedDay == currentDay
+        //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
             time = unixToTime(nextUncheckedDay * 86400);
-            console.log(nextUncheckedDay);
+          //  console.log(nextUncheckedDay);
             //console.log("past");
         }  else {
             time = unixToTime(block.timestamp);
-            console.log(currentDay);
+          //  console.log(currentDay);
         }
 
         //calls time function
@@ -1146,7 +1147,7 @@ contract ClockTowerSubscribe {
         //gets subscriptions from mappings
        
         //loops through types
-        for(uint f = 0; f <= 3; f++) {
+        for(uint f; f <= 3; f++) {
 
             uint16 timeTrigger;
             if(f == uint(Frequency.WEEKLY)){
@@ -1261,7 +1262,7 @@ contract ClockTowerSubscribe {
 
                                     //Caller gets paid remainder of feeBalance
                                     totalFee += feeBalance[id][subscriber];
-                                    feeBalance[id][subscriber] = 0;
+                                    delete feeBalance[id][subscriber];
 
                                     //log as feefill
                                     emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FEEFILL);
