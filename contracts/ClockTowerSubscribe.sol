@@ -603,7 +603,6 @@ contract ClockTowerSubscribe {
         return scriberViews;
     }
     
-    //TODO: Is this redundant with getSubscribers and getSubscibersById?
     //fetches subscription from day maps by id
     function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view internal returns(Subscription memory subscription){
 
