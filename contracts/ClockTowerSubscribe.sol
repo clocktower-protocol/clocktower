@@ -53,7 +53,7 @@ contract ClockTowerSubscribe {
     */
 
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    //TODO: need to remember that caller fee should never be above 8.33% because that would require a second feefill where the caller wouldn't get paid
+    //If caller fee is above 8.33% because then as second feefill would happen on annual subs
     uint public callerFee;
 
     //0.01 eth in wei
@@ -549,7 +549,7 @@ contract ClockTowerSubscribe {
     }
     */
 
-    //TODO: is this redundant with getSubscribersById?
+    //is this redundant with getSubscribersById?
 
     /*
     //gets subscribers by subscription id
@@ -742,7 +742,6 @@ contract ClockTowerSubscribe {
        return approvedERC20[erc20Contract].exists ? true:false;
    }
 
-    //TODO: need to make sure the ID is unique
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
@@ -1116,7 +1115,6 @@ contract ClockTowerSubscribe {
             require(systemFee <= msg.value, "5");
         }
 
-        //TODO: is this needed?
         //if gas is above max gas don't call function
         //require(tx.gasprice < maxGasPrice, "24");
 
