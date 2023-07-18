@@ -18,7 +18,7 @@ contract ClockTowerSubscribe {
 
       /*
     //Require error codes
-    0 = No error
+    0 = Subscriber cannot be provider
     1 = ERC20 token already added
     2 = ERC20 token not added yet
     3 = No zero address call
@@ -820,9 +820,8 @@ contract ClockTowerSubscribe {
                 &&
                 ERC20(subscription.token).balanceOf(msg.sender) >= subscription.amount, "20");
     
-        //TODO: turn on after testing
         //cant subscribe to subscription you own
-        //require(msg.sender != subscription.owner, "Cant be owner and subscriber");
+        require(msg.sender != subscription.provider, "0");
 
         require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
 
