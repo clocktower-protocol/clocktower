@@ -153,7 +153,6 @@ export declare namespace ClockTowerSubscribe {
 export interface ClockTowerSubscribeInterface extends utils.Interface {
   functions: {
     "addERC20Contract(address,uint256)": FunctionFragment;
-    "admin()": FunctionFragment;
     "callerFee()": FunctionFragment;
     "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
@@ -166,7 +165,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "feeEstimate()": FunctionFragment;
     "getAccountSubscriptions(bool)": FunctionFragment;
     "getAllAccounts()": FunctionFragment;
-    "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
     "getSubscribersById(bytes32)": FunctionFragment;
     "getSubscriptionsByAccount(bool,address)": FunctionFragment;
     "maxRemits()": FunctionFragment;
@@ -185,7 +183,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "addERC20Contract"
-      | "admin"
       | "callerFee"
       | "cancelSubscription"
       | "changeAdmin"
@@ -198,7 +195,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "feeEstimate"
       | "getAccountSubscriptions"
       | "getAllAccounts"
-      | "getSubByIndex"
       | "getSubscribersById"
       | "getSubscriptionsByAccount"
       | "maxRemits"
@@ -218,7 +214,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "addERC20Contract",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "cancelSubscription",
@@ -271,14 +266,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getSubByIndex",
-    values: [
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getSubscribersById",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -326,7 +313,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "addERC20Contract",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "cancelSubscription",
@@ -367,10 +353,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllAccounts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSubByIndex",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -496,8 +478,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    admin(overrides?: CallOverrides): Promise<[string]>;
-
     callerFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cancelSubscription(
@@ -556,17 +536,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     getAllAccounts(
       overrides?: CallOverrides
     ): Promise<[ClockTowerSubscribe.AccountStructOutput[]]>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [ClockTowerSubscribe.SubscriptionStructOutput] & {
-        subscription: ClockTowerSubscribe.SubscriptionStructOutput;
-      }
-    >;
 
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
@@ -636,8 +605,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  admin(overrides?: CallOverrides): Promise<string>;
-
   callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   cancelSubscription(
@@ -696,13 +663,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   getAllAccounts(
     overrides?: CallOverrides
   ): Promise<ClockTowerSubscribe.AccountStructOutput[]>;
-
-  getSubByIndex(
-    id: PromiseOrValue<BytesLike>,
-    frequency: PromiseOrValue<BigNumberish>,
-    dueDay: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
 
   getSubscribersById(
     id: PromiseOrValue<BytesLike>,
@@ -768,8 +728,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    admin(overrides?: CallOverrides): Promise<string>;
-
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancelSubscription(
@@ -826,13 +784,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     getAllAccounts(
       overrides?: CallOverrides
     ): Promise<ClockTowerSubscribe.AccountStructOutput[]>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
 
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
@@ -942,8 +893,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    admin(overrides?: CallOverrides): Promise<BigNumber>;
-
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancelSubscription(
@@ -998,13 +947,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<BigNumber>;
 
     getAllAccounts(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
@@ -1071,8 +1013,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     callerFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cancelSubscription(
@@ -1127,13 +1067,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getAllAccounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
