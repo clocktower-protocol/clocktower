@@ -1320,12 +1320,14 @@ contract ClockTowerSubscribe {
 
                                 //unsubscribes on failure
                                 deleteSubFromSubscription(id, subscriber);
-                            
-                                //emit unsubscribe to log
-                                emit SubscriberLog(id, msg.sender, uint40(block.timestamp), amount, SubEvent.UNSUBSCRIBED);
 
                                 //log as failed
                                 emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.FAILED);
+                            
+                                //emit unsubscribe to log
+                                emit SubscriberLog(id, subscriber, uint40(block.timestamp), amount, SubEvent.UNSUBSCRIBED);
+
+                                //log as failed
                                 emit ProviderLog(id, provider, uint40(block.timestamp), 0, ProvEvent.FAILED);
                             
                             }
