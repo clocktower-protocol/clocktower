@@ -16,7 +16,7 @@ describe("Clocktower", function(){
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     //eth sent
     let eth = ethers.utils.parseEther("1.0")
-    console.log(eth)
+    //console.log(eth)
     let centEth = ethers.utils.parseEther("100.0")
 
     //sends test data of an hour ago
@@ -510,7 +510,7 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
             .to.be.rejectedWith("7")
 
-            console.log(await hardhatCLOCKToken.connect(subscriber).balanceOf(subscriber.address))
+            //console.log(await hardhatCLOCKToken.connect(subscriber).balanceOf(subscriber.address))
 
             //tests emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
