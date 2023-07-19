@@ -1027,6 +1027,23 @@ describe("Clocktower", function(){
             expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("107.0")
             expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(hardhatClockSubscribe.address))).to.equal("1.0") 
         })
+        it("Prorate when subscribing", async function() { 
+
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.setExternalCallers(true)
+    
+            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("7"), hardhatCLOCKToken.address, "Test",0,3, testParams)
+                 
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+
+            await time.increase((dayAhead * 5))
+    
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-4"))
+
+
+        })
         
     })
 })
