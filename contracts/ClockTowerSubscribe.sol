@@ -25,6 +25,13 @@ library ClockTowerTime {
         uint16 yearDay;
     }
 
+    enum Frequency {
+        WEEKLY,
+        MONTHLY,
+        QUARTERLY,
+        YEARLY
+    }
+
      //TIME FUNCTIONS-----------------------------------
     function unixToTime(uint unix) external pure returns (Time memory time) {
        
@@ -120,16 +127,25 @@ library ClockTowerTime {
     }
 
     //prorates weekday
-    function weekDayProrate(uint40 unixTime, uint40 dueDay, uint fee) external pure returns (uint)  {
+    function prorate(uint40 unixTime, uint40 dueDay, uint fee, uint frequency) external pure returns (uint)  {
         uint currentWeekday = getDayOfWeek(unixTime);
-        if(dueDay != currentWeekday && currentWeekday > dueDay){
-                fee = (fee / 7) * (7 - (currentWeekday - dueDay));
-        } else if (dueDay != currentWeekday && currentWeekday < dueDay) {
-                fee = (fee / 7) * (dueDay - currentWeekday);
+
+        //weekly
+        if(frequency == 0) {
+            if(dueDay != currentWeekday && currentWeekday > dueDay){
+                    fee = (fee / 7) * (7 - (currentWeekday - dueDay));
+            } else if (dueDay != currentWeekday && currentWeekday < dueDay) {
+                    fee = (fee / 7) * (dueDay - currentWeekday);
+            }
+        }
+        //monthly
+        else if(frequency == 1) {
+
         }
 
         return fee;
     }
+
 
 }
 
@@ -1024,7 +1040,7 @@ contract ClockTowerSubscribe {
             
         } 
         else if(subscription.frequency == Frequency.WEEKLY){
-            fee = ClockTowerTime.weekDayProrate(uint40(block.timestamp), subscription.dueDay, fee);
+            fee = ClockTowerTime.prorate(uint40(block.timestamp), subscription.dueDay, fee, uint(subscription.frequency));
             console.log(ClockTowerTime.getDayOfWeek(block.timestamp));
             console.log(subscription.dueDay);
             console.log(fee);
