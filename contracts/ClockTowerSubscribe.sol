@@ -86,7 +86,7 @@ library ClockTowerTime {
     }
 
     // 1 = Monday, 7 = Sunday
-    function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
+    function getDayOfWeek(uint unixTime) public pure returns (uint16 dayOfWeek) {
         uint _days = unixTime / 86400;
         uint dayOfWeekuint = (_days + 3) % 7 + 1;
         dayOfWeek = uint16(dayOfWeekuint);
@@ -117,6 +117,18 @@ library ClockTowerTime {
     //converts unixTime to days
     function unixToDays(uint40 unixTime) external pure returns(uint40 dayCount) {
         dayCount = unixTime/86400;
+    }
+
+    //prorates weekday
+    function weekDayProrate(uint40 unixTime, uint40 dueDay, uint fee) external pure returns (uint)  {
+        uint currentWeekday = getDayOfWeek(unixTime);
+        if(dueDay != currentWeekday && currentWeekday > dueDay){
+                fee = (fee / 7) * (7 - (currentWeekday - dueDay));
+        } else if (dueDay != currentWeekday && currentWeekday < dueDay) {
+                fee = (fee / 7) * (dueDay - currentWeekday);
+        }
+
+        return fee;
     }
 
 }
@@ -1007,20 +1019,17 @@ contract ClockTowerSubscribe {
         uint multiple = 1;
 
         //prorates fee amount
-        /*
+        
         if(subscription.frequency == Frequency.MONTHLY){
-            uint currentWeekday = getDayOfWeek(block.timestamp);
-            if(subscription.dueDay != currentWeekday && currentWeekday > subscription.dueDay){
-                fee = (fee / 7) * (currentWeekday - subscription.dueDay);
-            } else if (subscription.dueDay != currentWeekday && currentWeekday < subscription.dueDay) {
-                fee = (fee / 7) * (subscription.dueDay - currentWeekday);
-            }
+            
         } 
         else if(subscription.frequency == Frequency.WEEKLY){
-
+            fee = ClockTowerTime.weekDayProrate(uint40(block.timestamp), subscription.dueDay, fee);
+            console.log(ClockTowerTime.getDayOfWeek(block.timestamp));
+            console.log(subscription.dueDay);
+            console.log(fee);
         }
-        */
-        if(subscription.frequency == Frequency.QUARTERLY) {
+        else if(subscription.frequency == Frequency.QUARTERLY) {
             fee /= 3;
             multiple = 2;
         }

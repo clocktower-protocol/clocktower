@@ -39,14 +39,24 @@ export declare namespace ClockTowerTime {
 
 export interface ClockTowerTimeInterface extends utils.Interface {
   functions: {
+    "getDayOfWeek(uint256)": FunctionFragment;
     "unixToDays(uint40)": FunctionFragment;
     "unixToTime(uint256)": FunctionFragment;
+    "weekDayProrate(uint40,uint40,uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "unixToDays" | "unixToTime"
+    nameOrSignatureOrTopic:
+      | "getDayOfWeek"
+      | "unixToDays"
+      | "unixToTime"
+      | "weekDayProrate"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "getDayOfWeek",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "unixToDays",
     values: [PromiseOrValue<BigNumberish>]
@@ -55,9 +65,25 @@ export interface ClockTowerTimeInterface extends utils.Interface {
     functionFragment: "unixToTime",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "weekDayProrate",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "getDayOfWeek",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unixToDays", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unixToTime", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "weekDayProrate",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -89,6 +115,11 @@ export interface ClockTowerTime extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    getDayOfWeek(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[number] & { dayOfWeek: number }>;
+
     unixToDays(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -102,7 +133,19 @@ export interface ClockTowerTime extends BaseContract {
         time: ClockTowerTime.TimeStructOutput;
       }
     >;
+
+    weekDayProrate(
+      unixTime: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
+
+  getDayOfWeek(
+    unixTime: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   unixToDays(
     unixTime: PromiseOrValue<BigNumberish>,
@@ -114,7 +157,19 @@ export interface ClockTowerTime extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ClockTowerTime.TimeStructOutput>;
 
+  weekDayProrate(
+    unixTime: PromiseOrValue<BigNumberish>,
+    dueDay: PromiseOrValue<BigNumberish>,
+    fee: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
+    getDayOfWeek(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
     unixToDays(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -124,11 +179,23 @@ export interface ClockTowerTime extends BaseContract {
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<ClockTowerTime.TimeStructOutput>;
+
+    weekDayProrate(
+      unixTime: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
+    getDayOfWeek(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     unixToDays(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -138,9 +205,21 @@ export interface ClockTowerTime extends BaseContract {
       unix: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    weekDayProrate(
+      unixTime: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    getDayOfWeek(
+      unixTime: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     unixToDays(
       unixTime: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -148,6 +227,13 @@ export interface ClockTowerTime extends BaseContract {
 
     unixToTime(
       unix: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    weekDayProrate(
+      unixTime: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
