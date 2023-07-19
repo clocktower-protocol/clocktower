@@ -134,20 +134,6 @@ export declare namespace ClockTowerSubscribe {
     subscriber: string;
     feeBalance: BigNumber;
   };
-
-  export type TimeStruct = {
-    day: PromiseOrValue<BigNumberish>;
-    weekDay: PromiseOrValue<BigNumberish>;
-    quarterDay: PromiseOrValue<BigNumberish>;
-    yearDay: PromiseOrValue<BigNumberish>;
-  };
-
-  export type TimeStructOutput = [number, number, number, number] & {
-    day: number;
-    weekDay: number;
-    quarterDay: number;
-    yearDay: number;
-  };
 }
 
 export interface ClockTowerSubscribeInterface extends utils.Interface {
@@ -175,7 +161,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "systemFee()": FunctionFragment;
     "systemFeeActivate(bool)": FunctionFragment;
-    "unixToTime(uint256)": FunctionFragment;
     "unsubscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16,string))": FunctionFragment;
     "unsubscribeByProvider((bytes32,uint256,address,address,bool,bool,uint8,uint16,string),address)": FunctionFragment;
   };
@@ -205,7 +190,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "subscribe"
       | "systemFee"
       | "systemFeeActivate"
-      | "unixToTime"
       | "unsubscribe"
       | "unsubscribeByProvider"
   ): FunctionFragment;
@@ -297,10 +281,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "unixToTime",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "unsubscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -383,7 +363,6 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "systemFeeActivate",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "unixToTime", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "unsubscribe",
     data: BytesLike
@@ -578,15 +557,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    unixToTime(
-      unix: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [ClockTowerSubscribe.TimeStructOutput] & {
-        time: ClockTowerSubscribe.TimeStructOutput;
-      }
-    >;
-
     unsubscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -705,11 +675,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unixToTime(
-    unix: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.TimeStructOutput>;
-
   unsubscribe(
     subscription: ClockTowerSubscribe.SubscriptionStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -823,11 +788,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    unixToTime(
-      unix: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.TimeStructOutput>;
 
     unsubscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
@@ -989,11 +949,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    unixToTime(
-      unix: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     unsubscribe(
       subscription: ClockTowerSubscribe.SubscriptionStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1107,11 +1062,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     systemFeeActivate(
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unixToTime(
-      unix: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     unsubscribe(

@@ -5,8 +5,124 @@
 pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
+/*
 interface ERC20{
-function transferFrom(address from, address to, uint value) external returns (bool);
+  function transferFrom(address from, address to, uint value) external returns (bool);
+  function balanceOf(address tokenOwner) external returns (uint);
+  function approve(address spender, uint tokens) external returns (bool);
+  function transfer(address to, uint value) external returns (bool);
+  function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
+  function allowance(address owner, address spender) external returns (uint);
+} 
+*/
+
+library ClockTowerTime {
+    //struct of time return values
+    struct Time {
+        uint16 day;
+        uint16 weekDay;
+        uint16 quarterDay;
+        uint16 yearDay;
+    }
+
+     //TIME FUNCTIONS-----------------------------------
+    function unixToTime(uint unix) external pure returns (Time memory time) {
+       
+        uint _days = unix/86400;
+        uint16 day;
+        uint16 yearDay;
+       
+        int __days = int(_days);
+
+        int L = __days + 68569 + 2440588;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        int _year = 4000 * (L + 1) / 1461001;
+        L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+        _year = 100 * (N - 49) + _year + L;
+
+        uint uintyear = uint(_year);
+        uint month = uint(_month);
+        uint uintday = uint(_day);
+
+        day = uint16(uintday);        
+
+        uint dayCounter;
+
+        //loops through months to get current day of year
+        for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
+            if(monthCounter == month) {
+                dayCounter += day;
+            } else {
+                dayCounter += getDaysInMonth(uintyear, month);
+            }
+        }
+
+        yearDay = uint16(dayCounter);
+
+        //gets day of quarter
+        time.quarterDay = getdayOfQuarter(yearDay, uintyear);
+        time.weekDay = getDayOfWeek(unix);
+        time.day = day;
+        time.yearDay = yearDay;
+    }
+
+    function isLeapYear(uint year) internal pure returns (bool leapYear) {
+        leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+
+    function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+            daysInMonth = 31;
+        } else if (month != 2) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = isLeapYear(year) ? 29 : 28;
+        }
+    }
+
+    // 1 = Monday, 7 = Sunday
+    function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
+        uint _days = unixTime / 86400;
+        uint dayOfWeekuint = (_days + 3) % 7 + 1;
+        dayOfWeek = uint16(dayOfWeekuint);
+
+    }
+
+    //get day of quarter
+    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
+        
+        uint leapDay;
+        if(isLeapYear(year)) {
+            leapDay = 1;
+        } else {
+            leapDay = 0;
+        }
+
+        if(yearDays <= (90 + leapDay)) {
+            quarterDay = uint16(yearDays);
+        } else if((90 + leapDay) < yearDays && yearDays <= (181 + leapDay)) {
+            quarterDay = uint16(yearDays - (90 + leapDay));
+        } else if((181 + leapDay) < yearDays && yearDays <= (273 + leapDay)) {
+            quarterDay = uint16(yearDays - (181 + leapDay));
+        } else {
+            quarterDay = uint16(yearDays - (273 + leapDay));
+        }
+    }
+
+    //converts unixTime to days
+    function unixToDays(uint40 unixTime) external pure returns(uint40 dayCount) {
+        dayCount = unixTime/86400;
+    }
+
+}
+
+interface ERC20Permit{
+  function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
   function approve(address spender, uint tokens) external returns (bool);
   function transfer(address to, uint value) external returns (bool);
@@ -171,6 +287,7 @@ contract ClockTowerSubscribe {
         uint feeBalance;
     }
 
+    /*
     //struct of time return values
     struct Time {
         uint16 day;
@@ -178,6 +295,7 @@ contract ClockTowerSubscribe {
         uint16 quarterDay;
         uint16 yearDay;
     }
+    */
 
     //struct for fee estimates
     struct FeeEstimate {
@@ -247,7 +365,7 @@ contract ClockTowerSubscribe {
     allowSystemFee = false;
 
     //variable for last checked by day
-    nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
+    nextUncheckedDay = (ClockTowerTime.unixToDays(uint40(block.timestamp)) - 2);
 
     //admin addresses
     admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
@@ -446,6 +564,7 @@ contract ClockTowerSubscribe {
 
     //-------------------------------------------------------
 
+/*
      //TIME FUNCTIONS-----------------------------------
     function unixToTime(uint unix) public pure returns (Time memory time) {
        
@@ -540,6 +659,8 @@ contract ClockTowerSubscribe {
         dayCount = unixTime/86400;
     }
 
+    */
+
     //VIEW FUNCTIONS -----------------------------------------------
 
     /*
@@ -624,12 +745,12 @@ contract ClockTowerSubscribe {
         //require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
-        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
+        uint40 _currentTimeSlot = ClockTowerTime.unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > nextUncheckedDay, "14");
 
         //calls time function
-        Time memory time = unixToTime(block.timestamp);
+        ClockTowerTime.Time memory time = ClockTowerTime.unixToTime(block.timestamp);
 
         uint remitCounter;
         uint subCounter;
@@ -736,6 +857,12 @@ contract ClockTowerSubscribe {
     }
     */
 
+   /*
+   function absVal(int integer) private pure returns (int){
+        return integer < 0 ? -integer : integer;
+   }
+   */
+
    function erc20IsApproved(address erc20Contract) private view returns(bool result) {
        return approvedERC20[erc20Contract].exists ? true:false;
    }
@@ -804,6 +931,7 @@ contract ClockTowerSubscribe {
 
     //EXTERNAL FUNCTIONS----------------------------------------
     
+    //TODO: need to prorate initial amount
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
@@ -815,9 +943,9 @@ contract ClockTowerSubscribe {
         //require(fixedFee <= msg.value, "5");
 
         //check if there is enough allowance
-        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount
+        require(ERC20Permit(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount
                 &&
-                ERC20(subscription.token).balanceOf(msg.sender) >= subscription.amount, "20");
+                ERC20Permit(subscription.token).balanceOf(msg.sender) >= subscription.amount, "20");
     
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
@@ -878,6 +1006,20 @@ contract ClockTowerSubscribe {
         uint fee = subscription.amount;
         uint multiple = 1;
 
+        //prorates fee amount
+        /*
+        if(subscription.frequency == Frequency.MONTHLY){
+            uint currentWeekday = getDayOfWeek(block.timestamp);
+            if(subscription.dueDay != currentWeekday && currentWeekday > subscription.dueDay){
+                fee = (fee / 7) * (currentWeekday - subscription.dueDay);
+            } else if (subscription.dueDay != currentWeekday && currentWeekday < subscription.dueDay) {
+                fee = (fee / 7) * (subscription.dueDay - currentWeekday);
+            }
+        } 
+        else if(subscription.frequency == Frequency.WEEKLY){
+
+        }
+        */
         if(subscription.frequency == Frequency.QUARTERLY) {
             fee /= 3;
             multiple = 2;
@@ -885,7 +1027,8 @@ contract ClockTowerSubscribe {
         else if(subscription.frequency == Frequency.YEARLY) {
             fee /= 12;
             multiple = 11;
-        }
+        } 
+        
 
         //pays first subscription to fee balance
         feeBalance[subscription.id][msg.sender] += fee;
@@ -895,10 +1038,10 @@ contract ClockTowerSubscribe {
         emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
 
         //funds cost with fee balance
-        require(ERC20(subscription.token).transferFrom(msg.sender, address(this), fee));
+        require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), fee));
         if(subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) {
             //funds the remainder to the provider
-            require(ERC20(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
+            require(ERC20Permit(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
         }
     }
     
@@ -937,7 +1080,7 @@ contract ClockTowerSubscribe {
         emit ProviderLog(subscription.id, subscription.provider, uint40(block.timestamp), balance, ProvEvent.REFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscription.provider, balance), "21");
+        require(ERC20Permit(subscription.token).transfer(subscription.provider, balance), "21");
         
     }
 
@@ -981,7 +1124,7 @@ contract ClockTowerSubscribe {
         emit SubscriberLog(subscription.id, subscriber, uint40(block.timestamp), balance, SubEvent.REFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscriber, balance), "21");
+        require(ERC20Permit(subscription.token).transfer(subscriber, balance), "21");
         
     }
         
@@ -1021,7 +1164,7 @@ contract ClockTowerSubscribe {
             delete feeBalance[subscription.id][subscribers[i]];
 
             //refunds fee balance
-            require(ERC20(subscription.token).transfer(subscribers[i], feeBal), "21");
+            require(ERC20Permit(subscription.token).transfer(subscribers[i], feeBal), "21");
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
@@ -1116,21 +1259,21 @@ contract ClockTowerSubscribe {
         //require(tx.gasprice < maxGasPrice, "24");
 
         //gets current time slot based on day
-        uint40 currentDay = unixToDays(uint40(block.timestamp));
+        uint40 currentDay = ClockTowerTime.unixToDays(uint40(block.timestamp));
 
         require(currentDay >= nextUncheckedDay, "14");
 
         bool isEmptyDay = true;
 
-        Time memory time;
+        ClockTowerTime.Time memory time;
 
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
-            time = unixToTime(nextUncheckedDay * 86400);
+            time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
           //  console.log(nextUncheckedDay);
             //console.log("past");
         }  else {
-            time = unixToTime(block.timestamp);
+            time = ClockTowerTime.unixToTime(block.timestamp);
           //  console.log(currentDay);
         }
 
@@ -1212,7 +1355,7 @@ contract ClockTowerSubscribe {
                             }   
                             */
                             //sends fees to caller
-                            require(ERC20(token).transfer(msg.sender, totalFee), "22");
+                            require(ERC20Permit(token).transfer(msg.sender, totalFee), "22");
                             
                             emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
                             return;
@@ -1232,9 +1375,9 @@ contract ClockTowerSubscribe {
                             address subscriber = subscribersMap[id][u];
 
                             //check if there is enough allowance and balance
-                            if(ERC20(token).allowance(subscriber, address(this)) >= amount
+                            if(ERC20Permit(token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20(token).balanceOf(subscriber) > amount) {
+                            ERC20Permit(token).balanceOf(subscriber) > amount) {
                                 //SUCCESS
                                 remitCounter++;
 
@@ -1252,7 +1395,7 @@ contract ClockTowerSubscribe {
 
                                     //remits from subscriber to provider
                                    // console.log(remitCounter);
-                                    require(ERC20(token).transferFrom(subscriber, provider, amount));
+                                    require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
 
                                     //Caller gets paid remainder of feeBalance
@@ -1281,11 +1424,11 @@ contract ClockTowerSubscribe {
                                    
                                     //remits to contract to refill fee balance
                                     feeBalance[id][subscriber] += feefill;
-                                    require(ERC20(token).transferFrom(subscriber, address(this), feefill));
+                                    require(ERC20Permit(token).transferFrom(subscriber, address(this), feefill));
 
                                     if(f == 2 || f == 3) {
                                         //funds the remainder to the provider
-                                        require(ERC20(token).transferFrom(subscriber, provider, feefill * multiple));
+                                        require(ERC20Permit(token).transferFrom(subscriber, provider, feefill * multiple));
                                     }
                                 }
                             } else {
@@ -1311,7 +1454,7 @@ contract ClockTowerSubscribe {
                                     //TODO: add refund event
 
                                     //pays remainder to provider
-                                    require(ERC20(token).transfer(provider, feeRemainder));
+                                    require(ERC20Permit(token).transfer(provider, feeRemainder));
                                 }
 
                                 //unsubscribes on failure
@@ -1338,7 +1481,7 @@ contract ClockTowerSubscribe {
                                 } 
                                 */
                                //sends fees to caller
-                               require(ERC20(token).transfer(msg.sender, totalFee), "22");
+                               require(ERC20Permit(token).transfer(msg.sender, totalFee), "22");
                             }
                         }
                     }
