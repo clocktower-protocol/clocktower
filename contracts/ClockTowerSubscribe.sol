@@ -23,6 +23,8 @@ library ClockTowerTime {
         uint16 weekDay;
         uint16 quarterDay;
         uint16 yearDay;
+        uint16 year;
+        uint16 month;
     }
 
     enum Frequency {
@@ -76,6 +78,8 @@ library ClockTowerTime {
         time.weekDay = getDayOfWeek(unix);
         time.dayOfMonth = day;
         time.yearDay = yearDay;
+        time.year = uint16(uintyear);
+        time.month = uint16(month);
     }
 
     function isLeapYear(uint year) internal pure returns (bool leapYear) {
@@ -131,30 +135,48 @@ library ClockTowerTime {
         Time memory time = unixToTime(unixTime);
         uint currentDay;
         uint max;
+        uint lastDayOfMonth;
         
         //sets maximum range day amount
         if(frequency == 0) {
             currentDay = time.weekDay;
             max = 7;
         } else if (frequency == 1){
+            //calculates maximum days in current month
+            lastDayOfMonth = getDaysInMonth(time.year, time.month);
+            
+            //TODO: can this be done with the actual day of the month?
+            //rounds day of month down to 28 
+            //time.dayOfMonth <= 28 ? currentDay = time.dayOfMonth : currentDay = 28;
             currentDay = time.dayOfMonth;
-            max = 28;
+            if(currentDay > dueDay) {
+                max = lastDayOfMonth;
+            } else {
+                max = 28;
+            }
         } else if (frequency == 2) {
             max = 90;
         } else if (frequency == 3) {
             max = 365;
         }
 
-        //weekly
-        if(frequency == 0) {
+        //weekly quarterly and yearly
+        if(frequency == 0 || frequency == 2 || frequency == 3) {
             if(dueDay != currentDay && currentDay > dueDay){
                     fee = (fee / max) * (max - (currentDay - dueDay));
             } else if (dueDay != currentDay && currentDay < dueDay) {
                     fee = (fee / max) * (dueDay - currentDay);
             }
-        } else {
-
+        }  
+        //monthly
+        else if(frequency == 1) {
+             if(dueDay != currentDay && currentDay > dueDay){
+                    fee = (fee / 30) * (max - (currentDay - dueDay));
+            } else if (dueDay != currentDay && currentDay < dueDay) {
+                    fee = (fee / 30) * (dueDay - currentDay);
+            }
         }
+       
        
 
         return fee;

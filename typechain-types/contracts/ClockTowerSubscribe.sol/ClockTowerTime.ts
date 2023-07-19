@@ -27,13 +27,24 @@ export declare namespace ClockTowerTime {
     weekDay: PromiseOrValue<BigNumberish>;
     quarterDay: PromiseOrValue<BigNumberish>;
     yearDay: PromiseOrValue<BigNumberish>;
+    year: PromiseOrValue<BigNumberish>;
+    month: PromiseOrValue<BigNumberish>;
   };
 
-  export type TimeStructOutput = [number, number, number, number] & {
+  export type TimeStructOutput = [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ] & {
     dayOfMonth: number;
     weekDay: number;
     quarterDay: number;
     yearDay: number;
+    year: number;
+    month: number;
   };
 }
 
