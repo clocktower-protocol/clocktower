@@ -23,14 +23,14 @@ import type {
 
 export declare namespace ClockTowerTime {
   export type TimeStruct = {
-    day: PromiseOrValue<BigNumberish>;
+    dayOfMonth: PromiseOrValue<BigNumberish>;
     weekDay: PromiseOrValue<BigNumberish>;
     quarterDay: PromiseOrValue<BigNumberish>;
     yearDay: PromiseOrValue<BigNumberish>;
   };
 
   export type TimeStructOutput = [number, number, number, number] & {
-    day: number;
+    dayOfMonth: number;
     weekDay: number;
     quarterDay: number;
     yearDay: number;

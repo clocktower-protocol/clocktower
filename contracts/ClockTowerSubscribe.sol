@@ -19,7 +19,7 @@ interface ERC20{
 library ClockTowerTime {
     //struct of time return values
     struct Time {
-        uint16 day;
+        uint16 dayOfMonth;
         uint16 weekDay;
         uint16 quarterDay;
         uint16 yearDay;
@@ -33,7 +33,7 @@ library ClockTowerTime {
     }
 
      //TIME FUNCTIONS-----------------------------------
-    function unixToTime(uint unix) external pure returns (Time memory time) {
+    function unixToTime(uint unix) public pure returns (Time memory time) {
        
         uint _days = unix/86400;
         uint16 day;
@@ -74,7 +74,7 @@ library ClockTowerTime {
         //gets day of quarter
         time.quarterDay = getdayOfQuarter(yearDay, uintyear);
         time.weekDay = getDayOfWeek(unix);
-        time.day = day;
+        time.dayOfMonth = day;
         time.yearDay = yearDay;
     }
 
@@ -128,20 +128,34 @@ library ClockTowerTime {
 
     //prorates weekday
     function prorate(uint40 unixTime, uint40 dueDay, uint fee, uint frequency) external pure returns (uint)  {
-        uint currentWeekday = getDayOfWeek(unixTime);
+        Time memory time = unixToTime(unixTime);
+        uint currentDay;
+        uint max;
+        
+        //sets maximum range day amount
+        if(frequency == 0) {
+            currentDay = time.weekDay;
+            max = 7;
+        } else if (frequency == 1){
+            currentDay = time.dayOfMonth;
+            max = 28;
+        } else if (frequency == 2) {
+            max = 90;
+        } else if (frequency == 3) {
+            max = 365;
+        }
 
         //weekly
         if(frequency == 0) {
-            if(dueDay != currentWeekday && currentWeekday > dueDay){
-                    fee = (fee / 7) * (7 - (currentWeekday - dueDay));
-            } else if (dueDay != currentWeekday && currentWeekday < dueDay) {
-                    fee = (fee / 7) * (dueDay - currentWeekday);
+            if(dueDay != currentDay && currentDay > dueDay){
+                    fee = (fee / max) * (max - (currentDay - dueDay));
+            } else if (dueDay != currentDay && currentDay < dueDay) {
+                    fee = (fee / max) * (dueDay - currentDay);
             }
-        }
-        //monthly
-        else if(frequency == 1) {
+        } else {
 
         }
+       
 
         return fee;
     }
@@ -795,7 +809,7 @@ contract ClockTowerSubscribe {
                 timeTrigger = time.weekDay;
             } 
             if(s == uint(Frequency.MONTHLY)) {
-                timeTrigger = time.day;
+                timeTrigger = time.dayOfMonth;
             } 
             if(s == uint(Frequency.QUARTERLY)) {
                 timeTrigger = time.quarterDay;
@@ -1292,6 +1306,7 @@ contract ClockTowerSubscribe {
 
         ClockTowerTime.Time memory time;
 
+
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
             time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
@@ -1301,6 +1316,7 @@ contract ClockTowerSubscribe {
             time = ClockTowerTime.unixToTime(block.timestamp);
           //  console.log(currentDay);
         }
+
 
         //calls time function
         //Time memory time = unixToTime(block.timestamp);
@@ -1317,7 +1333,7 @@ contract ClockTowerSubscribe {
                 timeTrigger = time.weekDay;
             } 
             if(f == uint(Frequency.MONTHLY)) {
-                timeTrigger = time.day;
+                timeTrigger = time.dayOfMonth;
             } 
             if(f == uint(Frequency.QUARTERLY)) {
                 timeTrigger = time.quarterDay;
