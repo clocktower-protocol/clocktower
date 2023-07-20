@@ -51,7 +51,7 @@ export declare namespace ClockTowerTime {
 export interface ClockTowerTimeInterface extends utils.Interface {
   functions: {
     "getDayOfWeek(uint256)": FunctionFragment;
-    "prorate(uint40,uint40,uint256,uint256)": FunctionFragment;
+    "prorate(uint256,uint40,uint256,uint8)": FunctionFragment;
     "unixToDays(uint40)": FunctionFragment;
     "unixToTime(uint256)": FunctionFragment;
   };
