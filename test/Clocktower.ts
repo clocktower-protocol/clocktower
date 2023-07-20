@@ -573,7 +573,7 @@ describe("Clocktower", function(){
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             //await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
@@ -1033,6 +1033,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
             await hardhatClockSubscribe.setExternalCallers(true)
     
+            //checks weekly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("7"), hardhatCLOCKToken.address, "Test",0,3, testParams)
                  
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
@@ -1042,7 +1043,15 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-4"))
 
+            //checks monthly subscription
+            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",1,5, testParams)
+                 
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
 
+            await time.increase((dayAhead * 20))
+
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
         })
         
     })

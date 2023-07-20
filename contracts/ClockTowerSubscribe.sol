@@ -131,7 +131,7 @@ library ClockTowerTime {
     }
 
     //prorates weekday
-    function prorate(uint40 unixTime, uint40 dueDay, uint fee, uint frequency) external pure returns (uint)  {
+    function prorate(uint unixTime, uint40 dueDay, uint fee, uint8 frequency) external pure returns (uint)  {
         Time memory time = unixToTime(unixTime);
         uint currentDay;
         uint max;
@@ -160,25 +160,26 @@ library ClockTowerTime {
             max = 365;
         }
 
+        //monthly
+        if(frequency == 1) {
+            uint dailyFee = (fee * 12 / 365);
+            if(dueDay != currentDay && currentDay > dueDay){
+                    //dates split months
+                    fee = (dailyFee * (max - (currentDay - dueDay)));
+            } else if (dueDay != currentDay && currentDay < dueDay) {
+                    //both dates are in the same month
+                    fee = (dailyFee * (dueDay - currentDay));
+            }
+        }
         //weekly quarterly and yearly
-        if(frequency == 0 || frequency == 2 || frequency == 3) {
+        else if(frequency == 0 || frequency == 2 || frequency == 3) {
             if(dueDay != currentDay && currentDay > dueDay){
                     fee = (fee / max) * (max - (currentDay - dueDay));
             } else if (dueDay != currentDay && currentDay < dueDay) {
                     fee = (fee / max) * (dueDay - currentDay);
             }
         }  
-        //monthly
-        else if(frequency == 1) {
-             if(dueDay != currentDay && currentDay > dueDay){
-                    fee = (fee / 30) * (max - (currentDay - dueDay));
-            } else if (dueDay != currentDay && currentDay < dueDay) {
-                    fee = (fee / 30) * (dueDay - currentDay);
-            }
-        }
        
-       
-
         return fee;
     }
 
@@ -1072,25 +1073,32 @@ contract ClockTowerSubscribe {
 
         //prorates fee amount
         
-        if(subscription.frequency == Frequency.MONTHLY){
-            
+        
+        if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
+            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         } 
-        else if(subscription.frequency == Frequency.WEEKLY){
-            fee = ClockTowerTime.prorate(uint40(block.timestamp), subscription.dueDay, fee, uint(subscription.frequency));
-            console.log(ClockTowerTime.getDayOfWeek(block.timestamp));
-            console.log(subscription.dueDay);
-            console.log(fee);
-        }
         else if(subscription.frequency == Frequency.QUARTERLY) {
             fee /= 3;
             multiple = 2;
+            /*
+            uint proFee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            if(proFee < fee) {
+                fee = proFee;
+            }
+            */
         }
         else if(subscription.frequency == Frequency.YEARLY) {
             fee /= 12;
             multiple = 11;
+            /*
+            uint proFee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            if(proFee < fee) {
+                fee = proFee;
+            }
+            */
         } 
         
-
+        console.log(fee);
         //pays first subscription to fee balance
         feeBalance[subscription.id][msg.sender] += fee;
 
