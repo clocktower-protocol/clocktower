@@ -141,22 +141,19 @@ library ClockTowerTime {
         if(frequency == 0) {
             currentDay = time.weekDay;
             max = 7;
+        //monthly
         } else if (frequency == 1){
             //calculates maximum days in current month
             lastDayOfMonth = getDaysInMonth(time.year, time.month);
-            
-            //TODO: can this be done with the actual day of the month?
-            //rounds day of month down to 28 
-            //time.dayOfMonth <= 28 ? currentDay = time.dayOfMonth : currentDay = 28;
             currentDay = time.dayOfMonth;
-            if(currentDay > dueDay) {
-                max = lastDayOfMonth;
-            } else {
-                max = 28;
-            }
-        } else if (frequency == 2) {
+            max = lastDayOfMonth;
+        //quarterly and yearly
+        } else if (frequency == 2 || frequency == 3) {
+            currentDay = getdayOfQuarter(time.year, time.month);
             max = 90;
+        //yearly
         } else if (frequency == 3) {
+            currentDay = time.yearDay;
             max = 365;
         }
 
@@ -182,8 +179,6 @@ library ClockTowerTime {
        
         return fee;
     }
-
-
 }
 
 interface ERC20Permit{
@@ -1078,6 +1073,7 @@ contract ClockTowerSubscribe {
             fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
+            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 3;
             multiple = 2;
             /*
@@ -1088,6 +1084,7 @@ contract ClockTowerSubscribe {
             */
         }
         else if(subscription.frequency == Frequency.YEARLY) {
+            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
             /*
