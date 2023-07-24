@@ -148,8 +148,8 @@ library ClockTowerTime {
             currentDay = time.dayOfMonth;
             max = lastDayOfMonth;
         //quarterly and yearly
-        } else if (frequency == 2 || frequency == 3) {
-            currentDay = getdayOfQuarter(time.year, time.month);
+        } else if (frequency == 2) {
+            currentDay = getdayOfQuarter(time.yearDay, time.year);
             max = 90;
         //yearly
         } else if (frequency == 3) {
@@ -1074,6 +1074,7 @@ contract ClockTowerSubscribe {
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
             fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            console.log(fee);
             fee /= 3;
             multiple = 2;
             /*
@@ -1084,7 +1085,7 @@ contract ClockTowerSubscribe {
             */
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+          //  fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
             /*
@@ -1095,7 +1096,7 @@ contract ClockTowerSubscribe {
             */
         } 
         
-        console.log(fee);
+        //console.log(fee);
         //pays first subscription to fee balance
         feeBalance[subscription.id][msg.sender] += fee;
 
@@ -1139,6 +1140,7 @@ contract ClockTowerSubscribe {
         //refunds fees to provider
     
         uint balance = feeBalance[subscription.id][msg.sender];
+
 
         //zeros out fee balance
         delete feeBalance[subscription.id][msg.sender];
