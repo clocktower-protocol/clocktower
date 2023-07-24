@@ -1054,15 +1054,26 @@ describe("Clocktower", function(){
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
 
             //checks quarterly subscription
-             //checks monthly subscription
-             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",2,5, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",2,5, testParams)
                  
-             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
  
-             await time.increase((dayAhead * 90))
+            await time.increase((dayAhead * 90))
 
-             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams))
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[1].subscription, testParams))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
+
+            //checks yearly subscription
+            
+            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",3,5, testParams)
+                 
+            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+ 
+            await time.increase((dayAhead * 365))
+
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[1].subscription, testParams))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
+            
 
         })
         
