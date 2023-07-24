@@ -1074,7 +1074,7 @@ contract ClockTowerSubscribe {
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
             fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
-            console.log(fee);
+            //console.log(fee);
             fee /= 3;
             multiple = 2;
             /*
@@ -1085,7 +1085,7 @@ contract ClockTowerSubscribe {
             */
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-          //  fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
             /*
@@ -1140,7 +1140,6 @@ contract ClockTowerSubscribe {
         //refunds fees to provider
     
         uint balance = feeBalance[subscription.id][msg.sender];
-
 
         //zeros out fee balance
         delete feeBalance[subscription.id][msg.sender];
