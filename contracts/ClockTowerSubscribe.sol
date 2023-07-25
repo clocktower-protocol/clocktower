@@ -379,7 +379,6 @@ contract ClockTowerSubscribe {
         SubEvent indexed subEvent
     );
 
-    //TODO: isFinished is a weird name for this, could have better log parameters
     event CallerLog(
         uint40 timestamp,
         uint40 checkedDay,
@@ -991,7 +990,6 @@ contract ClockTowerSubscribe {
 
     //EXTERNAL FUNCTIONS----------------------------------------
     
-    //TODO: need to prorate initial amount
     //allows subscriber to join a subscription
     function subscribe(Subscription calldata subscription) external payable {
 
@@ -1309,7 +1307,6 @@ contract ClockTowerSubscribe {
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
 
-    //TODO: Do we need to prorate first amount?
     //completes money transfer for subscribers
     function remit() payable public {
 
@@ -1520,7 +1517,7 @@ contract ClockTowerSubscribe {
                                     //feeBalance[id][subscriber] -= subFee;
                                     delete feeBalance[id][subscriber];
 
-                                    //TODO: add refund event
+                                    emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, ProvEvent.REFUND);
 
                                     //pays remainder to provider
                                     require(ERC20Permit(token).transfer(provider, feeRemainder));
