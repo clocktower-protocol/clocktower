@@ -786,12 +786,14 @@ describe("Clocktower", function(){
             //moves time
             await time.increaseTo(twoHoursAhead);
 
+            
             //gets fee estimate
             let feeArray = await hardhatClockSubscribe.feeEstimate();
 
             expect(feeArray.length).to.equal(1)
             expect(Number(ethers.utils.formatEther(feeArray[0].fee))).to.equal(0.02)
             expect(feeArray[0].token).to.equal(hardhatCLOCKToken.address)
+            
         })
         it("Should collect system fees", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider} = await loadFixture(deployClocktowerFixture);

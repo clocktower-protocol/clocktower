@@ -592,8 +592,164 @@ contract ClockTowerSubscribe {
             }
           return subscription;
     }
+/*
+    //struct of time return values
+    struct Time {
+        uint16 dayOfMonth;
+        uint16 weekDay;
+        uint16 quarterDay;
+        uint16 yearDay;
+        uint16 year;
+        uint16 month;
+    }
 
+    //TIME FUNCTIONS-----------------------------------
+    function unixToTime(uint unix) internal pure returns (Time memory time) {
+       
+        uint _days = unix/86400;
+        uint16 day;
+        uint16 yearDay;
+       
+        int __days = int(_days);
 
+        int L = __days + 68569 + 2440588;
+        int N = 4 * L / 146097;
+        L = L - (146097 * N + 3) / 4;
+        int _year = 4000 * (L + 1) / 1461001;
+        L = L - 1461 * _year / 4 + 31;
+        int _month = 80 * L / 2447;
+        int _day = L - 2447 * _month / 80;
+        L = _month / 11;
+        _month = _month + 2 - 12 * L;
+        _year = 100 * (N - 49) + _year + L;
+
+        uint uintyear = uint(_year);
+        uint month = uint(_month);
+        uint uintday = uint(_day);
+
+        day = uint16(uintday);        
+
+        uint dayCounter;
+
+        //loops through months to get current day of year
+        for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
+            if(monthCounter == month) {
+                dayCounter += day;
+            } else {
+                dayCounter += getDaysInMonth(uintyear, month);
+            }
+        }
+
+        yearDay = uint16(dayCounter);
+
+        //gets day of quarter
+        time.quarterDay = getdayOfQuarter(yearDay, uintyear);
+        time.weekDay = getDayOfWeek(unix);
+        time.dayOfMonth = day;
+        time.yearDay = yearDay;
+        time.year = uint16(uintyear);
+        time.month = uint16(month);
+    }
+
+    function isLeapYear(uint year) internal pure returns (bool leapYear) {
+        leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+
+    function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+            daysInMonth = 31;
+        } else if (month != 2) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = isLeapYear(year) ? 29 : 28;
+        }
+    }
+
+    // 1 = Monday, 7 = Sunday
+    function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
+        uint _days = unixTime / 86400;
+        uint dayOfWeekuint = (_days + 3) % 7 + 1;
+        dayOfWeek = uint16(dayOfWeekuint);
+
+    }
+
+    //get day of quarter
+    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
+        
+        uint leapDay;
+        if(isLeapYear(year)) {
+            leapDay = 1;
+        } else {
+            leapDay = 0;
+        }
+
+        if(yearDays <= (90 + leapDay)) {
+            quarterDay = uint16(yearDays);
+        } else if((90 + leapDay) < yearDays && yearDays <= (181 + leapDay)) {
+            quarterDay = uint16(yearDays - (90 + leapDay));
+        } else if((181 + leapDay) < yearDays && yearDays <= (273 + leapDay)) {
+            quarterDay = uint16(yearDays - (181 + leapDay));
+        } else {
+            quarterDay = uint16(yearDays - (273 + leapDay));
+        }
+    }
+
+    //converts unixTime to days
+    function unixToDays(uint40 unixTime) internal pure returns(uint40 dayCount) {
+        dayCount = unixTime/86400;
+    }
+
+    //prorates weekday
+    function prorate(uint unixTime, uint40 dueDay, uint fee, uint8 frequency) internal pure returns (uint)  {
+        Time memory time = unixToTime(unixTime);
+        uint currentDay;
+        uint max;
+        uint lastDayOfMonth;
+        
+        //sets maximum range day amount
+        if(frequency == 0) {
+            currentDay = time.weekDay;
+            max = 7;
+        //monthly
+        } else if (frequency == 1){
+            //calculates maximum days in current month
+            lastDayOfMonth = getDaysInMonth(time.year, time.month);
+            currentDay = time.dayOfMonth;
+            max = lastDayOfMonth;
+        //quarterly and yearly
+        } else if (frequency == 2) {
+            currentDay = getdayOfQuarter(time.yearDay, time.year);
+            max = 90;
+        //yearly
+        } else if (frequency == 3) {
+            currentDay = time.yearDay;
+            max = 365;
+        }
+
+        //monthly
+        if(frequency == 1) {
+            uint dailyFee = (fee * 12 / 365);
+            if(dueDay != currentDay && currentDay > dueDay){
+                    //dates split months
+                    fee = (dailyFee * (max - (currentDay - dueDay)));
+            } else if (dueDay != currentDay && currentDay < dueDay) {
+                    //both dates are in the same month
+                    fee = (dailyFee * (dueDay - currentDay));
+            }
+        }
+        //weekly quarterly and yearly
+        else if(frequency == 0 || frequency == 2 || frequency == 3) {
+            if(dueDay != currentDay && currentDay > dueDay){
+                    fee = (fee / max) * (max - (currentDay - dueDay));
+            } else if (dueDay != currentDay && currentDay < dueDay) {
+                    fee = (fee / max) * (dueDay - currentDay);
+            }
+        }  
+       
+        return fee;
+    }
+*/
+    
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
         
@@ -688,6 +844,7 @@ contract ClockTowerSubscribe {
         
         return feeArray2;
     }
+    
    
     //PRIVATE FUNCTIONS----------------------------------------------
     function userNotZero() view private {
@@ -1026,18 +1183,22 @@ contract ClockTowerSubscribe {
 
         //gets current time slot based on day
         uint40 currentDay = ClockTowerTime.unixToDays(uint40(block.timestamp));
+        //uint40 currentDay = unixToDays(uint40(block.timestamp));
 
         require(currentDay >= nextUncheckedDay, "14");
 
         bool isEmptyDay = true;
 
         ClockTowerTime.Time memory time;
+        //Time memory time;
 
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
             time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
+           //time = unixToTime(nextUncheckedDay * 86400);
         }  else {
             time = ClockTowerTime.unixToTime(block.timestamp);
+            //time = unixToTime(block.timestamp);
         }
 
         uint remitCounter;
