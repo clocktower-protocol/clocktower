@@ -535,6 +535,7 @@ contract ClockTowerSubscribe {
 
     //subscriptions by account
     
+    //TODO: is this and the above function necessary for privacy?
     function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
         SubIndex[] memory indexes;
@@ -750,6 +751,7 @@ contract ClockTowerSubscribe {
     }
 */
     
+    
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
         
@@ -844,6 +846,7 @@ contract ClockTowerSubscribe {
         
         return feeArray2;
     }
+    
     
    
     //PRIVATE FUNCTIONS----------------------------------------------

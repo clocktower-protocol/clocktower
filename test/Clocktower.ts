@@ -788,11 +788,13 @@ describe("Clocktower", function(){
 
             
             //gets fee estimate
+            
             let feeArray = await hardhatClockSubscribe.feeEstimate();
 
             expect(feeArray.length).to.equal(1)
             expect(Number(ethers.utils.formatEther(feeArray[0].fee))).to.equal(0.02)
             expect(feeArray[0].token).to.equal(hardhatCLOCKToken.address)
+            
             
         })
         it("Should collect system fees", async function() {
@@ -1043,6 +1045,43 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[1].subscription, testParams))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
             
+
+        })
+        it("Gets fee info from public getter functions", async function() { 
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.setExternalCallers(true)
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+             
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
+
+            //first get all subscribers to subscription at the right day
+            let stop = false
+            let subs = new Array()
+            let counter = 0
+            
+            /*
+            while(!stop) {
+            
+                let test = await hardhatClockSubscribe.subscriptionMap(1, 1, 0)
+                if(test.exists){
+                    subs[counter] = test
+                    console.log(test.id)
+                } else {
+                    stop = true;
+                }
+                counter++
+
+            }
+            //gets all fees from public mapping based on sub id
+            let fee1 = await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id, subscriber.address)
+
+            console.log(fee1)
+            */
 
         })
         
