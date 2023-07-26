@@ -1,5 +1,5 @@
 //TODO: change license to MYSQL
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: BUSL-1.1
 //Copyright Hugo Marx 2023
 //Written by Hugo Marx
 pragma solidity ^0.8.9;
@@ -535,9 +535,16 @@ contract ClockTowerSubscribe {
 
     //subscriptions by account
     
-    //TODO: is this and the above function necessary for privacy?
+    //TODO: is this and the above function necessary for privacy? add address account parameter
     function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
         
+        /*
+        //non admin users can only check themselves
+        if(msg.sender != admin){
+            account = msg.sender;
+        }
+        */
+
         SubIndex[] memory indexes;
         //gets account indexes
         if(bySubscriber) {
