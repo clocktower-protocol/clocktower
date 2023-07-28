@@ -77,8 +77,8 @@ describe("Clocktower", function(){
         //sets time to 2024/01/01 1:00
         await time.increaseTo(currentTime);
 
-        const ClockTowerTime = await ethers.getContractFactory("ClockTowerTime")
-        const hardhatClockTowerTime = await ClockTowerTime.deploy();
+       // const ClockTowerTime = await ethers.getContractFactory("ClockTowerTime")
+       // const hardhatClockTowerTime = await ClockTowerTime.deploy();
 
         const ClockToken = await ethers.getContractFactory("CLOCKToken");
 

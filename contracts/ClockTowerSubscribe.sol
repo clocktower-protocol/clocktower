@@ -4,6 +4,7 @@
 pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
+/*
 library ClockTowerTime {
     //struct of time return values
     struct Time {
@@ -169,6 +170,8 @@ library ClockTowerTime {
     }
 }
 
+*/
+
 interface ERC20Permit{
   function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
@@ -325,15 +328,15 @@ contract ClockTowerSubscribe {
         uint feeBalance;
     }
 
-    /*
     //struct of time return values
     struct Time {
-        uint16 day;
+        uint16 dayOfMonth;
         uint16 weekDay;
         uint16 quarterDay;
         uint16 yearDay;
+        uint16 year;
+        uint16 month;
     }
-    */
 
     //struct for fee estimates
     struct FeeEstimate {
@@ -386,7 +389,6 @@ contract ClockTowerSubscribe {
     allowSystemFee = false;
 
     //variable for last checked by day
-    //nextUncheckedDay = (ClockTowerTime.unixToDays(uint40(block.timestamp)) - 2);
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
     //admin addresses
@@ -400,7 +402,6 @@ contract ClockTowerSubscribe {
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
-     //!!
     address[] public accountLookup;
 
     //fee balance
@@ -535,96 +536,7 @@ contract ClockTowerSubscribe {
 
     //-------------------------------------------------------
 
-    //VIEW FUNCTIONS ----------------------------------------
-
-    //subscriptions by account
-    
-    
-    //TODO: is this and the above function necessary for privacy? add address account parameter
-    function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
-        
-        /*
-        //non admin users can only check themselves
-        if(msg.sender != admin){
-            account = msg.sender;
-        }
-        */
-
-        SubIndex[] memory indexes;
-        //gets account indexes
-        if(bySubscriber) {
-            //indexes = accountMap[msg.sender].subscriptions;
-            indexes = accountMap[account].subscriptions;
-        } else {
-           // indexes = accountMap[msg.sender].provSubs;
-           indexes = accountMap[account].provSubs;
-        }
-
-        SubView[] memory subViews = new SubView[](indexes.length);
-
-        //loops through account index and fetchs subscriptions, status and logs
-        for(uint i; i < indexes.length; i++){
-            subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
-            subViews[i].status = indexes[i].status;  
-            subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
-        }
-        
-        return subViews;
-    }
-
-    //returns total amount of subscribers
-    function getTotalAmountSubscribers() external view returns (uint) {
-        return accountLookup.length;
-    }
-    
-    
-
-    //TODO: Could use logs in frontend instead
-    
-    //gets subscribers by subscription id
-    function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
-
-        address[] memory scriberArray = new address[](subscribersMap[id].length);
-
-        scriberArray = subscribersMap[id];
-
-        SubscriberView[] memory scriberViews = new SubscriberView[](subscribersMap[id].length);
-
-        for(uint i; i < scriberArray.length; i++) {
-
-            uint feeBalanceTemp = feeBalance[id][scriberArray[i]];
-            SubscriberView memory scriberView = SubscriberView(scriberArray[i], feeBalanceTemp);
-            scriberViews[i] = scriberView;
-        }
-
-        return scriberViews;
-    }
-    
-    //fetches subscription from day maps by id
-    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view internal returns(Subscription memory subscription){
-
-          Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
-
-        //searchs for subscription in day map
-            for(uint j; j < subList.length; j++) {
-                if(subList[j].id == id) {
-                        subscription = subList[j];
-                }
-            }
-          return subscription;
-    }
-
-    //struct of time return values
-    struct Time {
-        uint16 dayOfMonth;
-        uint16 weekDay;
-        uint16 quarterDay;
-        uint16 yearDay;
-        uint16 year;
-        uint16 month;
-    }
-
-    //TIME FUNCTIONS-----------------------------------
+     //TIME FUNCTIONS-----------------------------------
     function unixToTime(uint unix) internal pure returns (Time memory time) {
        
         uint _days = unix/86400;
@@ -770,19 +682,83 @@ contract ClockTowerSubscribe {
         return fee;
     }
 
+
+    //VIEW FUNCTIONS ----------------------------------------
+
+    //subscriptions by account
+    function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
+
+        SubIndex[] memory indexes;
+        //gets account indexes
+        if(bySubscriber) {
+            //indexes = accountMap[msg.sender].subscriptions;
+            indexes = accountMap[account].subscriptions;
+        } else {
+           // indexes = accountMap[msg.sender].provSubs;
+           indexes = accountMap[account].provSubs;
+        }
+
+        SubView[] memory subViews = new SubView[](indexes.length);
+
+        //loops through account index and fetchs subscriptions, status and logs
+        for(uint i; i < indexes.length; i++){
+            subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
+            subViews[i].status = indexes[i].status;  
+            subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
+        }
+        
+        return subViews;
+    }
+
+    //returns total amount of subscribers
+    function getTotalAmountSubscribers() external view returns (uint) {
+        return accountLookup.length;
+    }
     
+    //TODO: Could use logs in frontend instead
+    
+    //gets subscribers by subscription id
+    function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
+
+        address[] memory scriberArray = new address[](subscribersMap[id].length);
+
+        scriberArray = subscribersMap[id];
+
+        SubscriberView[] memory scriberViews = new SubscriberView[](subscribersMap[id].length);
+
+        for(uint i; i < scriberArray.length; i++) {
+
+            uint feeBalanceTemp = feeBalance[id][scriberArray[i]];
+            SubscriberView memory scriberView = SubscriberView(scriberArray[i], feeBalanceTemp);
+            scriberViews[i] = scriberView;
+        }
+
+        return scriberViews;
+    }
+    
+    //fetches subscription from day maps by id
+    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view internal returns(Subscription memory subscription){
+
+          Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
+
+        //searchs for subscription in day map
+            for(uint j; j < subList.length; j++) {
+                if(subList[j].id == id) {
+                        subscription = subList[j];
+                }
+            }
+          return subscription;
+    }
     
     //function that sends back array of fees per subscription
     function feeEstimate() external view returns(FeeEstimate[] memory) {
         
         //gets current time slot based on day
-        //uint40 _currentTimeSlot = ClockTowerTime.unixToDays(uint40(block.timestamp));
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > nextUncheckedDay, "14");
 
         //calls time function
-        //ClockTowerTime.Time memory time = ClockTowerTime.unixToTime(block.timestamp);
         Time memory time = unixToTime(block.timestamp);
 
         uint remitCounter;
@@ -972,17 +948,14 @@ contract ClockTowerSubscribe {
         //prorates fee amount
         
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
-            //fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
-          //  fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 3;
             multiple = 2;
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-            //fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
@@ -1210,22 +1183,18 @@ contract ClockTowerSubscribe {
         }
 
         //gets current time slot based on day
-        //uint40 currentDay = ClockTowerTime.unixToDays(uint40(block.timestamp));
         uint40 currentDay = unixToDays(uint40(block.timestamp));
 
         require(currentDay >= nextUncheckedDay, "14");
 
         bool isEmptyDay = true;
 
-        //ClockTowerTime.Time memory time;
         Time memory time;
 
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
-            //time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
            time = unixToTime(nextUncheckedDay * 86400);
         }  else {
-            //time = ClockTowerTime.unixToTime(block.timestamp);
             time = unixToTime(block.timestamp);
         }
 
@@ -1255,7 +1224,6 @@ contract ClockTowerSubscribe {
             //loops through subscriptions
             for(uint s; s < length; s++) {
 
-                //console.log("test");
                 //Marks day as not empty
                 isEmptyDay = false;
 
