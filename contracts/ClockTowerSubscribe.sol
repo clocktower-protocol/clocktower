@@ -386,7 +386,8 @@ contract ClockTowerSubscribe {
     allowSystemFee = false;
 
     //variable for last checked by day
-    nextUncheckedDay = (ClockTowerTime.unixToDays(uint40(block.timestamp)) - 2);
+    //nextUncheckedDay = (ClockTowerTime.unixToDays(uint40(block.timestamp)) - 2);
+    nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
     //admin addresses
     admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
@@ -775,12 +776,14 @@ contract ClockTowerSubscribe {
     function feeEstimate() external view returns(FeeEstimate[] memory) {
         
         //gets current time slot based on day
-        uint40 _currentTimeSlot = ClockTowerTime.unixToDays(uint40(block.timestamp));
+        //uint40 _currentTimeSlot = ClockTowerTime.unixToDays(uint40(block.timestamp));
+        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
         require(_currentTimeSlot > nextUncheckedDay, "14");
 
         //calls time function
-        ClockTowerTime.Time memory time = ClockTowerTime.unixToTime(block.timestamp);
+        //ClockTowerTime.Time memory time = ClockTowerTime.unixToTime(block.timestamp);
+        Time memory time = unixToTime(block.timestamp);
 
         uint remitCounter;
         uint subCounter;
