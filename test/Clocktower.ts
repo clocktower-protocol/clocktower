@@ -84,9 +84,11 @@ describe("Clocktower", function(){
 
         
         const ClockSubscribe = await ethers.getContractFactory("ClockTowerSubscribe", {
+            /*
             libraries: {
                 ClockTowerTime: hardhatClockTowerTime.address,
             }
+            */
         })
         
 
