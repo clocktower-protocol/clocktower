@@ -485,7 +485,7 @@ describe("Clocktower", function(){
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test" ,1, 15, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test" ,2, 15, testParams)
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
 
             expect(subscriptions[1].subscription.description).to.equal("Test")
             expect(subscriptions[1].subscription.amount).to.equal(eth);
@@ -509,7 +509,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test2",3,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false)
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
 
             //checks reverts
 
@@ -543,7 +543,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
 
@@ -554,7 +554,7 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, 3)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "51851851851851851")
 
-            let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
+            let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
             //let result3 = await hardhatClockSubscribe.getSubscribersById(subscriptions[1].subscription.id)
             
             expect(result[0].status).to.equal(2)
@@ -576,7 +576,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             //await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
     
@@ -607,7 +607,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,15, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",2,15, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
            // await hardhatClockSubscribe.connect(caller).subscribe(subscriptions[1].subscription, testParams)
@@ -633,7 +633,7 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscriptions[1].subscription))
             .to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, 0, 1)
 
-            let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true)
+            let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
 
             expect(result[0].status).to.equal(1);
             expect(result[0].subscription.cancelled).to.equal(true)
@@ -660,7 +660,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
 
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
@@ -719,7 +719,7 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             
             //checks that event emits subscribe and feefill
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)).
@@ -735,6 +735,7 @@ describe("Clocktower", function(){
             //console.log(event)
             */
         })
+        /*
         it("Should test getSubscriptionsByAccount", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
@@ -743,16 +744,17 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
              
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
-            let returnSubs = await hardhatClockSubscribe.getSubscriptionsByAccount(true, subscriber.address)
+           // let returnSubs = await hardhatClockSubscribe.getSubscriptionsByAccount(true, subscriber.address)
 
             expect(returnSubs.length).to.equal(1)
             expect(returnSubs[0].subscription.provider).to.equal("0x90F79bf6EB2c4f870365E785982E1f101E93b906")
 
         })
+        */
         it("Should allow external callers", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
@@ -761,7 +763,7 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
              
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
@@ -779,7 +781,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
             //let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
@@ -836,7 +838,7 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
             
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
             //otherAccount stops approval
@@ -860,7 +862,7 @@ describe("Clocktower", function(){
             expect(ethers.utils.formatEther(callerAmount)).to.equal("100.02")  
             
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,2, testParams)
-            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase(dayAhead)
 
@@ -871,7 +873,7 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions2[1].subscription.id, subscriber.address, anyValue, subscriptions2[1].subscription.amount, 1)
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,3, testParams)
-            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase(dayAhead)
 
@@ -897,7 +899,7 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
              
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
             //checks that only admin can call if bool is set
@@ -925,7 +927,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test2",1,2, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test3",1,2, testParams)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test4",1,2, testParams)
-            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams)
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[2].subscription, testParams)
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[3].subscription, testParams)
@@ -940,7 +942,7 @@ describe("Clocktower", function(){
             //checks that successful transfer with enough fee balance
             time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test5",1,3, testParams)
-            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[6].subscription, testParams)
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
@@ -949,7 +951,7 @@ describe("Clocktower", function(){
 
             time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test6",1,4, testParams)
-            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[7].subscription, testParams)
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
@@ -971,7 +973,7 @@ describe("Clocktower", function(){
 
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("3"), hardhatCLOCKToken.address, "Test",2,1, testParams)
              
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             
@@ -1007,7 +1009,7 @@ describe("Clocktower", function(){
             //checks weekly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("7"), hardhatCLOCKToken.address, "Test",0,3, testParams)
                  
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase((dayAhead * 5))
     
@@ -1017,7 +1019,7 @@ describe("Clocktower", function(){
             //checks monthly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",1,5, testParams)
                  
-            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase((dayAhead * 20))
 
@@ -1027,7 +1029,7 @@ describe("Clocktower", function(){
             //checks quarterly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",2,5, testParams)
                  
-            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
  
             await time.increase((dayAhead * 90))
 
@@ -1038,7 +1040,7 @@ describe("Clocktower", function(){
             
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, "Test",3,5, testParams)
                  
-            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
  
             await time.increase((dayAhead * 365))
 
@@ -1055,7 +1057,7 @@ describe("Clocktower", function(){
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
              
-            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false);
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
 

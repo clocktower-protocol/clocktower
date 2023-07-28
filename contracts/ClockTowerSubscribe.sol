@@ -1,4 +1,3 @@
-//TODO: change license to MYSQL
 // SPDX-License-Identifier: BUSL-1.1
 //Copyright Hugo Marx 2023
 //Written by Hugo Marx
@@ -400,7 +399,8 @@ contract ClockTowerSubscribe {
     //Account map
     mapping(address => Account) private accountMap;
      //creates lookup table for mapping
-    address[] private accountLookup;
+     //!!
+    address[] public accountLookup;
 
     //fee balance
     mapping(bytes32 => mapping(address => uint)) public feeBalance;
@@ -492,6 +492,7 @@ contract ClockTowerSubscribe {
         maxRemits = _maxRemits;
     }
 
+/*
     //gets all account
     function getAllAccounts() isAdmin external view returns(Account[] memory) {
         
@@ -505,6 +506,7 @@ contract ClockTowerSubscribe {
 
         return allAccounts;
     }
+
 
      //subscriptions by account
     function getSubscriptionsByAccount(bool bySubscriber, address account) isAdmin external view returns (SubView[] memory) {
@@ -528,6 +530,7 @@ contract ClockTowerSubscribe {
         
         return subViews;
     }
+*/
 
     //-------------------------------------------------------
 
@@ -535,8 +538,9 @@ contract ClockTowerSubscribe {
 
     //subscriptions by account
     
+    
     //TODO: is this and the above function necessary for privacy? add address account parameter
-    function getAccountSubscriptions(bool bySubscriber) external view returns (SubView[] memory) {
+    function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
         
         /*
         //non admin users can only check themselves
@@ -548,9 +552,11 @@ contract ClockTowerSubscribe {
         SubIndex[] memory indexes;
         //gets account indexes
         if(bySubscriber) {
-            indexes = accountMap[msg.sender].subscriptions;
+            //indexes = accountMap[msg.sender].subscriptions;
+            indexes = accountMap[account].subscriptions;
         } else {
-            indexes = accountMap[msg.sender].provSubs;
+           // indexes = accountMap[msg.sender].provSubs;
+           indexes = accountMap[account].provSubs;
         }
 
         SubView[] memory subViews = new SubView[](indexes.length);
@@ -564,6 +570,12 @@ contract ClockTowerSubscribe {
         
         return subViews;
     }
+
+    //returns total amount of subscribers
+    function getTotalAmountSubscribers() external view returns (uint) {
+        return accountLookup.length;
+    }
+    
     
 
     //TODO: Could use logs in frontend instead
