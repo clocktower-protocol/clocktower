@@ -507,8 +507,6 @@ contract ClockTowerSubscribe {
         return accountLookup.length;
     }
     
-    //TODO: Could use logs in frontend instead
-    
     //gets subscribers by subscription id
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
@@ -925,9 +923,8 @@ contract ClockTowerSubscribe {
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
-        //TODO: Check this
         //amount must be greater than zero 
-        //require(amount > 0, "10");
+        require(amount > 0, "10");
 
         //description must be 32 bytes or less
         require(bytes(description).length <= 32, "25");
@@ -1027,6 +1024,7 @@ contract ClockTowerSubscribe {
                     uint amount = subscriptionMap[f][timeTrigger][s].amount;
                     address provider = subscriptionMap[f][timeTrigger][s].provider;
 
+                    //TODO: is this necessary?
                     //checks if provider still has required unlimited allowance
                     /*
                     if(ERC20Permit(token).allowance(provider, address(this)) < 2**255) {
