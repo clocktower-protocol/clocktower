@@ -612,7 +612,7 @@ contract ClockTowerSubscribe {
             }
           return subscription;
     }
-/*
+
     //struct of time return values
     struct Time {
         uint16 dayOfMonth;
@@ -768,7 +768,7 @@ contract ClockTowerSubscribe {
        
         return fee;
     }
-*/
+
     
     
     //function that sends back array of fees per subscription
@@ -969,15 +969,18 @@ contract ClockTowerSubscribe {
         //prorates fee amount
         
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
-            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            //fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
-            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+          //  fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 3;
             multiple = 2;
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-            fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            //fee = ClockTowerTime.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
         } 
@@ -1204,23 +1207,23 @@ contract ClockTowerSubscribe {
         }
 
         //gets current time slot based on day
-        uint40 currentDay = ClockTowerTime.unixToDays(uint40(block.timestamp));
-        //uint40 currentDay = unixToDays(uint40(block.timestamp));
+        //uint40 currentDay = ClockTowerTime.unixToDays(uint40(block.timestamp));
+        uint40 currentDay = unixToDays(uint40(block.timestamp));
 
         require(currentDay >= nextUncheckedDay, "14");
 
         bool isEmptyDay = true;
 
-        ClockTowerTime.Time memory time;
-        //Time memory time;
+        //ClockTowerTime.Time memory time;
+        Time memory time;
 
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
-            time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
-           //time = unixToTime(nextUncheckedDay * 86400);
+            //time = ClockTowerTime.unixToTime(nextUncheckedDay * 86400);
+           time = unixToTime(nextUncheckedDay * 86400);
         }  else {
-            time = ClockTowerTime.unixToTime(block.timestamp);
-            //time = unixToTime(block.timestamp);
+            //time = ClockTowerTime.unixToTime(block.timestamp);
+            time = unixToTime(block.timestamp);
         }
 
         uint remitCounter;
