@@ -1024,15 +1024,6 @@ contract ClockTowerSubscribe {
                     uint amount = subscriptionMap[f][timeTrigger][s].amount;
                     address provider = subscriptionMap[f][timeTrigger][s].provider;
 
-                    //TODO: is this necessary?
-                    //checks if provider still has required unlimited allowance
-                    /*
-                    if(ERC20Permit(token).allowance(provider, address(this)) < 2**255) {
-                        emit ProviderLog(id, provider, uint40(block.timestamp), false, 15);
-                        break;
-                    }
-                    */
-
                     //calculates fee balance
                     uint subFee = (amount * callerFee / 10000) - amount;
                     uint totalFee;
