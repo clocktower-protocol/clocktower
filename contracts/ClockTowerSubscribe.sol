@@ -503,7 +503,7 @@ contract ClockTowerSubscribe {
     }
 
     //returns total amount of subscribers
-    function getTotalAmountSubscribers() external view returns (uint) {
+    function getTotalSubscribers() external view returns (uint) {
         return accountLookup.length;
     }
     
