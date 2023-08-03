@@ -116,7 +116,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "feeEstimate()": FunctionFragment;
     "getAccountSubscriptions(bool,address)": FunctionFragment;
     "getSubscribersById(bytes32)": FunctionFragment;
-    "getTotalAmountSubscribers()": FunctionFragment;
+    "getTotalSubscribers()": FunctionFragment;
     "maxRemits()": FunctionFragment;
     "nextUncheckedDay()": FunctionFragment;
     "remit()": FunctionFragment;
@@ -145,7 +145,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "feeEstimate"
       | "getAccountSubscriptions"
       | "getSubscribersById"
-      | "getTotalAmountSubscribers"
+      | "getTotalSubscribers"
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
@@ -218,7 +218,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getTotalAmountSubscribers",
+    functionFragment: "getTotalSubscribers",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
@@ -304,7 +304,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getTotalAmountSubscribers",
+    functionFragment: "getTotalSubscribers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
@@ -487,7 +487,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[ClockTowerSubscribe.SubscriberViewStructOutput[]]>;
 
-    getTotalAmountSubscribers(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getTotalSubscribers(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     maxRemits(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -603,7 +603,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ClockTowerSubscribe.SubscriberViewStructOutput[]>;
 
-  getTotalAmountSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
+  getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
 
   maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -717,7 +717,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<ClockTowerSubscribe.SubscriberViewStructOutput[]>;
 
-    getTotalAmountSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
+    getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -875,7 +875,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getTotalAmountSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
+    getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -990,7 +990,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getTotalAmountSubscribers(
+    getTotalSubscribers(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
