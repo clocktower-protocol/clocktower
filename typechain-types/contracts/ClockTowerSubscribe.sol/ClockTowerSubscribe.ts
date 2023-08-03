@@ -115,6 +115,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "feeBalance(bytes32,address)": FunctionFragment;
     "feeEstimate()": FunctionFragment;
     "getAccountSubscriptions(bool,address)": FunctionFragment;
+    "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
     "getSubscribersById(bytes32)": FunctionFragment;
     "getTotalSubscribers()": FunctionFragment;
     "maxRemits()": FunctionFragment;
@@ -144,6 +145,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "feeBalance"
       | "feeEstimate"
       | "getAccountSubscriptions"
+      | "getSubByIndex"
       | "getSubscribersById"
       | "getTotalSubscribers"
       | "maxRemits"
@@ -212,6 +214,14 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAccountSubscriptions",
     values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSubByIndex",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "getSubscribersById",
@@ -297,6 +307,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAccountSubscriptions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSubByIndex",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -482,6 +496,17 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
 
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [ClockTowerSubscribe.SubscriptionStructOutput] & {
+        subscription: ClockTowerSubscribe.SubscriptionStructOutput;
+      }
+    >;
+
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -598,6 +623,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
 
+  getSubByIndex(
+    id: PromiseOrValue<BytesLike>,
+    frequency: PromiseOrValue<BigNumberish>,
+    dueDay: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
+
   getSubscribersById(
     id: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -711,6 +743,13 @@ export interface ClockTowerSubscribe extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
+
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
 
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
@@ -870,6 +909,13 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getSubscribersById(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -982,6 +1028,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     getAccountSubscriptions(
       bySubscriber: PromiseOrValue<boolean>,
       account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSubByIndex(
+      id: PromiseOrValue<BytesLike>,
+      frequency: PromiseOrValue<BigNumberish>,
+      dueDay: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
