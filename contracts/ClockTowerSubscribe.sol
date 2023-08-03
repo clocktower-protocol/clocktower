@@ -527,7 +527,7 @@ contract ClockTowerSubscribe {
     }
     
     //fetches subscription from day maps by id
-    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view internal returns(Subscription memory subscription){
+    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
 
           Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
 
