@@ -763,7 +763,7 @@ contract ClockTowerSubscribe {
 
         //emit subscription to log
         emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.SUBSCRIBED);
-        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), subscription.amount, SubEvent.FEEFILL);
+        emit SubscriberLog(subscription.id, msg.sender, uint40(block.timestamp), fee, SubEvent.FEEFILL);
 
         //funds cost with fee balance
         require(ERC20Permit(subscription.token).transferFrom(msg.sender, address(this), fee));
