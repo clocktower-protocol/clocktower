@@ -502,9 +502,16 @@ contract ClockTowerSubscribe {
         return subViews;
     }
 
+    
     //returns total amount of subscribers
     function getTotalSubscribers() external view returns (uint) {
         return accountLookup.length;
+    }
+    
+
+    //get account
+    function getAccount(address account) external view returns (Account memory) {
+        return accountMap[account];
     }
     
     //gets subscribers by subscription id
