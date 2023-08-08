@@ -90,7 +90,6 @@ export declare namespace ClockTowerSubscribe {
   export type AccountStruct = {
     accountAddress: PromiseOrValue<string>;
     exists: PromiseOrValue<boolean>;
-    timeTriggers: PromiseOrValue<BigNumberish>[];
     subscriptions: ClockTowerSubscribe.SubIndexStruct[];
     provSubs: ClockTowerSubscribe.SubIndexStruct[];
   };
@@ -98,13 +97,11 @@ export declare namespace ClockTowerSubscribe {
   export type AccountStructOutput = [
     string,
     boolean,
-    number[],
     ClockTowerSubscribe.SubIndexStructOutput[],
     ClockTowerSubscribe.SubIndexStructOutput[]
   ] & {
     accountAddress: string;
     exists: boolean;
-    timeTriggers: number[];
     subscriptions: ClockTowerSubscribe.SubIndexStructOutput[];
     provSubs: ClockTowerSubscribe.SubIndexStructOutput[];
   };
