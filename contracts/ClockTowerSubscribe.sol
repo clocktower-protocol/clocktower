@@ -278,8 +278,9 @@ contract ClockTowerSubscribe {
         if(address(this).balance > 5000) {
             admin.transfer(address(this).balance - 5000);
         }
-    }
+    }   
 
+    //TODO: check this
     function changeAdmin(address payable newAddress) isAdmin external {
         require((msg.sender == newAddress) && (newAddress != address(0)));
 
@@ -656,7 +657,8 @@ contract ClockTowerSubscribe {
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
-         //creates id hash
+        //TODO: add random number prevrandao
+        //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
 
         subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay, description);
@@ -930,6 +932,7 @@ contract ClockTowerSubscribe {
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
+        //TODO: takeout
         //amount must be greater than zero 
         require(amount > 0, "10");
 
@@ -1091,6 +1094,8 @@ contract ClockTowerSubscribe {
                                     //remits from subscriber to provider
                                     require(ERC20Permit(token).transferFrom(subscriber, provider, amount));
                                 } else {
+
+                                    //FEEFILL
 
                                     //Caller gets paid remainder of feeBalance
                                     totalFee += feeBalance[id][subscriber];
