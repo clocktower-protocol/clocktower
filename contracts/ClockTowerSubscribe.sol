@@ -4,6 +4,7 @@
 pragma solidity ^0.8.21;
 import "hardhat/console.sol";
 
+//TODO: update to standard erc20
 interface ERC20Permit{
   function transferFrom(address from, address to, uint value) external returns (bool);
   function balanceOf(address tokenOwner) external returns (uint);
@@ -109,13 +110,11 @@ contract ClockTowerSubscribe {
         REFUND
     }
 
+    //TODO: remove timeTriggers?
     //acount struct
     struct Account {
         address accountAddress;
-        //string description;
         bool exists;
-        //timeTriggers is empty for subscriptions
-        uint40[] timeTriggers;
         SubIndex[] subscriptions;
         SubIndex[] provSubs;
     }
@@ -131,7 +130,6 @@ contract ClockTowerSubscribe {
         Frequency frequency;
         uint16 dueDay;
         string description;
-        //address[] subscribers;
     }
 
     //struct of Subscription indexes
@@ -280,9 +278,9 @@ contract ClockTowerSubscribe {
         }
     }   
 
-    //TODO: check this
     function changeAdmin(address payable newAddress) isAdmin external {
-        require((msg.sender == newAddress) && (newAddress != address(0)));
+       // require((msg.sender == newAddress) && (newAddress != address(0)));
+       require((newAddress != address(0)));
 
         admin = newAddress;
     }
@@ -657,9 +655,8 @@ contract ClockTowerSubscribe {
     //sets Subscription
     function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
-        //TODO: add random number prevrandao
         //creates id hash
-        bytes32 id = keccak256(abi.encodePacked(msg.sender, token, dueDay, description, block.timestamp));
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, block.prevrandao, block.timestamp));
 
         subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay, description);
     }
@@ -931,10 +928,6 @@ contract ClockTowerSubscribe {
         }
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
-
-        //TODO: takeout
-        //amount must be greater than zero 
-        require(amount > 0, "10");
 
         //description must be 32 bytes or less
         require(bytes(description).length <= 32, "25");
