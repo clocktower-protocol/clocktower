@@ -37,8 +37,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1691511860334,
-      "contentHash": "8c67dab19356305e029f10d7ba6efad8",
+      "lastModificationDate": 1691526137558,
+      "contentHash": "deaba66db9f8bc1a4a34a7d9f10139f8",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -64,6 +64,7 @@
         }
       },
       "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
         "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol"
       ],
       "versionPragmas": [
@@ -474,8 +475,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1691512700316,
-      "contentHash": "926a124316210e6e004eeee293bfe238",
+      "lastModificationDate": 1691526363512,
+      "contentHash": "da942f807d220014a991aa78858c1ffe",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -508,7 +509,7 @@
       ],
       "artifacts": [
         "ClockTowerSubscribe",
-        "ERC20Permit"
+        "ERC20"
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
