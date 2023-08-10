@@ -126,7 +126,7 @@ contract ClockTowerSubscribe {
         bool cancelled;
         Frequency frequency;
         uint16 dueDay;
-        string description;
+       // string description;
     }
 
     //struct of Subscription indexes
@@ -178,6 +178,14 @@ contract ClockTowerSubscribe {
         bool exists;
     }
 
+    struct Details {
+        string domain;
+        string url;
+        string email;
+        string phone;
+        string description;
+    }
+
     //Events-------------------------------------
     event SubscriberLog(
         bytes32 indexed id,
@@ -200,6 +208,17 @@ contract ClockTowerSubscribe {
         uint40 timestamp,
         uint amount,
         ProvEvent indexed provEvent
+    );
+
+    event DetailsLog(
+        bytes32 indexed id,
+        address indexed provider,
+        uint indexed timestamp,
+        string domain,
+        string url,
+        string email,
+        string phone,
+        string description
     );
 
    constructor() payable {
@@ -650,12 +669,12 @@ contract ClockTowerSubscribe {
     }
 
     //sets Subscription
-    function setSubscription(uint amount, address token, string memory description, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
         //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, block.prevrandao, block.timestamp));
 
-        subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay, description);
+        subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay);
     }
     
     //checks subscription exists
@@ -911,7 +930,7 @@ contract ClockTowerSubscribe {
     } 
     
     //allows provider user to create a subscription
-    function createSubscription(uint amount, address token, string calldata description, Frequency frequency, uint16 dueDay) external payable {
+    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external payable {
         
         //cannot be sent from zero address
         userNotZero();
@@ -927,7 +946,7 @@ contract ClockTowerSubscribe {
         require(erc20IsApproved(token),"9");
 
         //description must be 32 bytes or less
-        require(bytes(description).length <= 32, "25");
+        //require(bytes(description).length <= 32, "25");
 
         //validates dueDay
         if(frequency == Frequency.WEEKLY) {
@@ -947,12 +966,14 @@ contract ClockTowerSubscribe {
         require(amount >= approvedERC20[token].minimum, "30");
 
         //creates subscription
-        Subscription memory subscription = setSubscription(amount,token, description, frequency, dueDay);
+        Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
         subscriptionMap[uint(frequency)][dueDay].push() = subscription;
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
+
+        emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, ProvEvent.CREATE);
     }
