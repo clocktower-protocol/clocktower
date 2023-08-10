@@ -525,7 +525,7 @@ contract ClockTowerSubscribe {
     
 
     //get account
-    function getAccount(address account) external view returns (Account memory) {
+    function getAccount(address account) public view returns (Account memory) {
         return accountMap[account];
     }
     
@@ -976,6 +976,24 @@ contract ClockTowerSubscribe {
         emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, ProvEvent.CREATE);
+    }
+
+    function editDetails(Details calldata details, bytes32 id) external {
+        
+        //checks if msg.sender is provider
+        Account memory returnedAccount = getAccount(msg.sender);
+
+       //addmod bool result;
+
+        if(returnedAccount.exists) {
+            //checks if subscription is part of account
+            for(uint i; i < returnedAccount.provSubs.length; i++) {
+                if(returnedAccount.provSubs[i].id == id) {
+                    //result = true;
+                    emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
+                }
+            }
+        }
     }
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
