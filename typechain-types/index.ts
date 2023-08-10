@@ -28,3 +28,5 @@ export type { ClockTowerPayment } from "./contracts/ClockTowerPayment.sol/ClockT
 export { ClockTowerPayment__factory } from "./factories/contracts/ClockTowerPayment.sol/ClockTowerPayment__factory";
 export type { ClockTowerSubscribe } from "./contracts/ClockTowerSubscribe.sol/ClockTowerSubscribe";
 export { ClockTowerSubscribe__factory } from "./factories/contracts/ClockTowerSubscribe.sol/ClockTowerSubscribe__factory";
+export type { ClockTowerVerify } from "./contracts/ClockTowerVerify.sol/ClockTowerVerify";
+export { ClockTowerVerify__factory } from "./factories/contracts/ClockTowerVerify.sol/ClockTowerVerify__factory";
