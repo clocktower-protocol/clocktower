@@ -153,8 +153,8 @@ export interface ClockTowerVerify extends BaseContract {
     checkIfProvider(
       provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     collectFees(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -181,8 +181,8 @@ export interface ClockTowerVerify extends BaseContract {
   checkIfProvider(
     provider: PromiseOrValue<string>,
     id: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   collectFees(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -255,7 +255,7 @@ export interface ClockTowerVerify extends BaseContract {
     checkIfProvider(
       provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     collectFees(
@@ -284,7 +284,7 @@ export interface ClockTowerVerify extends BaseContract {
     checkIfProvider(
       provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     collectFees(
