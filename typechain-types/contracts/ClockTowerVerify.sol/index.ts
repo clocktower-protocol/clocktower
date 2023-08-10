@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ClockTowerSubscribe } from "./ClockTowerSubscribe";
-export type { ERC20 } from "./ERC20";
+export type { ClockTowerVerify } from "./ClockTowerVerify";

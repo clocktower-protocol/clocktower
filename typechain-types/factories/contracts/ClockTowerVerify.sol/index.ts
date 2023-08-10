@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ClockTowerSubscribe__factory } from "./ClockTowerSubscribe__factory";
-export { ERC20__factory } from "./ERC20__factory";
+export { ClockTowerVerify__factory } from "./ClockTowerVerify__factory";

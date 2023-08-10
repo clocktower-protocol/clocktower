@@ -475,8 +475,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1691526363512,
-      "contentHash": "da942f807d220014a991aa78858c1ffe",
+      "lastModificationDate": 1691684955116,
+      "contentHash": "8e38fd1d04f949e9a8b1b806052e70f6",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -766,6 +766,44 @@
       ],
       "artifacts": [
         "StorageSlot"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerVerify.sol": {
+      "lastModificationDate": 1691686638186,
+      "contentHash": "a532ae682c98809b04360d7203c01316",
+      "sourceName": "contracts/ClockTowerVerify.sol",
+      "solcConfig": {
+        "version": "0.8.21",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.21"
+      ],
+      "artifacts": [
+        "ClockTowerSubscribe",
+        "ClockTowerVerify"
       ]
     }
   }
