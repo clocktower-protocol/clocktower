@@ -1116,5 +1116,22 @@ describe("Clocktower", function(){
 
             expect(await hardhatClockVerify.connect(provider).checkIfProvider(subscriptions[0].subscription.id)).to.equal(true);
         })
+
+        it("Adds data to logs", async function() {
+
+            const {hardhatClockVerify, hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            await expect(hardhatClockVerify.connect(provider).addVerifyLog("domain", "url", "email", "phone", subscriptions[0].subscription.id))
+            .to.emit(hardhatClockVerify, "VerifyLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "domain", "url", "email", "phone")
+
+        })
     })
 })

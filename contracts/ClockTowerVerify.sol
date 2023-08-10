@@ -70,9 +70,10 @@ contract ClockTowerVerify {
     fallback() external payable{}
 
     //EVENTS
-    event Verify(
+    event VerifyLog(
         bytes32 indexed id,
         address indexed provider,
+        uint indexed timestamp,
         string domain,
         string url,
         string email,
@@ -118,7 +119,7 @@ contract ClockTowerVerify {
 
     //VERIFICATION FUNCTIONS
 
-    function checkIfProvider(bytes32 id) view external returns (bool) {
+    function checkIfProvider(bytes32 id) view public returns (bool) {
 
         //require((provider != address(0)));
 
@@ -137,6 +138,16 @@ contract ClockTowerVerify {
 
        return result;
     } 
+
+    function addVerifyLog(string calldata domain, string calldata url, string calldata email, string calldata phone, bytes32 id) external {
+
+        //checks that msg.sender is provider of subscription
+        require(checkIfProvider(id), "1");
+
+
+        //creates event
+        emit VerifyLog(id, msg.sender, block.timestamp, domain, url, email, phone);
+    }
 
 
     
