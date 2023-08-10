@@ -1155,5 +1155,29 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockVerify, "VerifyLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "domain", "url", "email", "The Elliptic Curve Digital Signature Algorithm (ECDSA) consist of r and s output parameters. In Ethereum, signatures contain a third parameter called v which is the recovery id. These three components can be used to generate the public key of the Ethereum account that signed a transaction")
 
         })
+
+        it("Main contract can edit details", async function() {
+            const {hardhatClockVerify, hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            const details2 = {
+                domain: "domain2",
+                url: "URL2",
+                email: "Email2",
+                phone: "phone2",
+                description: "description2"
+            }
+
+            await expect(hardhatClockSubscribe.connect(provider).editDetails(details2, subscriptions[0].subscription.id))
+            .to.emit(hardhatClockSubscribe, "DetailsLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "domain2", "URL2", "Email2", "phone2", "description2")
+    
+        })
     })
 })
