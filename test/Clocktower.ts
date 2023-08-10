@@ -96,12 +96,15 @@ describe("Clocktower", function(){
 
         const ClockPayment = await ethers.getContractFactory("ClockTowerPayment")
 
+        const ClockVerify = await ethers.getContractFactory("ClockTowerVerify")
+
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         //const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribe.deploy();
         const hardhatClockPayment = await ClockPayment.deploy();
+        const hardhatClockVerify = await ClockVerify.deploy();
 
         const addressZero = ethers.constants.AddressZero;
 
@@ -109,6 +112,7 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.deployed();
         await hardhatClockSubscribe.deployed();
         await hardhatClockPayment.deployed();
+        await hardhatClockVerify.deployed();
 
         //console.log(hardhatCLOCKToken.address);
          //starts contract with 100 ETH
@@ -157,7 +161,7 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.transfer(provider.address, centEth)
         await hardhatCLOCKToken.transfer(caller.address, centEth)
 
-        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment} ;
+        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment, hardhatClockVerify} ;
     }
 
     //test sending ether
@@ -1089,5 +1093,29 @@ describe("Clocktower", function(){
 
         })
         
+    })
+    describe("Verify", function() {
+        const testParams = {
+            value: eth
+        };
+
+        const testParams2 = {
+            value: ethers.utils.parseEther("0.001")
+        }
+
+        it("Verify provider account exists", async function() {
+            const {hardhatClockVerify, hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, "Test",1,1, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            let value = await hardhatClockVerify.connect(provider).checkIfProvider(provider.address, subscriptions[0].subscription.id)
+            console.log(value)
+        })
     })
 })

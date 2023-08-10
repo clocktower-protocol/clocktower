@@ -61,7 +61,7 @@ contract ClockTowerVerify {
         //admin addresses
         admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
-        clockSubscribeAddress = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+        clockSubscribeAddress = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
 
     }
 
@@ -79,6 +79,7 @@ contract ClockTowerVerify {
         string phone
     );
 
+/*
     //STRUCTS
 
      //acount struct
@@ -110,7 +111,7 @@ contract ClockTowerVerify {
         CANCELLED,
         UNSUBSCRIBED
     }
-
+*/
     //ADMIN METHODS*************************************
 
     function adminRequire() private view {
@@ -150,9 +151,24 @@ contract ClockTowerVerify {
 
     //VERIFICATION FUNCTIONS
 
-    function checkIfProvider(address provider, bytes32 id) isAdmin external returns (bool) {
+    function checkIfProvider(address provider, bytes32 id) view external returns (bool) {
+
+        require((provider != address(0)));
 
         ClockTowerSubscribe.Account memory returnedAccount = ClockTowerSubscribe(clockSubscribeAddress).getAccount(provider);
+
+        bool result;
+
+        if(returnedAccount.exists) {
+            //checks if subscription is part of account
+            for(uint i; i < returnedAccount.provSubs.length; i++) {
+                if(returnedAccount.provSubs[i].id == id) {
+                    result = true;
+                }
+            }
+        }
+
+       return result;
     } 
     
 
