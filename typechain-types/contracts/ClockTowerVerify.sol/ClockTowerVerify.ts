@@ -29,6 +29,7 @@ import type {
 
 export interface ClockTowerVerifyInterface extends utils.Interface {
   functions: {
+    "addVerifyLog(string,string,string,string,bytes32)": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
     "changeSystemFee(uint256)": FunctionFragment;
     "checkIfProvider(bytes32)": FunctionFragment;
@@ -39,6 +40,7 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "addVerifyLog"
       | "changeAdmin"
       | "changeSystemFee"
       | "checkIfProvider"
@@ -47,6 +49,16 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
       | "systemFeeActivate"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "addVerifyLog",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "changeAdmin",
     values: [PromiseOrValue<string>]
@@ -70,6 +82,10 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "addVerifyLog",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "changeAdmin",
     data: BytesLike
   ): Result;
@@ -92,26 +108,27 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "Verify(bytes32,address,string,string,string,string)": EventFragment;
+    "VerifyLog(bytes32,address,uint256,string,string,string,string)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Verify"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VerifyLog"): EventFragment;
 }
 
-export interface VerifyEventObject {
+export interface VerifyLogEventObject {
   id: string;
   provider: string;
+  timestamp: BigNumber;
   domain: string;
   url: string;
   email: string;
   phone: string;
 }
-export type VerifyEvent = TypedEvent<
-  [string, string, string, string, string, string],
-  VerifyEventObject
+export type VerifyLogEvent = TypedEvent<
+  [string, string, BigNumber, string, string, string, string],
+  VerifyLogEventObject
 >;
 
-export type VerifyEventFilter = TypedEventFilter<VerifyEvent>;
+export type VerifyLogEventFilter = TypedEventFilter<VerifyLogEvent>;
 
 export interface ClockTowerVerify extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -140,6 +157,15 @@ export interface ClockTowerVerify extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    addVerifyLog(
+      domain: PromiseOrValue<string>,
+      url: PromiseOrValue<string>,
+      email: PromiseOrValue<string>,
+      phone: PromiseOrValue<string>,
+      id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -166,6 +192,15 @@ export interface ClockTowerVerify extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  addVerifyLog(
+    domain: PromiseOrValue<string>,
+    url: PromiseOrValue<string>,
+    email: PromiseOrValue<string>,
+    phone: PromiseOrValue<string>,
+    id: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   changeAdmin(
     newAddress: PromiseOrValue<string>,
@@ -194,6 +229,15 @@ export interface ClockTowerVerify extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    addVerifyLog(
+      domain: PromiseOrValue<string>,
+      url: PromiseOrValue<string>,
+      email: PromiseOrValue<string>,
+      phone: PromiseOrValue<string>,
+      id: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -220,25 +264,36 @@ export interface ClockTowerVerify extends BaseContract {
   };
 
   filters: {
-    "Verify(bytes32,address,string,string,string,string)"(
+    "VerifyLog(bytes32,address,uint256,string,string,string,string)"(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
+      timestamp?: PromiseOrValue<BigNumberish> | null,
       domain?: null,
       url?: null,
       email?: null,
       phone?: null
-    ): VerifyEventFilter;
-    Verify(
+    ): VerifyLogEventFilter;
+    VerifyLog(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
+      timestamp?: PromiseOrValue<BigNumberish> | null,
       domain?: null,
       url?: null,
       email?: null,
       phone?: null
-    ): VerifyEventFilter;
+    ): VerifyLogEventFilter;
   };
 
   estimateGas: {
+    addVerifyLog(
+      domain: PromiseOrValue<string>,
+      url: PromiseOrValue<string>,
+      email: PromiseOrValue<string>,
+      phone: PromiseOrValue<string>,
+      id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -267,6 +322,15 @@ export interface ClockTowerVerify extends BaseContract {
   };
 
   populateTransaction: {
+    addVerifyLog(
+      domain: PromiseOrValue<string>,
+      url: PromiseOrValue<string>,
+      email: PromiseOrValue<string>,
+      phone: PromiseOrValue<string>,
+      id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     changeAdmin(
       newAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
