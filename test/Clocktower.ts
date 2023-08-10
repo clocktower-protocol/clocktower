@@ -1114,8 +1114,7 @@ describe("Clocktower", function(){
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
-            let value = await hardhatClockVerify.connect(provider).checkIfProvider(provider.address, subscriptions[0].subscription.id)
-            console.log(value)
+            expect(await hardhatClockVerify.connect(provider).checkIfProvider(subscriptions[0].subscription.id)).to.equal(true);
         })
     })
 })
