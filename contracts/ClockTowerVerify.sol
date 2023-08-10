@@ -79,39 +79,6 @@ contract ClockTowerVerify {
         string phone
     );
 
-/*
-    //STRUCTS
-
-     //acount struct
-    struct Account {
-        address accountAddress;
-        bool exists;
-        SubIndex[] subscriptions;
-        SubIndex[] provSubs;
-    }
-
-     //struct of Subscription indexes
-    struct SubIndex {
-        bytes32 id;
-        uint16 dueDay;
-        Frequency frequency;
-        Status status;
-    }
-
-    //ENUMS
-     enum Frequency {
-        WEEKLY,
-        MONTHLY,
-        QUARTERLY,
-        YEARLY
-    }
-
-    enum Status {
-        ACTIVE,
-        CANCELLED,
-        UNSUBSCRIBED
-    }
-*/
     //ADMIN METHODS*************************************
 
     function adminRequire() private view {
@@ -151,11 +118,11 @@ contract ClockTowerVerify {
 
     //VERIFICATION FUNCTIONS
 
-    function checkIfProvider(address provider, bytes32 id) view external returns (bool) {
+    function checkIfProvider(bytes32 id) view external returns (bool) {
 
-        require((provider != address(0)));
+        //require((provider != address(0)));
 
-        ClockTowerSubscribe.Account memory returnedAccount = ClockTowerSubscribe(clockSubscribeAddress).getAccount(provider);
+        ClockTowerSubscribe.Account memory returnedAccount = ClockTowerSubscribe(clockSubscribeAddress).getAccount(msg.sender);
 
         bool result;
 
@@ -170,6 +137,8 @@ contract ClockTowerVerify {
 
        return result;
     } 
+
+
     
 
 }

@@ -31,7 +31,7 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
   functions: {
     "changeAdmin(address)": FunctionFragment;
     "changeSystemFee(uint256)": FunctionFragment;
-    "checkIfProvider(address,bytes32)": FunctionFragment;
+    "checkIfProvider(bytes32)": FunctionFragment;
     "collectFees()": FunctionFragment;
     "systemFee()": FunctionFragment;
     "systemFeeActivate(bool)": FunctionFragment;
@@ -57,7 +57,7 @@ export interface ClockTowerVerifyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "checkIfProvider",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "collectFees",
@@ -151,7 +151,6 @@ export interface ClockTowerVerify extends BaseContract {
     ): Promise<ContractTransaction>;
 
     checkIfProvider(
-      provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -179,7 +178,6 @@ export interface ClockTowerVerify extends BaseContract {
   ): Promise<ContractTransaction>;
 
   checkIfProvider(
-    provider: PromiseOrValue<string>,
     id: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -207,7 +205,6 @@ export interface ClockTowerVerify extends BaseContract {
     ): Promise<void>;
 
     checkIfProvider(
-      provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -253,7 +250,6 @@ export interface ClockTowerVerify extends BaseContract {
     ): Promise<BigNumber>;
 
     checkIfProvider(
-      provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -282,7 +278,6 @@ export interface ClockTowerVerify extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     checkIfProvider(
-      provider: PromiseOrValue<string>,
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
