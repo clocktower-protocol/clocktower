@@ -213,7 +213,7 @@ contract ClockTowerSubscribe {
     event DetailsLog(
         bytes32 indexed id,
         address indexed provider,
-        uint indexed timestamp,
+        uint40 indexed timestamp,
         string domain,
         string url,
         string email,

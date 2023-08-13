@@ -51,6 +51,61 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "domain",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "url",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "phone",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      }
+    ],
+    "name": "DetailsLog",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "uint40",
         "name": "timestamp",
@@ -206,11 +261,6 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           }
         ],
         "internalType": "struct ClockTowerSubscribe.Subscription",
@@ -295,9 +345,36 @@
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "description",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "domain",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ClockTowerSubscribe.Details",
+        "name": "details",
+        "type": "tuple"
       },
       {
         "internalType": "enum ClockTowerSubscribe.Frequency",
@@ -313,6 +390,51 @@
     "name": "createSubscription",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "domain",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "url",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ClockTowerSubscribe.Details",
+        "name": "details",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "editDetails",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -385,11 +507,6 @@
             "internalType": "bool",
             "name": "exists",
             "type": "bool"
-          },
-          {
-            "internalType": "uint40[]",
-            "name": "timeTriggers",
-            "type": "uint40[]"
           },
           {
             "components": [
@@ -512,11 +629,6 @@
                 "internalType": "uint16",
                 "name": "dueDay",
                 "type": "uint16"
-              },
-              {
-                "internalType": "string",
-                "name": "description",
-                "type": "string"
               }
             ],
             "internalType": "struct ClockTowerSubscribe.Subscription",
@@ -603,11 +715,6 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           }
         ],
         "internalType": "struct ClockTowerSubscribe.Subscription",
@@ -764,11 +871,6 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           }
         ],
         "internalType": "struct ClockTowerSubscribe.Subscription",
@@ -850,11 +952,6 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           }
         ],
         "internalType": "struct ClockTowerSubscribe.Subscription",
@@ -910,11 +1007,6 @@
             "internalType": "uint16",
             "name": "dueDay",
             "type": "uint16"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
           }
         ],
         "internalType": "struct ClockTowerSubscribe.Subscription",
