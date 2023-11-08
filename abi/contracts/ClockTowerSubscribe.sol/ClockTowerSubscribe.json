@@ -118,6 +118,12 @@
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "enum ClockTowerSubscribe.ProvEvent",
         "name": "provEvent",
@@ -153,6 +159,12 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
       },
       {
         "indexed": true,
