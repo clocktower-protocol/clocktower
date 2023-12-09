@@ -548,8 +548,8 @@ describe("Clocktower", function(){
 
             //tests emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 2)
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 4)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriber.provider, anyValue, eth, hardhatCLOCKToken.address, 2)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriber.provider, anyValue, eth, hardhatCLOCKToken.address, 4)
             .to.changeTokenBalance(hardhatCLOCKToken, hardhatClockSubscribe.address, "83333333333333333")
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "35159817351598170")
             
@@ -571,7 +571,7 @@ describe("Clocktower", function(){
 
             //check emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriptions[1].subscription.provider, anyValue, eth, hardhatCLOCKToken.address, 3)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "51851851851851851")
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
@@ -610,12 +610,12 @@ describe("Clocktower", function(){
             .to.be.revertedWith("19")
             //checks first emit and token balance
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue,subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriptions[0].subscription.provider, anyValue,subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 3)
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("1"))
             //checks second emit
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, "1000000000000000000", hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriptions[0].subscription.provider, anyValue, "1000000000000000000", hardhatCLOCKToken.address, 3)
 
         })
         it("Should cancel subscription", async function(){
@@ -646,7 +646,7 @@ describe("Clocktower", function(){
 
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscriptions[1].subscription))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, "51851851851851851")
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, anyValue, "51851851851851851", hardhatCLOCKToken.address, 5)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriptions[1].subscription.provider, anyValue, "51851851851851851", hardhatCLOCKToken.address, 5)
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
 
@@ -743,10 +743,10 @@ describe("Clocktower", function(){
             
             //checks that event emits subscribe and feefill
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)).
-            to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 2)
+            to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 2)
 
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)).
-            to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 4)
+            to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 4)
            
             /*
             let tx = await hardhatClockSubscribe.connect(otherAccount).subscribe(subscriptions[0].subscription, testParams)
@@ -869,7 +869,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.setExternalCallers(true)
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions[0].subscription.id, subscriber.address, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions[0].subscription.id, subscriber.address, subscriptions[0].subscription.provider, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 3)
 
             //check that provider has been refunded
             let provAmount = await hardhatCLOCKToken.balanceOf(provider.address)
@@ -890,7 +890,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams)
             await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
             expect(await hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions2[1].subscription.id, subscriber.address, anyValue, subscriptions2[1].subscription.amount, hardhatCLOCKToken.address, 1)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions2[1].subscription.id, subscriber.address, subscriptions2[1].subscription.provider, anyValue, subscriptions2[1].subscription.amount, hardhatCLOCKToken.address, 1)
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,3, testParams)
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -967,7 +967,7 @@ describe("Clocktower", function(){
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("1"))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions3[6].subscription.id, subscriber.address, anyValue, subscriptions3[6].subscription.amount, hardhatCLOCKToken.address, 0)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions3[6].subscription.id, subscriber.address, subscriptions3[6].subscription.provider, anyValue, subscriptions3[6].subscription.amount, hardhatCLOCKToken.address, 0)
 
             time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,4, testParams)
@@ -1013,7 +1013,7 @@ describe("Clocktower", function(){
 
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("2"))
-            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions[0].subscription.id, subscriber.address, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 4)
+            .to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(subscriptions[0].subscription.id, subscriber.address, subscriptions[0].subscription.provider, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 4)
 
             expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("101.0")
             expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("91.0")

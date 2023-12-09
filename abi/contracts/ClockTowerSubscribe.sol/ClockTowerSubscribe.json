@@ -150,6 +150,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "provider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint40",
         "name": "timestamp",
         "type": "uint40"
