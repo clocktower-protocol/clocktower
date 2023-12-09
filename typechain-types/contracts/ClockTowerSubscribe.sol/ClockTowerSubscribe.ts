@@ -417,7 +417,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "DetailsLog(bytes32,address,uint40,string,string,string,string,string)": EventFragment;
     "ProviderLog(bytes32,address,uint40,uint256,address,uint8)": EventFragment;
-    "SubscriberLog(bytes32,address,uint40,uint256,address,uint8)": EventFragment;
+    "SubscriberLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
@@ -474,13 +474,14 @@ export type ProviderLogEventFilter = TypedEventFilter<ProviderLogEvent>;
 export interface SubscriberLogEventObject {
   id: string;
   subscriber: string;
+  provider: string;
   timestamp: number;
   amount: BigNumber;
   token: string;
   subEvent: number;
 }
 export type SubscriberLogEvent = TypedEvent<
-  [string, string, number, BigNumber, string, number],
+  [string, string, string, number, BigNumber, string, number],
   SubscriberLogEventObject
 >;
 
@@ -967,9 +968,10 @@ export interface ClockTowerSubscribe extends BaseContract {
       provEvent?: PromiseOrValue<BigNumberish> | null
     ): ProviderLogEventFilter;
 
-    "SubscriberLog(bytes32,address,uint40,uint256,address,uint8)"(
+    "SubscriberLog(bytes32,address,address,uint40,uint256,address,uint8)"(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
+      provider?: null,
       timestamp?: null,
       amount?: null,
       token?: null,
@@ -978,6 +980,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     SubscriberLog(
       id?: PromiseOrValue<BytesLike> | null,
       subscriber?: PromiseOrValue<string> | null,
+      provider?: null,
       timestamp?: null,
       amount?: null,
       token?: null,
