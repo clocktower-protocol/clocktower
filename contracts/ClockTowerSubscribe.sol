@@ -202,6 +202,13 @@ contract ClockTowerSubscribe {
         string description;
     }
 
+    struct ProviderDetails {
+        string description;
+        string company;
+        string url;
+        string domain;
+    }
+
     //Events-------------------------------------
     /*
     event SubscriberLog(
@@ -253,6 +260,15 @@ contract ClockTowerSubscribe {
         string email,
         string phone,
         string description
+    );
+
+    event ProvDetailsLog(
+        address indexed provider,
+        uint40 indexed timestamp,
+        string description,
+        string company, 
+        string url, 
+        string domain
     );
 
    constructor() payable {
@@ -1037,6 +1053,10 @@ contract ClockTowerSubscribe {
                 }
             }
         }
+    }
+
+    function editProvDetails(ProviderDetails calldata details) external {
+        emit ProvDetailsLog(msg.sender, uint40(block.timestamp), details.description, details.company, details.url, details.domain);
     }
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
