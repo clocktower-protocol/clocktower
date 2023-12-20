@@ -76,6 +76,20 @@ export declare namespace ClockTowerSubscribe {
     description: string;
   };
 
+  export type ProviderDetailsStruct = {
+    description: PromiseOrValue<string>;
+    company: PromiseOrValue<string>;
+    url: PromiseOrValue<string>;
+    domain: PromiseOrValue<string>;
+  };
+
+  export type ProviderDetailsStructOutput = [string, string, string, string] & {
+    description: string;
+    company: string;
+    url: string;
+    domain: string;
+  };
+
   export type FeeEstimateStruct = {
     fee: PromiseOrValue<BigNumberish>;
     token: PromiseOrValue<string>;
@@ -159,6 +173,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "collectFees()": FunctionFragment;
     "createSubscription(uint256,address,(string,string,string,string,string),uint8,uint16)": FunctionFragment;
     "editDetails((string,string,string,string,string),bytes32)": FunctionFragment;
+    "editProvDetails((string,string,string,string))": FunctionFragment;
     "feeBalance(bytes32,address)": FunctionFragment;
     "feeEstimate()": FunctionFragment;
     "getAccount(address)": FunctionFragment;
@@ -191,6 +206,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "collectFees"
       | "createSubscription"
       | "editDetails"
+      | "editProvDetails"
       | "feeBalance"
       | "feeEstimate"
       | "getAccount"
@@ -256,6 +272,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "editDetails",
     values: [ClockTowerSubscribe.DetailsStruct, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "editProvDetails",
+    values: [ClockTowerSubscribe.ProviderDetailsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "feeBalance",
@@ -362,6 +382,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "editDetails",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "editProvDetails",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "feeBalance", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "feeEstimate",
@@ -416,11 +440,13 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "DetailsLog(bytes32,address,uint40,string,string,string,string,string)": EventFragment;
+    "ProvDetailsLog(address,uint40,string,string,string,string)": EventFragment;
     "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DetailsLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProvDetailsLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubLog"): EventFragment;
 }
 
@@ -453,6 +479,21 @@ export type DetailsLogEvent = TypedEvent<
 >;
 
 export type DetailsLogEventFilter = TypedEventFilter<DetailsLogEvent>;
+
+export interface ProvDetailsLogEventObject {
+  provider: string;
+  timestamp: number;
+  description: string;
+  company: string;
+  url: string;
+  domain: string;
+}
+export type ProvDetailsLogEvent = TypedEvent<
+  [string, number, string, string, string, string],
+  ProvDetailsLogEventObject
+>;
+
+export type ProvDetailsLogEventFilter = TypedEventFilter<ProvDetailsLogEvent>;
 
 export interface SubLogEventObject {
   id: string;
@@ -551,6 +592,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     editDetails(
       details: ClockTowerSubscribe.DetailsStruct,
       id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    editProvDetails(
+      details: ClockTowerSubscribe.ProviderDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -692,6 +738,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  editProvDetails(
+    details: ClockTowerSubscribe.ProviderDetailsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   feeBalance(
     arg0: PromiseOrValue<BytesLike>,
     arg1: PromiseOrValue<string>,
@@ -824,6 +875,11 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    editProvDetails(
+      details: ClockTowerSubscribe.ProviderDetailsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     feeBalance(
       arg0: PromiseOrValue<BytesLike>,
       arg1: PromiseOrValue<string>,
@@ -934,6 +990,23 @@ export interface ClockTowerSubscribe extends BaseContract {
       description?: null
     ): DetailsLogEventFilter;
 
+    "ProvDetailsLog(address,uint40,string,string,string,string)"(
+      provider?: PromiseOrValue<string> | null,
+      timestamp?: PromiseOrValue<BigNumberish> | null,
+      description?: null,
+      company?: null,
+      url?: null,
+      domain?: null
+    ): ProvDetailsLogEventFilter;
+    ProvDetailsLog(
+      provider?: PromiseOrValue<string> | null,
+      timestamp?: PromiseOrValue<BigNumberish> | null,
+      description?: null,
+      company?: null,
+      url?: null,
+      domain?: null
+    ): ProvDetailsLogEventFilter;
+
     "SubLog(bytes32,address,address,uint40,uint256,address,uint8)"(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
@@ -1009,6 +1082,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     editDetails(
       details: ClockTowerSubscribe.DetailsStruct,
       id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    editProvDetails(
+      details: ClockTowerSubscribe.ProviderDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1142,6 +1220,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     editDetails(
       details: ClockTowerSubscribe.DetailsStruct,
       id: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    editProvDetails(
+      details: ClockTowerSubscribe.ProviderDetailsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

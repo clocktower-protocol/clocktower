@@ -1196,5 +1196,28 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "DetailsLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "domain2", "URL2", "Email2", "phone2", "description2")
     
         })
+
+        it("Provider can edit account details", async function() {
+            const {hardhatClockVerify, hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            //creates subscription and subscribes
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            const details3 = {
+                description: "description3",
+                company: "company3",
+                url: "url3",
+                domain: "domain3"
+            }
+
+            await expect(hardhatClockSubscribe.connect(provider).editProvDetails(details3))
+            .to.emit(hardhatClockSubscribe, "ProvDetailsLog").withArgs(provider.address, anyValue, "description3", "company3", "url3", "domain3")
+    
+        })
     })
 })
