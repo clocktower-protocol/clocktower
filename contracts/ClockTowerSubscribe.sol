@@ -108,6 +108,20 @@ contract ClockTowerSubscribe {
         REFUND
     }
 
+    //!!
+    enum SubscriptEvent {
+        CREATE,
+        CANCEL,
+        PROVPAID,
+        FAILED, 
+        PROVREFUND,
+        SUBPAID,
+        SUBSCRIBED, 
+        UNSUBSCRIBED,
+        FEEFILL, 
+        SUBREFUND
+    }
+
     //acount struct
     struct Account {
         address accountAddress;
@@ -211,6 +225,17 @@ contract ClockTowerSubscribe {
         uint amount,
         address token,
         ProvEvent indexed provEvent
+    );
+
+    //!!
+    event SubLog(
+        bytes32 indexed id,
+        address indexed provider,
+        address indexed subscriber,
+        uint40 timestamp,
+        uint amount,
+        address token,
+        SubscriptEvent subScriptEvent
     );
 
     event DetailsLog(
@@ -782,6 +807,8 @@ contract ClockTowerSubscribe {
         //emit subscription to log
         emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.SUBSCRIBED);
         emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), fee, subscription.token, SubEvent.FEEFILL);
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBSCRIBED);
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fee, subscription.token, SubscriptEvent.FEEFILL);
 
         //funds cost with fee balance
         require(ERC20(subscription.token).transferFrom(msg.sender, address(this), fee));
@@ -811,6 +838,7 @@ contract ClockTowerSubscribe {
 
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.UNSUBSCRIBED);
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to provider
     
@@ -820,6 +848,7 @@ contract ClockTowerSubscribe {
         delete feeBalance[subscription.id][msg.sender];
 
         emit ProviderLog(subscription.id, subscription.provider, uint40(block.timestamp), balance, subscription.token, ProvEvent.REFUND);
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.PROVREFUND);
 
         //Refunds fee balance
         require(ERC20(subscription.token).transfer(subscription.provider, balance), "21");
@@ -856,6 +885,7 @@ contract ClockTowerSubscribe {
 
         //emit unsubscribe to log
         emit SubscriberLog(subscription.id, subscriber, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.UNSUBSCRIBED);
+        emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to subscriber
         uint balance = feeBalance[subscription.id][subscriber];
@@ -864,6 +894,7 @@ contract ClockTowerSubscribe {
         delete feeBalance[subscription.id][subscriber];
 
         emit SubscriberLog(subscription.id, subscriber, subscription.provider, uint40(block.timestamp), balance, subscription.token, SubEvent.REFUND);
+        emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
 
         //Refunds fee balance
         require(ERC20(subscription.token).transfer(subscriber, balance), "21");
@@ -900,7 +931,8 @@ contract ClockTowerSubscribe {
             
             uint feeBal = feeBalance[subscription.id][subscribers[i]];
 
-            emit SubscriberLog(subscription.id, subscribers[i], subscription.provider, uint40(block.timestamp), feeBal, subscription.token, SubEvent.REFUND);   
+            emit SubscriberLog(subscription.id, subscribers[i], subscription.provider, uint40(block.timestamp), feeBal, subscription.token, SubEvent.REFUND); 
+            emit SubLog(subscription.id, subscription.provider, subscribers[i], uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
 
             //zeros out fee balance
             delete feeBalance[subscription.id][subscribers[i]];
@@ -929,6 +961,7 @@ contract ClockTowerSubscribe {
         }
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CANCEL);
+        emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), 0, subscription.token, SubscriptEvent.CANCEL);
 
     } 
     
@@ -979,6 +1012,7 @@ contract ClockTowerSubscribe {
         emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
 
         emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CREATE);
+        emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), 0, subscription.token, SubscriptEvent.CREATE);
     }
 
     function editDetails(Details calldata details, bytes32 id) external {
@@ -1121,7 +1155,9 @@ contract ClockTowerSubscribe {
                                
                                     //log as succeeded
                                     emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.PAID);
+                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.SUBPAID);
                                     emit ProviderLog(id, provider, uint40(block.timestamp), 0, token, ProvEvent.PAID);
+                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.PROVPAID);
 
                                     //remits from subscriber to provider
                                     require(ERC20(token).transferFrom(subscriber, provider, amount));
@@ -1135,6 +1171,7 @@ contract ClockTowerSubscribe {
 
                                     //log as feefill
                                     emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FEEFILL);
+                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.FEEFILL);
 
                                     //adjusts feefill based on frequency
                                     
@@ -1178,6 +1215,7 @@ contract ClockTowerSubscribe {
                                     delete feeBalance[id][subscriber];
 
                                     emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, token, ProvEvent.REFUND);
+                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), feeRemainder, token, SubscriptEvent.PROVREFUND);
 
                                     //pays remainder to provider
                                     require(ERC20(token).transfer(provider, feeRemainder));
@@ -1191,9 +1229,11 @@ contract ClockTowerSubscribe {
                             
                                 //emit unsubscribe to log
                                 emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.UNSUBSCRIBED);
+                                emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.UNSUBSCRIBED);
 
                                 //log as failed
                                 emit ProviderLog(id, provider, uint40(block.timestamp), 0, token, ProvEvent.FAILED);
+                                emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.FAILED);
                             
                             }
                             //sends fees to caller on last subscriber in list (unless there are no subscribers)

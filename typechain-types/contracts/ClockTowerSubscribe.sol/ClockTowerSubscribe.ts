@@ -417,12 +417,14 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
     "DetailsLog(bytes32,address,uint40,string,string,string,string,string)": EventFragment;
     "ProviderLog(bytes32,address,uint40,uint256,address,uint8)": EventFragment;
+    "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
     "SubscriberLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DetailsLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProviderLog"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SubLog"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubscriberLog"): EventFragment;
 }
 
@@ -470,6 +472,22 @@ export type ProviderLogEvent = TypedEvent<
 >;
 
 export type ProviderLogEventFilter = TypedEventFilter<ProviderLogEvent>;
+
+export interface SubLogEventObject {
+  id: string;
+  provider: string;
+  subscriber: string;
+  timestamp: number;
+  amount: BigNumber;
+  token: string;
+  subScriptEvent: number;
+}
+export type SubLogEvent = TypedEvent<
+  [string, string, string, number, BigNumber, string, number],
+  SubLogEventObject
+>;
+
+export type SubLogEventFilter = TypedEventFilter<SubLogEvent>;
 
 export interface SubscriberLogEventObject {
   id: string;
@@ -967,6 +985,25 @@ export interface ClockTowerSubscribe extends BaseContract {
       token?: null,
       provEvent?: PromiseOrValue<BigNumberish> | null
     ): ProviderLogEventFilter;
+
+    "SubLog(bytes32,address,address,uint40,uint256,address,uint8)"(
+      id?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      amount?: null,
+      token?: null,
+      subScriptEvent?: null
+    ): SubLogEventFilter;
+    SubLog(
+      id?: PromiseOrValue<BytesLike> | null,
+      provider?: PromiseOrValue<string> | null,
+      subscriber?: PromiseOrValue<string> | null,
+      timestamp?: null,
+      amount?: null,
+      token?: null,
+      subScriptEvent?: null
+    ): SubLogEventFilter;
 
     "SubscriberLog(bytes32,address,address,uint40,uint256,address,uint8)"(
       id?: PromiseOrValue<BytesLike> | null,
