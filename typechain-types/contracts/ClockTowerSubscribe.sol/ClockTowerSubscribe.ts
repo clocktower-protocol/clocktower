@@ -164,6 +164,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   functions: {
     "accountLookup(uint256)": FunctionFragment;
     "addERC20Contract(address,uint256)": FunctionFragment;
+    "approvedERC20(address)": FunctionFragment;
     "callerFee()": FunctionFragment;
     "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16))": FunctionFragment;
     "changeAdmin(address)": FunctionFragment;
@@ -197,6 +198,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "accountLookup"
       | "addERC20Contract"
+      | "approvedERC20"
       | "callerFee"
       | "cancelSubscription"
       | "changeAdmin"
@@ -233,6 +235,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addERC20Contract",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approvedERC20",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
   encodeFunctionData(
@@ -347,6 +353,10 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addERC20Contract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "approvedERC20",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
@@ -549,6 +559,17 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    approvedERC20(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, boolean] & {
+        tokenAddress: string;
+        minimum: BigNumber;
+        exists: boolean;
+      }
+    >;
+
     callerFee(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cancelSubscription(
@@ -692,6 +713,17 @@ export interface ClockTowerSubscribe extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  approvedERC20(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, boolean] & {
+      tokenAddress: string;
+      minimum: BigNumber;
+      exists: boolean;
+    }
+  >;
+
   callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   cancelSubscription(
@@ -830,6 +862,17 @@ export interface ClockTowerSubscribe extends BaseContract {
       minimum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    approvedERC20(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, boolean] & {
+        tokenAddress: string;
+        minimum: BigNumber;
+        exists: boolean;
+      }
+    >;
 
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1039,6 +1082,11 @@ export interface ClockTowerSubscribe extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    approvedERC20(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     callerFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     cancelSubscription(
@@ -1175,6 +1223,11 @@ export interface ClockTowerSubscribe extends BaseContract {
       erc20Contract: PromiseOrValue<string>,
       minimum: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    approvedERC20(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     callerFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;

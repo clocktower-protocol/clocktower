@@ -61,7 +61,7 @@ contract ClockTowerSubscribe {
     //index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
 
-    mapping (address => ApprovedToken) approvedERC20;
+    mapping (address => ApprovedToken) public approvedERC20;
 
     // uint pageCount;
     bool pageGo;
