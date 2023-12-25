@@ -1123,6 +1123,14 @@ describe("Clocktower", function(){
             */
 
         })
+        it("Gets token minimum from contract", async function() { 
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount} = await loadFixture(deployClocktowerFixture);
+            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            let tokenObject = await hardhatClockSubscribe.connect(provider).approvedERC20(hardhatCLOCKToken.address)
+
+            expect(tokenObject.minimum).to.equal(ethers.utils.parseEther(".01"))
+        })
         
     })
     describe("Verify", function() {
