@@ -1034,7 +1034,7 @@ contract ClockTowerSubscribe {
         emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
 
         //emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CREATE);
-        emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), 0, subscription.token, SubscriptEvent.CREATE);
+        emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), amount, subscription.token, SubscriptEvent.CREATE);
     }
 
     function editDetails(Details calldata details, bytes32 id) external {
