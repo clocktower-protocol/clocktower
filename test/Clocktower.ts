@@ -494,7 +494,7 @@ describe("Clocktower", function(){
             .to.be.revertedWith("30")
 
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, 0, hardhatCLOCKToken.address, 0)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, eth, hardhatCLOCKToken.address, 0)
             //.to.emit(hardhatClockSubscribe, "ProviderLog").withArgs(anyValue, provider.address, anyValue, 0, hardhatCLOCKToken.address, 0)
         })
 
