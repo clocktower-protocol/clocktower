@@ -13,6 +13,11 @@ const config: HardhatUserConfig = {
         runs: 500,
       },
     },
+  },
+  networks: {
+    hardhat: {
+      gasPrice: 30000000000
+    }
   }
   
 };
