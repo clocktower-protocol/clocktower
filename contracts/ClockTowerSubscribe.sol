@@ -195,10 +195,7 @@ contract ClockTowerSubscribe {
     }
 
     struct Details {
-        string domain;
         string url;
-        string email;
-        string phone;
         string description;
     }
 
@@ -207,6 +204,8 @@ contract ClockTowerSubscribe {
         string company;
         string url;
         string domain;
+        string email;
+        string misc;
     }
 
     //Events-------------------------------------
@@ -255,10 +254,7 @@ contract ClockTowerSubscribe {
         bytes32 indexed id,
         address indexed provider,
         uint40 indexed timestamp,
-        string domain,
         string url,
-        string email,
-        string phone,
         string description
     );
 
@@ -268,7 +264,9 @@ contract ClockTowerSubscribe {
         string description,
         string company, 
         string url, 
-        string domain
+        string domain,
+        string email, 
+        string misc
     );
 
    constructor() payable {
@@ -1031,7 +1029,7 @@ contract ClockTowerSubscribe {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
 
-        emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
+        emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.url, details.description);
 
         //emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CREATE);
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), amount, subscription.token, SubscriptEvent.CREATE);
@@ -1049,14 +1047,14 @@ contract ClockTowerSubscribe {
             for(uint i; i < returnedAccount.provSubs.length; i++) {
                 if(returnedAccount.provSubs[i].id == id) {
                     //result = true;
-                    emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.domain, details.url, details.email, details.phone, details.description);
+                    emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.url, details.description);
                 }
             }
         }
     }
 
-    function editProvDetails(ProviderDetails calldata details) external {
-        emit ProvDetailsLog(msg.sender, uint40(block.timestamp), details.description, details.company, details.url, details.domain);
+    function editProvDetails(ProviderDetails memory details) external {
+        emit ProvDetailsLog(msg.sender, uint40(block.timestamp), details.description, details.company, details.url, details.domain, details.email, details.misc);
     }
 
     //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET

@@ -61,18 +61,12 @@ export declare namespace ClockTowerSubscribe {
   };
 
   export type DetailsStruct = {
-    domain: PromiseOrValue<string>;
     url: PromiseOrValue<string>;
-    email: PromiseOrValue<string>;
-    phone: PromiseOrValue<string>;
     description: PromiseOrValue<string>;
   };
 
-  export type DetailsStructOutput = [string, string, string, string, string] & {
-    domain: string;
+  export type DetailsStructOutput = [string, string] & {
     url: string;
-    email: string;
-    phone: string;
     description: string;
   };
 
@@ -81,13 +75,24 @@ export declare namespace ClockTowerSubscribe {
     company: PromiseOrValue<string>;
     url: PromiseOrValue<string>;
     domain: PromiseOrValue<string>;
+    email: PromiseOrValue<string>;
+    misc: PromiseOrValue<string>;
   };
 
-  export type ProviderDetailsStructOutput = [string, string, string, string] & {
+  export type ProviderDetailsStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
+  ] & {
     description: string;
     company: string;
     url: string;
     domain: string;
+    email: string;
+    misc: string;
   };
 
   export type FeeEstimateStruct = {
@@ -172,9 +177,9 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     "changeMaxRemits(uint256)": FunctionFragment;
     "changeSystemFee(uint256)": FunctionFragment;
     "collectFees()": FunctionFragment;
-    "createSubscription(uint256,address,(string,string,string,string,string),uint8,uint16)": FunctionFragment;
-    "editDetails((string,string,string,string,string),bytes32)": FunctionFragment;
-    "editProvDetails((string,string,string,string))": FunctionFragment;
+    "createSubscription(uint256,address,(string,string),uint8,uint16)": FunctionFragment;
+    "editDetails((string,string),bytes32)": FunctionFragment;
+    "editProvDetails((string,string,string,string,string,string))": FunctionFragment;
     "feeBalance(bytes32,address)": FunctionFragment;
     "feeEstimate()": FunctionFragment;
     "getAccount(address)": FunctionFragment;
@@ -449,8 +454,8 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
 
   events: {
     "CallerLog(uint40,uint40,address,bool)": EventFragment;
-    "DetailsLog(bytes32,address,uint40,string,string,string,string,string)": EventFragment;
-    "ProvDetailsLog(address,uint40,string,string,string,string)": EventFragment;
+    "DetailsLog(bytes32,address,uint40,string,string)": EventFragment;
+    "ProvDetailsLog(address,uint40,string,string,string,string,string,string)": EventFragment;
     "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
   };
 
@@ -477,14 +482,11 @@ export interface DetailsLogEventObject {
   id: string;
   provider: string;
   timestamp: number;
-  domain: string;
   url: string;
-  email: string;
-  phone: string;
   description: string;
 }
 export type DetailsLogEvent = TypedEvent<
-  [string, string, number, string, string, string, string, string],
+  [string, string, number, string, string],
   DetailsLogEventObject
 >;
 
@@ -497,9 +499,11 @@ export interface ProvDetailsLogEventObject {
   company: string;
   url: string;
   domain: string;
+  email: string;
+  misc: string;
 }
 export type ProvDetailsLogEvent = TypedEvent<
-  [string, number, string, string, string, string],
+  [string, number, string, string, string, string, string, string],
   ProvDetailsLogEventObject
 >;
 
@@ -1012,34 +1016,30 @@ export interface ClockTowerSubscribe extends BaseContract {
       isFinished?: null
     ): CallerLogEventFilter;
 
-    "DetailsLog(bytes32,address,uint40,string,string,string,string,string)"(
+    "DetailsLog(bytes32,address,uint40,string,string)"(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
       timestamp?: PromiseOrValue<BigNumberish> | null,
-      domain?: null,
       url?: null,
-      email?: null,
-      phone?: null,
       description?: null
     ): DetailsLogEventFilter;
     DetailsLog(
       id?: PromiseOrValue<BytesLike> | null,
       provider?: PromiseOrValue<string> | null,
       timestamp?: PromiseOrValue<BigNumberish> | null,
-      domain?: null,
       url?: null,
-      email?: null,
-      phone?: null,
       description?: null
     ): DetailsLogEventFilter;
 
-    "ProvDetailsLog(address,uint40,string,string,string,string)"(
+    "ProvDetailsLog(address,uint40,string,string,string,string,string,string)"(
       provider?: PromiseOrValue<string> | null,
       timestamp?: PromiseOrValue<BigNumberish> | null,
       description?: null,
       company?: null,
       url?: null,
-      domain?: null
+      domain?: null,
+      email?: null,
+      misc?: null
     ): ProvDetailsLogEventFilter;
     ProvDetailsLog(
       provider?: PromiseOrValue<string> | null,
@@ -1047,7 +1047,9 @@ export interface ClockTowerSubscribe extends BaseContract {
       description?: null,
       company?: null,
       url?: null,
-      domain?: null
+      domain?: null,
+      email?: null,
+      misc?: null
     ): ProvDetailsLogEventFilter;
 
     "SubLog(bytes32,address,address,uint40,uint256,address,uint8)"(
