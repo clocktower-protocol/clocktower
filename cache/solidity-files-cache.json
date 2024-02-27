@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1691512056430,
+      "lastModificationDate": 1709065582453,
       "contentHash": "896f68942c3a20e9ae3c3c5bfd3add54",
       "sourceName": "hardhat/console.sol",
       "solcConfig": {
@@ -12,6 +12,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -37,7 +38,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1691690932318,
+      "lastModificationDate": 1709068199894,
       "contentHash": "8c67dab19356305e029f10d7ba6efad8",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
@@ -47,6 +48,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -74,7 +76,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1689793788336,
+      "lastModificationDate": 1709068495637,
       "contentHash": "3ae5166c6827a9cf1a7a462d1632b464",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -84,6 +86,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -113,8 +116,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1689793788332,
-      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "lastModificationDate": 1709068495633,
+      "contentHash": "f07feb4a44b1a4872370da5aa70e8e46",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -123,6 +126,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -148,7 +152,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1689793788344,
+      "lastModificationDate": 1709068495665,
       "contentHash": "df36f7051335cd1e748b1b6463b7fdd3",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
@@ -158,6 +162,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -183,7 +188,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
-      "lastModificationDate": 1689793788344,
+      "lastModificationDate": 1709068495665,
       "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
@@ -193,6 +198,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -220,7 +226,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol": {
-      "lastModificationDate": 1689793788336,
+      "lastModificationDate": 1709068495633,
       "contentHash": "0ebe4a60af340ba617d3fb68db43c990",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol",
       "solcConfig": {
@@ -230,6 +236,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -255,7 +262,7 @@
       "artifacts": []
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Counters.sol": {
-      "lastModificationDate": 1689793788332,
+      "lastModificationDate": 1709068495633,
       "contentHash": "74654e3ae5d7f39555055dfe244dab7a",
       "sourceName": "@openzeppelin/contracts/utils/Counters.sol",
       "solcConfig": {
@@ -265,6 +272,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -290,7 +298,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol": {
-      "lastModificationDate": 1689793788336,
+      "lastModificationDate": 1709068495633,
       "contentHash": "d822a8a9468649cab463f29f5decf5cc",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/ECDSA.sol",
       "solcConfig": {
@@ -300,6 +308,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -327,7 +336,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/cryptography/EIP712.sol": {
-      "lastModificationDate": 1689793788336,
+      "lastModificationDate": 1709068495637,
       "contentHash": "459aeb9cc3fc3c6d67d30ffefb724aba",
       "sourceName": "@openzeppelin/contracts/utils/cryptography/EIP712.sol",
       "solcConfig": {
@@ -337,6 +346,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -401,7 +411,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495677,
       "contentHash": "48686fc32a22a3754b8e63321857dd2a",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
@@ -411,6 +421,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -439,7 +450,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495673,
       "contentHash": "fe63409d8a06818b926cf89e0ea88b1b",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
@@ -449,6 +460,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -474,7 +486,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1703622334094,
+      "lastModificationDate": 1709068199894,
       "contentHash": "5d4585376090bde2dce0f88018b17872",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
@@ -484,6 +496,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -522,6 +535,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -550,8 +564,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol": {
-      "lastModificationDate": 1689793788340,
-      "contentHash": "c8946432e6d37418cb12a15668e3c0cd",
+      "lastModificationDate": 1709068495637,
+      "contentHash": "4cbcb1f6d01e01a02b6407bb67a78400",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -560,6 +574,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -591,8 +606,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol": {
-      "lastModificationDate": 1689793788344,
-      "contentHash": "aa849939a4ae83a4dcb2dca9b3e9e707",
+      "lastModificationDate": 1709068495665,
+      "contentHash": "525fcdad8d171312933f47baf01d1ed8",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -601,6 +616,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -626,7 +642,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/math/SignedMath.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495677,
       "contentHash": "9488ebd4daacfee8ad04811600d7d061",
       "sourceName": "@openzeppelin/contracts/utils/math/SignedMath.sol",
       "solcConfig": {
@@ -636,6 +652,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -661,7 +678,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/ShortStrings.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495677,
       "contentHash": "8dde288da49722a70f34ee369be4bfba",
       "sourceName": "@openzeppelin/contracts/utils/ShortStrings.sol",
       "solcConfig": {
@@ -671,6 +688,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -698,7 +716,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/interfaces/IERC5267.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495665,
       "contentHash": "b1756048024350a162c3be27c04aa652",
       "sourceName": "@openzeppelin/contracts/interfaces/IERC5267.sol",
       "solcConfig": {
@@ -708,6 +726,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -733,7 +752,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/StorageSlot.sol": {
-      "lastModificationDate": 1689793788348,
+      "lastModificationDate": 1709068495677,
       "contentHash": "682f7dd1f2e1147c8390e7575deceb2d",
       "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
       "solcConfig": {
@@ -743,6 +762,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -768,7 +788,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerVerify.sol": {
-      "lastModificationDate": 1691705488378,
+      "lastModificationDate": 1699475543521,
       "contentHash": "a0ebe321091faa5f4dae3ce311e85035",
       "sourceName": "contracts/ClockTowerVerify.sol",
       "solcConfig": {
@@ -778,6 +798,7 @@
             "enabled": true,
             "runs": 500
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
