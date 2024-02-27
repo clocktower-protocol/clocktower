@@ -11,7 +11,8 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 describe("Clocktower", function(){
 
   
-    let currentTime = 1704088800;
+    //let currentTime = 1704088800;
+    let currentTime = 1830319200
     let mergeTime = 0;
     let hoursSinceMerge = Math.floor((currentTime - mergeTime) /3600);
     //eth sent
@@ -74,7 +75,7 @@ describe("Clocktower", function(){
     //fixture to deploy contract
     async function deployClocktowerFixture() {
 
-        //sets time to 2024/01/01 1:00
+        //sets time to 2028/01/01 1:00
         await time.increaseTo(currentTime);
 
        // const ClockTowerTime = await ethers.getContractFactory("ClockTowerTime")
@@ -971,7 +972,7 @@ describe("Clocktower", function(){
             //checks that on max remit caller is paid and event is emitted
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.changeTokenBalance(hardhatCLOCKToken, caller, ethers.utils.parseEther("0.1"))
-            .to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 19724, caller.address, true)
+            .to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 21185, caller.address, true)
 
             //checks that successful transfer with enough fee balance
             time.increase((dayAhead))
@@ -1051,7 +1052,7 @@ describe("Clocktower", function(){
             await time.increase((dayAhead * 5))
     
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-4"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-6"))
 
             //checks monthly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, details,1,5, testParams)
