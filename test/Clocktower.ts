@@ -1194,15 +1194,12 @@ describe("Clocktower", function(){
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             const details2 = {
-                domain: "domain2",
                 url: "URL2",
-                email: "Email2",
-                phone: "phone2",
                 description: "description2"
             }
 
             await expect(hardhatClockSubscribe.connect(provider).editDetails(details2, subscriptions[0].subscription.id))
-            .to.emit(hardhatClockSubscribe, "DetailsLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "domain2", "URL2", "Email2", "phone2", "description2")
+            .to.emit(hardhatClockSubscribe, "DetailsLog").withArgs(subscriptions[0].subscription.id, provider.address, anyValue, "URL2", "description2")
     
         })
 
@@ -1221,11 +1218,13 @@ describe("Clocktower", function(){
                 description: "description3",
                 company: "company3",
                 url: "url3",
-                domain: "domain3"
+                domain: "domain3",
+                email: "bob@clocktower.finance",
+                misc: "misc"
             }
 
             await expect(hardhatClockSubscribe.connect(provider).editProvDetails(details3))
-            .to.emit(hardhatClockSubscribe, "ProvDetailsLog").withArgs(provider.address, anyValue, "description3", "company3", "url3", "domain3")
+            .to.emit(hardhatClockSubscribe, "ProvDetailsLog").withArgs(provider.address, anyValue, "description3", "company3", "url3", "domain3", "bob@clocktower.finance", "misc")
     
         })
     })
