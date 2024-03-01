@@ -124,7 +124,6 @@ contract ClockTowerSubscribe {
         bool cancelled;
         Frequency frequency;
         uint16 dueDay;
-       // string description;
     }
 
     //struct of Subscription indexes
@@ -191,18 +190,6 @@ contract ClockTowerSubscribe {
     }
 
     //Events-------------------------------------
-    /*
-    event SubscriberLog(
-        bytes32 indexed id,
-        address indexed subscriber,
-        address provider,
-        uint40 timestamp,
-        uint amount,
-        address token,
-        SubEvent indexed subEvent
-    );
-    */
-
     event CallerLog(
         uint40 timestamp,
         uint40 checkedDay,
@@ -210,18 +197,6 @@ contract ClockTowerSubscribe {
         bool isFinished
     );
 
-    /*
-    event ProviderLog(
-        bytes32 indexed id,
-        address indexed provider,
-        uint40 timestamp,
-        uint amount,
-        address token,
-        ProvEvent indexed provEvent
-    );
-    */
-
-    //!!
     event SubLog(
         bytes32 indexed id,
         address indexed provider,
@@ -297,10 +272,10 @@ contract ClockTowerSubscribe {
 
     //functions for receiving ether
     receive() external payable{
-        //emit ReceiveETH(msg.sender, msg.value);
+        
     }
     fallback() external payable{
-        //emit UnknownFunction("Unknown function");
+        
     }
 
     //ADMIN METHODS*************************************
@@ -325,7 +300,6 @@ contract ClockTowerSubscribe {
     }   
 
     function changeAdmin(address payable newAddress) isAdmin external {
-       // require((msg.sender == newAddress) && (newAddress != address(0)));
        require((newAddress != address(0)));
 
         admin = newAddress;
@@ -807,8 +781,6 @@ contract ClockTowerSubscribe {
         feeBalance[subscription.id][msg.sender] += fee;
 
         //emit subscription to log
-        //emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.SUBSCRIBED);
-        //emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), fee, subscription.token, SubEvent.FEEFILL);
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBSCRIBED);
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fee, subscription.token, SubscriptEvent.FEEFILL);
 
@@ -839,11 +811,9 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(subscription.id, msg.sender);
 
         //emit unsubscribe to log
-        //emit SubscriberLog(subscription.id, msg.sender, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.UNSUBSCRIBED);
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to provider
-    
         uint balance = feeBalance[subscription.id][msg.sender];
 
         //zeros out fee balance
@@ -983,9 +953,6 @@ contract ClockTowerSubscribe {
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
-        //description must be 32 bytes or less
-        //require(bytes(description).length <= 32, "25");
-
         //validates dueDay
         if(frequency == Frequency.WEEKLY) {
             require(0 < dueDay && dueDay <= 7, "26");
@@ -1013,7 +980,6 @@ contract ClockTowerSubscribe {
 
         emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.url, details.description);
 
-        //emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CREATE);
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), amount, subscription.token, SubscriptEvent.CREATE);
     }
 
@@ -1022,13 +988,10 @@ contract ClockTowerSubscribe {
         //checks if msg.sender is provider
         Account memory returnedAccount = getAccount(msg.sender);
 
-       //addmod bool result;
-
         if(returnedAccount.exists) {
             //checks if subscription is part of account
             for(uint i; i < returnedAccount.provSubs.length; i++) {
                 if(returnedAccount.provSubs[i].id == id) {
-                    //result = true;
                     emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.url, details.description);
                 }
             }
@@ -1160,9 +1123,7 @@ contract ClockTowerSubscribe {
                                     feeBalance[id][subscriber] -= subFee;
                                
                                     //log as succeeded
-                                    //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.PAID);
                                     emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.SUBPAID);
-                                    //emit ProviderLog(id, provider, uint40(block.timestamp), 0, token, ProvEvent.PAID);
                                     emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.PROVPAID);
 
                                     //remits from subscriber to provider
@@ -1230,15 +1191,10 @@ contract ClockTowerSubscribe {
                                 //unsubscribes on failure
                                 deleteSubFromSubscription(id, subscriber);
 
-                                //log as failed
-                                //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FAILED);
-                            
                                 //emit unsubscribe to log
-                                //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.UNSUBSCRIBED);
                                 emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.UNSUBSCRIBED);
 
                                 //log as failed
-                                //emit ProviderLog(id, provider, uint40(block.timestamp), 0, token, ProvEvent.FAILED);
                                 emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.FAILED);
                             
                             }
