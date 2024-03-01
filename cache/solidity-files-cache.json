@@ -486,8 +486,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1709071063151,
-      "contentHash": "bbd778d3cf37d7a4ddae6a343b004110",
+      "lastModificationDate": 1709311951144,
+      "contentHash": "08dd4564a9fa8c52db92e5ebb914231b",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.21",
@@ -522,45 +522,6 @@
       "artifacts": [
         "ClockTowerSubscribe",
         "ERC20"
-      ]
-    },
-    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol": {
-      "lastModificationDate": 1674236631348,
-      "contentHash": "fac7fced85ea3f92c911bb99a09556db",
-      "sourceName": "contracts/ClockTowerPayment.sol",
-      "solcConfig": {
-        "version": "0.8.21",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 500
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.9"
-      ],
-      "artifacts": [
-        "ClockTowerPayment",
-        "ERC20Permit"
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol": {
@@ -785,45 +746,6 @@
       ],
       "artifacts": [
         "StorageSlot"
-      ]
-    },
-    "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerVerify.sol": {
-      "lastModificationDate": 1699475543521,
-      "contentHash": "a0ebe321091faa5f4dae3ce311e85035",
-      "sourceName": "contracts/ClockTowerVerify.sol",
-      "solcConfig": {
-        "version": "0.8.21",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 500
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.21"
-      ],
-      "artifacts": [
-        "ClockTowerSubscribe",
-        "ClockTowerVerify"
       ]
     }
   }
