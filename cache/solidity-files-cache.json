@@ -38,8 +38,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1709068199894,
-      "contentHash": "8c67dab19356305e029f10d7ba6efad8",
+      "lastModificationDate": 1709323981233,
+      "contentHash": "08e443bbe340c1ae1ab429647c9ce754",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -66,10 +66,10 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol"
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
       ],
       "versionPragmas": [
-        "^0.8.21"
+        "^0.8.24"
       ],
       "artifacts": [
         "CLOCKToken"
