@@ -53,14 +53,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CLOCKToken__factory>;
     getContractFactory(
-      name: "ClockTowerPayment",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ClockTowerPayment__factory>;
-    getContractFactory(
-      name: "ERC20Permit",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC20Permit__factory>;
-    getContractFactory(
       name: "ClockTowerSubscribe",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClockTowerSubscribe__factory>;
@@ -68,14 +60,6 @@ declare module "hardhat/types/runtime" {
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
-    getContractFactory(
-      name: "ClockTowerSubscribe",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ClockTowerSubscribe__factory>;
-    getContractFactory(
-      name: "ClockTowerVerify",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ClockTowerVerify__factory>;
 
     getContractAt(
       name: "IERC5267",
@@ -128,16 +112,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.CLOCKToken>;
     getContractAt(
-      name: "ClockTowerPayment",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ClockTowerPayment>;
-    getContractAt(
-      name: "ERC20Permit",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC20Permit>;
-    getContractAt(
       name: "ClockTowerSubscribe",
       address: string,
       signer?: ethers.Signer
@@ -147,16 +121,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
-    getContractAt(
-      name: "ClockTowerSubscribe",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ClockTowerSubscribe>;
-    getContractAt(
-      name: "ClockTowerVerify",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ClockTowerVerify>;
 
     // default types
     getContractFactory(
