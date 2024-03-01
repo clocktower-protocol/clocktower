@@ -91,24 +91,6 @@ contract ClockTowerSubscribe {
         UNSUBSCRIBED
     }
 
-    /*
-    enum SubEvent {
-        PAID,
-        FAILED,
-        SUBSCRIBED, 
-        UNSUBSCRIBED,
-        FEEFILL, 
-        REFUND
-    }
-
-    enum ProvEvent {
-        CREATE,
-        CANCEL,
-        PAID,
-        FAILED, 
-        REFUND
-    }
-    */
 
     //!!
     enum SubscriptEvent {
