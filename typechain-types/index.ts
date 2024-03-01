@@ -24,9 +24,5 @@ export type { ShortStrings } from "./@openzeppelin/contracts/utils/ShortStrings"
 export { ShortStrings__factory } from "./factories/@openzeppelin/contracts/utils/ShortStrings__factory";
 export type { CLOCKToken } from "./contracts/CLOCKtoken.sol/CLOCKToken";
 export { CLOCKToken__factory } from "./factories/contracts/CLOCKtoken.sol/CLOCKToken__factory";
-export type { ClockTowerPayment } from "./contracts/ClockTowerPayment.sol/ClockTowerPayment";
-export { ClockTowerPayment__factory } from "./factories/contracts/ClockTowerPayment.sol/ClockTowerPayment__factory";
 export type { ClockTowerSubscribe } from "./contracts/ClockTowerSubscribe.sol/ClockTowerSubscribe";
 export { ClockTowerSubscribe__factory } from "./factories/contracts/ClockTowerSubscribe.sol/ClockTowerSubscribe__factory";
-export type { ClockTowerVerify } from "./contracts/ClockTowerVerify.sol/ClockTowerVerify";
-export { ClockTowerVerify__factory } from "./factories/contracts/ClockTowerVerify.sol/ClockTowerVerify__factory";

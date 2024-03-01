@@ -2,6 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
-export * as clockTowerPaymentSol from "./ClockTowerPayment.sol";
 export * as clockTowerSubscribeSol from "./ClockTowerSubscribe.sol";
-export * as clockTowerVerifySol from "./ClockTowerVerify.sol";
