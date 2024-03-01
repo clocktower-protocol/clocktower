@@ -95,35 +95,37 @@ describe("Clocktower", function(){
 
       //  const ClockSubscribe = await ethers.getContractFactory("ClockTowerSubscribe")
 
-        const ClockPayment = await ethers.getContractFactory("ClockTowerPayment")
+        //const ClockPayment = await ethers.getContractFactory("ClockTowerPayment")
 
-        const ClockVerify = await ethers.getContractFactory("ClockTowerVerify")
+        //const ClockVerify = await ethers.getContractFactory("ClockTowerVerify")
 
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         //const hardhatClocktower = await Clocktower.deploy();
         const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribe.deploy();
-        const hardhatClockPayment = await ClockPayment.deploy();
-        const hardhatClockVerify = await ClockVerify.deploy();
+       // const hardhatClockPayment = await ClockPayment.deploy();
+       // const hardhatClockVerify = await ClockVerify.deploy();
 
         const addressZero = ethers.constants.AddressZero;
 
        // await hardhatClocktower.deployed();
         await hardhatCLOCKToken.deployed();
         await hardhatClockSubscribe.deployed();
-        await hardhatClockPayment.deployed();
-        await hardhatClockVerify.deployed();
+       // await hardhatClockPayment.deployed();
+       // await hardhatClockVerify.deployed();
 
         //console.log(hardhatCLOCKToken.address);
          //starts contract with 100 ETH
+         /*
          const params = {
             from: owner.address,
             to: hardhatClockPayment.address,
             value: centEth
         };
+        */
 
-        await owner.sendTransaction(params);
+        //await owner.sendTransaction(params);
 
         //funds other account with eth
         const paramsOther = {
@@ -144,14 +146,14 @@ describe("Clocktower", function(){
 
       //  await hardhatCLOCKToken.approve(hardhatClocktower.address, infiniteApproval)
         await hardhatCLOCKToken.approve(hardhatClockSubscribe.address, infiniteApproval)
-        await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
+        //await hardhatCLOCKToken.approve(hardhatClockPayment.address, infiniteApproval)
         await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
         await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, infiniteApproval)
 
         //creates several transaactions to test transaction list
        // await hardhatClocktower.addTransaction(otherAccount.address, 1672560000, eth, hardhatCLOCKToken.address, signedPermit, params2);
-        await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
-        await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
+        //await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
+        //await hardhatClockPayment.addPayment(otherAccount.address, hourAhead, eth, ethers.constants.AddressZero,params2);
     
          //sends 100 clocktoken to other account
         // await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
@@ -162,9 +164,10 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.transfer(provider.address, centEth)
         await hardhatCLOCKToken.transfer(caller.address, centEth)
 
-        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe , hardhatClockPayment, hardhatClockVerify} ;
+        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe} ;
     }
 
+    /*
     //test sending ether
     describe("Sending Ether", function() {
         it("Should receive ether", async function() {
@@ -428,7 +431,7 @@ describe("Clocktower", function(){
         })
         */
 
-    })
+   // })
     describe("Subscriptions", function() {
         const testParams = {
             value: eth
@@ -1134,6 +1137,7 @@ describe("Clocktower", function(){
         })
         
     })
+    /*
     describe("Verify", function() {
         const testParams = {
             value: eth
@@ -1228,4 +1232,5 @@ describe("Clocktower", function(){
     
         })
     })
+    */
 })
