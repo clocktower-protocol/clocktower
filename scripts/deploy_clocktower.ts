@@ -17,17 +17,17 @@ async function main() {
     const ClockToken = await ethers.getContractFactory("CLOCKToken");
     //const ClockSubscribe = await ethers.getContractFactory("ClockTowerSubscribe")
     const ClockSubscribe = await ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
-    const ClockPayment = await ethers.getContractFactory("ClockTowerPayment")
-    const ClockVerify = await ethers.getContractFactory("contracts/ClockTowerVerify.sol:ClockTowerVerify")
+    //const ClockPayment = await ethers.getContractFactory("ClockTowerPayment")
+    //const ClockVerify = await ethers.getContractFactory("contracts/ClockTowerVerify.sol:ClockTowerVerify")
 
     const clockSubscribe = await ClockSubscribe.deploy();
-    const clockPayment = await ClockPayment.deploy();
-    const clockVerify = await ClockVerify.deploy();
+    //const clockPayment = await ClockPayment.deploy();
+    //const clockVerify = await ClockVerify.deploy();
     const clockToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
   
     await clockSubscribe.deployed();
-    await clockPayment.deployed();
-    await clockVerify.deployed();
+    //await clockPayment.deployed();
+    //await clockVerify.deployed();
 
     console.log("Clocktower deployed...");
 
@@ -38,7 +38,7 @@ async function main() {
     console.log("Contract address:", clockToken.address);
 
     //approve token for clocktower
-    await clockPayment.addERC20Contract(clockToken.address);
+    //await clockPayment.addERC20Contract(clockToken.address);
     await clockSubscribe.addERC20Contract(clockToken.address, ethers.utils.parseEther("0.01"));
     console.log("Approved contract..."+clockToken.address);
 
@@ -62,11 +62,13 @@ async function main() {
     console.log("ClocktowerSubscribe Deployed!")
     console.log("Contract address:", clockSubscribe.address);
 
+    /*
     console.log("ClocktowerPayment Deployed!")
     console.log("Contract address:", clockPayment.address);
 
     console.log("ClockTowerVerify Deployed!")
     console.log("Contract address:", clockVerify.address)
+    */
 }
 
 main().catch((error) => {
