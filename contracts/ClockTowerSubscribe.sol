@@ -91,8 +91,6 @@ contract ClockTowerSubscribe {
         UNSUBSCRIBED
     }
 
-
-    //!!
     enum SubscriptEvent {
         CREATE,
         CANCEL,
