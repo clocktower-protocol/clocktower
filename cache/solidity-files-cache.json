@@ -38,8 +38,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1709323981233,
-      "contentHash": "08e443bbe340c1ae1ab429647c9ce754",
+      "lastModificationDate": 1709589342182,
+      "contentHash": "923834d9f0f6358553efb692b8a99210",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
         "version": "0.8.24",
@@ -380,8 +380,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1709323418178,
-      "contentHash": "441c4daf66a10a7255a338539985cd59",
+      "lastModificationDate": 1710850315124,
+      "contentHash": "333d1a6cf997cb20b13ef95902b980ac",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.24",
