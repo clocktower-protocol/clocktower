@@ -1,4 +1,6 @@
-import { ethers } from "hardhat";
+//import { ethers } from "hardhat";
+const { ethers } = require("hardhat");
+import hre from "hardhat"
 
 async function main() {
 
@@ -14,44 +16,48 @@ async function main() {
     const Provider = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
     const Caller = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
     
-    const ClockToken = await ethers.getContractFactory("CLOCKToken");
-    const ClockSubscribe = await ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
+    const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
+    //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
+    const ClockSubscribe = await hre.ethers.getContractFactory("ClockTowerSubscribe")
     const clockSubscribe = await ClockSubscribe.deploy();
-    const clockToken = await ClockToken.deploy(ethers.utils.parseEther("100000"));
+    const clockToken = await ClockToken.deploy(hre.ethers.parseEther("100000"));
   
-    await clockSubscribe.deployed();
+    await clockSubscribe.waitForDeployment();
 
     console.log("Clocktower deployed...");
 
-    await clockToken.deployed();
+    await clockToken.waitForDeployment();
 
     console.log("CLOCK Token deployed...")
 
-    console.log("Contract address:", clockToken.address);
+    const clockTokenAddress = await clockToken.getAddress()
+    const clockSubscribeAddress = await clockSubscribe.getAddress()
+
+    console.log("Contract address:", clockTokenAddress);
 
     //approve token for clocktower
-    await clockSubscribe.addERC20Contract(clockToken.address, ethers.utils.parseEther("0.01"));
-    console.log("Approved contract..."+clockToken.address);
+    await clockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther("0.01"));
+    console.log("Approved contract..."+clockTokenAddress);
 
     //funds test users accounts with CLOCK
-    await clockToken.approve(TestUser, ethers.utils.parseEther("10000"));
-    await clockToken.transfer(TestUser, ethers.utils.parseEther("10000"));
+    await clockToken.approve(TestUser, hre.ethers.parseEther("10000"));
+    await clockToken.transfer(TestUser, hre.ethers.parseEther("10000"));
 
-    await clockToken.approve(SecondUser, ethers.utils.parseEther("10000"));
-    await clockToken.transfer(SecondUser, ethers.utils.parseEther("10000"));
+    await clockToken.approve(SecondUser, hre.ethers.parseEther("10000"));
+    await clockToken.transfer(SecondUser, hre.ethers.parseEther("10000"));
 
-    await clockToken.approve(Subscriber, ethers.utils.parseEther("10000"));
-    await clockToken.transfer(Subscriber, ethers.utils.parseEther("10000"));
+    await clockToken.approve(Subscriber, hre.ethers.parseEther("10000"));
+    await clockToken.transfer(Subscriber, hre.ethers.parseEther("10000"));
 
-    await clockToken.approve(Provider, ethers.utils.parseEther("10000"));
-    await clockToken.transfer(Provider, ethers.utils.parseEther("10000"));
+    await clockToken.approve(Provider, hre.ethers.parseEther("10000"));
+    await clockToken.transfer(Provider, hre.ethers.parseEther("10000"));
 
-    await clockToken.approve(Caller, ethers.utils.parseEther("10000"));
-    await clockToken.transfer(Caller, ethers.utils.parseEther("10000"));
+    await clockToken.approve(Caller, hre.ethers.parseEther("10000"));
+    await clockToken.transfer(Caller, hre.ethers.parseEther("10000"));
     console.log("Funds test users with 10000 CLOCK");
 
     console.log("ClocktowerSubscribe Deployed!")
-    console.log("Contract address:", clockSubscribe.address);
+    console.log("Contract address:", clockSubscribeAddress);
 }
 
 main().catch((error) => {

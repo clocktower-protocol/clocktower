@@ -1,8 +1,11 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import hre from "hardhat"
+//import { ethers } from "hardhat";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+const { ethers } = require("hardhat");
+
 //Written by Hugo Marx
 
 describe("Clocktower", function(){
@@ -12,9 +15,9 @@ describe("Clocktower", function(){
     let currentTime = 1830319200
     let mergeTime = 0;
     //eth sent
-    let eth = ethers.utils.parseEther("1.0")
+    let eth = hre.ethers.parseEther("1.0")
     //console.log(eth)
-    let centEth = ethers.utils.parseEther("100.0")
+    let centEth = hre.ethers.parseEther("100.0")
 
     //sends test data of an hour ago
     let hourAhead = currentTime + 3600;
@@ -37,18 +40,19 @@ describe("Clocktower", function(){
         //sets time to 2028/01/01 1:00
         await time.increaseTo(currentTime);
 
-        const ClockToken = await ethers.getContractFactory("CLOCKToken");
+        const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
 
         
-        const ClockSubscribe = await ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
+        //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
+        const ClockSubscribe = await hre.ethers.getContractFactory("ClockTowerSubscribe")
 
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
-        const hardhatCLOCKToken = await ClockToken.deploy(ethers.utils.parseEther("100100"));
+        const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribe.deploy();
 
-        await hardhatCLOCKToken.deployed();
-        await hardhatClockSubscribe.deployed();
+        await hardhatCLOCKToken.waitForDeployment();
+        await hardhatClockSubscribe.waitForDeployment();
       
         //funds other account with eth
         const paramsOther = {
@@ -58,11 +62,14 @@ describe("Clocktower", function(){
         };
         await owner.sendTransaction(paramsOther)
         
-        await hardhatCLOCKToken.approve(hardhatClockSubscribe.address, infiniteApproval)
-        await hardhatCLOCKToken.connect(otherAccount).approve(hardhatClockSubscribe.address, infiniteApproval)
-        await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, infiniteApproval)
+        await hardhatCLOCKToken.approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(otherAccount).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
 
-    
+        console.log("HERE")
+        console.log(owner.address)
+        console.log(otherAccount.address)
+        console.log(subscriber.address)
          //sends 100 clocktoken to other account
         await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
         await hardhatCLOCKToken.transfer(subscriber.address, centEth)
@@ -77,7 +84,7 @@ describe("Clocktower", function(){
         };
 
         const testParams2 = {
-            value: ethers.utils.parseEther("0.001")
+            value: hre.ethers.parseEther("0.001")
         }
 
         const details = {
@@ -92,56 +99,56 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
             
             //checks reverts
 
             //checks that too low an amount gets reverted
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther(".001"), hardhatCLOCKToken.address, details ,1,15, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther(".001"), await hardhatCLOCKToken.getAddress(), details ,1,15, testParams))
             .to.be.reverted
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, ethers.constants.AddressZero, details,1,15, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hre.ethers.ZeroAddress, details,1,15, testParams))
             .to.be.revertedWith("8")
 
             await hardhatClockSubscribe.systemFeeActivate(true);
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams2))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,15, testParams2))
             .to.be.revertedWith("5")
 
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, caller.address, details,1,15, testParams))
             .to.be.revertedWith("9")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,0,15, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,0,15, testParams))
             .to.be.revertedWith("26")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,29, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,29, testParams))
             .to.be.revertedWith("27")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,2,91, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,2,91, testParams))
             .to.be.revertedWith("28")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,3,366, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,3,366, testParams))
             .to.be.revertedWith("29")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("0.001"), hardhatCLOCKToken.address, details,1,15, testParams))
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("0.001"), await hardhatCLOCKToken.getAddress(), details,1,15, testParams))
             .to.be.revertedWith("30")
 
-            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, eth, hardhatCLOCKToken.address, 0)
+            await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,15, testParams))
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, eth, await hardhatCLOCKToken.getAddress(), 0)
         })
 
         it("Should get created subscriptions", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details ,1, 15, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details ,2, 15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details ,1, 15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details ,2, 15, testParams)
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
 
             //expect(subscriptions[1].subscription.description).to.equal("Test")
             expect(subscriptions[1].subscription.amount).to.equal(eth);
-            expect(subscriptions[1].subscription.token).to.equal(hardhatCLOCKToken.address);
+            expect(subscriptions[1].subscription.token).to.equal(await hardhatCLOCKToken.getAddress());
             expect(subscriptions[1].subscription.dueDay).to.equal(15);
         })
         
@@ -156,42 +163,50 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,3,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,3,15, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
 
             //checks reverts
-
+            console.log(subscriptions[0].subscription)
+    
             //checks bad balance
-            await hardhatCLOCKToken.connect(subscriber).transfer(caller.address, ethers.utils.parseEther("100"))
+            await hardhatCLOCKToken.connect(subscriber).transfer(caller.address, hre.ethers.parseEther("100"))
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
             .to.be.revertedWith("20")
-            await hardhatCLOCKToken.connect(caller).transfer(subscriber.address, ethers.utils.parseEther("100"))
-
+            await hardhatCLOCKToken.connect(caller).transfer(subscriber.address, hre.ethers.parseEther("100"))
+            
+            
+            
             //checks input of fake subscription
-            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: hardhatCLOCKToken.address, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
+            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: await hardhatCLOCKToken.getAddress(), exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
             .to.be.rejectedWith("7")
+            
 
+            
             //tests emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams2))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriber.provider, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 6)
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriber.provider, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 8)
-            .to.changeTokenBalance(hardhatCLOCKToken, hardhatClockSubscribe.address, "83333333333333333")
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriber.provider, subscriber.address, anyValue, eth, await hardhatCLOCKToken.getAddress(), 6)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriber.provider, subscriber.address, anyValue, eth, await hardhatCLOCKToken.getAddress(), 8)
+            .to.changeTokenBalance(hardhatCLOCKToken, await hardhatClockSubscribe.getAddress(), "83333333333333333")
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "35159817351598170")
+            
             
         })
         it("Should allow user to unsubscribe", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
            
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,2,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,2,15, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
@@ -199,7 +214,7 @@ describe("Clocktower", function(){
 
             //check emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[1].subscription.provider, subscriber.address, anyValue, eth, hardhatCLOCKToken.address, 7)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[1].subscription.provider, subscriber.address, anyValue, eth, clockTokenAddress, 7)
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "51851851851851851")
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
@@ -210,15 +225,17 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
 
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscriptions[1].subscription, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, "51851851851851851", hardhatCLOCKToken.address, 4)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, "51851851851851851", clockTokenAddress, 4)
         })
         it("Should allow provider to unsubscribe sub", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
@@ -234,23 +251,25 @@ describe("Clocktower", function(){
             .to.be.revertedWith("19")
             //checks first emit and token balance
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 7)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, clockTokenAddress, 7)
             //.to.emit(hardhatClockSubscribe, "SubscriberLog").withArgs(anyValue, subscriber.address, subscriptions[0].subscription.provider, anyValue,subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 3)
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("1"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("1"))
             //checks second emit
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscriptions[0].subscription, subscriber.address))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[0].subscription.provider, subscriber.address, anyValue, "1000000000000000000", hardhatCLOCKToken.address, 7)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[0].subscription.provider, subscriber.address, anyValue, "1000000000000000000", clockTokenAddress, 7)
 
         })
         it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,15, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,2,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,2,15, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
@@ -259,7 +278,7 @@ describe("Clocktower", function(){
             //checks reverts
 
             //checks input of fake subscription
-            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: hardhatCLOCKToken.address, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
+            let fakeSub = {id: "43445", amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2, description: "test"}
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(fakeSub))
             .to.be.rejectedWith("7")
 
@@ -270,12 +289,12 @@ describe("Clocktower", function(){
 
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscriptions[1].subscription))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, "51851851851851851")
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[1].subscription.provider, subscriber.address, anyValue, "51851851851851851", hardhatCLOCKToken.address, 9)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscriptions[1].subscription.provider, subscriber.address, anyValue, "51851851851851851", clockTokenAddress, 9)
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[1].subscription, testParams)
 
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscriptions[1].subscription))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, 0, hardhatCLOCKToken.address, 1)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, 0, clockTokenAddress, 1)
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
 
@@ -294,15 +313,15 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.setExternalCallers(true)
 
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
@@ -319,7 +338,7 @@ describe("Clocktower", function(){
             let subscribersId = await hardhatClockSubscribe.getSubscribersById(subscriptions[0].subscription.id)
 
             expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
-            expect(ethers.utils.formatEther(subscribersId[0].feeBalance)).to.equal("1.0")
+            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("1.0")
 
             let isFinished = false
             let pageCounter = 0
@@ -345,10 +364,10 @@ describe("Clocktower", function(){
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(subscriber.address)
 
-            let expected = ethers.utils.parseEther("86.0");
+            let expected = hre.ethers.parseEther("86.0");
 
             //gets fee balance
-            expect(ethers.utils.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,subscriber.address))).to.equal("0.98")
+            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subscriptions[0].subscription.id,subscriber.address))).to.equal("0.98")
 
             expect(otherBalance).to.equal(expected)
             
@@ -356,27 +375,27 @@ describe("Clocktower", function(){
         it("Should emit SubscriberLog", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
             
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
             
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             
             //checks that event emits subscribe and feefill
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 6)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, await hardhatCLOCKToken.getAddress(), 6)
 
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, hardhatCLOCKToken.address, 8)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, await hardhatCLOCKToken.getAddress(), 8)
         })
         it("Should allow external callers", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
            
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
             
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
              
@@ -390,10 +409,10 @@ describe("Clocktower", function(){
         it("Should predict fees", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
             
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
             
             //let subscriptions = await hardhatClockSubscribe.getAccountSubscriptions(false)
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -408,8 +427,8 @@ describe("Clocktower", function(){
             let feeArray = await hardhatClockSubscribe.feeEstimate();
 
             expect(feeArray.length).to.equal(1)
-            expect(Number(ethers.utils.formatEther(feeArray[0].fee))).to.equal(0.02)
-            expect(feeArray[0].token).to.equal(hardhatCLOCKToken.address)
+            expect(Number(hre.ethers.formatEther(feeArray[0].fee))).to.equal(0.02)
+            expect(feeArray[0].token).to.equal(await hardhatCLOCKToken.getAddress())
             
             
         })
@@ -417,23 +436,23 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider} = await loadFixture(deployClocktowerFixture);
 
             const testParams = {
-                value: ethers.utils.parseEther("0.011")
+                value: hre.ethers.parseEther("0.011")
             };
 
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
             //turns on system fee collection
             await hardhatClockSubscribe.systemFeeActivate(true)
 
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
 
-            let ownerBalance1 = ethers.utils.formatEther(await owner.getBalance())
+            let ownerBalance1 = hre.ethers.formatEther(await owner.provider.getBalance(owner.address))
 
             //collect fees
             await hardhatClockSubscribe.collectFees()
 
-            let ownerBalance2 = ethers.utils.formatEther(await owner.getBalance())
+            let ownerBalance2 = hre.ethers.formatEther(await owner.provider.getBalance(owner.address))
 
             expect(Number(ownerBalance2) - Number(ownerBalance1)).to.greaterThan(0.01)
 
@@ -442,28 +461,30 @@ describe("Clocktower", function(){
             
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+
             const testParams = {
                 value: eth
             };
             
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
 
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,1, testParams)
             
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
 
             //otherAccount stops approval
-            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
+            await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
 
             let subAmount = await hardhatCLOCKToken.balanceOf(subscriber.address)
 
             await hardhatClockSubscribe.setExternalCallers(true)
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions[0].subscription.id, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 7)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions[0].subscription.id, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, clockTokenAddress, 7)
 
             //check that provider has been refunded
             let provAmount = await hardhatCLOCKToken.balanceOf(provider.address)
@@ -471,47 +492,49 @@ describe("Clocktower", function(){
             //checks caller
             let callerAmount = await hardhatCLOCKToken.balanceOf(caller.address)
 
-            expect(ethers.utils.formatEther(subAmount)).to.equal("99.0")
-            expect(ethers.utils.formatEther(provAmount)).to.equal("100.98")    
-            expect(ethers.utils.formatEther(callerAmount)).to.equal("100.02")  
+            expect(hre.ethers.formatEther(subAmount)).to.equal("99.0")
+            expect(hre.ethers.formatEther(provAmount)).to.equal("100.98")    
+            expect(hre.ethers.formatEther(callerAmount)).to.equal("100.02")  
             
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
             let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase(dayAhead)
 
-            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, ethers.utils.parseEther("100"))
+            await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), hre.ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams)
-            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
+            await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
             expect(await hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions2[1].subscription.id, subscriptions2[1].subscription.provider, subscriber.address, anyValue, subscriptions2[1].subscription.amount, hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions2[1].subscription.id, subscriptions2[1].subscription.provider, subscriber.address, anyValue, subscriptions2[1].subscription.amount, clockTokenAddress, 3)
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,3, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,3, testParams)
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase(dayAhead)
 
-            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, ethers.utils.parseEther("100"))
+            await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), hre.ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[2].subscription, testParams)
-            await hardhatCLOCKToken.connect(subscriber).approve(hardhatClockSubscribe.address, 0)
+            await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
             expect(await hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions3[2].subscription.id, provider.address, subscriber.address, anyValue, 0, hardhatCLOCKToken.address, 3)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions3[2].subscription.id, provider.address, subscriber.address, anyValue, 0, clockTokenAddress, 3)
 
         })
         it("Should add and remove ERC20 Tokens", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
             //adds CLOCK to approved tokens
-            expect(await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01")))
+            expect(await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01")))
         })
         it("Should remit transactions PART 1", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
 
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,1, testParams)
              
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
@@ -536,11 +559,11 @@ describe("Clocktower", function(){
 
             //moves to next day and sets 5 new subscriptions
             await time.increase(dayAhead)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
             let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams)
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[2].subscription, testParams)
@@ -550,33 +573,36 @@ describe("Clocktower", function(){
 
             //checks that on max remit caller is paid and event is emitted
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.changeTokenBalance(hardhatCLOCKToken, caller, ethers.utils.parseEther("0.1"))
+            .to.changeTokenBalance(hardhatCLOCKToken, caller, hre.ethers.parseEther("0.1"))
             .to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 21185, caller.address, true)
 
             //checks that successful transfer with enough fee balance
             time.increase((dayAhead))
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,3, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,3, testParams)
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[6].subscription, testParams)
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("1"))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions3[6].subscription.id, subscriptions3[6].subscription.provider, subscriber.address, anyValue, subscriptions3[6].subscription.amount, hardhatCLOCKToken.address, 5)
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, hre.ethers.parseEther("1"))
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions3[6].subscription.id, subscriptions3[6].subscription.provider, subscriber.address, anyValue, subscriptions3[6].subscription.amount, clockTokenAddress, 5)
 
             time.increase((dayAhead))
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,4, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,4, testParams)
             let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[7].subscription, testParams)
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, 0, hardhatCLOCKToken.address, 2)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, 0, clockTokenAddress, 2)
         })  
         it("Should remit transactions PART 2", async function() {
 
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
 
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+            const clockSubsribeAddress = await hardhatClockSubscribe.getAddress()
+
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
             await hardhatClockSubscribe.changeCallerFee(13000)
             await hardhatClockSubscribe.setExternalCallers(true)
 
@@ -584,91 +610,95 @@ describe("Clocktower", function(){
 
             //checks subscriptions 90 days apart with depleted feeBalance
 
-            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("3"), hardhatCLOCKToken.address, details,2,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("3"), clockTokenAddress, details,2,1, testParams)
              
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
             
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("97.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("102.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(hardhatClockSubscribe.address))).to.equal("1.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("97.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("102.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))).to.equal("1.0")
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
 
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("94.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("105.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.9")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(hardhatClockSubscribe.address))).to.equal("0.1")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("94.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("105.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.9")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))).to.equal("0.1")
             
             await time.increase((dayAhead * 95))
 
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.changeTokenBalance(hardhatCLOCKToken, provider, ethers.utils.parseEther("2"))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions[0].subscription.id, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, hardhatCLOCKToken.address, 8)
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, hre.ethers.parseEther("2"))
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscriptions[0].subscription.id, subscriptions[0].subscription.provider, subscriber.address, anyValue, subscriptions[0].subscription.amount, clockTokenAddress, 8)
             
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("101.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("91.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("107.0")
-            expect(ethers.utils.formatEther(await hardhatCLOCKToken.balanceOf(hardhatClockSubscribe.address))).to.equal("1.0") 
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("101.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("91.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("107.0")
+            expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))).to.equal("1.0") 
         })
         it("Prorate when subscribing", async function() { 
 
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider} = await loadFixture(deployClocktowerFixture);
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
             await hardhatClockSubscribe.setExternalCallers(true)
     
             //checks weekly subscription
-            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("7"), hardhatCLOCKToken.address, details,0,3, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("7"), clockTokenAddress, details,0,3, testParams)
                  
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase((dayAhead * 5))
     
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-6"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("-6"))
 
             //checks monthly subscription
-            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, details,1,5, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("1"), clockTokenAddress, details,1,5, testParams)
                  
             let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
             await time.increase((dayAhead * 20))
 
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions2[1].subscription, testParams))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("-0.32876712328767123"))
 
             //checks quarterly subscription
-            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, details,2,5, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("1"), clockTokenAddress, details,2,5, testParams)
                  
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
  
             await time.increase((dayAhead * 90))
 
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions3[1].subscription, testParams))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("-0.32876712328767123"))
 
             //checks yearly subscription
             
-            await hardhatClockSubscribe.connect(provider).createSubscription(ethers.utils.parseEther("1"), hardhatCLOCKToken.address, details,3,5, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("1"), clockTokenAddress, details,3,5, testParams)
                  
             let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
  
             await time.increase((dayAhead * 365))
 
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions4[1].subscription, testParams))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, ethers.utils.parseEther("-0.32876712328767123"))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("-0.32876712328767123"))
             
 
         })
         it("Gets fee info from public getter functions", async function() { 
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
             await hardhatClockSubscribe.setExternalCallers(true)
 
             //creates subscription and subscribes
-            await hardhatClockSubscribe.connect(provider).createSubscription(eth, hardhatCLOCKToken.address, details,1,1, testParams)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,1, testParams)
              
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscriptions[0].subscription, testParams)
@@ -701,11 +731,13 @@ describe("Clocktower", function(){
         })
         it("Gets token minimum from contract", async function() { 
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount} = await loadFixture(deployClocktowerFixture);
-            await hardhatClockSubscribe.addERC20Contract(hardhatCLOCKToken.address, ethers.utils.parseEther(".01"))
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
 
-            let tokenObject = await hardhatClockSubscribe.connect(provider).approvedERC20(hardhatCLOCKToken.address)
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
 
-            expect(tokenObject.minimum).to.equal(ethers.utils.parseEther(".01"))
+            let tokenObject = await hardhatClockSubscribe.connect(provider).approvedERC20(clockTokenAddress)
+
+            expect(tokenObject.minimum).to.equal(hre.ethers.parseEther(".01"))
         })
         
     })
