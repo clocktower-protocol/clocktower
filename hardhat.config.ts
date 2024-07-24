@@ -28,8 +28,10 @@ const config: HardhatUserConfig = {
     enabled: true,
     //L2: "optimism",
     L1: "ethereum",
-    L1Etherscan: "REMOVED",
-    //coinmarketcap: "14c853e7-3fe7-4254-8863-81d85f79a253"
+    currencyDisplayPrecision: 5,
+    //L1Etherscan: "REMOVED",
+    coinmarketcap: "14c853e7-3fe7-4254-8863-81d85f79a253",
+    gasPriceApi: "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice&apikey=REMOVED"
   },
   
 };
