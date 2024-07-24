@@ -8,7 +8,7 @@ async function main() {
 
     console.log("Deploying contracts with the account:", deployer.address);
 
-    console.log("Account balance:", (await deployer.getBalance()).toString());
+    console.log("Account balance:", (await deployer.provider.getBalance(deployer.address)).toString());
 
     const TestUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const SecondUser = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
