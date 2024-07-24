@@ -3,89 +3,81 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
-  PromiseOrValue,
+  TypedContractMethod,
 } from "../../common";
 
 export declare namespace ClockTowerSubscribe {
   export type SubscriptionStruct = {
-    id: PromiseOrValue<BytesLike>;
-    amount: PromiseOrValue<BigNumberish>;
-    provider: PromiseOrValue<string>;
-    token: PromiseOrValue<string>;
-    exists: PromiseOrValue<boolean>;
-    cancelled: PromiseOrValue<boolean>;
-    frequency: PromiseOrValue<BigNumberish>;
-    dueDay: PromiseOrValue<BigNumberish>;
+    id: BytesLike;
+    amount: BigNumberish;
+    provider: AddressLike;
+    token: AddressLike;
+    exists: boolean;
+    cancelled: boolean;
+    frequency: BigNumberish;
+    dueDay: BigNumberish;
   };
 
   export type SubscriptionStructOutput = [
-    string,
-    BigNumber,
-    string,
-    string,
-    boolean,
-    boolean,
-    number,
-    number
+    id: string,
+    amount: bigint,
+    provider: string,
+    token: string,
+    exists: boolean,
+    cancelled: boolean,
+    frequency: bigint,
+    dueDay: bigint
   ] & {
     id: string;
-    amount: BigNumber;
+    amount: bigint;
     provider: string;
     token: string;
     exists: boolean;
     cancelled: boolean;
-    frequency: number;
-    dueDay: number;
+    frequency: bigint;
+    dueDay: bigint;
   };
 
-  export type DetailsStruct = {
-    url: PromiseOrValue<string>;
-    description: PromiseOrValue<string>;
-  };
+  export type DetailsStruct = { url: string; description: string };
 
-  export type DetailsStructOutput = [string, string] & {
+  export type DetailsStructOutput = [url: string, description: string] & {
     url: string;
     description: string;
   };
 
   export type ProviderDetailsStruct = {
-    description: PromiseOrValue<string>;
-    company: PromiseOrValue<string>;
-    url: PromiseOrValue<string>;
-    domain: PromiseOrValue<string>;
-    email: PromiseOrValue<string>;
-    misc: PromiseOrValue<string>;
+    description: string;
+    company: string;
+    url: string;
+    domain: string;
+    email: string;
+    misc: string;
   };
 
   export type ProviderDetailsStructOutput = [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string
+    description: string,
+    company: string,
+    url: string,
+    domain: string,
+    email: string,
+    misc: string
   ] & {
     description: string;
     company: string;
@@ -95,42 +87,39 @@ export declare namespace ClockTowerSubscribe {
     misc: string;
   };
 
-  export type FeeEstimateStruct = {
-    fee: PromiseOrValue<BigNumberish>;
-    token: PromiseOrValue<string>;
-  };
+  export type FeeEstimateStruct = { fee: BigNumberish; token: AddressLike };
 
-  export type FeeEstimateStructOutput = [BigNumber, string] & {
-    fee: BigNumber;
+  export type FeeEstimateStructOutput = [fee: bigint, token: string] & {
+    fee: bigint;
     token: string;
   };
 
   export type SubIndexStruct = {
-    id: PromiseOrValue<BytesLike>;
-    dueDay: PromiseOrValue<BigNumberish>;
-    frequency: PromiseOrValue<BigNumberish>;
-    status: PromiseOrValue<BigNumberish>;
+    id: BytesLike;
+    dueDay: BigNumberish;
+    frequency: BigNumberish;
+    status: BigNumberish;
   };
 
-  export type SubIndexStructOutput = [string, number, number, number] & {
-    id: string;
-    dueDay: number;
-    frequency: number;
-    status: number;
-  };
+  export type SubIndexStructOutput = [
+    id: string,
+    dueDay: bigint,
+    frequency: bigint,
+    status: bigint
+  ] & { id: string; dueDay: bigint; frequency: bigint; status: bigint };
 
   export type AccountStruct = {
-    accountAddress: PromiseOrValue<string>;
-    exists: PromiseOrValue<boolean>;
+    accountAddress: AddressLike;
+    exists: boolean;
     subscriptions: ClockTowerSubscribe.SubIndexStruct[];
     provSubs: ClockTowerSubscribe.SubIndexStruct[];
   };
 
   export type AccountStructOutput = [
-    string,
-    boolean,
-    ClockTowerSubscribe.SubIndexStructOutput[],
-    ClockTowerSubscribe.SubIndexStructOutput[]
+    accountAddress: string,
+    exists: boolean,
+    subscriptions: ClockTowerSubscribe.SubIndexStructOutput[],
+    provSubs: ClockTowerSubscribe.SubIndexStructOutput[]
   ] & {
     accountAddress: string;
     exists: boolean;
@@ -140,67 +129,34 @@ export declare namespace ClockTowerSubscribe {
 
   export type SubViewStruct = {
     subscription: ClockTowerSubscribe.SubscriptionStruct;
-    status: PromiseOrValue<BigNumberish>;
-    totalSubscribers: PromiseOrValue<BigNumberish>;
+    status: BigNumberish;
+    totalSubscribers: BigNumberish;
   };
 
   export type SubViewStructOutput = [
-    ClockTowerSubscribe.SubscriptionStructOutput,
-    number,
-    BigNumber
+    subscription: ClockTowerSubscribe.SubscriptionStructOutput,
+    status: bigint,
+    totalSubscribers: bigint
   ] & {
     subscription: ClockTowerSubscribe.SubscriptionStructOutput;
-    status: number;
-    totalSubscribers: BigNumber;
+    status: bigint;
+    totalSubscribers: bigint;
   };
 
   export type SubscriberViewStruct = {
-    subscriber: PromiseOrValue<string>;
-    feeBalance: PromiseOrValue<BigNumberish>;
+    subscriber: AddressLike;
+    feeBalance: BigNumberish;
   };
 
-  export type SubscriberViewStructOutput = [string, BigNumber] & {
-    subscriber: string;
-    feeBalance: BigNumber;
-  };
+  export type SubscriberViewStructOutput = [
+    subscriber: string,
+    feeBalance: bigint
+  ] & { subscriber: string; feeBalance: bigint };
 }
 
-export interface ClockTowerSubscribeInterface extends utils.Interface {
-  functions: {
-    "accountLookup(uint256)": FunctionFragment;
-    "addERC20Contract(address,uint256)": FunctionFragment;
-    "approvedERC20(address)": FunctionFragment;
-    "callerFee()": FunctionFragment;
-    "cancelSubscription((bytes32,uint256,address,address,bool,bool,uint8,uint16))": FunctionFragment;
-    "changeAdmin(address)": FunctionFragment;
-    "changeCallerFee(uint256)": FunctionFragment;
-    "changeMaxRemits(uint256)": FunctionFragment;
-    "changeSystemFee(uint256)": FunctionFragment;
-    "collectFees()": FunctionFragment;
-    "createSubscription(uint256,address,(string,string),uint8,uint16)": FunctionFragment;
-    "editDetails((string,string),bytes32)": FunctionFragment;
-    "editProvDetails((string,string,string,string,string,string))": FunctionFragment;
-    "feeBalance(bytes32,address)": FunctionFragment;
-    "feeEstimate()": FunctionFragment;
-    "getAccount(address)": FunctionFragment;
-    "getAccountSubscriptions(bool,address)": FunctionFragment;
-    "getSubByIndex(bytes32,uint8,uint16)": FunctionFragment;
-    "getSubscribersById(bytes32)": FunctionFragment;
-    "getTotalSubscribers()": FunctionFragment;
-    "maxRemits()": FunctionFragment;
-    "nextUncheckedDay()": FunctionFragment;
-    "remit()": FunctionFragment;
-    "removeERC20Contract(address)": FunctionFragment;
-    "setExternalCallers(bool)": FunctionFragment;
-    "subscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16))": FunctionFragment;
-    "systemFee()": FunctionFragment;
-    "systemFeeActivate(bool)": FunctionFragment;
-    "unsubscribe((bytes32,uint256,address,address,bool,bool,uint8,uint16))": FunctionFragment;
-    "unsubscribeByProvider((bytes32,uint256,address,address,bool,bool,uint8,uint16),address)": FunctionFragment;
-  };
-
+export interface ClockTowerSubscribeInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "accountLookup"
       | "addERC20Contract"
       | "approvedERC20"
@@ -233,17 +189,25 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
       | "unsubscribeByProvider"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "CallerLog"
+      | "DetailsLog"
+      | "ProvDetailsLog"
+      | "SubLog"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "accountLookup",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "addERC20Contract",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedERC20",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
   encodeFunctionData(
@@ -252,19 +216,19 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "changeAdmin",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "changeCallerFee",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "changeMaxRemits",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "changeSystemFee",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "collectFees",
@@ -273,16 +237,16 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "createSubscription",
     values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
+      BigNumberish,
+      AddressLike,
       ClockTowerSubscribe.DetailsStruct,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
+      BigNumberish,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "editDetails",
-    values: [ClockTowerSubscribe.DetailsStruct, PromiseOrValue<BytesLike>]
+    values: [ClockTowerSubscribe.DetailsStruct, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "editProvDetails",
@@ -290,7 +254,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "feeBalance",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "feeEstimate",
@@ -298,23 +262,19 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAccount",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getAccountSubscriptions",
-    values: [PromiseOrValue<boolean>, PromiseOrValue<string>]
+    values: [boolean, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getSubByIndex",
-    values: [
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getSubscribersById",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTotalSubscribers",
@@ -328,11 +288,11 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeERC20Contract",
-    values: [PromiseOrValue<string>]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setExternalCallers",
-    values: [PromiseOrValue<boolean>]
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "subscribe",
@@ -341,7 +301,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "systemFee", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "systemFeeActivate",
-    values: [PromiseOrValue<boolean>]
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "unsubscribe",
@@ -349,7 +309,7 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "unsubscribeByProvider",
-    values: [ClockTowerSubscribe.SubscriptionStruct, PromiseOrValue<string>]
+    values: [ClockTowerSubscribe.SubscriptionStruct, AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -451,912 +411,580 @@ export interface ClockTowerSubscribeInterface extends utils.Interface {
     functionFragment: "unsubscribeByProvider",
     data: BytesLike
   ): Result;
-
-  events: {
-    "CallerLog(uint40,uint40,address,bool)": EventFragment;
-    "DetailsLog(bytes32,address,uint40,string,string)": EventFragment;
-    "ProvDetailsLog(address,uint40,string,string,string,string,string,string)": EventFragment;
-    "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "CallerLog"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "DetailsLog"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ProvDetailsLog"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SubLog"): EventFragment;
 }
 
-export interface CallerLogEventObject {
-  timestamp: number;
-  checkedDay: number;
-  caller: string;
-  isFinished: boolean;
+export namespace CallerLogEvent {
+  export type InputTuple = [
+    timestamp: BigNumberish,
+    checkedDay: BigNumberish,
+    caller: AddressLike,
+    isFinished: boolean
+  ];
+  export type OutputTuple = [
+    timestamp: bigint,
+    checkedDay: bigint,
+    caller: string,
+    isFinished: boolean
+  ];
+  export interface OutputObject {
+    timestamp: bigint;
+    checkedDay: bigint;
+    caller: string;
+    isFinished: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type CallerLogEvent = TypedEvent<
-  [number, number, string, boolean],
-  CallerLogEventObject
->;
 
-export type CallerLogEventFilter = TypedEventFilter<CallerLogEvent>;
-
-export interface DetailsLogEventObject {
-  id: string;
-  provider: string;
-  timestamp: number;
-  url: string;
-  description: string;
+export namespace DetailsLogEvent {
+  export type InputTuple = [
+    id: BytesLike,
+    provider: AddressLike,
+    timestamp: BigNumberish,
+    url: string,
+    description: string
+  ];
+  export type OutputTuple = [
+    id: string,
+    provider: string,
+    timestamp: bigint,
+    url: string,
+    description: string
+  ];
+  export interface OutputObject {
+    id: string;
+    provider: string;
+    timestamp: bigint;
+    url: string;
+    description: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type DetailsLogEvent = TypedEvent<
-  [string, string, number, string, string],
-  DetailsLogEventObject
->;
 
-export type DetailsLogEventFilter = TypedEventFilter<DetailsLogEvent>;
-
-export interface ProvDetailsLogEventObject {
-  provider: string;
-  timestamp: number;
-  description: string;
-  company: string;
-  url: string;
-  domain: string;
-  email: string;
-  misc: string;
+export namespace ProvDetailsLogEvent {
+  export type InputTuple = [
+    provider: AddressLike,
+    timestamp: BigNumberish,
+    description: string,
+    company: string,
+    url: string,
+    domain: string,
+    email: string,
+    misc: string
+  ];
+  export type OutputTuple = [
+    provider: string,
+    timestamp: bigint,
+    description: string,
+    company: string,
+    url: string,
+    domain: string,
+    email: string,
+    misc: string
+  ];
+  export interface OutputObject {
+    provider: string;
+    timestamp: bigint;
+    description: string;
+    company: string;
+    url: string;
+    domain: string;
+    email: string;
+    misc: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ProvDetailsLogEvent = TypedEvent<
-  [string, number, string, string, string, string, string, string],
-  ProvDetailsLogEventObject
->;
 
-export type ProvDetailsLogEventFilter = TypedEventFilter<ProvDetailsLogEvent>;
-
-export interface SubLogEventObject {
-  id: string;
-  provider: string;
-  subscriber: string;
-  timestamp: number;
-  amount: BigNumber;
-  token: string;
-  subScriptEvent: number;
+export namespace SubLogEvent {
+  export type InputTuple = [
+    id: BytesLike,
+    provider: AddressLike,
+    subscriber: AddressLike,
+    timestamp: BigNumberish,
+    amount: BigNumberish,
+    token: AddressLike,
+    subScriptEvent: BigNumberish
+  ];
+  export type OutputTuple = [
+    id: string,
+    provider: string,
+    subscriber: string,
+    timestamp: bigint,
+    amount: bigint,
+    token: string,
+    subScriptEvent: bigint
+  ];
+  export interface OutputObject {
+    id: string;
+    provider: string;
+    subscriber: string;
+    timestamp: bigint;
+    amount: bigint;
+    token: string;
+    subScriptEvent: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type SubLogEvent = TypedEvent<
-  [string, string, string, number, BigNumber, string, number],
-  SubLogEventObject
->;
-
-export type SubLogEventFilter = TypedEventFilter<SubLogEvent>;
 
 export interface ClockTowerSubscribe extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ClockTowerSubscribe;
+  waitForDeployment(): Promise<this>;
 
   interface: ClockTowerSubscribeInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    accountLookup(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    addERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      minimum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    approvedERC20(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, boolean] & {
-        tokenAddress: string;
-        minimum: BigNumber;
-        exists: boolean;
-      }
-    >;
+  accountLookup: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
-    callerFee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    cancelSubscription(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    changeAdmin(
-      newAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    changeCallerFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    changeMaxRemits(
-      _maxRemits: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    changeSystemFee(
-      _fixed_fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    collectFees(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    createSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      details: ClockTowerSubscribe.DetailsStruct,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    editDetails(
-      details: ClockTowerSubscribe.DetailsStruct,
-      id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    editProvDetails(
-      details: ClockTowerSubscribe.ProviderDetailsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    feeBalance(
-      arg0: PromiseOrValue<BytesLike>,
-      arg1: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    feeEstimate(
-      overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.FeeEstimateStructOutput[]]>;
-
-    getAccount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.AccountStructOutput]>;
-
-    getAccountSubscriptions(
-      bySubscriber: PromiseOrValue<boolean>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.SubViewStructOutput[]]>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<
-      [ClockTowerSubscribe.SubscriptionStructOutput] & {
-        subscription: ClockTowerSubscribe.SubscriptionStructOutput;
-      }
-    >;
-
-    getSubscribersById(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[ClockTowerSubscribe.SubscriberViewStructOutput[]]>;
-
-    getTotalSubscribers(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    maxRemits(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    nextUncheckedDay(overrides?: CallOverrides): Promise<[number]>;
-
-    remit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    removeERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setExternalCallers(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    subscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    systemFee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    systemFeeActivate(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    unsubscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    unsubscribeByProvider(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      subscriber: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
-
-  accountLookup(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  addERC20Contract(
-    erc20Contract: PromiseOrValue<string>,
-    minimum: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  approvedERC20(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, boolean] & {
-      tokenAddress: string;
-      minimum: BigNumber;
-      exists: boolean;
-    }
+  addERC20Contract: TypedContractMethod<
+    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [void],
+    "nonpayable"
   >;
 
-  callerFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  cancelSubscription(
-    subscription: ClockTowerSubscribe.SubscriptionStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  changeAdmin(
-    newAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  changeCallerFee(
-    _fee: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  changeMaxRemits(
-    _maxRemits: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  changeSystemFee(
-    _fixed_fee: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  collectFees(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  createSubscription(
-    amount: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
-    details: ClockTowerSubscribe.DetailsStruct,
-    frequency: PromiseOrValue<BigNumberish>,
-    dueDay: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  editDetails(
-    details: ClockTowerSubscribe.DetailsStruct,
-    id: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  editProvDetails(
-    details: ClockTowerSubscribe.ProviderDetailsStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  feeBalance(
-    arg0: PromiseOrValue<BytesLike>,
-    arg1: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  feeEstimate(
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.FeeEstimateStructOutput[]>;
-
-  getAccount(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.AccountStructOutput>;
-
-  getAccountSubscriptions(
-    bySubscriber: PromiseOrValue<boolean>,
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
-
-  getSubByIndex(
-    id: PromiseOrValue<BytesLike>,
-    frequency: PromiseOrValue<BigNumberish>,
-    dueDay: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
-
-  getSubscribersById(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<ClockTowerSubscribe.SubscriberViewStructOutput[]>;
-
-  getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
-
-  maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
-
-  nextUncheckedDay(overrides?: CallOverrides): Promise<number>;
-
-  remit(
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  removeERC20Contract(
-    erc20Contract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setExternalCallers(
-    status: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  subscribe(
-    subscription: ClockTowerSubscribe.SubscriptionStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  systemFeeActivate(
-    status: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  unsubscribe(
-    subscription: ClockTowerSubscribe.SubscriptionStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  unsubscribeByProvider(
-    subscription: ClockTowerSubscribe.SubscriptionStruct,
-    subscriber: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    accountLookup(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    addERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      minimum: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    approvedERC20(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, boolean] & {
+  approvedERC20: TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [string, bigint, boolean] & {
         tokenAddress: string;
-        minimum: BigNumber;
+        minimum: bigint;
         exists: boolean;
       }
-    >;
+    ],
+    "view"
+  >;
 
-    callerFee(overrides?: CallOverrides): Promise<BigNumber>;
+  callerFee: TypedContractMethod<[], [bigint], "view">;
 
-    cancelSubscription(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  cancelSubscription: TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "nonpayable"
+  >;
 
-    changeAdmin(
-      newAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  changeAdmin: TypedContractMethod<
+    [newAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-    changeCallerFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  changeCallerFee: TypedContractMethod<
+    [_fee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    changeMaxRemits(
-      _maxRemits: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  changeMaxRemits: TypedContractMethod<
+    [_maxRemits: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    changeSystemFee(
-      _fixed_fee: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+  changeSystemFee: TypedContractMethod<
+    [_fixed_fee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
-    collectFees(overrides?: CallOverrides): Promise<void>;
+  collectFees: TypedContractMethod<[], [void], "nonpayable">;
 
-    createSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
+  createSubscription: TypedContractMethod<
+    [
+      amount: BigNumberish,
+      token: AddressLike,
       details: ClockTowerSubscribe.DetailsStruct,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      frequency: BigNumberish,
+      dueDay: BigNumberish
+    ],
+    [void],
+    "payable"
+  >;
 
-    editDetails(
+  editDetails: TypedContractMethod<
+    [details: ClockTowerSubscribe.DetailsStruct, id: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+
+  editProvDetails: TypedContractMethod<
+    [details: ClockTowerSubscribe.ProviderDetailsStruct],
+    [void],
+    "nonpayable"
+  >;
+
+  feeBalance: TypedContractMethod<
+    [arg0: BytesLike, arg1: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  feeEstimate: TypedContractMethod<
+    [],
+    [ClockTowerSubscribe.FeeEstimateStructOutput[]],
+    "view"
+  >;
+
+  getAccount: TypedContractMethod<
+    [account: AddressLike],
+    [ClockTowerSubscribe.AccountStructOutput],
+    "view"
+  >;
+
+  getAccountSubscriptions: TypedContractMethod<
+    [bySubscriber: boolean, account: AddressLike],
+    [ClockTowerSubscribe.SubViewStructOutput[]],
+    "view"
+  >;
+
+  getSubByIndex: TypedContractMethod<
+    [id: BytesLike, frequency: BigNumberish, dueDay: BigNumberish],
+    [ClockTowerSubscribe.SubscriptionStructOutput],
+    "view"
+  >;
+
+  getSubscribersById: TypedContractMethod<
+    [id: BytesLike],
+    [ClockTowerSubscribe.SubscriberViewStructOutput[]],
+    "view"
+  >;
+
+  getTotalSubscribers: TypedContractMethod<[], [bigint], "view">;
+
+  maxRemits: TypedContractMethod<[], [bigint], "view">;
+
+  nextUncheckedDay: TypedContractMethod<[], [bigint], "view">;
+
+  remit: TypedContractMethod<[], [void], "payable">;
+
+  removeERC20Contract: TypedContractMethod<
+    [erc20Contract: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setExternalCallers: TypedContractMethod<
+    [status: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  subscribe: TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "payable"
+  >;
+
+  systemFee: TypedContractMethod<[], [bigint], "view">;
+
+  systemFeeActivate: TypedContractMethod<
+    [status: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  unsubscribe: TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "payable"
+  >;
+
+  unsubscribeByProvider: TypedContractMethod<
+    [
+      subscription: ClockTowerSubscribe.SubscriptionStruct,
+      subscriber: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "accountLookup"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "addERC20Contract"
+  ): TypedContractMethod<
+    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "approvedERC20"
+  ): TypedContractMethod<
+    [arg0: AddressLike],
+    [
+      [string, bigint, boolean] & {
+        tokenAddress: string;
+        minimum: bigint;
+        exists: boolean;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "callerFee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "cancelSubscription"
+  ): TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "changeAdmin"
+  ): TypedContractMethod<[newAddress: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "changeCallerFee"
+  ): TypedContractMethod<[_fee: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "changeMaxRemits"
+  ): TypedContractMethod<[_maxRemits: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "changeSystemFee"
+  ): TypedContractMethod<[_fixed_fee: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "collectFees"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "createSubscription"
+  ): TypedContractMethod<
+    [
+      amount: BigNumberish,
+      token: AddressLike,
       details: ClockTowerSubscribe.DetailsStruct,
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    editProvDetails(
-      details: ClockTowerSubscribe.ProviderDetailsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    feeBalance(
-      arg0: PromiseOrValue<BytesLike>,
-      arg1: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    feeEstimate(
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.FeeEstimateStructOutput[]>;
-
-    getAccount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.AccountStructOutput>;
-
-    getAccountSubscriptions(
-      bySubscriber: PromiseOrValue<boolean>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubViewStructOutput[]>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubscriptionStructOutput>;
-
-    getSubscribersById(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<ClockTowerSubscribe.SubscriberViewStructOutput[]>;
-
-    getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nextUncheckedDay(overrides?: CallOverrides): Promise<number>;
-
-    remit(overrides?: CallOverrides): Promise<void>;
-
-    removeERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setExternalCallers(
-      status: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    subscribe(
+      frequency: BigNumberish,
+      dueDay: BigNumberish
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "editDetails"
+  ): TypedContractMethod<
+    [details: ClockTowerSubscribe.DetailsStruct, id: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "editProvDetails"
+  ): TypedContractMethod<
+    [details: ClockTowerSubscribe.ProviderDetailsStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "feeBalance"
+  ): TypedContractMethod<
+    [arg0: BytesLike, arg1: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "feeEstimate"
+  ): TypedContractMethod<
+    [],
+    [ClockTowerSubscribe.FeeEstimateStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getAccount"
+  ): TypedContractMethod<
+    [account: AddressLike],
+    [ClockTowerSubscribe.AccountStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getAccountSubscriptions"
+  ): TypedContractMethod<
+    [bySubscriber: boolean, account: AddressLike],
+    [ClockTowerSubscribe.SubViewStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getSubByIndex"
+  ): TypedContractMethod<
+    [id: BytesLike, frequency: BigNumberish, dueDay: BigNumberish],
+    [ClockTowerSubscribe.SubscriptionStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getSubscribersById"
+  ): TypedContractMethod<
+    [id: BytesLike],
+    [ClockTowerSubscribe.SubscriberViewStructOutput[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTotalSubscribers"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "maxRemits"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "nextUncheckedDay"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "remit"
+  ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "removeERC20Contract"
+  ): TypedContractMethod<[erc20Contract: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setExternalCallers"
+  ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "subscribe"
+  ): TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "systemFee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "systemFeeActivate"
+  ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "unsubscribe"
+  ): TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "unsubscribeByProvider"
+  ): TypedContractMethod<
+    [
       subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      subscriber: AddressLike
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    systemFeeActivate(
-      status: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    unsubscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    unsubscribeByProvider(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      subscriber: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  getEvent(
+    key: "CallerLog"
+  ): TypedContractEvent<
+    CallerLogEvent.InputTuple,
+    CallerLogEvent.OutputTuple,
+    CallerLogEvent.OutputObject
+  >;
+  getEvent(
+    key: "DetailsLog"
+  ): TypedContractEvent<
+    DetailsLogEvent.InputTuple,
+    DetailsLogEvent.OutputTuple,
+    DetailsLogEvent.OutputObject
+  >;
+  getEvent(
+    key: "ProvDetailsLog"
+  ): TypedContractEvent<
+    ProvDetailsLogEvent.InputTuple,
+    ProvDetailsLogEvent.OutputTuple,
+    ProvDetailsLogEvent.OutputObject
+  >;
+  getEvent(
+    key: "SubLog"
+  ): TypedContractEvent<
+    SubLogEvent.InputTuple,
+    SubLogEvent.OutputTuple,
+    SubLogEvent.OutputObject
+  >;
 
   filters: {
-    "CallerLog(uint40,uint40,address,bool)"(
-      timestamp?: null,
-      checkedDay?: null,
-      caller?: PromiseOrValue<string> | null,
-      isFinished?: null
-    ): CallerLogEventFilter;
-    CallerLog(
-      timestamp?: null,
-      checkedDay?: null,
-      caller?: PromiseOrValue<string> | null,
-      isFinished?: null
-    ): CallerLogEventFilter;
+    "CallerLog(uint40,uint40,address,bool)": TypedContractEvent<
+      CallerLogEvent.InputTuple,
+      CallerLogEvent.OutputTuple,
+      CallerLogEvent.OutputObject
+    >;
+    CallerLog: TypedContractEvent<
+      CallerLogEvent.InputTuple,
+      CallerLogEvent.OutputTuple,
+      CallerLogEvent.OutputObject
+    >;
 
-    "DetailsLog(bytes32,address,uint40,string,string)"(
-      id?: PromiseOrValue<BytesLike> | null,
-      provider?: PromiseOrValue<string> | null,
-      timestamp?: PromiseOrValue<BigNumberish> | null,
-      url?: null,
-      description?: null
-    ): DetailsLogEventFilter;
-    DetailsLog(
-      id?: PromiseOrValue<BytesLike> | null,
-      provider?: PromiseOrValue<string> | null,
-      timestamp?: PromiseOrValue<BigNumberish> | null,
-      url?: null,
-      description?: null
-    ): DetailsLogEventFilter;
+    "DetailsLog(bytes32,address,uint40,string,string)": TypedContractEvent<
+      DetailsLogEvent.InputTuple,
+      DetailsLogEvent.OutputTuple,
+      DetailsLogEvent.OutputObject
+    >;
+    DetailsLog: TypedContractEvent<
+      DetailsLogEvent.InputTuple,
+      DetailsLogEvent.OutputTuple,
+      DetailsLogEvent.OutputObject
+    >;
 
-    "ProvDetailsLog(address,uint40,string,string,string,string,string,string)"(
-      provider?: PromiseOrValue<string> | null,
-      timestamp?: PromiseOrValue<BigNumberish> | null,
-      description?: null,
-      company?: null,
-      url?: null,
-      domain?: null,
-      email?: null,
-      misc?: null
-    ): ProvDetailsLogEventFilter;
-    ProvDetailsLog(
-      provider?: PromiseOrValue<string> | null,
-      timestamp?: PromiseOrValue<BigNumberish> | null,
-      description?: null,
-      company?: null,
-      url?: null,
-      domain?: null,
-      email?: null,
-      misc?: null
-    ): ProvDetailsLogEventFilter;
+    "ProvDetailsLog(address,uint40,string,string,string,string,string,string)": TypedContractEvent<
+      ProvDetailsLogEvent.InputTuple,
+      ProvDetailsLogEvent.OutputTuple,
+      ProvDetailsLogEvent.OutputObject
+    >;
+    ProvDetailsLog: TypedContractEvent<
+      ProvDetailsLogEvent.InputTuple,
+      ProvDetailsLogEvent.OutputTuple,
+      ProvDetailsLogEvent.OutputObject
+    >;
 
-    "SubLog(bytes32,address,address,uint40,uint256,address,uint8)"(
-      id?: PromiseOrValue<BytesLike> | null,
-      provider?: PromiseOrValue<string> | null,
-      subscriber?: PromiseOrValue<string> | null,
-      timestamp?: null,
-      amount?: null,
-      token?: null,
-      subScriptEvent?: null
-    ): SubLogEventFilter;
-    SubLog(
-      id?: PromiseOrValue<BytesLike> | null,
-      provider?: PromiseOrValue<string> | null,
-      subscriber?: PromiseOrValue<string> | null,
-      timestamp?: null,
-      amount?: null,
-      token?: null,
-      subScriptEvent?: null
-    ): SubLogEventFilter;
-  };
-
-  estimateGas: {
-    accountLookup(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    addERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      minimum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    approvedERC20(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    callerFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    cancelSubscription(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    changeAdmin(
-      newAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    changeCallerFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    changeMaxRemits(
-      _maxRemits: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    changeSystemFee(
-      _fixed_fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    collectFees(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    createSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      details: ClockTowerSubscribe.DetailsStruct,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    editDetails(
-      details: ClockTowerSubscribe.DetailsStruct,
-      id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    editProvDetails(
-      details: ClockTowerSubscribe.ProviderDetailsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    feeBalance(
-      arg0: PromiseOrValue<BytesLike>,
-      arg1: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    feeEstimate(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAccount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getAccountSubscriptions(
-      bySubscriber: PromiseOrValue<boolean>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getSubscribersById(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTotalSubscribers(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxRemits(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nextUncheckedDay(overrides?: CallOverrides): Promise<BigNumber>;
-
-    remit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    removeERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setExternalCallers(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    subscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    systemFee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    systemFeeActivate(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    unsubscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    unsubscribeByProvider(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      subscriber: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    accountLookup(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    addERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      minimum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    approvedERC20(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    callerFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    cancelSubscription(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    changeAdmin(
-      newAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    changeCallerFee(
-      _fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    changeMaxRemits(
-      _maxRemits: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    changeSystemFee(
-      _fixed_fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    collectFees(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createSubscription(
-      amount: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      details: ClockTowerSubscribe.DetailsStruct,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    editDetails(
-      details: ClockTowerSubscribe.DetailsStruct,
-      id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    editProvDetails(
-      details: ClockTowerSubscribe.ProviderDetailsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    feeBalance(
-      arg0: PromiseOrValue<BytesLike>,
-      arg1: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    feeEstimate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getAccount(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getAccountSubscriptions(
-      bySubscriber: PromiseOrValue<boolean>,
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getSubByIndex(
-      id: PromiseOrValue<BytesLike>,
-      frequency: PromiseOrValue<BigNumberish>,
-      dueDay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getSubscribersById(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTotalSubscribers(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    maxRemits(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    nextUncheckedDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    remit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeERC20Contract(
-      erc20Contract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setExternalCallers(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    subscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    systemFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    systemFeeActivate(
-      status: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unsubscribe(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    unsubscribeByProvider(
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
-      subscriber: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": TypedContractEvent<
+      SubLogEvent.InputTuple,
+      SubLogEvent.OutputTuple,
+      SubLogEvent.OutputObject
+    >;
+    SubLog: TypedContractEvent<
+      SubLogEvent.InputTuple,
+      SubLogEvent.OutputTuple,
+      SubLogEvent.OutputObject
+    >;
   };
 }

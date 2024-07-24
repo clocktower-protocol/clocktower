@@ -6,13 +6,18 @@ import "hardhat-contract-sizer";
 const config: HardhatUserConfig = {
   
   solidity: {
-    version: "0.8.24",
+    version: "0.8.26",
     settings: {
       optimizer: {
         enabled: true,
         runs: 500,
       },
     },
+  },
+  contractSizer: {
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true
   },
   networks: {
     hardhat: {
@@ -21,8 +26,11 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: true,
-    coinmarketcap: "14c853e7-3fe7-4254-8863-81d85f79a253"
-  }
+    //L2: "optimism",
+    L1: "ethereum",
+    L1Etherscan: "REMOVED",
+    //coinmarketcap: "14c853e7-3fe7-4254-8863-81d85f79a253"
+  },
   
 };
 
