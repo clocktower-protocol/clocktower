@@ -14,10 +14,12 @@
     "hardhat-abi-exporter": "^2.10.1"
   },
   "dependencies": {
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
     "@openzeppelin/contracts": "^5.0.0",
     "eth-permit": "^0.2.3",
     "hardhat-contract-sizer": "^2.6.1",
     "sol2uml": "^2.5.0"
+  },
+  "overrides": {
+    "hardhat-gas-reporter": "2.2.0"
   }
 }

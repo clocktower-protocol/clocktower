@@ -1,5 +1,6 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+//import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+//import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat"
 //import { ethers } from "hardhat";
@@ -7,10 +8,13 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 const { ethers } = require("hardhat");
 
 //Written by Hugo Marx
+function myMessage() {
+    console.log("delay");
+  }
+setTimeout(myMessage, 30000);
 
 describe("Clocktower", function(){
 
-  
     //let currentTime = 1704088800;
     let currentTime = 1830319200
     let mergeTime = 0;
@@ -97,7 +101,8 @@ describe("Clocktower", function(){
             description: "description"
         }
 
-        it("Should create Subscription", async function() {
+        it("Should create a subscription", async function() {
+           
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, caller} = await loadFixture(deployClocktowerFixture);
             
             //adds CLOCK to approved tokens
@@ -198,7 +203,7 @@ describe("Clocktower", function(){
             
             
             //checks input of fake subscription
-            let fakeSub = {id: subscriptions[1].subscription[0], amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
+            let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
         
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub, testParams2))
             .to.be.rejectedWith("7")
