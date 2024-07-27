@@ -6,12 +6,9 @@ import hre from "hardhat"
 //import { ethers } from "hardhat";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 const { ethers } = require("hardhat");
+import ClockSubscribe from "../ignition/modules/ClockSubscribe";
 
 //Written by Hugo Marx
-function myMessage() {
-    console.log("delay");
-  }
-setTimeout(myMessage, 30000);
 
 describe("Clocktower", function(){
 
@@ -46,14 +43,14 @@ describe("Clocktower", function(){
 
         const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
 
-        
+        //const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
         //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
-        const ClockSubscribe = await hre.ethers.getContractFactory("ClockTowerSubscribe")
+        const ClockSubscribeFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe")
 
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
-        const hardhatClockSubscribe = await ClockSubscribe.deploy();
+        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 10000000000000000n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 
         await hardhatCLOCKToken.waitForDeployment();
         await hardhatClockSubscribe.waitForDeployment();
@@ -692,7 +689,7 @@ describe("Clocktower", function(){
             const clockTokenAddress = await hardhatCLOCKToken.getAddress()
 
             //adds CLOCK to approved tokens
-            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"))
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"))
 
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,1, testParams)
@@ -740,7 +737,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2, testParams)
             let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
             //loop to create subscribe objects
-            let subArray2 =[]
+            let subArray2 = []
             //subscriptions
             for (let i = 0; i < 6; i++) {
                 subArray2.push({

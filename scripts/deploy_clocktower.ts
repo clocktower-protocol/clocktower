@@ -1,6 +1,7 @@
 //import { ethers } from "hardhat";
 const { ethers } = require("hardhat");
 import hre from "hardhat"
+import ClockSubscribe from "../ignition/modules/ClockSubscribe";
 
 async function main() {
 
@@ -15,14 +16,16 @@ async function main() {
     const Subscriber = "0x90F79bf6EB2c4f870365E785982E1f101E93b906";
     const Provider = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
     const Caller = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
+
+    const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
     
     const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
     //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
-    const ClockSubscribe = await hre.ethers.getContractFactory("ClockTowerSubscribe")
-    const clockSubscribe = await ClockSubscribe.deploy();
+    //const ClockSubscribe = await hre.ethers.getContractFactory("ClockTowerSubscribe")
+    //const clockSubscribe = await ClockSubscribe.deploy();
     const clockToken = await ClockToken.deploy(hre.ethers.parseEther("100000"));
   
-    await clockSubscribe.waitForDeployment();
+    //await clockSubscribe.waitForDeployment();
 
     console.log("Clocktower deployed...");
 
