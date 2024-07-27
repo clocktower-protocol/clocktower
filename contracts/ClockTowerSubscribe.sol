@@ -224,24 +224,29 @@ contract ClockTowerSubscribe {
         string misc
     );
 
-   constructor() payable {
+   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) payable {
         
     //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    callerFee = 10200;
+    //callerFee = 10200;
+    callerFee = callerFee_;
 
     //0.01 eth in wei
-    systemFee = 10000000000000000;
+    //systemFee = 10000000000000000;
+    systemFee = systemFee_;
 
     //maximum remits per transaction
-    maxRemits = 5;
+    //maxRemits = 5;
+    maxRemits = maxRemits_;
 
-    allowSystemFee = false;
+    //allowSystemFee = false;
+    allowSystemFee = allowSystemFee_;
 
     //variable for last checked by day
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
     //admin addresses
-    admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    //admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    admin = payable(admin_);
 
     }
     //-------------------------------------------
