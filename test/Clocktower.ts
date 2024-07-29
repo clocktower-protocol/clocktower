@@ -6,7 +6,6 @@ import hre from "hardhat"
 //import { ethers } from "hardhat";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 const { ethers } = require("hardhat");
-import ClockSubscribe from "../ignition/modules/ClockSubscribe";
 
 //Written by Hugo Marx
 
