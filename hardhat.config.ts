@@ -2,6 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
+import "@nomicfoundation/hardhat-ledger";
 require('dotenv').config();
 
 const config: HardhatUserConfig = {
@@ -23,7 +24,15 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       gasPrice: 30000000000
+    }, 
+    /*
+    sepolia: {
+      url: process.env.ALCHEMY_SEPOLIA_URL,
+      ledgerAccounts: [
+        process.env.SEPOLIA_DEPLOYMENT_ADDRESS,
+      ],
     }
+    */
   },
   gasReporter: {
     enabled: true,

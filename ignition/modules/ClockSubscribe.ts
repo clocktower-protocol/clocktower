@@ -1,4 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import "@nomicfoundation/hardhat-ledger";
 import hre from "hardhat"
 
 export default buildModule("ClocktowerHardhat", (m) => {
@@ -24,7 +25,7 @@ export default buildModule("ClocktowerHardhat", (m) => {
             systemFee: 10000000000000000n,
             maxRemits: 5n,
             allowSystemFee: false,
-            admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            admin: process.env.SEPOLIA_ADMIN_ADDRESS,
             erc20: [
                 {
                     name: 'USDC',
