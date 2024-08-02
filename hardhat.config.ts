@@ -2,6 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
+require('dotenv').config();
 
 const config: HardhatUserConfig = {
   
@@ -29,9 +30,8 @@ const config: HardhatUserConfig = {
     //L2: "optimism",
     L1: "ethereum",
     currencyDisplayPrecision: 5,
-    //L1Etherscan: "REMOVED",
-    coinmarketcap: "14c853e7-3fe7-4254-8863-81d85f79a253",
-    gasPriceApi: "https://api.etherscan.io/api?module=proxy&action=eth_gasPrice&apikey=REMOVED"
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    gasPriceApi: process.env.ETHERSCAN_GAS_LOOKUP_URL
   },
   
 };
