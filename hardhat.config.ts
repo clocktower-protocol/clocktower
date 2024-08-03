@@ -29,7 +29,7 @@ const config: HardhatUserConfig = {
     sepolia: {
       url: process.env.ALCHEMY_SEPOLIA_URL,
       ledgerAccounts: [
-        process.env.SEPOLIA_DEPLOYMENT_ADDRESS,
+        process.env.SEPOLIA_DEPLOYER_ADDRESS,
       ],
     }
     */

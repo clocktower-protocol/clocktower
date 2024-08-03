@@ -4,13 +4,15 @@ import hre from "hardhat"
 
 export default buildModule("ClocktowerHardhat", (m) => {
     
+
+    //(xX100)+10000
     const chainObjects = {
         hardhat: {
-            callerFee: 10200n,
-            systemFee: 10000000000000000n,
-            maxRemits: 5n,
-            allowSystemFee: false,
-            admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
+            systemFee: hre.ethers.parseEther(process.env.HARDHAT_SYSTEM_FEE),
+            maxRemits: process.env.HARDHAT_MAX_REMITS,
+            allowSystemFee: process.env.HARDHAT_ALLOW_SYSTEM_FEE,
+            admin: process.env.HARDHAT_ADMIN_ADDRESS,
             erc20: [
                 {
                     name: 'Clocktower Token',
@@ -21,10 +23,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
             ]
         },
         sepolia: {
-            callerFee: 10100n,
-            systemFee: 10000000000000000n,
-            maxRemits: 5n,
-            allowSystemFee: false,
+            callerFee: ((BigInt(process.env.SEPOLIA_CALLER_FEE) * 100n) + 10000n),
+            systemFee: hre.ethers.parseEther(process.env.SEPOLIA_SYSTEM_FEE),
+            maxRemits: process.env.SEPOLIA_MAX_REMITS,
+            allowSystemFee: process.env.SEPOLIA_ALLOW_SYSTEM_FEE,
             admin: process.env.SEPOLIA_ADMIN_ADDRESS,
             erc20: [
                 {
