@@ -15,7 +15,8 @@ interface ERC20{
 /// @author Hugo Marx
 contract ClockTowerSubscribe {
 
-      /*
+    /** 
+    @dev 
     //Require error codes
     0 = Subscriber cannot be provider
     1 = ERC20 token already added
@@ -50,32 +51,32 @@ contract ClockTowerSubscribe {
     30 = Amount below token minimum
     */
 
+    /// @notice Percentage of subscription given to user who calls remit as a fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
     uint public callerFee;
 
+    /// @notice Fee paid to protocol in ethereum
     /// @dev in wei
     uint public systemFee;
 
-    /// @notice Maximum remits per transaction
     uint public maxRemits;
 
-    /// @notice Index if transaction pagination needed due to remit amount being larger than block
+    /// @dev Index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
 
     mapping (address => ApprovedToken) public approvedERC20;
 
+    //TODO: need to document
     bool pageGo;
 
-    /// @notice Variable for last checked by day
+    /// @dev Variable for last checked by day
     uint40 public nextUncheckedDay;
 
     address payable admin;
 
-    ///@notice Are external callers allowed
     bool allowExternalCallers;
 
-    ///@notice Is system fee turned on
     bool allowSystemFee;
 
     enum Frequency {
@@ -104,6 +105,8 @@ contract ClockTowerSubscribe {
         SUBREFUND
     }
 
+    /// @dev subscriptions array are subscriptions the user has subscribed to
+    /// @dev provSubs array are subscriptions the user has created
     struct Account {
         address accountAddress;
         bool exists;
@@ -122,7 +125,6 @@ contract ClockTowerSubscribe {
         uint16 dueDay;
     }
 
-    ///@dev struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
         uint16 dueDay;
@@ -130,9 +132,10 @@ contract ClockTowerSubscribe {
         Status status;
     }
 
+    /// @dev Struct for pagination
     struct PageStart {
         bytes32 id;
-        uint subsriberIndex;
+        uint subscriberIndex;
     }
 
     ///@dev same as subscription but adds the status for subscriber
@@ -148,7 +151,6 @@ contract ClockTowerSubscribe {
         uint feeBalance;
     }
 
-    ///@notice struct of time return values
     struct Time {
         uint16 dayOfMonth;
         uint16 weekDay;
@@ -474,7 +476,6 @@ contract ClockTowerSubscribe {
     /// @notice Converts unix time to number of days past Jan 1st 1970
     /// @param unixTime Number in Unix Epoch Time
     /// @return dayCount Number of days since Jan. 1st 1970
-    //converts unixTime to days
     function unixToDays(uint40 unixTime) internal pure returns(uint40 dayCount) {
         dayCount = unixTime/86400;
     }
@@ -487,7 +488,6 @@ contract ClockTowerSubscribe {
     /// @param frequency Frequency number of cycle
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @return Prorated amount
-    //prorates weekday
     function prorate(uint unixTime, uint40 dueDay, uint fee, uint8 frequency) internal pure returns (uint)  {
         Time memory time = unixToTime(unixTime);
         uint currentDay;
@@ -540,7 +540,10 @@ contract ClockTowerSubscribe {
 
     //VIEW FUNCTIONS ----------------------------------------
 
-    //subscriptions by account
+    /// @notice Get subscriptions by account address and type (provider or subscriber)
+    /// @param bySubscriber If true then get subscriptions user is subscribed to. If false get subs user created
+    /// @param account Account address 
+    /// @return Returns array of subscriptions in the Subview struct form
     function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
 
         SubIndex[] memory indexes;
@@ -565,19 +568,23 @@ contract ClockTowerSubscribe {
         return subViews;
     }
 
-    
+    /// @return Returns total amount of subscribers
     //returns total amount of subscribers
     function getTotalSubscribers() external view returns (uint) {
         return accountLookup.length;
     }
     
 
-    //get account
+    /// @notice Gets account struct by address
+    /// @param account Account address
+    /// @return Returns Account struct for supplied address
     function getAccount(address account) public view returns (Account memory) {
         return accountMap[account];
     }
     
-    //gets subscribers by subscription id
+    /// @notice Gets subscribers by subscription id
+    /// @param id Subscription id in bytes
+    /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
         address[] memory scriberArray = new address[](subscribersMap[id].length);
@@ -1141,7 +1148,7 @@ contract ClockTowerSubscribe {
                         }
 
                         //if this is the subscription and subscriber the page starts on
-                        if(id == pageStart.id && u == pageStart.subsriberIndex) {
+                        if(id == pageStart.id && u == pageStart.subscriberIndex) {
                             pageGo = true;
                         } 
 
