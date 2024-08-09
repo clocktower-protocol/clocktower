@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-//Copyright Hugo Marx 2023
-//Written by Hugo Marx
+//Copyright Hugo Marx 2024
 pragma solidity ^0.8.26;
 import "hardhat/console.sol";
 
@@ -12,6 +11,8 @@ interface ERC20{
   function allowance(address owner, address spender) external returns (uint);
 } 
 
+/// @title Clocktower Subscription Protocol
+/// @author Hugo Marx
 contract ClockTowerSubscribe {
 
       /*
@@ -49,33 +50,32 @@ contract ClockTowerSubscribe {
     30 = Amount below token minimum
     */
 
-    //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    //If caller fee is above 8.33% because then as second feefill would happen on annual subs
+    /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
     uint public callerFee;
 
-    //0.01 eth in wei
+    /// @dev in wei
     uint public systemFee;
 
-    //maximum remits per transaction
+    /// @notice Maximum remits per transaction
     uint public maxRemits;
-    //index if transaction pagination needed due to remit amount being larger than block
+
+    /// @notice Index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
 
     mapping (address => ApprovedToken) public approvedERC20;
 
-    // uint pageCount;
     bool pageGo;
 
-    //variable for last checked by day
+    /// @notice Variable for last checked by day
     uint40 public nextUncheckedDay;
 
-    //admin address
     address payable admin;
 
-    //external callers
+    ///@notice Are external callers allowed
     bool allowExternalCallers;
 
-    //system fee turned on
+    ///@notice Is system fee turned on
     bool allowSystemFee;
 
     enum Frequency {
@@ -104,7 +104,6 @@ contract ClockTowerSubscribe {
         SUBREFUND
     }
 
-    //acount struct
     struct Account {
         address accountAddress;
         bool exists;
@@ -112,7 +111,6 @@ contract ClockTowerSubscribe {
         SubIndex[] provSubs;
     }
 
-    //Subscription struct
     struct Subscription {
         bytes32 id;
         uint amount;
@@ -124,7 +122,7 @@ contract ClockTowerSubscribe {
         uint16 dueDay;
     }
 
-    //struct of Subscription indexes
+    ///@dev struct of Subscription indexes
     struct SubIndex {
         bytes32 id;
         uint16 dueDay;
@@ -137,20 +135,20 @@ contract ClockTowerSubscribe {
         uint subsriberIndex;
     }
 
-    //same as subscription but adds the status for subscriber
+    ///@dev same as subscription but adds the status for subscriber
     struct SubView {
         Subscription subscription;
         Status status;
         uint totalSubscribers;
     }
 
-    //Subscriber struct for views
+    ///@dev Subscriber struct for views
     struct SubscriberView {
         address subscriber;
         uint feeBalance;
     }
 
-    //struct of time return values
+    ///@notice struct of time return values
     struct Time {
         uint16 dayOfMonth;
         uint16 weekDay;
@@ -224,28 +222,28 @@ contract ClockTowerSubscribe {
         string misc
     );
 
+   /// @notice Contract constructor 
+   /// @param callerFee_ The percentage of the subscription the Caller is paid each period
+   /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+   /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
+   /// @param systemFee_ The amount of chain token in wei the system is paid
+   /// @param maxRemits_ The maximum remits per transaction
+   /// @param allowSystemFee_ Is the system fee turned on?
+   /// @param admin_ The admin address
+
    constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) payable {
         
-    //10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    //callerFee = 10200;
     callerFee = callerFee_;
 
-    //0.01 eth in wei
-    //systemFee = 10000000000000000;
     systemFee = systemFee_;
 
-    //maximum remits per transaction
-    //maxRemits = 5;
     maxRemits = maxRemits_;
 
-    //allowSystemFee = false;
     allowSystemFee = allowSystemFee_;
 
-    //variable for last checked by day
+    ///@dev variable for last checked by day
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
-    //admin addresses
-    //admin = payable(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     admin = payable(admin_);
 
     }
@@ -288,13 +286,13 @@ contract ClockTowerSubscribe {
     }
     
     
-    //checks if user is admin
+    /// @notice Checks if user is admin
     modifier isAdmin() {
         adminRequire();
         _;
     }
 
-    //Create skim method to get accumulated systemFees
+    /// @notice Method to get accumulated systemFees
     function collectFees() isAdmin external {
 
         if(address(this).balance > 5000) {
@@ -302,22 +300,29 @@ contract ClockTowerSubscribe {
         }
     }   
 
+    /// @notice Changes admin address
+    /// @param newAddress New admin address
     function changeAdmin(address payable newAddress) isAdmin external {
        require((newAddress != address(0)));
 
         admin = newAddress;
     }
 
-    //allow external callers
+    /// @notice Allows external callers
+    /// @param status true or false
     function setExternalCallers(bool status) isAdmin external {
         allowExternalCallers = status;
     }
 
-    //allow system fee
+    /// @notice Allow system fee
+    /// @param status true of false
     function systemFeeActivate(bool status) isAdmin external {
         allowSystemFee = status;
     }
 
+    /// @notice Add allowed ERC20 token
+    /// @param erc20Contract ERC20 Contract address
+    /// @param minimum Token minimum in wei
     function addERC20Contract(address erc20Contract, uint minimum) isAdmin external {
 
         require(erc20Contract != address(0));
@@ -326,6 +331,9 @@ contract ClockTowerSubscribe {
         approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, true);
     }
 
+    //TODO: This might break things
+    /// @notice Remove ERC20Contract from allowed list
+    /// @param erc20Contract Address of ERC20 token contract
     function removeERC20Contract(address erc20Contract) isAdmin external {
         require(erc20Contract != address(0));
         require(erc20IsApproved(erc20Contract), "2");
@@ -333,17 +341,22 @@ contract ClockTowerSubscribe {
         delete approvedERC20[erc20Contract];
     }
 
-    //change fee
+    /// @notice Changes Caller fee
+    /// @param _fee New Caller fee
+    /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
     function changeCallerFee(uint _fee) isAdmin external {
         callerFee = _fee;
     }
 
-    //change fixed fee
+    /// @notice Change system fee
+    /// @param _fixed_fee New System Fee in wei
     function changeSystemFee(uint _fixed_fee) isAdmin external {
         systemFee = _fixed_fee;
     }
 
-    //change max remits
+    /// @notice Change max remits
+    /// @param _maxRemits New number of max remits per transaction
     function changeMaxRemits(uint _maxRemits) isAdmin external {
         maxRemits = _maxRemits;
     }
@@ -351,6 +364,9 @@ contract ClockTowerSubscribe {
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
+    /// @notice Converts unix time number to Time struct
+    /// @param unix Unix Epoch Time number
+    /// @return time Time struct
     function unixToTime(uint unix) internal pure returns (Time memory time) {
        
         uint _days = unix/86400;
@@ -398,10 +414,18 @@ contract ClockTowerSubscribe {
         time.month = uint16(month);
     }
 
+    /// @notice Checks if year is a leap year
+    /// @param year Year number
+    /// @return  leapYear Boolean value. True if leap year false if not
     function isLeapYear(uint year) internal pure returns (bool leapYear) {
         leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
     }
 
+    /// @notice Returns number of days in month 
+    /// @param year Number of year
+    /// @param month Number of month. 1 - 12
+    /// @dev Month range is 1 - 12
+    /// @return daysInMonth Number of days in the month
     function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
         if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
             daysInMonth = 31;
@@ -412,7 +436,10 @@ contract ClockTowerSubscribe {
         }
     }
 
-    // 1 = Monday, 7 = Sunday
+    /// @notice Gets numberical day of week from Unixtime number
+    /// @param unixTime Unix Epoch Time number
+    /// @return dayOfWeek Returns Day of Week 
+    /// @dev 1 = Monday, 7 = Sunday
     function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
         uint _days = unixTime / 86400;
         uint dayOfWeekuint = (_days + 3) % 7 + 1;
@@ -420,7 +447,10 @@ contract ClockTowerSubscribe {
 
     }
 
-    //get day of quarter
+    /// @notice Gets day of quarter
+    /// @param yearDays Day of year
+    /// @param year Number of year
+    /// @return quarterDay Returns day in quarter
     function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
         
         uint leapDay;
@@ -441,11 +471,22 @@ contract ClockTowerSubscribe {
         }
     }
 
+    /// @notice Converts unix time to number of days past Jan 1st 1970
+    /// @param unixTime Number in Unix Epoch Time
+    /// @return dayCount Number of days since Jan. 1st 1970
     //converts unixTime to days
     function unixToDays(uint40 unixTime) internal pure returns(uint40 dayCount) {
         dayCount = unixTime/86400;
     }
 
+    /// @notice Prorates amount based on days remaining in subscription cycle
+    /// @param unixTime Current time in Unix Epoch Time
+    /// @param dueDay The day in the cycle the subscription is due
+    /// @dev The dueDay will be within differing ranges based on frequency. 
+    /// @param fee Amount to be prorated
+    /// @param frequency Frequency number of cycle
+    /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
+    /// @return Prorated amount
     //prorates weekday
     function prorate(uint unixTime, uint40 dueDay, uint fee, uint8 frequency) internal pure returns (uint)  {
         Time memory time = unixToTime(unixTime);
