@@ -603,7 +603,13 @@ contract ClockTowerSubscribe {
         return scriberViews;
     }
     
-    //fetches subscription from day maps by id
+    /// @notice Gets subscription struct by id, frequency and due day
+    /// @param id Subscription id in bytes
+    /// @param frequency Frequency number of cycle
+    /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
+    /// @param dueDay The day in the cycle the subscription is due
+    /// @dev The dueDay will be within differing ranges based on frequency. 
+    /// @return subscription Subscription struct
     function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
 
           Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
@@ -617,7 +623,8 @@ contract ClockTowerSubscribe {
           return subscription;
     }
     
-    //function that sends back array of fees per subscription
+    /// @notice Function that sends back array of FeeEstimate structs per subscription
+    /// @return Array of FeeEstimate structs
     function feeEstimate() external view returns(FeeEstimate[] memory) {
         
         //gets current time slot based on day
@@ -787,7 +794,9 @@ contract ClockTowerSubscribe {
 
     //EXTERNAL FUNCTIONS----------------------------------------
     
-    //allows subscriber to join a subscription
+    /// @notice Function that subscribes subscriber to subscription
+    /// @param subscription Subscription struct
+    /// @dev Requires ERC20 allowance to be set before function is called
     function subscribe(Subscription calldata subscription) external payable {
 
         //cannot be sent from zero address
@@ -843,6 +852,8 @@ contract ClockTowerSubscribe {
         }
     }
     
+    /// @notice Unsubscribes account from subscription
+    /// @param subscription Subscription struct 
     function unsubscribe(Subscription memory subscription) external payable {
 
         //cannot be sent from zero address
@@ -878,7 +889,9 @@ contract ClockTowerSubscribe {
         
     }
 
-     //lets provider unsubscribe subscriber
+     /// @notice Allows provider to unsubscribe a subscriber by address
+     /// @param subscription Subscription struct
+     /// @param subscriber Subsriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
         userNotZero();
@@ -924,7 +937,9 @@ contract ClockTowerSubscribe {
         
     }
         
-    //Allows provider to cancel subscription
+    /// @notice Function that provider uses to cancel subscription
+    /// @dev Will cancel all subscriptions 
+    /// @param subscription Subscription struct
     function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
@@ -988,7 +1003,18 @@ contract ClockTowerSubscribe {
 
     } 
     
-    //allows provider user to create a subscription
+    /// @notice Function that creates a subscription
+    /// @param amount Amount of ERC20 tokens paid each cycle
+    /// @dev In wei
+    /// @dev Token amount must be above token minimum for ERC20 token
+    /// @param token ERC20 token address
+    /// @dev Token address must be whitelisted by admin
+    /// @param details Details struct for event logs
+    /// @dev Details are posted in event logs not storage
+    /// @param frequency Frequency number of cycle
+    /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
+    /// @param dueDay The day in the cycle the subscription is due
+    /// @dev The dueDay will be within differing ranges based on frequency. 
     function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external payable {
         
         //cannot be sent from zero address
@@ -1034,6 +1060,9 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), amount, subscription.token, SubscriptEvent.CREATE);
     }
 
+    /// @notice Change subcription details in event logs
+    /// @param details Details struct
+    /// @param id Subscription id in bytes
     function editDetails(Details calldata details, bytes32 id) external {
         
         //checks if msg.sender is provider
@@ -1049,13 +1078,17 @@ contract ClockTowerSubscribe {
         }
     }
 
+    /// @notice Changes Provider details in event logs
+    /// @param details ProviderDetails struct
     function editProvDetails(ProviderDetails memory details) external {
         emit ProvDetailsLog(msg.sender, uint40(block.timestamp), details.description, details.company, details.url, details.domain, details.email, details.misc);
     }
 
-    //REQUIRES SUBSCRIBERS TO HAVE ALLOWANCES SET
-
-    //completes money transfer for subscribers
+    /// @notice Transfers tokens from subscribers to provider
+    /// @dev Transfers the oldest outstanding transactions that are past their due date
+    /// @dev If system fee is set then the chain token must also be added to the transaction
+    /// @dev Each call will transmit either the total amount of current transactions due or the maxRemits whichever is smaller
+    /// @dev The function will remember where it left off so multiple calls can be made per day to clear the queue
     function remit() payable public {
 
         if(!allowExternalCallers) {
