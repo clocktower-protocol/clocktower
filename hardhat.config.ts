@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
 import "@nomicfoundation/hardhat-ledger";
+import 'solidity-docgen'
 require('dotenv').config();
 
 const config: HardhatUserConfig = {
