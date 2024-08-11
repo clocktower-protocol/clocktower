@@ -1088,7 +1088,7 @@ contract ClockTowerSubscribe {
     /// @dev Transfers the oldest outstanding transactions that are past their due date
     /// @dev If system fee is set then the chain token must also be added to the transaction
     /// @dev Each call will transmit either the total amount of current transactions due or the maxRemits whichever is smaller
-    /// @dev The function will remember where it left off so multiple calls can be made per day to clear the queue
+    /// @dev The function will paginate so multiple calls can be made per day to clear the queue
     function remit() payable public {
 
         if(!allowExternalCallers) {
