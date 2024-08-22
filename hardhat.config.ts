@@ -24,7 +24,11 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      gasPrice: 30000000000
+      forking: {
+        url: "https://eth-mainnet.g.alchemy.com/v2/REMOVED",
+        blockNumber: 20584960
+      }
+      //gasPrice: 30000000000
     }, 
     /*
     sepolia: {
