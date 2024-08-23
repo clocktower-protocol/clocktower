@@ -19,16 +19,22 @@ const config: HardhatUserConfig = {
   },
   contractSizer: {
     disambiguatePaths: false,
-    runOnCompile: true,
+    runOnCompile: false,
     strict: true
   },
   networks: {
     hardhat: {
+      ignition: {
+        maxFeePerGasLimit: 50_000_000_000n, // 50 gwei
+        maxPriorityFeePerGas: 3_000_000_000n, // 3 gwei
+      },
       forking: {
         url: "https://eth-mainnet.g.alchemy.com/v2/REMOVED",
-        blockNumber: 20584960
-      }
-      //gasPrice: 30000000000
+        blockNumber: 20584960,
+        enabled: true
+      },
+      //gas: 50_000_000_000
+     // gasPrice: 30000000000
     }, 
     /*
     sepolia: {

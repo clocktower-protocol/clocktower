@@ -18,6 +18,8 @@ async function main() {
     const Caller = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
 
     const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
+
+    console.log("Clocktower deployed...");
     
     const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
     //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
@@ -27,7 +29,6 @@ async function main() {
   
     //await clockSubscribe.waitForDeployment();
 
-    console.log("Clocktower deployed...");
 
     await clockToken.waitForDeployment();
 
@@ -36,7 +37,8 @@ async function main() {
     const clockTokenAddress = await clockToken.getAddress()
     const clockSubscribeAddress = await clockSubscribe.getAddress()
 
-    console.log("Contract address:", clockTokenAddress);
+    console.log("Contract CLOCK address:", clockTokenAddress);
+    console.log("Subscribe Contract address", clockSubscribeAddress)
 
     //approve token for clocktower
     await clockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther("0.01"));

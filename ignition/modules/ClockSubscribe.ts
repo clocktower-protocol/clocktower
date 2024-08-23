@@ -3,15 +3,26 @@ import "@nomicfoundation/hardhat-ledger";
 import hre from "hardhat"
 
 export default buildModule("ClocktowerHardhat", (m) => {
-    
 
+    const customMaxFeePerGas = 50_000_000_000n
+    const custommaxPriorityFeePerGas = 3_000_000_000n
+
+    //converts env variables to boolean
+    function convertENVBool(env_value:string) {
+        let envBool:boolean = true
+        if(env_value === "false"){
+            envBool = false
+        }
+        return envBool
+    }
+    
     //(xX100)+10000
     const chainObjects = {
         hardhat: {
             callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
             systemFee: hre.ethers.parseEther(process.env.HARDHAT_SYSTEM_FEE),
-            maxRemits: process.env.HARDHAT_MAX_REMITS,
-            allowSystemFee: process.env.HARDHAT_ALLOW_SYSTEM_FEE,
+            maxRemits: BigInt(process.env.HARDHAT_MAX_REMITS),
+            allowSystemFee: convertENVBool(process.env.HARDHAT_ALLOW_SYSTEM_FEE),
             admin: process.env.HARDHAT_ADMIN_ADDRESS,
             erc20: [
                 {
@@ -25,8 +36,8 @@ export default buildModule("ClocktowerHardhat", (m) => {
         sepolia: {
             callerFee: ((BigInt(process.env.SEPOLIA_CALLER_FEE) * 100n) + 10000n),
             systemFee: hre.ethers.parseEther(process.env.SEPOLIA_SYSTEM_FEE),
-            maxRemits: process.env.SEPOLIA_MAX_REMITS,
-            allowSystemFee: process.env.SEPOLIA_ALLOW_SYSTEM_FEE,
+            maxRemits: BigInt(process.env.SEPOLIA_MAX_REMITS),
+            allowSystemFee: convertENVBool(process.env.SEPOLIA_ALLOW_SYSTEM_FEE),
             admin: process.env.SEPOLIA_ADMIN_ADDRESS,
             erc20: [
                 {
@@ -52,7 +63,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
     //****comment out deployments not currently being used****
 
     //hardhat deployment 
-        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin])
+        const clockSubscribe = m.contract(
+            "ClockTowerSubscribe", 
+            [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin]
+        )
 
     //sepolia deployment
         /*
