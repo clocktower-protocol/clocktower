@@ -17,6 +17,9 @@ async function main() {
     const Provider = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
     const Caller = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc";
 
+    const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    const tetherAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+
     const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
 
     console.log("Clocktower deployed...");
@@ -40,9 +43,17 @@ async function main() {
     console.log("Contract CLOCK address:", clockTokenAddress);
     console.log("Subscribe Contract address", clockSubscribeAddress)
 
-    //approve token for clocktower
+    //approve clock token for clocktower
     await clockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther("0.01"));
     console.log("Approved contract..."+clockTokenAddress);
+
+    //approve usdc for clocktower
+    await clockSubscribe.addERC20Contract(usdcAddress, hre.ethers.parseEther("0.01"));
+    console.log("Approved contract..."+usdcAddress);
+
+    //approve tether for clocktower
+    await clockSubscribe.addERC20Contract(tetherAddress, hre.ethers.parseEther("0.01"));
+    console.log("Approved contract..."+tetherAddress);
 
     //funds test users accounts with CLOCK
     await clockToken.approve(TestUser, hre.ethers.parseEther("10000"));
