@@ -47,11 +47,13 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: true,
-    //L2: "optimism",
-    L1: "ethereum",
+    L2: "base",
+    //L1: "ethereum",
     currencyDisplayPrecision: 5,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    gasPriceApi: process.env.ETHERSCAN_GAS_LOOKUP_URL
+    //gasPriceApi: process.env.ETHERSCAN_GAS_LOOKUP_URL,
+    L2Etherscan: process.env.BASESCAN_KEY,
+    L1Etherscan: process.env.ETHERSCAN_KEY
   },
   
 };
