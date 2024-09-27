@@ -188,6 +188,13 @@ contract ClockTowerSubscribe {
         string misc;
     }
 
+    struct Remit {
+        bytes32 id;
+        address token;
+        address provider;
+        uint8 decimals;
+    }
+
     //Events-------------------------------------
     event CallerLog(
         uint40 timestamp,
@@ -326,6 +333,7 @@ contract ClockTowerSubscribe {
     /// @notice Add allowed ERC20 token
     /// @param erc20Contract ERC20 Contract address
     /// @param minimum Token minimum in wei
+    /// @param decimals Number of token decimals
     function addERC20Contract(address erc20Contract, uint minimum, uint8 decimals) isAdmin external {
 
         require(erc20Contract != address(0));
@@ -722,6 +730,20 @@ contract ClockTowerSubscribe {
     
    
     //PRIVATE FUNCTIONS----------------------------------------------
+    function convertAmount(uint256 amount, uint8 tokenDecimals) private pure returns (uint256) {
+        uint8 standardDecimals = 18;
+
+       
+        if(tokenDecimals > standardDecimals){
+            return amount * (10 ** (tokenDecimals - standardDecimals));
+        } else if(tokenDecimals < standardDecimals){
+            return amount / (10 ** (standardDecimals - tokenDecimals));
+        } else {
+            return amount;
+        }
+
+    }
+
     function userNotZero() view private {
         require(msg.sender != address(0), "3");
     }
@@ -802,15 +824,18 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
+        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
+
+
         //check if there is enough allowance
-        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= subscription.amount
+        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= convertAmount(subscription.amount, approvedERC20[subscription.token].decimals)
                 &&
-                ERC20(subscription.token).balanceOf(msg.sender) >= subscription.amount, "20");
+                ERC20(subscription.token).balanceOf(msg.sender) >= convertAmount(subscription.amount, approvedERC20[subscription.token].decimals), "20");
     
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
+        //require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
@@ -845,10 +870,10 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fee, subscription.token, SubscriptEvent.FEEFILL);
 
         //funds cost with fee balance
-        require(ERC20(subscription.token).transferFrom(msg.sender, address(this), fee));
+        require(ERC20(subscription.token).transferFrom(msg.sender, address(this), convertAmount(fee, approvedERC20[subscription.token].decimals)));
         if(subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) {
             //funds the remainder to the provider
-            require(ERC20(subscription.token).transferFrom(msg.sender, subscription.provider, fee * multiple));
+            require(ERC20(subscription.token).transferFrom(msg.sender, subscription.provider, convertAmount((fee * multiple), approvedERC20[subscription.token].decimals)));
         }
     }
     
@@ -885,7 +910,7 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.PROVREFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscription.provider, balance), "21");
+        require(ERC20(subscription.token).transfer(subscription.provider, convertAmount(balance, approvedERC20[subscription.token].decimals)), "21");
         
     }
 
@@ -933,7 +958,7 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscriber, balance), "21");
+        require(ERC20(subscription.token).transfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals)), "21");
         
     }
         
@@ -976,7 +1001,7 @@ contract ClockTowerSubscribe {
             delete feeBalance[subscription.id][subscribers[i]];
 
             //refunds fee balance
-            require(ERC20(subscription.token).transfer(subscribers[i], feeBal), "21");
+            require(ERC20(subscription.token).transfer(subscribers[i], convertAmount(feeBal, approvedERC20[subscription.token].decimals)), "21");
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
@@ -1148,16 +1173,27 @@ contract ClockTowerSubscribe {
                 //checks if cancelled
                 if(!subscriptionMap[f][timeTrigger][s].cancelled) {
 
+                    /*
                     bytes32 id = subscriptionMap[f][timeTrigger][s].id;
                     address token = subscriptionMap[f][timeTrigger][s].token;
-                    uint amount = subscriptionMap[f][timeTrigger][s].amount;
+                    //uint amount = subscriptionMap[f][timeTrigger][s].amount;
                     address provider = subscriptionMap[f][timeTrigger][s].provider;
+                    */
+                    //uint8 decimals = approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals;
+                    //struct created to avoid 'stack too deep' error with too many variables
+                    Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
+                        subscriptionMap[f][timeTrigger][s].token, 
+                        subscriptionMap[f][timeTrigger][s].provider,
+                        approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals
+                    );
 
+                    uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
+                
                     //calculates fee balance
                     uint subFee = (amount * callerFee / 10000) - amount;
                     uint totalFee;
 
-                    uint sublength = subscribersMap[id].length;
+                    uint sublength = subscribersMap[remitSub.id].length;
                     uint lastSub;
                     
                     //makes sure on an empty subscription lastSub doesn't underflow
@@ -1170,18 +1206,18 @@ contract ClockTowerSubscribe {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
-                            pageStart = PageStart(id, u);
+                            pageStart = PageStart(remitSub.id, u);
                             pageGo = false;
                             
                             //sends fees to caller
-                            require(ERC20(token).transfer(msg.sender, totalFee), "22");
+                            require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
                             
                             emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
                             return;
                         }
 
                         //if this is the subscription and subscriber the page starts on
-                        if(id == pageStart.id && u == pageStart.subscriberIndex) {
+                        if(remitSub.id == pageStart.id && u == pageStart.subscriberIndex) {
                             pageGo = true;
                         } 
 
@@ -1189,40 +1225,40 @@ contract ClockTowerSubscribe {
                         if(pageStart.id == 0 || pageGo == true) {
                             
                             //checks for failure (balance and unlimited allowance)
-                            address subscriber = subscribersMap[id][u];
+                            address subscriber = subscribersMap[remitSub.id][u];
 
                             //check if there is enough allowance and balance
-                            if(ERC20(token).allowance(subscriber, address(this)) >= amount
+                            if(ERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
                             && 
-                            ERC20(token).balanceOf(subscriber) > amount) {
+                            ERC20(remitSub.token).balanceOf(subscriber) > amount) {
                                 //SUCCESS
                                 remitCounter++;
 
                                 //checks feeBalance. If positive it decreases balance. 
                                 //If fee balance < fee amount it sends subscription amount to contract as fee payment.
-                                if(feeBalance[id][subscriber] > subFee) {
+                                if(feeBalance[remitSub.id][subscriber] > subFee) {
 
                                     //accounts for fee
                                     totalFee += subFee;
-                                    feeBalance[id][subscriber] -= subFee;
+                                    feeBalance[remitSub.id][subscriber] -= subFee;
                                
                                     //log as succeeded
-                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.SUBPAID);
-                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.PROVPAID);
+                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
+                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
 
                                     //remits from subscriber to provider
-                                    require(ERC20(token).transferFrom(subscriber, provider, amount));
+                                    require(ERC20(remitSub.token).transferFrom(subscriber, remitSub.provider, amount));
                                 } else {
 
                                     //FEEFILL
 
                                     //Caller gets paid remainder of feeBalance
-                                    totalFee += feeBalance[id][subscriber];
-                                    delete feeBalance[id][subscriber];
+                                    totalFee += feeBalance[remitSub.id][subscriber];
+                                    delete feeBalance[remitSub.id][subscriber];
 
                                     //log as feefill
                                     //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FEEFILL);
-                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.FEEFILL);
+                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.FEEFILL);
 
                                     //adjusts feefill based on frequency
                                     
@@ -1240,12 +1276,12 @@ contract ClockTowerSubscribe {
                                     }
                                    
                                     //remits to contract to refill fee balance
-                                    feeBalance[id][subscriber] += feefill;
-                                    require(ERC20(token).transferFrom(subscriber, address(this), feefill));
+                                    feeBalance[remitSub.id][subscriber] += feefill;
+                                    require(ERC20(remitSub.token).transferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals)));
 
                                     if(f == 2 || f == 3) {
                                         //funds the remainder to the provider
-                                        require(ERC20(token).transferFrom(subscriber, provider, feefill * multiple));
+                                        require(ERC20(remitSub.token).transferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals)));
                                     }
                                 }
                             } else {
@@ -1255,38 +1291,38 @@ contract ClockTowerSubscribe {
                                 remitCounter++;
                 
                                 //checks if theres is enough feebalance left to pay Caller
-                                if(feeBalance[id][subscriber] > subFee) {
+                                if(feeBalance[remitSub.id][subscriber] > subFee) {
                                 
                                     //adds fee on fails
                                     totalFee += subFee;
 
-                                    uint feeRemainder = feeBalance[id][subscriber] - subFee;
+                                    uint feeRemainder = feeBalance[remitSub.id][subscriber] - subFee;
 
                                     //decrease feeBalance by fee and then zeros out
-                                    delete feeBalance[id][subscriber];
+                                    delete feeBalance[remitSub.id][subscriber];
 
                                     //emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, token, ProvEvent.REFUND);
-                                    emit SubLog(id, provider, subscriber, uint40(block.timestamp), feeRemainder, token, SubscriptEvent.PROVREFUND);
+                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), feeRemainder, remitSub.token, SubscriptEvent.PROVREFUND);
 
                                     //pays remainder to provider
-                                    require(ERC20(token).transfer(provider, feeRemainder));
+                                    require(ERC20(remitSub.token).transfer(remitSub.provider, convertAmount(feeRemainder, remitSub.decimals)));
                                 }
 
                                 //unsubscribes on failure
-                                deleteSubFromSubscription(id, subscriber);
+                                deleteSubFromSubscription(remitSub.id, subscriber);
 
                                 //emit unsubscribe to log
-                                emit SubLog(id, provider, subscriber, uint40(block.timestamp), amount, token, SubscriptEvent.UNSUBSCRIBED);
+                                emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
 
                                 //log as failed
-                                emit SubLog(id, provider, subscriber, uint40(block.timestamp), 0, token, SubscriptEvent.FAILED);
+                                emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.FAILED);
                             
                             }
                             //sends fees to caller on last subscriber in list (unless there are no subscribers)
                             if(u == lastSub && sublength > 0) {
 
                                //sends fees to caller
-                               require(ERC20(token).transfer(msg.sender, totalFee), "22");
+                               require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
                             }
                         }
                     }
