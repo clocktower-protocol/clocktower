@@ -170,6 +170,7 @@ contract ClockTowerSubscribe {
     struct ApprovedToken {
         address tokenAddress;
         uint minimum;
+        uint8 decimals;
         bool exists;
     }
 
@@ -325,12 +326,12 @@ contract ClockTowerSubscribe {
     /// @notice Add allowed ERC20 token
     /// @param erc20Contract ERC20 Contract address
     /// @param minimum Token minimum in wei
-    function addERC20Contract(address erc20Contract, uint minimum) isAdmin external {
+    function addERC20Contract(address erc20Contract, uint minimum, uint8 decimals) isAdmin external {
 
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
 
-        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, true);
+        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, decimals, true);
     }
 
     /// @notice Remove ERC20Contract from allowed list

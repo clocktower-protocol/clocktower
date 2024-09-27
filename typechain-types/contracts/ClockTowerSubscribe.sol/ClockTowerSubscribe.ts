@@ -203,7 +203,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addERC20Contract",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedERC20",
@@ -583,7 +583,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   accountLookup: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   addERC20Contract: TypedContractMethod<
-    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -591,9 +591,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   approvedERC20: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, boolean] & {
+      [string, bigint, bigint, boolean] & {
         tokenAddress: string;
         minimum: bigint;
+        decimals: bigint;
         exists: boolean;
       }
     ],
@@ -753,7 +754,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "addERC20Contract"
   ): TypedContractMethod<
-    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -762,9 +763,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, boolean] & {
+      [string, bigint, bigint, boolean] & {
         tokenAddress: string;
         minimum: bigint;
+        decimals: bigint;
         exists: boolean;
       }
     ],
