@@ -826,11 +826,12 @@ contract ClockTowerSubscribe {
 
         require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
 
+        uint convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
         //check if there is enough allowance
-        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= convertAmount(subscription.amount, approvedERC20[subscription.token].decimals)
+        require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= convertedAmount
                 &&
-                ERC20(subscription.token).balanceOf(msg.sender) >= convertAmount(subscription.amount, approvedERC20[subscription.token].decimals), "20");
+                ERC20(subscription.token).balanceOf(msg.sender) >= convertedAmount, "20");
     
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
