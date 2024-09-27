@@ -2,11 +2,11 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1721700387521,
-      "contentHash": "896f68942c3a20e9ae3c3c5bfd3add54",
+      "lastModificationDate": 1727471373103,
+      "contentHash": "681c532e816169606d13a5fe8b475074",
       "sourceName": "hardhat/console.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -38,11 +38,11 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1721848190541,
+      "lastModificationDate": 1724797246806,
       "contentHash": "feab5e2d41113e76604440c6371723b1",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -80,7 +80,7 @@
       "contentHash": "c6375ef25e84c90b3d15f9ec4eef218f",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -121,7 +121,7 @@
       "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -157,7 +157,7 @@
       "contentHash": "5517c8678c18eb1a8ba58810e7ca39ca",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -193,7 +193,7 @@
       "contentHash": "4c02fa6f7ae7b6c289cef80424f0c875",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -380,11 +380,11 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1727466343748,
-      "contentHash": "a795f7bcc11e49fb77b3f621f19a46e8",
+      "lastModificationDate": 1727471123828,
+      "contentHash": "5fafa9d81734554dc7f9273b44218342",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -411,7 +411,7 @@
         "hardhat/console.sol"
       ],
       "versionPragmas": [
-        "^0.8.26"
+        "^0.8.27"
       ],
       "artifacts": [
         "ClockTowerSubscribe",
@@ -647,7 +647,7 @@
       "contentHash": "4aefc698f77ecbace7f401257dfe182d",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
-        "version": "0.8.26",
+        "version": "0.8.27",
         "settings": {
           "optimizer": {
             "enabled": true,

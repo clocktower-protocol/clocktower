@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 //Copyright Hugo Marx 2024
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.27;
 import "hardhat/console.sol";
 
 interface ERC20{
