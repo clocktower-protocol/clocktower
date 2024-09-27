@@ -11,6 +11,7 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.26",
     settings: {
+      //viaIR: true,
       optimizer: {
         enabled: true,
         runs: 500,
@@ -19,7 +20,7 @@ const config: HardhatUserConfig = {
   },
   contractSizer: {
     disambiguatePaths: false,
-    runOnCompile: false,
+    runOnCompile: true,
     strict: true
   },
   networks: {
