@@ -342,7 +342,8 @@ contract ClockTowerSubscribe {
         approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, decimals, true);
     }
 
-    
+    //This might not work with decimals used
+    /*
     /// @notice Remove ERC20Contract from allowed list
     /// @param erc20Contract Address of ERC20 token contract
     function removeERC20Contract(address erc20Contract) isAdmin external {
@@ -351,6 +352,7 @@ contract ClockTowerSubscribe {
 
         delete approvedERC20[erc20Contract];
     }
+    */
     
     
 
