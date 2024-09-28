@@ -1030,7 +1030,10 @@ describe("Clocktower", function(){
             let balance1 = await hardhatCLOCKToken.balanceOf(subscriber.address)
             console.log(balance1)
 
+            //monthly
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15)
+            //quarterly
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,2,15)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
 
@@ -1049,12 +1052,35 @@ describe("Clocktower", function(){
                 dueDay: subscriptions[0].subscription[7]
             }
 
+              //creates subscribe object2
+              const subscribeObject2 = {
+                id: subscriptions[1].subscription[0],
+                amount: subscriptions[1].subscription[1],
+                provider: subscriptions[1].subscription[2],
+                token: subscriptions[1].subscription[3],
+                exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[1].subscription[5],
+                frequency: subscriptions[1].subscription[6],
+                dueDay: subscriptions[1].subscription[7]
+            }
+
+            //checks monthly token decimal conversion works
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject))
             .changeTokenBalance(hardhatCLOCKToken, subscriber.address, -460273n)
 
             let balance2 = await hardhatCLOCKToken.balanceOf(subscriber.address)
             console.log(balance2)
             console.log((balance1 - balance2))
+
+            //test quarterly token decimal conversion works and takes from subscriber and funds both contract and provider
+            const tx = hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, subscriber.address, -155554n)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, await hardhatClockSubscribe.getAddress(), 51851n)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, provider.address, 103703n)
+
+            let balance3 = await hardhatCLOCKToken.balanceOf(subscriber.address)
+            console.log(balance3)
+            console.log((balance2 - balance3))
 
         })
         
