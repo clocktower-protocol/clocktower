@@ -1020,6 +1020,43 @@ describe("Clocktower", function(){
 
             expect(tokenObject.minimum).to.equal(hre.ethers.parseEther(".01"))
         })
+        it("Changes transferred amounts based on erc20 decimals", async function (){
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
+            const clockTokenAddress = await hardhatCLOCKToken.getAddress()
+
+            //changes decimal to 6
+            await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"), 6)
+
+            let balance1 = await hardhatCLOCKToken.balanceOf(subscriber.address)
+            console.log(balance1)
+
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address)
+
+            //checks contract saved subscription amount is in 10^18 decimal format
+            expect(subscriptions[0].subscription.amount).to.equal(eth);
+
+             //creates subscribe object
+             const subscribeObject = {
+                id: subscriptions[0].subscription[0],
+                amount: subscriptions[0].subscription[1],
+                provider: subscriptions[0].subscription[2],
+                token: subscriptions[0].subscription[3],
+                exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[5],
+                frequency: subscriptions[0].subscription[6],
+                dueDay: subscriptions[0].subscription[7]
+            }
+
+            await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject))
+            .changeTokenBalance(hardhatCLOCKToken, subscriber.address, -460273n)
+
+            let balance2 = await hardhatCLOCKToken.balanceOf(subscriber.address)
+            console.log(balance2)
+            console.log((balance1 - balance2))
+
+        })
         
     })
  
