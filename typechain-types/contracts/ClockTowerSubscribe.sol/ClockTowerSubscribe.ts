@@ -180,7 +180,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
-      | "removeERC20Contract"
       | "setExternalCallers"
       | "subscribe"
       | "systemFee"
@@ -287,10 +286,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "removeERC20Contract",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setExternalCallers",
     values: [boolean]
   ): string;
@@ -389,10 +384,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeERC20Contract",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setExternalCallers",
     data: BytesLike
@@ -703,12 +694,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   remit: TypedContractMethod<[], [void], "payable">;
 
-  removeERC20Contract: TypedContractMethod<
-    [erc20Contract: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   setExternalCallers: TypedContractMethod<
     [status: boolean],
     [void],
@@ -878,9 +863,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "remit"
   ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
-    nameOrSignature: "removeERC20Contract"
-  ): TypedContractMethod<[erc20Contract: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setExternalCallers"
   ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
