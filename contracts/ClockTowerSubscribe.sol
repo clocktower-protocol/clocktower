@@ -841,8 +841,6 @@ contract ClockTowerSubscribe {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
-        //require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
-
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
 
