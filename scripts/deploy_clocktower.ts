@@ -20,9 +20,14 @@ async function main() {
     const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     const tetherAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
 
-    const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
+    //const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
+    // Get the contract factory
+    const subFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe");
+    
+    // Connect to the existing contract
+    let clockSubscribe = await hre.ethers.getContractAt("ClockTowerSubscribe", '0x69f94e46cbc82ab02781ac4fafc3580d21f1a888');
 
-    console.log("Clocktower deployed...");
+    //console.log("Clocktower deployed...");
     
     const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
     //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe")
@@ -43,17 +48,21 @@ async function main() {
     console.log("Contract CLOCK address:", clockTokenAddress);
     console.log("Subscribe Contract address", clockSubscribeAddress)
 
+    
     //approve clock token for clocktower
-    await clockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther("0.01"));
+    await clockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther("0.01"), 18);
     console.log("Approved contract..."+clockTokenAddress);
-
+ 
     //approve usdc for clocktower
-    await clockSubscribe.addERC20Contract(usdcAddress, hre.ethers.parseEther("0.01"));
+    await clockSubscribe.addERC20Contract(usdcAddress, hre.ethers.parseEther("0.01"), 18);
     console.log("Approved contract..."+usdcAddress);
 
     //approve tether for clocktower
-    await clockSubscribe.addERC20Contract(tetherAddress, hre.ethers.parseEther("0.01"));
+    await clockSubscribe.addERC20Contract(tetherAddress, hre.ethers.parseEther("0.01"), 18);
     console.log("Approved contract..."+tetherAddress);
+    
+    
+    
 
     //funds test users accounts with CLOCK
     await clockToken.approve(TestUser, hre.ethers.parseEther("10000"));
