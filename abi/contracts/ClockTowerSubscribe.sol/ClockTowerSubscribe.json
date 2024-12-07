@@ -1,6 +1,32 @@
 [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "callerFee_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "systemFee_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxRemits_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "allowSystemFee_",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "admin_",
+        "type": "address"
+      }
+    ],
     "stateMutability": "payable",
     "type": "constructor"
   },
@@ -210,6 +236,11 @@
         "internalType": "uint256",
         "name": "minimum",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
       }
     ],
     "name": "addERC20Contract",
@@ -236,6 +267,11 @@
         "internalType": "uint256",
         "name": "minimum",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
       },
       {
         "internalType": "bool",
@@ -856,19 +892,6 @@
     "name": "remit",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "erc20Contract",
-        "type": "address"
-      }
-    ],
-    "name": "removeERC20Contract",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
