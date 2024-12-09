@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
-//Copyright Hugo Marx 2024
+// Copyright Clocktower LLC 2024
 pragma solidity ^0.8.27;
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 interface ERC20{
   function transferFrom(address from, address to, uint value) external returns (bool);
