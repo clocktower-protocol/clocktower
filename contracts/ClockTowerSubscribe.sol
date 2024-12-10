@@ -56,8 +56,8 @@ contract ClockTowerSubscribe {
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
     uint public callerFee;
 
-    /// @notice Fee paid to protocol in ethereum
-    /// @dev in wei
+    /// @notice Percentage of caller fee paid to system
+    /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     uint public systemFee;
 
     uint public maxRemits;
@@ -1052,10 +1052,12 @@ contract ClockTowerSubscribe {
         //cannot be ETH or zero address
         require(token != address(0), "8");
 
+        /*
         //require sent ETH to be higher than fixed token fee
         if(allowSystemFee) {
             require(systemFee <= msg.value, "5");
         }
+        */
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
@@ -1124,10 +1126,12 @@ contract ClockTowerSubscribe {
             adminRequire();
         }
 
+        /*
         //require sent ETH to be higher than fixed token fee
         if(allowSystemFee) {
             require(systemFee <= msg.value, "5");
         }
+        */
 
         //gets current time slot based on day
         uint40 currentDay = unixToDays(uint40(block.timestamp));
@@ -1325,8 +1329,16 @@ contract ClockTowerSubscribe {
                             //sends fees to caller on last subscriber in list (unless there are no subscribers)
                             if(u == lastSub && sublength > 0) {
 
-                               //sends fees to caller
-                               require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
+                                //if system fee is activated divides caller fee and remits portion to system
+                                if(allowSystemFee) {
+                                    uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                    totalFee -= sysAmount;
+                                    //sends system fee to system
+                                    require(ERC20(remitSub.token).transfer(admin, convertAmount(sysAmount, remitSub.decimals)), "22");
+                                } 
+                                //sends fees to caller
+                                require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
+                                
                             }
                         }
                     }

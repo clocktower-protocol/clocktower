@@ -20,7 +20,7 @@ const config: HardhatUserConfig = {
   },
   contractSizer: {
     disambiguatePaths: false,
-    runOnCompile: false,
+    runOnCompile: true,
     strict: true
   },
   networks: {

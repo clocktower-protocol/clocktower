@@ -116,8 +116,10 @@ describe("Clocktower", function(){
             .to.be.revertedWith("8")
 
             await hardhatClockSubscribe.systemFeeActivate(true);
+            /*
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,15, testParams2))
             .to.be.revertedWith("5")
+            */
 
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, caller.address, details,1,15, testParams))
             .to.be.revertedWith("9")
@@ -718,9 +720,11 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.setExternalCallers(true)
             await hardhatClockSubscribe.systemFeeActivate(true)
 
+            /*
             //checks token fee is high enough
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.be.rejectedWith("5")
+            */
 
             await hardhatClockSubscribe.systemFeeActivate(false)
 
