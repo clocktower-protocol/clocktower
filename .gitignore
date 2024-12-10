@@ -12,8 +12,8 @@ myproject
 *.tsbuildinfo
 
 #Ignores cache and artifacts
-/cache
-/artifacts
+/cache/
+/artifacts/
 
 
 # VS Code workspace config
