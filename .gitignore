@@ -2,7 +2,7 @@
 .env
 
 #Ignores VS Code Counter
-.VSCodeCounter/
+/.VSCodeCounter
 
 # Allow a dummy project in this directory for testing purposes
 myproject
@@ -10,6 +10,10 @@ myproject
 /node_modules
 /.idea
 *.tsbuildinfo
+
+#Ignores cache and artifacts
+/cache
+/artifacts
 
 
 # VS Code workspace config
