@@ -624,7 +624,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: BigNumberish
     ],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   editDetails: TypedContractMethod<
@@ -681,7 +681,7 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   nextUncheckedDay: TypedContractMethod<[], [bigint], "view">;
 
-  remit: TypedContractMethod<[], [void], "payable">;
+  remit: TypedContractMethod<[], [void], "nonpayable">;
 
   setExternalCallers: TypedContractMethod<
     [status: boolean],
@@ -692,7 +692,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   subscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   systemFee: TypedContractMethod<[], [bigint], "view">;
@@ -706,7 +706,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   unsubscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   unsubscribeByProvider: TypedContractMethod<
@@ -779,7 +779,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: BigNumberish
     ],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "editDetails"
@@ -848,7 +848,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "remit"
-  ): TypedContractMethod<[], [void], "payable">;
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setExternalCallers"
   ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
@@ -857,7 +857,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "systemFee"
@@ -870,7 +870,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "unsubscribeByProvider"
