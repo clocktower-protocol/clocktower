@@ -2,7 +2,7 @@
 .env
 
 #Ignores VS Code Counter
-/.VSCodeCounter
+.VSCodeCounter/
 
 # Allow a dummy project in this directory for testing purposes
 myproject
