@@ -67,7 +67,6 @@ contract ClockTowerSubscribe {
 
     mapping (address => ApprovedToken) public approvedERC20;
 
-    //TODO: need to document
     bool pageGo;
 
     /// @dev Variable for last checked by day
@@ -282,6 +281,7 @@ contract ClockTowerSubscribe {
 
     //--------------------------------------------
 
+    /*
     //functions for receiving ether
     receive() external payable{
         
@@ -289,6 +289,7 @@ contract ClockTowerSubscribe {
     fallback() external payable{
         
     }
+    */
 
     //ADMIN METHODS*************************************
 
