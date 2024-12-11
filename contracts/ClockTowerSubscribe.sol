@@ -236,7 +236,8 @@ contract ClockTowerSubscribe {
    /// @param callerFee_ The percentage of the subscription the Caller is paid each period
    /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
    /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
-   /// @param systemFee_ The amount of chain token in wei the system is paid
+   /// @param systemFee_ The percentage of the caller fee paid to the system
+   /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
    /// @param maxRemits_ The maximum remits per transaction
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
