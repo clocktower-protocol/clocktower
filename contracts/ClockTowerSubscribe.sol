@@ -72,7 +72,7 @@ contract ClockTowerSubscribe {
     /// @dev Variable for last checked by day
     uint40 public nextUncheckedDay;
 
-    address payable admin;
+    address admin;
 
     //bool allowExternalCallers;
 
@@ -254,7 +254,7 @@ contract ClockTowerSubscribe {
     ///@dev variable for last checked by day
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
-    admin = payable(admin_);
+    admin = admin_;
 
     }
     //-------------------------------------------
@@ -316,7 +316,7 @@ contract ClockTowerSubscribe {
 
     /// @notice Changes admin address
     /// @param newAddress New admin address
-    function changeAdmin(address payable newAddress) isAdmin external {
+    function changeAdmin(address newAddress) isAdmin external {
        require((newAddress != address(0)));
 
         admin = newAddress;
