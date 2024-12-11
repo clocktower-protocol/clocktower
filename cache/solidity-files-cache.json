@@ -6,7 +6,7 @@
       "contentHash": "feab5e2d41113e76604440c6371723b1",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -44,7 +44,7 @@
       "contentHash": "38910c3dfa5e3778fac8888b1d714084",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -85,7 +85,7 @@
       "contentHash": "8f19f64d2adadf448840908bbaf431c8",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -121,7 +121,7 @@
       "contentHash": "794db3115001aa372c79326fcfd44b1f",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -155,11 +155,11 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1721700387329,
+      "lastModificationDate": 1733787709913,
       "contentHash": "67bfbc07588eb8683b3fd8f6f909563e",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -195,7 +195,7 @@
       "contentHash": "267d92fe4de67b1bdb3302c08f387dbf",
       "sourceName": "@openzeppelin/contracts/interfaces/draft-IERC6093.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -229,11 +229,11 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1733947863299,
-      "contentHash": "294803808192ff51ea14ddcb52e6c4cd",
+      "lastModificationDate": 1733948071684,
+      "contentHash": "8c3bc2c73dbf34a0f157983a953cef3d",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
-        "version": "0.8.27",
+        "version": "0.8.28",
         "settings": {
           "optimizer": {
             "enabled": true,
@@ -258,7 +258,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.27"
+        "^0.8.28"
       ],
       "artifacts": [
         "ClockTowerSubscribe",
