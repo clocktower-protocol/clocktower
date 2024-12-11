@@ -165,6 +165,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "changeAdmin"
       | "changeCallerFee"
       | "changeMaxRemits"
+      | "changeSysFeeReceiver"
       | "changeSystemFee"
       | "createSubscription"
       | "editDetails"
@@ -222,6 +223,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   encodeFunctionData(
     functionFragment: "changeMaxRemits",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "changeSysFeeReceiver",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "changeSystemFee",
@@ -324,6 +329,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "changeMaxRemits",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "changeSysFeeReceiver",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -600,6 +609,12 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
+  changeSysFeeReceiver: TypedContractMethod<
+    [newSysFeeAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   changeSystemFee: TypedContractMethod<
     [_sys_fee: BigNumberish],
     [void],
@@ -750,6 +765,9 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "changeMaxRemits"
   ): TypedContractMethod<[_maxRemits: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "changeSysFeeReceiver"
+  ): TypedContractMethod<[newSysFeeAddress: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "changeSystemFee"
   ): TypedContractMethod<[_sys_fee: BigNumberish], [void], "nonpayable">;

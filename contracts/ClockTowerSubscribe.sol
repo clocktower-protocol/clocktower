@@ -72,7 +72,11 @@ contract ClockTowerSubscribe {
     /// @dev Variable for last checked by day
     uint40 public nextUncheckedDay;
 
+    //address for running admin functions
     address admin;
+
+    //address that receives the systemFee
+    address sysFeeReceiver;
 
     //bool allowExternalCallers;
 
@@ -256,6 +260,8 @@ contract ClockTowerSubscribe {
 
     admin = admin_;
 
+    sysFeeReceiver = admin_;
+
     }
     //-------------------------------------------
 
@@ -320,6 +326,14 @@ contract ClockTowerSubscribe {
        require((newAddress != address(0)));
 
         admin = newAddress;
+    }
+
+    /// @notice Changes sysFeeReceiver address
+    /// @param newSysFeeAddress New sysFeeReceiver address
+    function changeSysFeeReceiver(address newSysFeeAddress) isAdmin external {
+       require((newSysFeeAddress != address(0)));
+
+        sysFeeReceiver = newSysFeeAddress;
     }
 
     /*
@@ -1342,7 +1356,7 @@ contract ClockTowerSubscribe {
                                     uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                     totalFee -= sysAmount;
                                     //sends system fee to system
-                                    require(ERC20(remitSub.token).transfer(admin, convertAmount(sysAmount, remitSub.decimals)), "22");
+                                    require(ERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "22");
                                 } 
                                 //sends fees to caller
                                 require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
