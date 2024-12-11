@@ -242,7 +242,7 @@ contract ClockTowerSubscribe {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) payable {
+   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) {
         
     callerFee = callerFee_;
 
@@ -828,7 +828,7 @@ contract ClockTowerSubscribe {
     /// @notice Function that subscribes subscriber to subscription
     /// @param subscription Subscription struct
     /// @dev Requires ERC20 allowance to be set before function is called
-    function subscribe(Subscription calldata subscription) external payable {
+    function subscribe(Subscription calldata subscription) external {
 
         //cannot be sent from zero address
         userNotZero();
@@ -887,7 +887,7 @@ contract ClockTowerSubscribe {
     
     /// @notice Unsubscribes account from subscription
     /// @param subscription Subscription struct 
-    function unsubscribe(Subscription memory subscription) external payable {
+    function unsubscribe(Subscription memory subscription) external {
 
         //cannot be sent from zero address
         userNotZero();
@@ -1048,7 +1048,7 @@ contract ClockTowerSubscribe {
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @param dueDay The day in the cycle the subscription is due
     /// @dev The dueDay will be within differing ranges based on frequency. 
-    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external payable {
+    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
         
         //cannot be sent from zero address
         userNotZero();
@@ -1124,7 +1124,7 @@ contract ClockTowerSubscribe {
     /// @dev If system fee is set then the chain token must also be added to the transaction
     /// @dev Each call will transmit either the total amount of current transactions due or the maxRemits whichever is smaller
     /// @dev The function will paginate so multiple calls can be made per day to clear the queue
-    function remit() payable public {
+    function remit() public {
 
         if(!allowExternalCallers) {
             adminRequire();
