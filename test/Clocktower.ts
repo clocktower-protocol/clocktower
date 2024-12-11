@@ -379,7 +379,7 @@ describe("Clocktower", function(){
             expect(await hardhatClockSubscribe.changeMaxRemits(remits))
 
             //allows external callers
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
 
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
@@ -512,7 +512,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
             //sets external callers
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
         })
@@ -565,7 +565,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
             //turns on system fee collection
             await hardhatClockSubscribe.systemFeeActivate(true)
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
             //await hardhatClockSubscribe.changeSystemFee(hre.ethers.parseEther(""))
 
             //creates subscription and subscribes
@@ -642,7 +642,7 @@ describe("Clocktower", function(){
 
             let subAmount = await hardhatCLOCKToken.balanceOf(subscriber.address)
 
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject.id, subscribeObject.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 7)
@@ -738,10 +738,12 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
             //checks that only admin can call if bool is set
+            /*
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.be.rejectedWith("16")
+            */
 
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
             await hardhatClockSubscribe.systemFeeActivate(true)
 
             /*
@@ -840,7 +842,7 @@ describe("Clocktower", function(){
             //adds CLOCK to approved tokens
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"), ClockDecimals)
             await hardhatClockSubscribe.changeCallerFee(13000)
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
 
             //checks feefill events and token balances
 
@@ -898,7 +900,7 @@ describe("Clocktower", function(){
             const clockTokenAddress = await hardhatCLOCKToken.getAddress()
 
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"), ClockDecimals)
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
     
             //checks weekly subscription
             await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("7"), clockTokenAddress, details,0,3)
@@ -992,7 +994,7 @@ describe("Clocktower", function(){
 
             const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"), ClockDecimals)
-            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.setExternalCallers(true)
 
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,1)
