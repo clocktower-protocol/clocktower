@@ -51,7 +51,7 @@ describe("Clocktower", function(){
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
-        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 10000000000000000n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 
         await hardhatCLOCKToken.waitForDeployment();
         await hardhatClockSubscribe.waitForDeployment();
@@ -557,7 +557,7 @@ describe("Clocktower", function(){
             
         })
         it("Should collect system fees", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider, caller, subscriber} = await loadFixture(deployClocktowerFixture);
 
             const testParams = {
                 value: hre.ethers.parseEther("0.011")
@@ -567,19 +567,45 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
             //turns on system fee collection
             await hardhatClockSubscribe.systemFeeActivate(true)
+            await hardhatClockSubscribe.setExternalCallers(true)
+            //await hardhatClockSubscribe.changeSystemFee(hre.ethers.parseEther(""))
 
             //creates subscription and subscribes
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1, testParams)
 
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            //creates subscribe object
+            const subscribeObject = {
+                id: subscriptions[0].subscription[0],
+                amount: subscriptions[0].subscription[1],
+                provider: subscriptions[0].subscription[2],
+                token: subscriptions[0].subscription[3],
+                exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[5],
+                frequency: subscriptions[0].subscription[6],
+                dueDay: subscriptions[0].subscription[7]
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject, testParams)
+
             let ownerBalance1 = hre.ethers.formatEther(await owner.provider.getBalance(owner.address))
 
             //collect fees
-            await hardhatClockSubscribe.collectFees()
+            //await hardhatClockSubscribe.collectFees()
+            /*
+            await hardhatClockSubscribe.connect(caller).remit()
 
             let ownerBalance2 = hre.ethers.formatEther(await owner.provider.getBalance(owner.address))
 
-            expect(Number(ownerBalance2) - Number(ownerBalance1)).to.greaterThan(0.01)
+            console.log(Number(ownerBalance1))
+            console.log(Number(ownerBalance2))
 
+            expect(Number(ownerBalance2) - Number(ownerBalance1)).to.greaterThan(0.01)
+            */
+            const tx = await hardhatClockSubscribe.connect(caller).remit()
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, caller, hre.ethers.parseEther("0.018"))
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, owner, hre.ethers.parseEther("0.002"))
         })
         it("Should refund provider on fail", async function() {
             
@@ -1032,7 +1058,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.addERC20Contract(clockTokenAddress, hre.ethers.parseEther(".01"), 6)
 
             let balance1 = await hardhatCLOCKToken.balanceOf(subscriber.address)
-            console.log(balance1)
+            //console.log(balance1)
 
             //monthly
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15)
@@ -1073,8 +1099,8 @@ describe("Clocktower", function(){
             .changeTokenBalance(hardhatCLOCKToken, subscriber.address, -460273n)
 
             let balance2 = await hardhatCLOCKToken.balanceOf(subscriber.address)
-            console.log(balance2)
-            console.log((balance1 - balance2))
+            //console.log(balance2)
+            //console.log((balance1 - balance2))
 
             //test quarterly token decimal conversion works and takes from subscriber and funds both contract and provider
             const tx = hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
@@ -1083,8 +1109,8 @@ describe("Clocktower", function(){
             await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, provider.address, 103703n)
 
             let balance3 = await hardhatCLOCKToken.balanceOf(subscriber.address)
-            console.log(balance3)
-            console.log((balance2 - balance3))
+            //console.log(balance3)
+            //console.log((balance2 - balance3))
 
         })
         

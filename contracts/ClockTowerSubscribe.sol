@@ -302,13 +302,15 @@ contract ClockTowerSubscribe {
         _;
     }
 
+    /*
     /// @notice Method to get accumulated systemFees
     function collectFees() isAdmin external {
 
         if(address(this).balance > 5000) {
             admin.transfer(address(this).balance - 5000);
         }
-    }   
+    }  
+    */ 
 
     /// @notice Changes admin address
     /// @param newAddress New admin address
@@ -365,9 +367,10 @@ contract ClockTowerSubscribe {
     }
 
     /// @notice Change system fee
-    /// @param _fixed_fee New System Fee in wei
-    function changeSystemFee(uint _fixed_fee) isAdmin external {
-        systemFee = _fixed_fee;
+    /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
+    /// @param _sys_fee New System fee
+    function changeSystemFee(uint _sys_fee) isAdmin external {
+        systemFee = _sys_fee;
     }
 
     /// @notice Change max remits
