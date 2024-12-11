@@ -179,7 +179,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
-      | "setExternalCallers"
       | "subscribe"
       | "systemFee"
       | "systemFeeActivate"
@@ -281,10 +280,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setExternalCallers",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -375,10 +370,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setExternalCallers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
   decodeFunctionResult(
@@ -683,12 +674,6 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   remit: TypedContractMethod<[], [void], "nonpayable">;
 
-  setExternalCallers: TypedContractMethod<
-    [status: boolean],
-    [void],
-    "nonpayable"
-  >;
-
   subscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
@@ -849,9 +834,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "remit"
   ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setExternalCallers"
-  ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "subscribe"
   ): TypedContractMethod<

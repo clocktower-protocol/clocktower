@@ -74,7 +74,7 @@ contract ClockTowerSubscribe {
 
     address payable admin;
 
-    bool allowExternalCallers;
+    //bool allowExternalCallers;
 
     bool allowSystemFee;
 
@@ -322,11 +322,13 @@ contract ClockTowerSubscribe {
         admin = newAddress;
     }
 
+    /*
     /// @notice Allows external callers
     /// @param status true or false
     function setExternalCallers(bool status) isAdmin external {
         allowExternalCallers = status;
     }
+    */
 
     /// @notice Allow system fee
     /// @param status true of false
@@ -1127,11 +1129,12 @@ contract ClockTowerSubscribe {
     /// @dev The function will paginate so multiple calls can be made per day to clear the queue
     function remit() public {
 
+        /*
         if(!allowExternalCallers) {
             adminRequire();
         }
 
-        /*
+        
         //require sent ETH to be higher than fixed token fee
         if(allowSystemFee) {
             require(systemFee <= msg.value, "5");
