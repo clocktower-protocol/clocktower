@@ -20,7 +20,7 @@ export default buildModule("ClocktowerHardhat", (m) => {
     const chainObjects = {
         hardhat: {
             callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
-            systemFee: hre.ethers.parseEther(process.env.HARDHAT_SYSTEM_FEE),
+            systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
             maxRemits: BigInt(process.env.HARDHAT_MAX_REMITS),
             allowSystemFee: convertENVBool(process.env.HARDHAT_ALLOW_SYSTEM_FEE),
             admin: process.env.HARDHAT_ADMIN_ADDRESS,
@@ -35,7 +35,7 @@ export default buildModule("ClocktowerHardhat", (m) => {
         },
         sepolia: {
             callerFee: ((BigInt(process.env.SEPOLIA_CALLER_FEE) * 100n) + 10000n),
-            systemFee: hre.ethers.parseEther(process.env.SEPOLIA_SYSTEM_FEE),
+            systemFee: ((BigInt(process.env.SEPOLIA_SYSTEM_FEE) * 100n) + 10000n),
             maxRemits: BigInt(process.env.SEPOLIA_MAX_REMITS),
             allowSystemFee: convertENVBool(process.env.SEPOLIA_ALLOW_SYSTEM_FEE),
             admin: process.env.SEPOLIA_ADMIN_ADDRESS,
