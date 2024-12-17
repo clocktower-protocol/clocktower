@@ -49,6 +49,7 @@ contract ClockTowerSubscribe {
     28 = Must be between 1 and 90
     29 = Must be between 1 and 365
     30 = Amount below token minimum
+    31 = Reentrancy attempt
     */
 
     
@@ -316,7 +317,7 @@ contract ClockTowerSubscribe {
 
     /// @notice Reenctrancy Lock 
     modifier nonReentrant() {
-        require(!locked, "Reentrancy attempt");
+        require(!locked, "31");
         locked = true;
         _;
         locked = false;
