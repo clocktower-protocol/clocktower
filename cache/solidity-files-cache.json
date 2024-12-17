@@ -12,7 +12,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -50,7 +50,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -91,7 +91,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -127,7 +127,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -165,7 +165,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -201,7 +201,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [
@@ -229,8 +229,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1733948071684,
-      "contentHash": "8c3bc2c73dbf34a0f157983a953cef3d",
+      "lastModificationDate": 1734458290243,
+      "contentHash": "e628e9de3df088294260eb8a1fab9d53",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -239,7 +239,7 @@
             "enabled": true,
             "runs": 500
           },
-          "evmVersion": "paris",
+          "evmVersion": "cancun",
           "outputSelection": {
             "*": {
               "*": [

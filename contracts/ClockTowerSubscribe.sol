@@ -51,6 +51,7 @@ contract ClockTowerSubscribe {
     30 = Amount below token minimum
     */
 
+    
     /// @notice Percentage of subscription given to user who calls remit as a fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
@@ -68,6 +69,9 @@ contract ClockTowerSubscribe {
     mapping (address => ApprovedToken) public approvedERC20;
 
     bool pageGo;
+
+    /// @dev Boolean for reentrancy lock
+    bool transient locked;
 
     /// @dev Variable for last checked by day
     uint40 public nextUncheckedDay;
@@ -308,6 +312,14 @@ contract ClockTowerSubscribe {
     modifier isAdmin() {
         adminRequire();
         _;
+    }
+
+    /// @notice Reenctrancy Lock 
+    modifier nonReentrant() {
+        require(!locked, "Reentrancy attempt");
+        locked = true;
+        _;
+        locked = false;
     }
 
     /*
@@ -845,7 +857,7 @@ contract ClockTowerSubscribe {
     /// @notice Function that subscribes subscriber to subscription
     /// @param subscription Subscription struct
     /// @dev Requires ERC20 allowance to be set before function is called
-    function subscribe(Subscription calldata subscription) external {
+    function subscribe(Subscription calldata subscription) external nonReentrant{
 
         //cannot be sent from zero address
         userNotZero();
@@ -904,7 +916,7 @@ contract ClockTowerSubscribe {
     
     /// @notice Unsubscribes account from subscription
     /// @param subscription Subscription struct 
-    function unsubscribe(Subscription memory subscription) external {
+    function unsubscribe(Subscription memory subscription) external nonReentrant{
 
         //cannot be sent from zero address
         userNotZero();
@@ -942,7 +954,7 @@ contract ClockTowerSubscribe {
      /// @notice Allows provider to unsubscribe a subscriber by address
      /// @param subscription Subscription struct
      /// @param subscriber Subsriber address
-    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
+    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external nonReentrant{
 
         userNotZero();
 
@@ -990,7 +1002,7 @@ contract ClockTowerSubscribe {
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
     /// @param subscription Subscription struct
-    function cancelSubscription(Subscription calldata subscription) external {
+    function cancelSubscription(Subscription calldata subscription) external nonReentrant{
         userNotZero();
 
         //checks subscription exists
@@ -1065,7 +1077,7 @@ contract ClockTowerSubscribe {
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @param dueDay The day in the cycle the subscription is due
     /// @dev The dueDay will be within differing ranges based on frequency. 
-    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
+    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external nonReentrant {
         
         //cannot be sent from zero address
         userNotZero();
@@ -1141,7 +1153,7 @@ contract ClockTowerSubscribe {
     /// @dev If system fee is set then the chain token must also be added to the transaction
     /// @dev Each call will transmit either the total amount of current transactions due or the maxRemits whichever is smaller
     /// @dev The function will paginate so multiple calls can be made per day to clear the queue
-    function remit() public {
+    function remit() public nonReentrant{
 
         /*
         if(!allowExternalCallers) {
@@ -1380,6 +1392,7 @@ contract ClockTowerSubscribe {
         
         //keeps going until it hits a day with transactions
         if(isEmptyDay){
+            locked = false;
             return remit();
         }
 
