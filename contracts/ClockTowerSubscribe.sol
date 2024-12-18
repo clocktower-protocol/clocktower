@@ -315,6 +315,7 @@ contract ClockTowerSubscribe {
         _;
     }
 
+    
     /// @notice Reenctrancy Lock 
     modifier nonReentrant() {
         require(!locked, "31");
@@ -322,7 +323,7 @@ contract ClockTowerSubscribe {
         _;
         locked = false;
     }
-
+    
     /*
     /// @notice Method to get accumulated systemFees
     function collectFees() isAdmin external {
@@ -858,7 +859,7 @@ contract ClockTowerSubscribe {
     /// @notice Function that subscribes subscriber to subscription
     /// @param subscription Subscription struct
     /// @dev Requires ERC20 allowance to be set before function is called
-    function subscribe(Subscription calldata subscription) external nonReentrant{
+    function subscribe(Subscription calldata subscription) external {
 
         //cannot be sent from zero address
         userNotZero();
@@ -917,7 +918,7 @@ contract ClockTowerSubscribe {
     
     /// @notice Unsubscribes account from subscription
     /// @param subscription Subscription struct 
-    function unsubscribe(Subscription memory subscription) external nonReentrant{
+    function unsubscribe(Subscription memory subscription) external {
 
         //cannot be sent from zero address
         userNotZero();
@@ -955,7 +956,7 @@ contract ClockTowerSubscribe {
      /// @notice Allows provider to unsubscribe a subscriber by address
      /// @param subscription Subscription struct
      /// @param subscriber Subsriber address
-    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external nonReentrant{
+    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
         userNotZero();
 
@@ -1003,7 +1004,7 @@ contract ClockTowerSubscribe {
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
     /// @param subscription Subscription struct
-    function cancelSubscription(Subscription calldata subscription) external nonReentrant{
+    function cancelSubscription(Subscription calldata subscription) external {
         userNotZero();
 
         //checks subscription exists
@@ -1078,7 +1079,7 @@ contract ClockTowerSubscribe {
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @param dueDay The day in the cycle the subscription is due
     /// @dev The dueDay will be within differing ranges based on frequency. 
-    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external nonReentrant {
+    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
         
         //cannot be sent from zero address
         userNotZero();
