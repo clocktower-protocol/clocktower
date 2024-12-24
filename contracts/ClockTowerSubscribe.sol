@@ -292,15 +292,6 @@ contract ClockTowerSubscribe {
 
     //--------------------------------------------
 
-    /*
-    //functions for receiving ether
-    receive() external payable{
-        
-    }
-    fallback() external payable{
-        
-    }
-    */
 
     //ADMIN METHODS*************************************
 
@@ -324,16 +315,6 @@ contract ClockTowerSubscribe {
         locked = false;
     }
     
-    /*
-    /// @notice Method to get accumulated systemFees
-    function collectFees() isAdmin external {
-
-        if(address(this).balance > 5000) {
-            admin.transfer(address(this).balance - 5000);
-        }
-    }  
-    */ 
-
     /// @notice Changes admin address
     /// @param newAddress New admin address
     function changeAdmin(address newAddress) isAdmin external {
@@ -349,14 +330,6 @@ contract ClockTowerSubscribe {
 
         sysFeeReceiver = newSysFeeAddress;
     }
-
-    /*
-    /// @notice Allows external callers
-    /// @param status true or false
-    function setExternalCallers(bool status) isAdmin external {
-        allowExternalCallers = status;
-    }
-    */
 
     /// @notice Allow system fee
     /// @param status true of false
@@ -376,19 +349,6 @@ contract ClockTowerSubscribe {
         approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, decimals, true);
     }
 
-    //This might not work with decimals used
-    /*
-    /// @notice Remove ERC20Contract from allowed list
-    /// @param erc20Contract Address of ERC20 token contract
-    function removeERC20Contract(address erc20Contract) isAdmin external {
-        require(erc20Contract != address(0));
-        require(erc20IsApproved(erc20Contract), "2");
-
-        delete approvedERC20[erc20Contract];
-    }
-    */
-    
-    
 
     /// @notice Changes Caller fee
     /// @param _fee New Caller fee
@@ -1087,12 +1047,6 @@ contract ClockTowerSubscribe {
         //cannot be ETH or zero address
         require(token != address(0), "8");
 
-        /*
-        //require sent ETH to be higher than fixed token fee
-        if(allowSystemFee) {
-            require(systemFee <= msg.value, "5");
-        }
-        */
         //check if token is on approved list
         require(erc20IsApproved(token),"9");
 
@@ -1157,18 +1111,6 @@ contract ClockTowerSubscribe {
     /// @dev The function will paginate so multiple calls can be made per day to clear the queue
     function remit() public nonReentrant{
 
-        /*
-        if(!allowExternalCallers) {
-            adminRequire();
-        }
-
-        
-        //require sent ETH to be higher than fixed token fee
-        if(allowSystemFee) {
-            require(systemFee <= msg.value, "5");
-        }
-        */
-
         //gets current time slot based on day
         uint40 currentDay = unixToDays(uint40(block.timestamp));
 
@@ -1217,13 +1159,6 @@ contract ClockTowerSubscribe {
                 //checks if cancelled
                 if(!subscriptionMap[f][timeTrigger][s].cancelled) {
 
-                    /*
-                    bytes32 id = subscriptionMap[f][timeTrigger][s].id;
-                    address token = subscriptionMap[f][timeTrigger][s].token;
-                    //uint amount = subscriptionMap[f][timeTrigger][s].amount;
-                    address provider = subscriptionMap[f][timeTrigger][s].provider;
-                    */
-                    //uint8 decimals = approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals;
                     //struct created to avoid 'stack too deep' error with too many variables
                     Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
                         subscriptionMap[f][timeTrigger][s].token, 

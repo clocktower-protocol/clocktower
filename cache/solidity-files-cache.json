@@ -229,8 +229,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1734534521555,
-      "contentHash": "5d0c23b17b9090886844167c560b4231",
+      "lastModificationDate": 1735049250566,
+      "contentHash": "6983dc530fdf537b96ff686e0fa37c69",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.28",
