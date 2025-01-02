@@ -11,6 +11,11 @@ myproject
 /.idea
 *.tsbuildinfo
 
+#Ignores cache and artifacts
+cache/
+artifacts/
+
+
 
 # VS Code workspace config
 workspace.code-workspace

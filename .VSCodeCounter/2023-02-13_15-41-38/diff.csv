@@ -1,6 +1,0 @@
-"filename", "language", "TypeScript", "Solidity", "comment", "blank", "total"
-"/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol", "Solidity", 0, -7, -2, -4, -13
-"/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerPayment.sol", "Solidity", 0, -466, -192, -218, -876
-"/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol", "Solidity", 0, -604, -278, -245, -1127
-"/home/hugo/Documents/Crypto/dev/clocktower/test/Clocktower.ts", "TypeScript", 347, 0, 145, 166, 658
-"Total", "-", 347, -1077, -327, -301, -1358

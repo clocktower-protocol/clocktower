@@ -165,8 +165,8 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "changeAdmin"
       | "changeCallerFee"
       | "changeMaxRemits"
+      | "changeSysFeeReceiver"
       | "changeSystemFee"
-      | "collectFees"
       | "createSubscription"
       | "editDetails"
       | "editProvDetails"
@@ -180,8 +180,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
-      | "removeERC20Contract"
-      | "setExternalCallers"
       | "subscribe"
       | "systemFee"
       | "systemFeeActivate"
@@ -203,7 +201,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addERC20Contract",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "approvedERC20",
@@ -227,12 +225,12 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "changeSystemFee",
-    values: [BigNumberish]
+    functionFragment: "changeSysFeeReceiver",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "collectFees",
-    values?: undefined
+    functionFragment: "changeSystemFee",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createSubscription",
@@ -287,14 +285,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "removeERC20Contract",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setExternalCallers",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -342,11 +332,11 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "changeSystemFee",
+    functionFragment: "changeSysFeeReceiver",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "collectFees",
+    functionFragment: "changeSystemFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -389,14 +379,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeERC20Contract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setExternalCallers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
   decodeFunctionResult(
@@ -583,7 +565,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   accountLookup: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   addERC20Contract: TypedContractMethod<
-    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -591,9 +573,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   approvedERC20: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, boolean] & {
+      [string, bigint, bigint, boolean] & {
         tokenAddress: string;
         minimum: bigint;
+        decimals: bigint;
         exists: boolean;
       }
     ],
@@ -626,13 +609,17 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
-  changeSystemFee: TypedContractMethod<
-    [_fixed_fee: BigNumberish],
+  changeSysFeeReceiver: TypedContractMethod<
+    [newSysFeeAddress: AddressLike],
     [void],
     "nonpayable"
   >;
 
-  collectFees: TypedContractMethod<[], [void], "nonpayable">;
+  changeSystemFee: TypedContractMethod<
+    [_sys_fee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   createSubscription: TypedContractMethod<
     [
@@ -643,7 +630,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: BigNumberish
     ],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   editDetails: TypedContractMethod<
@@ -700,24 +687,12 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   nextUncheckedDay: TypedContractMethod<[], [bigint], "view">;
 
-  remit: TypedContractMethod<[], [void], "payable">;
-
-  removeERC20Contract: TypedContractMethod<
-    [erc20Contract: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  setExternalCallers: TypedContractMethod<
-    [status: boolean],
-    [void],
-    "nonpayable"
-  >;
+  remit: TypedContractMethod<[], [void], "nonpayable">;
 
   subscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   systemFee: TypedContractMethod<[], [bigint], "view">;
@@ -731,7 +706,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   unsubscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
 
   unsubscribeByProvider: TypedContractMethod<
@@ -753,7 +728,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "addERC20Contract"
   ): TypedContractMethod<
-    [erc20Contract: AddressLike, minimum: BigNumberish],
+    [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -762,9 +737,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, boolean] & {
+      [string, bigint, bigint, boolean] & {
         tokenAddress: string;
         minimum: bigint;
+        decimals: bigint;
         exists: boolean;
       }
     ],
@@ -790,11 +766,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     nameOrSignature: "changeMaxRemits"
   ): TypedContractMethod<[_maxRemits: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "changeSystemFee"
-  ): TypedContractMethod<[_fixed_fee: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: "changeSysFeeReceiver"
+  ): TypedContractMethod<[newSysFeeAddress: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "collectFees"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: "changeSystemFee"
+  ): TypedContractMethod<[_sys_fee: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "createSubscription"
   ): TypedContractMethod<
@@ -806,7 +782,7 @@ export interface ClockTowerSubscribe extends BaseContract {
       dueDay: BigNumberish
     ],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "editDetails"
@@ -875,19 +851,13 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "remit"
-  ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
-    nameOrSignature: "removeERC20Contract"
-  ): TypedContractMethod<[erc20Contract: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setExternalCallers"
-  ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "subscribe"
   ): TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "systemFee"
@@ -900,7 +870,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
-    "payable"
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "unsubscribeByProvider"
