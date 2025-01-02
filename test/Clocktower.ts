@@ -45,7 +45,7 @@ describe("Clocktower", function(){
         const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
 
         //const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
-        //const ClockSubscribe = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
+        //const ClockSubscribeFactory = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
         const ClockSubscribeFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe")
 
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
