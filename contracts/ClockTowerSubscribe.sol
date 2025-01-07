@@ -20,36 +20,24 @@ contract ClockTowerSubscribe {
     //Require error codes
     0 = Subscriber cannot be provider
     1 = ERC20 token already added
-    2 = ERC20 token not added yet
-    3 = No zero address call
-    4 = Time must be in the future
-    5 = Not enough ETH sent
-    6 = Time must be on the hour
-    7 = Subscription doesn't exist
-    8 = Token address cannot be zero
-    9 = Token not approved
-    10 = Amount must be greater than zero
-    11 = Not enough ETH in contract
-    12 = Transfer failed
-    13 = Requires token allowance to be increased
-    14 = Time already checked
-    15 = Token allowance must be unlimited for subscriptions
-    16 = Must have admin privileges
-    17 = Token balance insufficient
-    18 = Must be provider of subscription
-    19 = Subscriber not subscribed
-    20 = Either token allowance or balance insufficient
-    21 = Problem sending refund
-    22 = Problem sending fees
-    23 = Only provider can cancel subscription
-    24 = Gas price too high
-    25 = String must be <= 32 bytes
-    26 = Must be between 1 and 7
-    27 = Must be between 1 and 28
-    28 = Must be between 1 and 90
-    29 = Must be between 1 and 365
-    30 = Amount below token minimum
-    31 = Reentrancy attempt
+    2 = No zero address call
+    3 = Subscription doesn't exist
+    4 = Token address cannot be zero
+    5 = Token not approved
+    6 = Time already checked
+    7 = Must have admin privileges
+    8 = Must be provider of subscription
+    9 = Subscriber not subscribed
+    10 = Either token allowance or balance insufficient
+    11 = Problem sending refund
+    12 = Problem sending fees
+    13 = Only provider can cancel subscription
+    14 = Must be between 1 and 7
+    15 = Must be between 1 and 28
+    16 = Must be between 1 and 90
+    17 = Must be between 1 and 365
+    18 = Amount below token minimum
+    19 = Reentrancy attempt
     */
 
     
@@ -82,8 +70,6 @@ contract ClockTowerSubscribe {
 
     //address that receives the systemFee
     address sysFeeReceiver;
-
-    //bool allowExternalCallers;
 
     bool allowSystemFee;
 
@@ -296,7 +282,7 @@ contract ClockTowerSubscribe {
     //ADMIN METHODS*************************************
 
     function adminRequire() private view {
-        require(msg.sender == admin, "16");
+        require(msg.sender == admin, "7");
     }
     
     
@@ -309,7 +295,7 @@ contract ClockTowerSubscribe {
     
     /// @notice Reenctrancy Lock 
     modifier nonReentrant() {
-        require(!locked, "31");
+        require(!locked, "19");
         locked = true;
         _;
         locked = false;
@@ -638,7 +624,7 @@ contract ClockTowerSubscribe {
         //gets current time slot based on day
         uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
 
-        require(_currentTimeSlot > nextUncheckedDay, "14");
+        require(_currentTimeSlot > nextUncheckedDay, "6");
 
         //calls time function
         Time memory time = unixToTime(block.timestamp);
@@ -745,7 +731,7 @@ contract ClockTowerSubscribe {
     }
 
     function userNotZero() view private {
-        require(msg.sender != address(0), "3");
+        require(msg.sender != address(0), "2");
     }
 
     function erc20IsApproved(address erc20Contract) private view returns(bool result) {
@@ -824,14 +810,14 @@ contract ClockTowerSubscribe {
         //cannot be sent from zero address
         userNotZero();
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
+        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
 
         uint convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
         //check if there is enough allowance
         require(ERC20(subscription.token).allowance(msg.sender, address(this)) >= convertedAmount
                 &&
-                ERC20(subscription.token).balanceOf(msg.sender) >= convertedAmount, "20");
+                ERC20(subscription.token).balanceOf(msg.sender) >= convertedAmount, "10");
     
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
@@ -909,7 +895,7 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.PROVREFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscription.provider, convertAmount(balance, approvedERC20[subscription.token].decimals)), "21");
+        require(ERC20(subscription.token).transfer(subscription.provider, convertAmount(balance, approvedERC20[subscription.token].decimals)), "11");
         
     }
 
@@ -928,7 +914,7 @@ contract ClockTowerSubscribe {
                 isProvider = true;
             }
         }
-        require(isProvider, "18");
+        require(isProvider, "8");
         
         //checks subscriber is subscribed if so marks them as unsubscribed
         address[] memory subscribers = subscribersMap[subscription.id];
@@ -939,7 +925,7 @@ contract ClockTowerSubscribe {
                 accountMap[subscriber].subscriptions[i].status = Status.UNSUBSCRIBED;
             }
         }
-        require(isSubscribed, "19");
+        require(isSubscribed, "9");
 
         deleteSubFromSubscription(subscription.id, subscriber);
 
@@ -957,7 +943,7 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
 
         //Refunds fee balance
-        require(ERC20(subscription.token).transfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals)), "21");
+        require(ERC20(subscription.token).transfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals)), "11");
         
     }
         
@@ -968,10 +954,10 @@ contract ClockTowerSubscribe {
         userNotZero();
 
         //checks subscription exists
-        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "7");
+        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
 
         //require user be provider
-        require(msg.sender == subscription.provider, "23");
+        require(msg.sender == subscription.provider, "13");
 
         SubIndex[] memory provIndex = accountMap[msg.sender].provSubs;
 
@@ -1000,7 +986,7 @@ contract ClockTowerSubscribe {
             delete feeBalance[subscription.id][subscribers[i]];
 
             //refunds fee balance
-            require(ERC20(subscription.token).transfer(subscribers[i], convertAmount(feeBal, approvedERC20[subscription.token].decimals)), "21");
+            require(ERC20(subscription.token).transfer(subscribers[i], convertAmount(feeBal, approvedERC20[subscription.token].decimals)), "11");
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
@@ -1045,27 +1031,27 @@ contract ClockTowerSubscribe {
         userNotZero();
 
         //cannot be ETH or zero address
-        require(token != address(0), "8");
+        require(token != address(0), "4");
 
         //check if token is on approved list
-        require(erc20IsApproved(token),"9");
+        require(erc20IsApproved(token),"5");
 
         //validates dueDay
         if(frequency == Frequency.WEEKLY) {
-            require(0 < dueDay && dueDay <= 7, "26");
+            require(0 < dueDay && dueDay <= 7, "14");
         }
         if(frequency == Frequency.MONTHLY) {
-            require(0 < dueDay && dueDay <= 28, "27");
+            require(0 < dueDay && dueDay <= 28, "15");
         }
         if(frequency == Frequency.QUARTERLY){
-             require(0 < dueDay && dueDay <= 90, "28");
+             require(0 < dueDay && dueDay <= 90, "16");
         }
         if(frequency == Frequency.YEARLY) {
-            require(0 < dueDay && dueDay <= 365, "29");
+            require(0 < dueDay && dueDay <= 365, "17");
         }
 
         //sets a token minimum
-        require(amount >= approvedERC20[token].minimum, "30");
+        require(amount >= approvedERC20[token].minimum, "18");
 
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
@@ -1114,7 +1100,7 @@ contract ClockTowerSubscribe {
         //gets current time slot based on day
         uint40 currentDay = unixToDays(uint40(block.timestamp));
 
-        require(currentDay >= nextUncheckedDay, "14");
+        require(currentDay >= nextUncheckedDay, "6");
 
         bool isEmptyDay = true;
 
@@ -1189,7 +1175,7 @@ contract ClockTowerSubscribe {
                             pageGo = false;
                             
                             //sends fees to caller
-                            require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
+                            require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "12");
                             
                             emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
                             return;
@@ -1305,10 +1291,10 @@ contract ClockTowerSubscribe {
                                     uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                     totalFee -= sysAmount;
                                     //sends system fee to system
-                                    require(ERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "22");
+                                    require(ERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "12");
                                 } 
                                 //sends fees to caller
-                                require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "22");
+                                require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "12");
                                 
                             }
                         }
