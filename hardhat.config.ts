@@ -36,7 +36,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: "https://eth-mainnet.g.alchemy.com/v2/REMOVED",
         blockNumber: 20584960,
-        enabled: true
+        enabled: false
       },
       //gas: 50_000_000_000
      // gasPrice: 30000000000
