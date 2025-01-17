@@ -1173,6 +1173,14 @@ contract ClockTowerSubscribe {
                         if(remitCounter == maxRemits) {
                             pageStart = PageStart(remitSub.id, u);
                             pageGo = false;
+
+                            //if system fee is activated divides caller fee and remits portion to system
+                            if(allowSystemFee) {
+                                uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                totalFee -= sysAmount;
+                                //sends system fee to system
+                                require(ERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "12");
+                            } 
                             
                             //sends fees to caller
                             require(ERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "12");
