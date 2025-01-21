@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
         maxPriorityFeePerGas: 3_000_000_000n, // 3 gwei
       },
       forking: {
-        url: "https://eth-mainnet.g.alchemy.com/v2/REMOVED",
+        url: process.env.FORK_DATA_SOURCE,
         blockNumber: 20584960,
         enabled: false
       },
