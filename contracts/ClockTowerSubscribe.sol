@@ -278,6 +278,9 @@ contract ClockTowerSubscribe {
 
     //--------------------------------------------
 
+    //mapping for nonces
+    mapping(address => uint256) nonces;
+
 
     //ADMIN METHODS*************************************
 
@@ -739,10 +742,16 @@ contract ClockTowerSubscribe {
     }
 
     //sets Subscription
-    function setSubscription(uint amount, address token, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
+    function setSubscription(uint amount, address token, Frequency frequency, uint16 dueDay) private returns (Subscription memory subscription){
+
+        // Get the current nonce for the sender
+        uint256 nonce = nonces[msg.sender];
+
+        // Increment the nonce
+        nonces[msg.sender]++;
 
         //creates id hash
-        bytes32 id = keccak256(abi.encodePacked(msg.sender, amount, token, dueDay, frequency, block.timestamp));
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, nonce, block.timestamp));
 
         subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay);
     }
