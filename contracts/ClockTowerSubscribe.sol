@@ -742,7 +742,7 @@ contract ClockTowerSubscribe {
     function setSubscription(uint amount, address token, Frequency frequency, uint16 dueDay) private view returns (Subscription memory subscription){
 
         //creates id hash
-        bytes32 id = keccak256(abi.encodePacked(msg.sender, block.prevrandao, block.timestamp));
+        bytes32 id = keccak256(abi.encodePacked(msg.sender, amount, token, dueDay, frequency, block.timestamp));
 
         subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay);
     }
