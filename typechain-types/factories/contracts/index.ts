@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
-export * as clockTowerSubscribeSol from "./ClockTowerSubscribe.sol";
+export { ClockTowerSubscribe__factory } from "./ClockTowerSubscribe__factory";
