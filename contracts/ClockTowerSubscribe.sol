@@ -1193,11 +1193,11 @@ contract ClockTowerSubscribe {
                                 uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                 totalFee -= sysAmount;
                                 //sends system fee to system
-                                require(IERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "12");
+                                IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
                             } 
                             
                             //sends fees to caller
-                            require(IERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "12");
+                            IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
                             
                             emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
                             return;
@@ -1234,7 +1234,7 @@ contract ClockTowerSubscribe {
                                     emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
 
                                     //remits from subscriber to provider
-                                    require(IERC20(remitSub.token).transferFrom(subscriber, remitSub.provider, amount));
+                                    IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);
                                 } else {
 
                                     //FEEFILL
@@ -1264,11 +1264,11 @@ contract ClockTowerSubscribe {
                                    
                                     //remits to contract to refill fee balance
                                     feeBalance[remitSub.id][subscriber] += feefill;
-                                    require(IERC20(remitSub.token).transferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals)));
+                                    IERC20(remitSub.token).safeTransferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals));
 
                                     if(f == 2 || f == 3) {
                                         //funds the remainder to the provider
-                                        require(IERC20(remitSub.token).transferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals)));
+                                        IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals));
                                     }
                                 }
                             } else {
@@ -1292,7 +1292,7 @@ contract ClockTowerSubscribe {
                                     emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), feeRemainder, remitSub.token, SubscriptEvent.PROVREFUND);
 
                                     //pays remainder to provider
-                                    require(IERC20(remitSub.token).transfer(remitSub.provider, convertAmount(feeRemainder, remitSub.decimals)));
+                                    IERC20(remitSub.token).safeTransfer(remitSub.provider, convertAmount(feeRemainder, remitSub.decimals));
                                 }
 
                                 //unsubscribes on failure
@@ -1313,10 +1313,10 @@ contract ClockTowerSubscribe {
                                     uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                     totalFee -= sysAmount;
                                     //sends system fee to system
-                                    require(IERC20(remitSub.token).transfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals)), "12");
+                                    IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
                                 } 
                                 //sends fees to caller
-                                require(IERC20(remitSub.token).transfer(msg.sender, convertAmount(totalFee, remitSub.decimals)), "12");
+                                IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
                                 
                             }
                         }
