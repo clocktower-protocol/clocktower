@@ -3,5 +3,4 @@
 /* eslint-disable */
 import type * as clocKtokenSol from "./CLOCKtoken.sol";
 export type { clocKtokenSol };
-import type * as clockTowerSubscribeSol from "./ClockTowerSubscribe.sol";
-export type { clockTowerSubscribeSol };
+export type { ClockTowerSubscribe } from "./ClockTowerSubscribe";
