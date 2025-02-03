@@ -300,7 +300,7 @@ contract ClockTowerSubscribe {
     }
 
     
-    /// @notice Reenctrancy Lock 
+    /// @notice Reentrancy Lock 
     modifier nonReentrant() {
         require(!locked, "19");
         locked = true;
@@ -615,7 +615,7 @@ contract ClockTowerSubscribe {
 
           Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
 
-        //searchs for subscription in day map
+        //searches for subscription in day map
             for(uint j; j < subList.length; j++) {
                 if(subList[j].id == id) {
                         subscription = subList[j];
@@ -914,7 +914,7 @@ contract ClockTowerSubscribe {
 
      /// @notice Allows provider to unsubscribe a subscriber by address
      /// @param subscription Subscription struct
-     /// @param subscriber Subsriber address
+     /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
         userNotZero();
@@ -998,7 +998,6 @@ contract ClockTowerSubscribe {
             //zeros out fee balance
             delete feeBalance[subscription.id][subscribers[i]];
 
-            //TODO: determine if you need to put into a require
             //refunds fee balance
             IERC20(subscription.token).safeTransfer(subscribers[i], convertAmount(feeBal, approvedERC20[subscription.token].decimals));
             
@@ -1080,7 +1079,7 @@ contract ClockTowerSubscribe {
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), amount, subscription.token, SubscriptEvent.CREATE);
     }
 
-    /// @notice Change subcription details in event logs
+    /// @notice Change subscription details in event logs
     /// @param details Details struct
     /// @param id Subscription id in bytes
     function editDetails(Details calldata details, bytes32 id) external {
