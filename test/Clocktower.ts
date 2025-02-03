@@ -411,6 +411,8 @@ describe("Clocktower", function(){
                 })
             }
 
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[1])
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[2])
@@ -444,8 +446,13 @@ describe("Clocktower", function(){
                 console.log(isFinished)
             }
             */
+
+            //balance befoe remmitance
+           // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
+          //  console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
+          //  console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
         
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(subscriber.address)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
-
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -134,6 +134,9 @@ contract ClockTowerSubscribe {
     struct PageStart {
         bytes32 id;
         uint subscriberIndex;
+        uint subscriptionIndex;
+        uint frequency;
+        bool initialized;
     }
 
     ///@dev same as subscription but adds the status for subscriber
@@ -1130,190 +1133,199 @@ contract ClockTowerSubscribe {
         //loops through types
         for(uint f; f <= 3; f++) {
 
-            uint16 timeTrigger;
-            if(f == uint(Frequency.WEEKLY)){
-                timeTrigger = time.weekDay;
-            } 
-            if(f == uint(Frequency.MONTHLY)) {
-                timeTrigger = time.dayOfMonth;
-            } 
-            if(f == uint(Frequency.QUARTERLY)) {
-                timeTrigger = time.quarterDay;
-            } 
-            if(f == uint(Frequency.YEARLY)) {
-                timeTrigger = time.yearDay;
-            }
-
-            uint length = subscriptionMap[f][timeTrigger].length;
+            //checks which frequency to start if paginated
+           if(pageStart.id == 0 || (pageStart.frequency <= f && pageStart.initialized)) {
             
-            //loops through subscriptions
-            for(uint s; s < length; s++) {
-
-                //Marks day as not empty
-                isEmptyDay = false;
-
-                //checks if cancelled
-                if(!subscriptionMap[f][timeTrigger][s].cancelled) {
-
-                    //struct created to avoid 'stack too deep' error with too many variables
-                    Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
-                        subscriptionMap[f][timeTrigger][s].token, 
-                        subscriptionMap[f][timeTrigger][s].provider,
-                        approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals
-                    );
-
-                    uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
                 
-                    //calculates fee balance
-                    uint subFee = (amount * callerFee / 10000) - amount;
-                    uint totalFee;
+                uint16 timeTrigger;
+                if(f == uint(Frequency.WEEKLY)){
+                    timeTrigger = time.weekDay;
+                } 
+                if(f == uint(Frequency.MONTHLY)) {
+                    timeTrigger = time.dayOfMonth;
+                } 
+                if(f == uint(Frequency.QUARTERLY)) {
+                    timeTrigger = time.quarterDay;
+                } 
+                if(f == uint(Frequency.YEARLY)) {
+                    timeTrigger = time.yearDay;
+                }
 
-                    uint sublength = subscribersMap[remitSub.id].length;
-                    uint lastSub;
-                    
-                    //makes sure on an empty subscription lastSub doesn't underflow
-                    if(sublength > 0) {
-                        lastSub = sublength - 1;
-                    }
-                    
-                    //loops through subscribers
-                    for(uint u; u < sublength; u++) {
-
-                        //checks for max remit and returns false if limit hit
-                        if(remitCounter == maxRemits) {
-                            pageStart = PageStart(remitSub.id, u);
-                            pageGo = false;
-
-                            //if system fee is activated divides caller fee and remits portion to system
-                            if(allowSystemFee) {
-                                uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
-                                totalFee -= sysAmount;
-                                //sends system fee to system
-                                IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
-                            } 
-                            
-                            //sends fees to caller
-                            IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
-                            
-                            emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
-                            return;
-                        }
-
-                        //if this is the subscription and subscriber the page starts on
-                        if(remitSub.id == pageStart.id && u == pageStart.subscriberIndex) {
-                            pageGo = true;
-                        } 
-
-                        //if remits are less than max remits or beginning of next page
-                        if(pageStart.id == 0 || pageGo == true) {
-                            
-                            //checks for failure (balance and unlimited allowance)
-                            address subscriber = subscribersMap[remitSub.id][u];
-
-                            //check if there is enough allowance and balance
-                            if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
-                            && 
-                            IERC20(remitSub.token).balanceOf(subscriber) >= amount) {
-                                //SUCCESS
-                                remitCounter++;
-
-                                //checks feeBalance. If positive it decreases balance. 
-                                //If fee balance < fee amount it sends subscription amount to contract as fee payment.
-                                if(feeBalance[remitSub.id][subscriber] > subFee) {
-
-                                    //accounts for fee
-                                    totalFee += subFee;
-                                    feeBalance[remitSub.id][subscriber] -= subFee;
-                               
-                                    //log as succeeded
-                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
-                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
-
-                                    //remits from subscriber to provider
-                                    IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);
-                                } else {
-
-                                    //FEEFILL
-
-                                    //Caller gets paid remainder of feeBalance
-                                    totalFee += feeBalance[remitSub.id][subscriber];
-                                    delete feeBalance[remitSub.id][subscriber];
-
-                                    //log as feefill
-                                    //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FEEFILL);
-                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.FEEFILL);
-
-                                    //adjusts feefill based on frequency
-                                    
-                                    //variables for feefill
-                                    uint feefill = amount;
-                                    uint multiple = 1;
-
-                                    if(f == 2) {
-                                        feefill /= 3;
-                                        multiple = 2;
-                                    }
-                                    else if(f == 3) {
-                                        feefill /= 12;
-                                        multiple = 11;
-                                    }
-                                   
-                                    //remits to contract to refill fee balance
-                                    feeBalance[remitSub.id][subscriber] += feefill;
-                                    IERC20(remitSub.token).safeTransferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals));
-
-                                    if(f == 2 || f == 3) {
-                                        //funds the remainder to the provider
-                                        IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals));
-                                    }
-                                }
-                            } else {
-                                //FAILURE
-                                //Currently refunds remainder to Provider
-
-                                remitCounter++;
+                uint length = subscriptionMap[f][timeTrigger].length;
                 
-                                //checks if theres is enough feebalance left to pay Caller
-                                if(feeBalance[remitSub.id][subscriber] > subFee) {
-                                
-                                    //adds fee on fails
-                                    totalFee += subFee;
+                //loops through subscriptions
+                for(uint s; s < length; s++) {
 
-                                    uint feeRemainder = feeBalance[remitSub.id][subscriber] - subFee;
+                    //checks which subscription to start if paginated
+                    if(pageStart.id == 0 || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
 
-                                    //decrease feeBalance by fee and then zeros out
-                                    delete feeBalance[remitSub.id][subscriber];
+                        //Marks day as not empty
+                        isEmptyDay = false;
 
-                                    //emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, token, ProvEvent.REFUND);
-                                    emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), feeRemainder, remitSub.token, SubscriptEvent.PROVREFUND);
+                        //checks if cancelled
+                        if(!subscriptionMap[f][timeTrigger][s].cancelled) {
 
-                                    //pays remainder to provider
-                                    IERC20(remitSub.token).safeTransfer(remitSub.provider, convertAmount(feeRemainder, remitSub.decimals));
-                                }
+                            //struct created to avoid 'stack too deep' error with too many variables
+                            Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
+                                subscriptionMap[f][timeTrigger][s].token, 
+                                subscriptionMap[f][timeTrigger][s].provider,
+                                approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals
+                            );
 
-                                //unsubscribes on failure
-                                deleteSubFromSubscription(remitSub.id, subscriber);
+                            uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
+                        
+                            //calculates fee balance
+                            uint subFee = (amount * callerFee / 10000) - amount;
+                            uint totalFee;
 
-                                //emit unsubscribe to log
-                                emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
-
-                                //log as failed
-                                emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.FAILED);
+                            uint sublength = subscribersMap[remitSub.id].length;
+                            uint lastSub;
                             
+                            //makes sure on an empty subscription lastSub doesn't underflow
+                            if(sublength > 0) {
+                                lastSub = sublength - 1;
                             }
-                            //sends fees to caller on last subscriber in list (unless there are no subscribers)
-                            if(u == lastSub && sublength > 0) {
+                            
+                            //loops through subscribers
+                            for(uint u; u < sublength; u++) {
 
-                                //if system fee is activated divides caller fee and remits portion to system
-                                if(allowSystemFee) {
-                                    uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
-                                    totalFee -= sysAmount;
-                                    //sends system fee to system
-                                    IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
+                                //checks for max remit and returns false if limit hit
+                                if(remitCounter == maxRemits) {
+                                    pageStart = PageStart(remitSub.id, u, s, f, true);
+                                    pageGo = false;
+
+                                    //if system fee is activated divides caller fee and remits portion to system
+                                    if(allowSystemFee) {
+                                        uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                        totalFee -= sysAmount;
+                                        //sends system fee to system
+                                        IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
+                                    } 
+                                    
+                                    //sends fees to caller
+                                    IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
+                                    
+                                    emit CallerLog(uint40(block.timestamp), nextUncheckedDay, msg.sender, false);
+                                    return;
+                                }
+
+                                //if this is the subscription and subscriber the page starts on
+                                if(remitSub.id == pageStart.id && u == pageStart.subscriberIndex) {
+                                    pageGo = true;
                                 } 
-                                //sends fees to caller
-                                IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
-                                
+
+                                //if remits are less than max remits or beginning of next page
+                                if(pageStart.id == 0 || pageGo == true) {
+                                    
+                                    //checks for failure (balance and unlimited allowance)
+                                    address subscriber = subscribersMap[remitSub.id][u];
+
+                                    //check if there is enough allowance and balance
+                                    if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
+                                    && 
+                                    IERC20(remitSub.token).balanceOf(subscriber) >= amount) {
+                                        //SUCCESS
+                                        remitCounter++;
+
+                                        //checks feeBalance. If positive it decreases balance. 
+                                        //If fee balance < fee amount it sends subscription amount to contract as fee payment.
+                                        if(feeBalance[remitSub.id][subscriber] > subFee) {
+
+                                            //accounts for fee
+                                            totalFee += subFee;
+                                            feeBalance[remitSub.id][subscriber] -= subFee;
+                                    
+                                            //log as succeeded
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
+
+                                            //remits from subscriber to provider
+                                            IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);
+                                        } else {
+
+                                            //FEEFILL
+
+                                            //Caller gets paid remainder of feeBalance
+                                            totalFee += feeBalance[remitSub.id][subscriber];
+                                            delete feeBalance[remitSub.id][subscriber];
+
+                                            //log as feefill
+                                            //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FEEFILL);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.FEEFILL);
+
+                                            //adjusts feefill based on frequency
+                                            
+                                            //variables for feefill
+                                            uint feefill = amount;
+                                            uint multiple = 1;
+
+                                            if(f == 2) {
+                                                feefill /= 3;
+                                                multiple = 2;
+                                            }
+                                            else if(f == 3) {
+                                                feefill /= 12;
+                                                multiple = 11;
+                                            }
+                                        
+                                            //remits to contract to refill fee balance
+                                            feeBalance[remitSub.id][subscriber] += feefill;
+                                            IERC20(remitSub.token).safeTransferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals));
+
+                                            if(f == 2 || f == 3) {
+                                                //funds the remainder to the provider
+                                                IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals));
+                                            }
+                                        }
+                                    } else {
+                                        //FAILURE
+                                        //Currently refunds remainder to Provider
+
+                                        remitCounter++;
+                        
+                                        //checks if theres is enough feebalance left to pay Caller
+                                        if(feeBalance[remitSub.id][subscriber] > subFee) {
+                                        
+                                            //adds fee on fails
+                                            totalFee += subFee;
+
+                                            uint feeRemainder = feeBalance[remitSub.id][subscriber] - subFee;
+
+                                            //decrease feeBalance by fee and then zeros out
+                                            delete feeBalance[remitSub.id][subscriber];
+
+                                            //emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, token, ProvEvent.REFUND);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), feeRemainder, remitSub.token, SubscriptEvent.PROVREFUND);
+
+                                            //pays remainder to provider
+                                            IERC20(remitSub.token).safeTransfer(remitSub.provider, convertAmount(feeRemainder, remitSub.decimals));
+                                        }
+
+                                        //unsubscribes on failure
+                                        deleteSubFromSubscription(remitSub.id, subscriber);
+
+                                        //emit unsubscribe to log
+                                        emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
+
+                                        //log as failed
+                                        emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.FAILED);
+                                    
+                                    }
+                                    //sends fees to caller on last subscriber in list (unless there are no subscribers)
+                                    if(u == lastSub && sublength > 0) {
+
+                                        //if system fee is activated divides caller fee and remits portion to system
+                                        if(allowSystemFee) {
+                                            uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                            totalFee -= sysAmount;
+                                            //sends system fee to system
+                                            IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
+                                        } 
+                                        //sends fees to caller
+                                        IERC20(remitSub.token).safeTransfer(msg.sender, convertAmount(totalFee, remitSub.decimals));
+                                        
+                                    }
+                                }
                             }
                         }
                     }
