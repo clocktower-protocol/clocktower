@@ -1209,7 +1209,7 @@ contract ClockTowerSubscribe {
                             //check if there is enough allowance and balance
                             if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
                             && 
-                            IERC20(remitSub.token).balanceOf(subscriber) > amount) {
+                            IERC20(remitSub.token).balanceOf(subscriber) >= amount) {
                                 //SUCCESS
                                 remitCounter++;
 
