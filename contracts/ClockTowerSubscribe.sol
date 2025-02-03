@@ -402,7 +402,7 @@ contract ClockTowerSubscribe {
             if(monthCounter == month) {
                 dayCounter += day;
             } else {
-                dayCounter += getDaysInMonth(uintyear, month);
+                dayCounter += getDaysInMonth(uintyear, monthCounter);
             }
         }
 
