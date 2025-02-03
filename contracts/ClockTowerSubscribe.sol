@@ -241,6 +241,9 @@ contract ClockTowerSubscribe {
    /// @param admin_ The admin address
 
    constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) {
+
+    //checks that admin address is not zero
+    require(admin_ != address(0));
         
     callerFee = callerFee_;
 
@@ -313,6 +316,9 @@ contract ClockTowerSubscribe {
     function changeAdmin(address newAddress) isAdmin external {
        require((newAddress != address(0)));
 
+       //checks that address is different
+       require(newAddress != admin);
+
         admin = newAddress;
     }
 
@@ -321,6 +327,9 @@ contract ClockTowerSubscribe {
     function changeSysFeeReceiver(address newSysFeeAddress) isAdmin external {
        require((newSysFeeAddress != address(0)));
 
+       //checks that address is different
+       require(newSysFeeAddress != sysFeeReceiver);
+         
         sysFeeReceiver = newSysFeeAddress;
     }
 
