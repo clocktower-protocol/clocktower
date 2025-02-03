@@ -177,6 +177,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "getSubByIndex"
       | "getSubscribersById"
       | "getTotalSubscribers"
+      | "idSubMap"
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
@@ -278,6 +279,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "getTotalSubscribers",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "idSubMap", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "nextUncheckedDay",
@@ -373,6 +375,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "getTotalSubscribers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "idSubMap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "nextUncheckedDay",
@@ -683,6 +686,23 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   getTotalSubscribers: TypedContractMethod<[], [bigint], "view">;
 
+  idSubMap: TypedContractMethod<
+    [arg0: BytesLike],
+    [
+      [string, bigint, string, string, boolean, boolean, bigint, bigint] & {
+        id: string;
+        amount: bigint;
+        provider: string;
+        token: string;
+        exists: boolean;
+        cancelled: boolean;
+        frequency: bigint;
+        dueDay: bigint;
+      }
+    ],
+    "view"
+  >;
+
   maxRemits: TypedContractMethod<[], [bigint], "view">;
 
   nextUncheckedDay: TypedContractMethod<[], [bigint], "view">;
@@ -843,6 +863,24 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "getTotalSubscribers"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "idSubMap"
+  ): TypedContractMethod<
+    [arg0: BytesLike],
+    [
+      [string, bigint, string, string, boolean, boolean, bigint, bigint] & {
+        id: string;
+        amount: bigint;
+        provider: string;
+        token: string;
+        exists: boolean;
+        cancelled: boolean;
+        frequency: bigint;
+        dueDay: bigint;
+      }
+    ],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "maxRemits"
   ): TypedContractMethod<[], [bigint], "view">;
