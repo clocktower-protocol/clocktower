@@ -295,6 +295,9 @@ contract ClockTowerSubscribe {
     //mapping for nonces
     mapping(address => uint256) nonces;
 
+    //mapping of subscriptions by id
+    mapping(bytes32 => Subscription) public idSubMap;
+
 
     //ADMIN METHODS*************************************
 
@@ -773,17 +776,13 @@ contract ClockTowerSubscribe {
     }
     
     //checks subscription exists
-    function subExists(bytes32 id, uint16 dueDay, Frequency frequency, Status status) private view returns(bool) {
+    function subExists(bytes32 id) private view returns(bool) {
         
-        //check subscription exists
-        SubIndex memory index = SubIndex(id, dueDay, frequency, status);
-
-        Subscription memory memSubscription = getSubByIndex(index.id, index.frequency, index.dueDay);
-
-        if(memSubscription.exists) {
-            return true;
-        } else {
+        console.log(idSubMap[id].provider);
+        if(idSubMap[id].provider == address(0)){
             return false;
+        } else {
+            return true;
         }
         
     }
@@ -832,7 +831,7 @@ contract ClockTowerSubscribe {
     /// @dev Requires ERC20 allowance to be set before function is called
     function subscribe(Subscription calldata subscription) external {
 
-        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
+        require(subExists(subscription.id), "3");
 
         uint convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
@@ -970,7 +969,7 @@ contract ClockTowerSubscribe {
     function cancelSubscription(Subscription calldata subscription) external {
 
         //checks subscription exists
-        require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
+        require(subExists(subscription.id), "3");
 
         //require user be provider
         require(msg.sender == subscription.provider, "13");
@@ -1073,6 +1072,9 @@ contract ClockTowerSubscribe {
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
+
+        //adds subscription to id mapping
+        idSubMap[subscription.id] = subscription;
 
         emit DetailsLog(subscription.id, msg.sender, uint40(block.timestamp), details.url, details.description);
 

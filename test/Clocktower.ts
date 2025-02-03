@@ -203,7 +203,7 @@ describe("Clocktower", function(){
             
             
             //checks input of fake subscription
-            let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
+            let fakeSub = {id: "0x496e74686520517569636b2042726f776e20466f78204a6f686e204a6f686e20536d697468", amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
         
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub))
             .to.be.rejectedWith("3")
