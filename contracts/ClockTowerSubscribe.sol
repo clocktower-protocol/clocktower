@@ -737,10 +737,6 @@ contract ClockTowerSubscribe {
 
     }
 
-    function userNotZero() view private {
-        require(msg.sender != address(0), "2");
-    }
-
     function erc20IsApproved(address erc20Contract) private view returns(bool result) {
        return approvedERC20[erc20Contract].exists ? true:false;
     }
@@ -820,9 +816,6 @@ contract ClockTowerSubscribe {
     /// @dev Requires ERC20 allowance to be set before function is called
     function subscribe(Subscription calldata subscription) external {
 
-        //cannot be sent from zero address
-        userNotZero();
-
         require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
 
         uint convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
@@ -879,9 +872,6 @@ contract ClockTowerSubscribe {
     /// @param subscription Subscription struct 
     function unsubscribe(Subscription memory subscription) external {
 
-        //cannot be sent from zero address
-        userNotZero();
-
         //sets account subscription status as unsubscribed
         SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
         indexes = accountMap[msg.sender].subscriptions;
@@ -916,8 +906,6 @@ contract ClockTowerSubscribe {
      /// @param subscription Subscription struct
      /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
-
-        userNotZero();
 
         //checks mgs.sender is provider of sub
         SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
@@ -964,7 +952,6 @@ contract ClockTowerSubscribe {
     /// @dev Will cancel all subscriptions 
     /// @param subscription Subscription struct
     function cancelSubscription(Subscription calldata subscription) external {
-        userNotZero();
 
         //checks subscription exists
         require(subExists(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), "3");
@@ -1039,9 +1026,6 @@ contract ClockTowerSubscribe {
     /// @param dueDay The day in the cycle the subscription is due
     /// @dev The dueDay will be within differing ranges based on frequency. 
     function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
-        
-        //cannot be sent from zero address
-        userNotZero();
 
         //cannot be ETH or zero address
         require(token != address(0), "4");
