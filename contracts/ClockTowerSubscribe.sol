@@ -195,8 +195,8 @@ contract ClockTowerSubscribe {
 
     //Events-------------------------------------
     event CallerLog(
-        uint40 timestamp,
-        uint40 checkedDay,
+        uint40 indexed timestamp,
+        uint40 indexed checkedDay,
         address indexed caller,
         bool isFinished
     );
@@ -222,7 +222,7 @@ contract ClockTowerSubscribe {
     event ProvDetailsLog(
         address indexed provider,
         uint40 indexed timestamp,
-        string description,
+        string indexed description,
         string company, 
         string url, 
         string domain,
