@@ -244,6 +244,10 @@ contract ClockTowerSubscribe {
 
     //checks that admin address is not zero
     require(admin_ != address(0));
+
+    //checks that caller and system fees are within bounds
+    require(callerFee_ >= 10000 && callerFee_ <= 10833);
+    require(systemFee_ >= 10000 && systemFee_ <= 19999);
         
     callerFee = callerFee_;
 
