@@ -194,6 +194,7 @@ contract ClockTowerSubscribe {
         address token;
         address provider;
         uint8 decimals;
+        uint f;
     }
 
     //Events-------------------------------------
@@ -231,6 +232,14 @@ contract ClockTowerSubscribe {
         string domain,
         string email, 
         string misc
+    );
+
+    event Coordinates(
+        bytes32 indexed id,
+        uint subscriberIndex,
+        uint subscriptionIndex,
+        uint frequency,
+        uint40 indexed nextUncheckedDay
     );
 
    /// @notice Contract constructor 
@@ -382,6 +391,20 @@ contract ClockTowerSubscribe {
     function changeMaxRemits(uint _maxRemits) isAdmin external {
         maxRemits = _maxRemits;
     }
+
+    
+    /// @notice Set pageStart coordinates
+    /// @param _pageStart Contains of coordinates of where next remit should start
+    function setPageStart(PageStart calldata _pageStart) isAdmin external {
+        pageStart = _pageStart;
+    }
+
+    /// @notice Set next unchecked day
+    /// @param _nextUncheckedDay next day to be remitted
+    function setNextUncheckedDay(uint40 _nextUncheckedDay) isAdmin external {
+        nextUncheckedDay = _nextUncheckedDay;
+    }
+    
 
     //-------------------------------------------------------
 
@@ -705,7 +728,7 @@ contract ClockTowerSubscribe {
                         }
 
                         //if remits are less than max remits
-                        if(pageStart.id == 0 || pageGo == true) {
+                        if(!pageStart.initialized || pageGo == true) {
                         
                             remitCounter++;
                                 
@@ -778,7 +801,6 @@ contract ClockTowerSubscribe {
     //checks subscription exists
     function subExists(bytes32 id) private view returns(bool) {
         
-        console.log(idSubMap[id].provider);
         if(idSubMap[id].provider == address(0)){
             return false;
         } else {
@@ -1136,7 +1158,7 @@ contract ClockTowerSubscribe {
         for(uint f; f <= 3; f++) {
 
             //checks which frequency to start if paginated
-           if(pageStart.id == 0 || (pageStart.frequency <= f && pageStart.initialized)) {
+           if(!pageStart.initialized || (pageStart.frequency <= f && pageStart.initialized)) {
             
                 
                 uint16 timeTrigger;
@@ -1159,7 +1181,7 @@ contract ClockTowerSubscribe {
                 for(uint s; s < length; s++) {
 
                     //checks which subscription to start if paginated
-                    if(pageStart.id == 0 || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
+                    if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
 
                         //Marks day as not empty
                         isEmptyDay = false;
@@ -1171,7 +1193,8 @@ contract ClockTowerSubscribe {
                             Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
                                 subscriptionMap[f][timeTrigger][s].token, 
                                 subscriptionMap[f][timeTrigger][s].provider,
-                                approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals
+                                approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals,
+                                f
                             );
 
                             uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
@@ -1193,6 +1216,7 @@ contract ClockTowerSubscribe {
 
                                 //checks for max remit and returns false if limit hit
                                 if(remitCounter == maxRemits) {
+                                
                                     pageStart = PageStart(remitSub.id, u, s, f, true);
                                     pageGo = false;
 
@@ -1217,7 +1241,7 @@ contract ClockTowerSubscribe {
                                 } 
 
                                 //if remits are less than max remits or beginning of next page
-                                if(pageStart.id == 0 || pageGo == true) {
+                                if(!pageStart.initialized || pageGo == true) {
                                     
                                     //checks for failure (balance and unlimited allowance)
                                     address subscriber = subscribersMap[remitSub.id][u];
@@ -1240,6 +1264,7 @@ contract ClockTowerSubscribe {
                                             //log as succeeded
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
+                                            emit Coordinates(remitSub.id, u, s, remitSub.f, nextUncheckedDay);
 
                                             //remits from subscriber to provider
                                             IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);
@@ -1311,6 +1336,7 @@ contract ClockTowerSubscribe {
 
                                         //log as failed
                                         emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.FAILED);
+                                        emit Coordinates(remitSub.id, u, s, remitSub.f, nextUncheckedDay);
                                     
                                     }
                                     //sends fees to caller on last subscriber in list (unless there are no subscribers)

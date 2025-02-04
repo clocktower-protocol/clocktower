@@ -152,6 +152,28 @@ export declare namespace ClockTowerSubscribe {
     subscriber: string,
     feeBalance: bigint
   ] & { subscriber: string; feeBalance: bigint };
+
+  export type PageStartStruct = {
+    id: BytesLike;
+    subscriberIndex: BigNumberish;
+    subscriptionIndex: BigNumberish;
+    frequency: BigNumberish;
+    initialized: boolean;
+  };
+
+  export type PageStartStructOutput = [
+    id: string,
+    subscriberIndex: bigint,
+    subscriptionIndex: bigint,
+    frequency: bigint,
+    initialized: boolean
+  ] & {
+    id: string;
+    subscriberIndex: bigint;
+    subscriptionIndex: bigint;
+    frequency: bigint;
+    initialized: boolean;
+  };
 }
 
 export interface ClockTowerSubscribeInterface extends Interface {
@@ -181,6 +203,8 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "maxRemits"
       | "nextUncheckedDay"
       | "remit"
+      | "setNextUncheckedDay"
+      | "setPageStart"
       | "subscribe"
       | "systemFee"
       | "systemFeeActivate"
@@ -191,6 +215,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "CallerLog"
+      | "Coordinates"
       | "DetailsLog"
       | "ProvDetailsLog"
       | "SubLog"
@@ -287,6 +312,14 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "setNextUncheckedDay",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPageStart",
+    values: [ClockTowerSubscribe.PageStartStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -382,6 +415,14 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setNextUncheckedDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPageStart",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
   decodeFunctionResult(
@@ -416,6 +457,34 @@ export namespace CallerLogEvent {
     checkedDay: bigint;
     caller: string;
     isFinished: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace CoordinatesEvent {
+  export type InputTuple = [
+    id: BytesLike,
+    subscriberIndex: BigNumberish,
+    subscriptionIndex: BigNumberish,
+    frequency: BigNumberish,
+    nextUncheckedDay: BigNumberish
+  ];
+  export type OutputTuple = [
+    id: string,
+    subscriberIndex: bigint,
+    subscriptionIndex: bigint,
+    frequency: bigint,
+    nextUncheckedDay: bigint
+  ];
+  export interface OutputObject {
+    id: string;
+    subscriberIndex: bigint;
+    subscriptionIndex: bigint;
+    frequency: bigint;
+    nextUncheckedDay: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -709,6 +778,18 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   remit: TypedContractMethod<[], [void], "nonpayable">;
 
+  setNextUncheckedDay: TypedContractMethod<
+    [_nextUncheckedDay: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setPageStart: TypedContractMethod<
+    [_pageStart: ClockTowerSubscribe.PageStartStruct],
+    [void],
+    "nonpayable"
+  >;
+
   subscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
@@ -891,6 +972,20 @@ export interface ClockTowerSubscribe extends BaseContract {
     nameOrSignature: "remit"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setNextUncheckedDay"
+  ): TypedContractMethod<
+    [_nextUncheckedDay: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setPageStart"
+  ): TypedContractMethod<
+    [_pageStart: ClockTowerSubscribe.PageStartStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "subscribe"
   ): TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
@@ -929,6 +1024,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     CallerLogEvent.OutputObject
   >;
   getEvent(
+    key: "Coordinates"
+  ): TypedContractEvent<
+    CoordinatesEvent.InputTuple,
+    CoordinatesEvent.OutputTuple,
+    CoordinatesEvent.OutputObject
+  >;
+  getEvent(
     key: "DetailsLog"
   ): TypedContractEvent<
     DetailsLogEvent.InputTuple,
@@ -960,6 +1062,17 @@ export interface ClockTowerSubscribe extends BaseContract {
       CallerLogEvent.InputTuple,
       CallerLogEvent.OutputTuple,
       CallerLogEvent.OutputObject
+    >;
+
+    "Coordinates(bytes32,uint256,uint256,uint256,uint40)": TypedContractEvent<
+      CoordinatesEvent.InputTuple,
+      CoordinatesEvent.OutputTuple,
+      CoordinatesEvent.OutputObject
+    >;
+    Coordinates: TypedContractEvent<
+      CoordinatesEvent.InputTuple,
+      CoordinatesEvent.OutputTuple,
+      CoordinatesEvent.OutputObject
     >;
 
     "DetailsLog(bytes32,address,uint40,string,string)": TypedContractEvent<

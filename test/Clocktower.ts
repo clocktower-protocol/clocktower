@@ -1120,6 +1120,128 @@ describe("Clocktower", function(){
             //console.log((balance2 - balance3))
 
         })
+        it("Allows the admin user to set the starting location of remittances", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
+
+            let remits = 5
+
+            //sets remits to 5
+            expect(await hardhatClockSubscribe.changeMaxRemits(remits))
+
+            //allows external callers
+            //await hardhatClockSubscribe.setExternalCallers(true)
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            //loop that creates subscription objects from returned arrays
+
+            let subArray =[]
+            //subscriptions
+            for (let i = 0; i < subscriptions.length; i++) {
+                subArray.push({
+                    id: subscriptions[i].subscription[0],
+                    amount: subscriptions[i].subscription[1],
+                    provider: subscriptions[i].subscription[2],
+                    token: subscriptions[i].subscription[3],
+                    exists: subscriptions[i].subscription[4],
+                    cancelled: subscriptions[i].subscription[5],
+                    frequency: subscriptions[i].subscription[6],
+                    dueDay: subscriptions[i].subscription[7]
+                })
+            }
+
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[1])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[2])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[3])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[4])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[5])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[6])
+
+            //console.log(subArray[0].id)
+
+             //gets next unchecked day number
+             const nextUncheckedDay4 = await hardhatClockSubscribe.nextUncheckedDay();
+
+             //console.log(nextUncheckedDay4)
+ 
+            
+            await time.increaseTo(twoHoursAhead);
+
+            let subscribersId = await hardhatClockSubscribe.getSubscribersById(subArray[0].id)
+
+            expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
+            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("1.0")
+
+            let isFinished = false
+            let pageCounter = 0
+
+
+
+            //balance befoe remmitance
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+            const coordinateDay = await hardhatClockSubscribe.nextUncheckedDay();
+             //gets next unchecked day number
+            //  console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+            //  console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+
+            let otherBalance = await hardhatCLOCKToken.balanceOf(subscriber.address)
+
+            let expected = hre.ethers.parseEther("86.0");
+
+            //gets fee balance
+            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subArray[0].id,subscriber.address))).to.equal("0.98")
+
+            expect(otherBalance).to.equal(expected)
+
+            //resets remittance to beginning
+            await hardhatClockSubscribe.connect(owner).setNextUncheckedDay(coordinateDay)
+
+            //balance befoe remmitance
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+           // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(hre.ethers.parseEther("79.0"))
+
+            //resets remittance to beginning
+            await hardhatClockSubscribe.connect(owner).setNextUncheckedDay(coordinateDay)
+
+            const pageStart = {
+                id: subArray[1].id,
+                subscriberIndex: 0,
+                subscriptionIndex: 0,
+                frequency: 1,
+                initialized: true
+            }
+            //sets coordinates within day ahead
+            await hardhatClockSubscribe.connect(owner).setPageStart(pageStart)
+
+            //balance befoe remmitance
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+            //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            await hardhatClockSubscribe.connect(caller).remit();
+           // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(hre.ethers.parseEther("73.0"))
+
+        })
         
     })
  
