@@ -287,7 +287,7 @@ contract ClockTowerSubscribe {
     //Account map
     //mapping(address => Account) private accountMap;
 
-    //TODO: Flattened account structure. 
+    //TODO: DONE Flattened account structure. 
     mapping(address => EnumerableSet.Bytes32Set) subscribedTo;
     mapping(address => EnumerableSet.Bytes32Set) createdSubs;
     //status by user address keyed by sub id
@@ -320,6 +320,10 @@ contract ClockTowerSubscribe {
 
     //mapping of subscriptions by id
     mapping(bytes32 => Subscription) public idSubMap;
+
+    //mapping of unsubscribed addresses per subscription
+    mapping(bytes32 => EnumerableSet.AddressSet) unsubscribedMap;
+
 
     //--------------------------------------------
 
@@ -643,18 +647,18 @@ contract ClockTowerSubscribe {
         SubView[] memory subViews = new SubView[](ids.length);
 
         for(uint i; i < ids.length; i++){
-            subViews[i].subscription = idSubMap[ids[i]];
+
             if(bySubscriber) {
                 subViews[i].status = subStatusMap[account][ids[i]];
             } else {
                  subViews[i].status = provStatusMap[account][ids[i]];
             }
+            
+            subViews[i].subscription = idSubMap[ids[i]];
             subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
+            
         }
-        
-        
-
-        
+           
         return subViews;
     }
 
@@ -934,9 +938,17 @@ contract ClockTowerSubscribe {
         subscribers.pop();
         */
 
-        //TODO: DONE. removes subscriber from subscription list
+       /*
+        //TODO: removes subscriber from subscription list
         if(subscribersMap2[id].contains(account)) {
             subscribersMap2[id].remove(account);
+        }
+       */
+
+        //TODO:
+        //adds unsubscribed address to set
+        if(!unsubscribedMap[id].contains(account)) {
+            unsubscribedMap[id].add(account);
         }
     }
 
@@ -951,23 +963,27 @@ contract ClockTowerSubscribe {
             accountMap[msg.sender].exists = true;
         } 
         */
-        //checks existence 
+        //new account
         if(!accountLookup2.contains(msg.sender)){
             //TODO: DONE
             accountLookup2.add(msg.sender);
         }
+        
         if(isProvider){
-           // accountMap[msg.sender].provSubs.push() = subIndex;
+        // accountMap[msg.sender].provSubs.push() = subIndex;
             //TODO: DONE
             createdSubs[msg.sender].add(subIndex.id);
+            
             provStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
 
         } else {
-           // accountMap[msg.sender].subscriptions.push() = subIndex;
+        // accountMap[msg.sender].subscriptions.push() = subIndex;
             //TODO: DONE
             subscribedTo[msg.sender].add(subIndex.id);
+            
             subStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
         }
+        
 
     }
 
@@ -994,8 +1010,17 @@ contract ClockTowerSubscribe {
         //adds to subscriber map
         //subscribersMap[subscription.id].push() = msg.sender;
 
+        //TODO: DONE
+        //Adds to subscriber list
+        if(!subscribersMap2[subscription.id].contains(msg.sender)) {
+            subscribersMap2[subscription.id].add(msg.sender);
+        }
+
         //TODO:
-        subscribersMap2[subscription.id].add(msg.sender);
+        //Removes from unsubscribed list
+        if(unsubscribedMap[subscription.id].contains(msg.sender)) {
+            unsubscribedMap[subscription.id].remove(msg.sender);
+        }
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
@@ -1110,7 +1135,6 @@ contract ClockTowerSubscribe {
         }
         require(isSubscribed, "9");
         */
-        //need to add require/revert
         bool isSubscribed;
         //TODO: DONE
         if(subscribersMap2[subscription.id].contains(subscriber)) {
@@ -1218,7 +1242,7 @@ contract ClockTowerSubscribe {
         for(uint i; i < subscriptions.length; i++) {
             if(subscriptions[i].id == subscription.id) {
                subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
-               //TODO:
+               //TODO: DONE
                idSubMap[subscription.id].cancelled = true;
             }
         }
@@ -1423,10 +1447,16 @@ contract ClockTowerSubscribe {
                                 //if remits are less than max remits or beginning of next page
                                 if(!pageStart.initialized || pageGo == true) {
                                     
-                                    //TODO:
+                                    //TODO: DONE
                                     //checks for failure (balance and unlimited allowance)
                                     //address subscriber = subscribersMap[remitSub.id][u];
                                     address subscriber = subscribersMap2[remitSub.id].at(u);
+
+                                    //TODO:
+                                    //skips unsubscribed
+                                    if(unsubscribedMap[remitSub.id].contains(subscriber)) {
+                                        continue;
+                                    }
 
                                     //check if there is enough allowance and balance
                                     if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
