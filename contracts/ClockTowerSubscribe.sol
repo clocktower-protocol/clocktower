@@ -285,7 +285,7 @@ contract ClockTowerSubscribe {
     //--------------Account Mappings-------------
 
     //Account map
-    mapping(address => Account) private accountMap;
+    //mapping(address => Account) private accountMap;
 
     //TODO: Flattened account structure. 
     mapping(address => EnumerableSet.Bytes32Set) subscribedTo;
@@ -624,11 +624,14 @@ contract ClockTowerSubscribe {
         for(uint i; i < indexes.length; i++){
             subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
             subViews[i].status = indexes[i].status;  
-            //TODO:
            // subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
            subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
         }
         */
+        
+        
+        //TODO: DONE
+
         bytes32[] memory ids;
         if(bySubscriber) {
             ids = subscribedTo[account].values();
@@ -648,6 +651,8 @@ contract ClockTowerSubscribe {
             }
             subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
         }
+        
+        
 
         
         return subViews;
@@ -665,7 +670,44 @@ contract ClockTowerSubscribe {
     /// @param account Account address
     /// @return Returns Account struct for supplied address
     function getAccount(address account) public view returns (Account memory) {
-        return accountMap[account];
+        //TODO: DONE. Now uses new flat account structure
+
+        uint subsLength = subscribedTo[account].length();
+        uint provLength = createdSubs[account].length();
+
+        //gets array of subs subscribed to by address
+        SubIndex[] memory subsArray = new SubIndex[](subsLength);
+
+        for(uint i; i < subsLength; i++) {
+            bytes32 id = subscribedTo[account].at(i);
+
+            //gets subscription details
+            Subscription memory tempSub = idSubMap[id];
+
+            //creates SubIndex
+            subsArray[i] = SubIndex(id, tempSub.dueDay, tempSub.frequency, subStatusMap[account][id]);
+        }
+
+        //gets array of subs created by address
+        SubIndex[] memory provArray = new SubIndex[](subsLength);
+
+        for(uint i; i < provLength; i++) {
+            bytes32 id = createdSubs[account].at(i);
+
+            //gets subscription details
+            Subscription memory tempSub = idSubMap[id];
+
+            //creates SubIndex
+            provArray[i] = SubIndex(id, tempSub.dueDay, tempSub.frequency, provStatusMap[account][id]);
+        }
+
+        //creates account struct
+        Account memory accountStruct = Account(account, true, subsArray, provArray);
+
+
+
+        //return accountMap[account];
+        return accountStruct;
     }
     
     /// @notice Gets subscribers by subscription id
@@ -673,7 +715,7 @@ contract ClockTowerSubscribe {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
-        //TODO:
+        //TODO: DONE
         /*
         address[] memory scriberArray = new address[](subscribersMap[id].length);
 
@@ -892,34 +934,37 @@ contract ClockTowerSubscribe {
         subscribers.pop();
         */
 
-        //TODO: removes subscriber from subscription list
+        //TODO: DONE. removes subscriber from subscription list
         if(subscribersMap2[id].contains(account)) {
             subscribersMap2[id].remove(account);
         }
     }
 
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
+    
         //new account
+        /*
         if(accountMap[msg.sender].exists == false) {
             accountMap[msg.sender].accountAddress = msg.sender;
             //adds to lookup table
             //accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
         } 
+        */
         //checks existence 
         if(!accountLookup2.contains(msg.sender)){
-            //TODO:
+            //TODO: DONE
             accountLookup2.add(msg.sender);
         }
         if(isProvider){
-            accountMap[msg.sender].provSubs.push() = subIndex;
-            //TODO: 
+           // accountMap[msg.sender].provSubs.push() = subIndex;
+            //TODO: DONE
             createdSubs[msg.sender].add(subIndex.id);
             provStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
 
         } else {
-            accountMap[msg.sender].subscriptions.push() = subIndex;
-            //TODO:
+           // accountMap[msg.sender].subscriptions.push() = subIndex;
+            //TODO: DONE
             subscribedTo[msg.sender].add(subIndex.id);
             subStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
         }
@@ -993,6 +1038,10 @@ contract ClockTowerSubscribe {
     /// @param subscription Subscription struct 
     function unsubscribe(Subscription memory subscription) external {
 
+        //TODO: 
+        subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
+
+        /*
         //sets account subscription status as unsubscribed
         SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
         indexes = accountMap[msg.sender].subscriptions;
@@ -1003,6 +1052,7 @@ contract ClockTowerSubscribe {
                 accountMap[msg.sender].subscriptions[j].status = Status.UNSUBSCRIBED;
             }
         }
+        */
 
         deleteSubFromSubscription(subscription.id, msg.sender);
 
@@ -1028,6 +1078,15 @@ contract ClockTowerSubscribe {
      /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
+        //TODO: DONE
+        bool isProvider2;
+        //checks msg.sender is provider of sub
+        if(createdSubs[msg.sender].contains(subscription.id)){
+            isProvider2 = true;
+        }
+        require(isProvider2, "8");
+
+        /*
         //checks mgs.sender is provider of sub
         SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
         bool isProvider;
@@ -1037,6 +1096,7 @@ contract ClockTowerSubscribe {
             }
         }
         require(isProvider, "8");
+        */
         
         /*
         //checks subscriber is subscribed if so marks them as unsubscribed
@@ -1052,7 +1112,7 @@ contract ClockTowerSubscribe {
         */
         //need to add require/revert
         bool isSubscribed;
-        //TODO:
+        //TODO: DONE
         if(subscribersMap2[subscription.id].contains(subscriber)) {
             isSubscribed = true;
             subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
@@ -1090,6 +1150,11 @@ contract ClockTowerSubscribe {
         //require user be provider
         require(msg.sender == subscription.provider, "13");
 
+        //marks provider as cancelled
+        //TODO: DONE
+        provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 
+
+        /*
         SubIndex[] memory provIndex = accountMap[msg.sender].provSubs;
 
         uint length = accountMap[msg.sender].provSubs.length;
@@ -1100,13 +1165,13 @@ contract ClockTowerSubscribe {
                 accountMap[msg.sender].provSubs[j].status = Status.CANCELLED;
             }
         }
+        */
 
         //gets list of subscribers and deletes subscriber list
-        //address[] memory subscribers = subscribersMap[subscription.id];
-        address[] memory subscribers = new address[](subscribersMap2[subscription.id].length());
+        //address[] memory subscribers = new address[](subscribersMap2[subscription.id].length());
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap2[subscription.id];
 
-        //TODO:
+        //TODO: DONE
         //for(uint i; i < subscribers.length; i++) {
         for(uint i; i < subscribersMap2[subscription.id].length(); i++) {
 
@@ -1128,6 +1193,11 @@ contract ClockTowerSubscribe {
             //refunds fee balance
             IERC20(subscription.token).safeTransfer(subscriberAddress, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
             
+            //TODO: DONE
+            //sets status as cancelled
+            subStatusMap[subscriberAddress][subscription.id] = Status.CANCELLED;
+
+            /*
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
             indexes = accountMap[subscriberAddress].subscriptions;
@@ -1136,15 +1206,20 @@ contract ClockTowerSubscribe {
                     accountMap[subscriberAddress].subscriptions[j].status = Status.CANCELLED;
                 }
             }
+            */
+
             //deletes subscriber list
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
+        //TODO: set lookup subscription as cancelled also
         //sets cancelled bool to true for subscription
         Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
         for(uint i; i < subscriptions.length; i++) {
             if(subscriptions[i].id == subscription.id) {
                subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
+               //TODO:
+               idSubMap[subscription.id].cancelled = true;
             }
         }
 
