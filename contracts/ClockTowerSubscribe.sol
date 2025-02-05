@@ -295,7 +295,10 @@ contract ClockTowerSubscribe {
     mapping(address => mapping(bytes32 => Status)) provStatusMap;
 
      //creates lookup table for mapping
-    address[] public accountLookup;
+    //address[] public accountLookup;
+    //account lookup table using enumerable set
+    EnumerableSet.AddressSet accountLookup2;
+
 
     //fee balance
     mapping(bytes32 => mapping(address => uint)) public feeBalance;
@@ -309,7 +312,7 @@ contract ClockTowerSubscribe {
     mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
 
     //map of subscribers
-    mapping(bytes32 => address[]) subscribersMap;
+    //mapping(bytes32 => address[]) subscribersMap;
 
     //TODO:
     //map of subscribers using enumerable set
@@ -604,6 +607,7 @@ contract ClockTowerSubscribe {
     /// @return Returns array of subscriptions in the Subview struct form
     function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
 
+        /*
         SubIndex[] memory indexes;
         //gets account indexes
         if(bySubscriber) {
@@ -624,6 +628,27 @@ contract ClockTowerSubscribe {
            // subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
            subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
         }
+        */
+        bytes32[] memory ids;
+        if(bySubscriber) {
+            ids = subscribedTo[account].values();
+        } else {
+           // indexes = accountMap[msg.sender].provSubs;
+           ids = createdSubs[account].values();
+        }
+
+        SubView[] memory subViews = new SubView[](ids.length);
+
+        for(uint i; i < ids.length; i++){
+            subViews[i].subscription = idSubMap[ids[i]];
+            if(bySubscriber) {
+                subViews[i].status = subStatusMap[account][ids[i]];
+            } else {
+                 subViews[i].status = provStatusMap[account][ids[i]];
+            }
+            subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
+        }
+
         
         return subViews;
     }
@@ -631,7 +656,8 @@ contract ClockTowerSubscribe {
     /// @return Returns total amount of subscribers
     //returns total amount of subscribers
     function getTotalSubscribers() external view returns (uint) {
-        return accountLookup.length;
+       return accountLookup2.length();
+       // return accountLookup.length;
     }
     
 
@@ -847,6 +873,7 @@ contract ClockTowerSubscribe {
     //deletes subscribers from Subscription
     function deleteSubFromSubscription(bytes32 id, address account) private {
         
+        /*
         //deletes index in account
         address[] storage subscribers = subscribersMap[id];
 
@@ -863,6 +890,7 @@ contract ClockTowerSubscribe {
 
         subscribers[index2] = subscribers[subscribers.length - 1];
         subscribers.pop();
+        */
 
         //TODO: removes subscriber from subscription list
         if(subscribersMap2[id].contains(account)) {
@@ -875,9 +903,14 @@ contract ClockTowerSubscribe {
         if(accountMap[msg.sender].exists == false) {
             accountMap[msg.sender].accountAddress = msg.sender;
             //adds to lookup table
-            accountLookup.push() = msg.sender;
+            //accountLookup.push() = msg.sender;
             accountMap[msg.sender].exists = true;
         } 
+        //checks existence 
+        if(!accountLookup2.contains(msg.sender)){
+            //TODO:
+            accountLookup2.add(msg.sender);
+        }
         if(isProvider){
             accountMap[msg.sender].provSubs.push() = subIndex;
             //TODO: 
@@ -914,7 +947,7 @@ contract ClockTowerSubscribe {
         require(msg.sender != subscription.provider, "0");
 
         //adds to subscriber map
-        subscribersMap[subscription.id].push() = msg.sender;
+        //subscribersMap[subscription.id].push() = msg.sender;
 
         //TODO:
         subscribersMap2[subscription.id].add(msg.sender);
@@ -1005,6 +1038,7 @@ contract ClockTowerSubscribe {
         }
         require(isProvider, "8");
         
+        /*
         //checks subscriber is subscribed if so marks them as unsubscribed
         address[] memory subscribers = subscribersMap[subscription.id];
         bool isSubscribed;
@@ -1015,11 +1049,15 @@ contract ClockTowerSubscribe {
             }
         }
         require(isSubscribed, "9");
-
+        */
+        //need to add require/revert
+        bool isSubscribed;
         //TODO:
         if(subscribersMap2[subscription.id].contains(subscriber)) {
+            isSubscribed = true;
             subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
-        }
+        } 
+        require(isSubscribed, "9");
 
         deleteSubFromSubscription(subscription.id, subscriber);
 

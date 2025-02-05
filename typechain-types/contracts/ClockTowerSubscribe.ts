@@ -179,7 +179,6 @@ export declare namespace ClockTowerSubscribe {
 export interface ClockTowerSubscribeInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "accountLookup"
       | "addERC20Contract"
       | "approvedERC20"
       | "callerFee"
@@ -221,10 +220,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "SubLog"
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "accountLookup",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "addERC20Contract",
     values: [AddressLike, BigNumberish, BigNumberish]
@@ -337,10 +332,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [ClockTowerSubscribe.SubscriptionStruct, AddressLike]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "accountLookup",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "addERC20Contract",
     data: BytesLike
@@ -634,8 +625,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  accountLookup: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
-
   addERC20Contract: TypedContractMethod<
     [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
     [void],
@@ -823,9 +812,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
-  getFunction(
-    nameOrSignature: "accountLookup"
-  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "addERC20Contract"
   ): TypedContractMethod<
