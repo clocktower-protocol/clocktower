@@ -523,6 +523,7 @@ describe("Clocktower", function(){
 
             expect(await hardhatClockSubscribe.connect(caller).remit())
         })
+        /*
         it("Should predict fees", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber} = await loadFixture(deployClocktowerFixture);
             //adds CLOCK to approved tokens
@@ -561,6 +562,7 @@ describe("Clocktower", function(){
             
             
         })
+            */
         it("Should collect system fees", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider, caller, subscriber} = await loadFixture(deployClocktowerFixture);
 

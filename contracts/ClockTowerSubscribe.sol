@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /*
 interface ERC20{
@@ -19,6 +20,8 @@ interface ERC20{
 /// @author Hugo Marx
 contract ClockTowerSubscribe {
     using SafeERC20 for IERC20;
+    using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSet for EnumerableSet.Bytes32Set;
     /** 
     @dev 
     //Require error codes
@@ -283,11 +286,20 @@ contract ClockTowerSubscribe {
 
     //Account map
     mapping(address => Account) private accountMap;
+
+    //TODO: Flattened account structure. 
+    mapping(address => EnumerableSet.Bytes32Set) subscribedTo;
+    mapping(address => EnumerableSet.Bytes32Set) createdSubs;
+    //status by user address keyed by sub id
+    mapping(address => mapping(bytes32 => Status)) subStatusMap;
+    mapping(address => mapping(bytes32 => Status)) provStatusMap;
+
      //creates lookup table for mapping
     address[] public accountLookup;
 
     //fee balance
     mapping(bytes32 => mapping(address => uint)) public feeBalance;
+
 
     //---------------------------------------------
 
@@ -299,14 +311,17 @@ contract ClockTowerSubscribe {
     //map of subscribers
     mapping(bytes32 => address[]) subscribersMap;
 
-    //--------------------------------------------
-
-    //mapping for nonces
-    mapping(address => uint256) nonces;
+    //TODO:
+    //map of subscribers using enumerable set
+    mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
 
     //mapping of subscriptions by id
     mapping(bytes32 => Subscription) public idSubMap;
 
+    //--------------------------------------------
+
+    //mapping for nonces
+    mapping(address => uint256) nonces;
 
     //ADMIN METHODS*************************************
 
@@ -605,7 +620,9 @@ contract ClockTowerSubscribe {
         for(uint i; i < indexes.length; i++){
             subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
             subViews[i].status = indexes[i].status;  
-            subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
+            //TODO:
+           // subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
+           subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
         }
         
         return subViews;
@@ -630,6 +647,8 @@ contract ClockTowerSubscribe {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
+        //TODO:
+        /*
         address[] memory scriberArray = new address[](subscribersMap[id].length);
 
         scriberArray = subscribersMap[id];
@@ -640,6 +659,21 @@ contract ClockTowerSubscribe {
 
             uint feeBalanceTemp = feeBalance[id][scriberArray[i]];
             SubscriberView memory scriberView = SubscriberView(scriberArray[i], feeBalanceTemp);
+            scriberViews[i] = scriberView;
+        }
+        */
+        uint length = subscribersMap2[id].length();
+       // address[] memory scriberArray = new address[](length);
+
+        //scriberArray = subscribersMap[id];
+        
+
+        SubscriberView[] memory scriberViews = new SubscriberView[](length);
+
+        for(uint i; i < length; i++) {
+
+            uint feeBalanceTemp = feeBalance[id][subscribersMap2[id].at(i)];
+            SubscriberView memory scriberView = SubscriberView(subscribersMap2[id].at(i), feeBalanceTemp);
             scriberViews[i] = scriberView;
         }
 
@@ -665,6 +699,7 @@ contract ClockTowerSubscribe {
             }
           return subscription;
     }
+    
     
     /// @notice Function that sends back array of FeeEstimate structs per subscription
     /// @return Array of FeeEstimate structs
@@ -719,7 +754,7 @@ contract ClockTowerSubscribe {
                     uint totalFee;
                  
                     //loops through subscribers
-                    for(uint j; j < subscribersMap[id].length; j++) {
+                    for(uint j; j < subscribersMap2[id].length(); j++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
@@ -761,7 +796,7 @@ contract ClockTowerSubscribe {
         
         return feeArray2;
     }
-    
+
     
    
     //PRIVATE FUNCTIONS----------------------------------------------
@@ -828,6 +863,11 @@ contract ClockTowerSubscribe {
 
         subscribers[index2] = subscribers[subscribers.length - 1];
         subscribers.pop();
+
+        //TODO: removes subscriber from subscription list
+        if(subscribersMap2[id].contains(account)) {
+            subscribersMap2[id].remove(account);
+        }
     }
 
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
@@ -840,9 +880,17 @@ contract ClockTowerSubscribe {
         } 
         if(isProvider){
             accountMap[msg.sender].provSubs.push() = subIndex;
+            //TODO: 
+            createdSubs[msg.sender].add(subIndex.id);
+            provStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
+
         } else {
             accountMap[msg.sender].subscriptions.push() = subIndex;
+            //TODO:
+            subscribedTo[msg.sender].add(subIndex.id);
+            subStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
         }
+
     }
 
 
@@ -867,6 +915,9 @@ contract ClockTowerSubscribe {
 
         //adds to subscriber map
         subscribersMap[subscription.id].push() = msg.sender;
+
+        //TODO:
+        subscribersMap2[subscription.id].add(msg.sender);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
@@ -965,6 +1016,11 @@ contract ClockTowerSubscribe {
         }
         require(isSubscribed, "9");
 
+        //TODO:
+        if(subscribersMap2[subscription.id].contains(subscriber)) {
+            subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
+        }
+
         deleteSubFromSubscription(subscription.id, subscriber);
 
         //emit unsubscribe to log
@@ -1008,33 +1064,42 @@ contract ClockTowerSubscribe {
         }
 
         //gets list of subscribers and deletes subscriber list
-        address[] memory subscribers = subscribersMap[subscription.id];
+        //address[] memory subscribers = subscribersMap[subscription.id];
+        address[] memory subscribers = new address[](subscribersMap2[subscription.id].length());
+        EnumerableSet.AddressSet storage subscribers2 = subscribersMap2[subscription.id];
 
-        for(uint i; i < subscribers.length; i++) {
+        //TODO:
+        //for(uint i; i < subscribers.length; i++) {
+        for(uint i; i < subscribersMap2[subscription.id].length(); i++) {
+
+            address subscriberAddress = subscribers2.at(i);
 
             //refunds feeBalances to subscribers
             
-            uint feeBal = feeBalance[subscription.id][subscribers[i]];
+            //uint feeBal = feeBalance[subscription.id][subscribers[i]];
+            uint feeBal = feeBalance[subscription.id][subscriberAddress];
 
             //emit SubscriberLog(subscription.id, subscribers[i], subscription.provider, uint40(block.timestamp), feeBal, subscription.token, SubEvent.REFUND); 
-            emit SubLog(subscription.id, subscription.provider, subscribers[i], uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
+            //emit SubLog(subscription.id, subscription.provider, subscribers[i], uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
+            emit SubLog(subscription.id, subscription.provider, subscriberAddress, uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
 
             //zeros out fee balance
-            delete feeBalance[subscription.id][subscribers[i]];
+            //delete feeBalance[subscription.id][subscribers[i]];
+            delete feeBalance[subscription.id][subscriberAddress];
 
             //refunds fee balance
-            IERC20(subscription.token).safeTransfer(subscribers[i], convertAmount(feeBal, approvedERC20[subscription.token].decimals));
+            IERC20(subscription.token).safeTransfer(subscriberAddress, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
             
             //sets account subscription status as cancelled
             SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
-            indexes = accountMap[subscribers[i]].subscriptions;
-            for(uint j; j < accountMap[subscribers[i]].subscriptions.length; j++){
+            indexes = accountMap[subscriberAddress].subscriptions;
+            for(uint j; j < accountMap[subscriberAddress].subscriptions.length; j++){
                 if(indexes[j].id == subscription.id) {
-                    accountMap[subscribers[i]].subscriptions[j].status = Status.CANCELLED;
+                    accountMap[subscriberAddress].subscriptions[j].status = Status.CANCELLED;
                 }
             }
             //deletes subscriber list
-            deleteSubFromSubscription(subscription.id, subscribers[i]);
+            deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
         //sets cancelled bool to true for subscription
@@ -1203,7 +1268,9 @@ contract ClockTowerSubscribe {
                             uint subFee = (amount * callerFee / 10000) - amount;
                             uint totalFee;
 
-                            uint sublength = subscribersMap[remitSub.id].length;
+                            //TODO:
+                            //uint sublength = subscribersMap[remitSub.id].length;
+                            uint sublength = subscribersMap2[remitSub.id].length();
                             uint lastSub;
                             
                             //makes sure on an empty subscription lastSub doesn't underflow
@@ -1243,8 +1310,10 @@ contract ClockTowerSubscribe {
                                 //if remits are less than max remits or beginning of next page
                                 if(!pageStart.initialized || pageGo == true) {
                                     
+                                    //TODO:
                                     //checks for failure (balance and unlimited allowance)
-                                    address subscriber = subscribersMap[remitSub.id][u];
+                                    //address subscriber = subscribersMap[remitSub.id][u];
+                                    address subscriber = subscribersMap2[remitSub.id].at(u);
 
                                     //check if there is enough allowance and balance
                                     if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
