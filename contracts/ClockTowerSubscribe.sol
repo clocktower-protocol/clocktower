@@ -6,16 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-/*
-interface ERC20{
-  function transferFrom(address from, address to, uint value) external returns (bool);
-  function balanceOf(address tokenOwner) external returns (uint);
-  function approve(address spender, uint tokens) external returns (bool);
-  function transfer(address to, uint value) external returns (bool);
-  function allowance(address owner, address spender) external returns (uint);
-} 
-*/
-
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
 contract ClockTowerSubscribe {
@@ -284,18 +274,12 @@ contract ClockTowerSubscribe {
 
     //--------------Account Mappings-------------
 
-    //Account map
-    //mapping(address => Account) private accountMap;
-
-    //TODO: DONE Flattened account structure. 
     mapping(address => EnumerableSet.Bytes32Set) subscribedTo;
     mapping(address => EnumerableSet.Bytes32Set) createdSubs;
     //status by user address keyed by sub id
     mapping(address => mapping(bytes32 => Status)) subStatusMap;
     mapping(address => mapping(bytes32 => Status)) provStatusMap;
 
-     //creates lookup table for mapping
-    //address[] public accountLookup;
     //account lookup table using enumerable set
     EnumerableSet.AddressSet accountLookup2;
 
@@ -309,18 +293,9 @@ contract ClockTowerSubscribe {
     //--------------Subscription mappings------------ 
 
     //Subscription master map keyed on frequency -> dueDay
-    //mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
-
-    //TODO: 
-    //Subscription master map keyed on frequency -> dueDay
     mapping(uint => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap2;
 
-
-    //map of subscribers
-    //mapping(bytes32 => address[]) subscribersMap;
-
-    //TODO: DONE
-    //map of subscribers using enumerable set
+    //map of subscribers by subscription id
     mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
 
     //mapping of subscriptions by id
@@ -616,31 +591,6 @@ contract ClockTowerSubscribe {
     /// @return Returns array of subscriptions in the Subview struct form
     function getAccountSubscriptions(bool bySubscriber, address account) external view returns (SubView[] memory) {
 
-        /*
-        SubIndex[] memory indexes;
-        //gets account indexes
-        if(bySubscriber) {
-            //indexes = accountMap[msg.sender].subscriptions;
-            indexes = accountMap[account].subscriptions;
-        } else {
-           // indexes = accountMap[msg.sender].provSubs;
-           indexes = accountMap[account].provSubs;
-        }
-
-        SubView[] memory subViews = new SubView[](indexes.length);
-
-        //loops through account index and fetchs subscriptions, status and logs
-        for(uint i; i < indexes.length; i++){
-            subViews[i].subscription = getSubByIndex(indexes[i].id, indexes[i].frequency, indexes[i].dueDay);
-            subViews[i].status = indexes[i].status;  
-           // subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length; 
-           subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
-        }
-        */
-        
-        
-        //TODO: DONE
-
         bytes32[] memory ids;
         if(bySubscriber) {
             ids = subscribedTo[account].values();
@@ -671,7 +621,6 @@ contract ClockTowerSubscribe {
     //returns total amount of subscribers
     function getTotalSubscribers() external view returns (uint) {
        return accountLookup2.length();
-       // return accountLookup.length;
     }
     
 
@@ -679,8 +628,7 @@ contract ClockTowerSubscribe {
     /// @param account Account address
     /// @return Returns Account struct for supplied address
     function getAccount(address account) public view returns (Account memory) {
-        //TODO: DONE. Now uses new flat account structure
-
+        
         uint subsLength = subscribedTo[account].length();
         uint provLength = createdSubs[account].length();
 
@@ -713,9 +661,6 @@ contract ClockTowerSubscribe {
         //creates account struct
         Account memory accountStruct = Account(account, true, subsArray, provArray);
 
-
-
-        //return accountMap[account];
         return accountStruct;
     }
     
@@ -724,27 +669,8 @@ contract ClockTowerSubscribe {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
-        //TODO: DONE
-        /*
-        address[] memory scriberArray = new address[](subscribersMap[id].length);
-
-        scriberArray = subscribersMap[id];
-
-        SubscriberView[] memory scriberViews = new SubscriberView[](subscribersMap[id].length);
-
-        for(uint i; i < scriberArray.length; i++) {
-
-            uint feeBalanceTemp = feeBalance[id][scriberArray[i]];
-            SubscriberView memory scriberView = SubscriberView(scriberArray[i], feeBalanceTemp);
-            scriberViews[i] = scriberView;
-        }
-        */
         uint length = subscribersMap2[id].length();
-       // address[] memory scriberArray = new address[](length);
-
-        //scriberArray = subscribersMap[id];
-        
-
+       
         SubscriberView[] memory scriberViews = new SubscriberView[](length);
 
         for(uint i; i < length; i++) {
@@ -756,33 +682,6 @@ contract ClockTowerSubscribe {
 
         return scriberViews;
     }
-    
-    /*
-    /// @notice Gets subscription struct by id, frequency and due day
-    /// @param id Subscription id in bytes
-    /// @param frequency Frequency number of cycle
-    /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
-    /// @param dueDay The day in the cycle the subscription is due
-    /// @dev The dueDay will be within differing ranges based on frequency. 
-    /// @return subscription Subscription struct
-    function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
-
-        /*
-        Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
-
-        //searches for subscription in day map
-            for(uint j; j < subList.length; j++) {
-                if(subList[j].id == id) {
-                        subscription = subList[j];
-                }
-            }
-        
-          return subscription;
-        */
-      // return idSubMap[id];
-    //}
-    
-    
     
     /// @notice Function that sends back array of FeeEstimate structs per subscription
     /// @return Array of FeeEstimate structs
@@ -822,23 +721,14 @@ contract ClockTowerSubscribe {
             
 
             //loops through subscriptions
-            //TODO:
-            //for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
             for(uint i; i < subscriptionMap2[s][timeTrigger].length(); i++) {
 
                 //gets subscription
                 Subscription memory subscription = idSubMap[subscriptionMap2[s][timeTrigger].at(i)];
 
                 //checks if cancelled
-                //if(!subscriptionMap[s][timeTrigger][i].cancelled) {
                 if(!subscription.cancelled) {
 
-                    /*
-                    bytes32 id = subscriptionMap[s][timeTrigger][i].id;
-                    address token = subscriptionMap[s][timeTrigger][i].token;
-                    uint amount = subscriptionMap[s][timeTrigger][i].amount;
-                    */
-                   // bytes32 id = subscription.id;
                     address token = subscription.token;
                     uint amount = subscription.amount;
 
@@ -942,33 +832,6 @@ contract ClockTowerSubscribe {
     //deletes subscribers from Subscription
     function deleteSubFromSubscription(bytes32 id, address account) private {
         
-        /*
-        //deletes index in account
-        address[] storage subscribers = subscribersMap[id];
-
-        uint index2;
-
-        uint length = subscribers.length;
-        for(uint i; i < length; i++) {
-            if(subscribers[i] == account) {
-                index2 = i;
-                delete subscribers[i];
-                break; 
-            }
-        }
-
-        subscribers[index2] = subscribers[subscribers.length - 1];
-        subscribers.pop();
-        */
-
-       /*
-        //TODO: removes subscriber from subscription list
-        if(subscribersMap2[id].contains(account)) {
-            subscribersMap2[id].remove(account);
-        }
-       */
-
-        //TODO:
         //adds unsubscribed address to set
         if(!unsubscribedMap[id].contains(account)) {
             unsubscribedMap[id].add(account);
@@ -978,30 +841,18 @@ contract ClockTowerSubscribe {
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
     
         //new account
-        /*
-        if(accountMap[msg.sender].exists == false) {
-            accountMap[msg.sender].accountAddress = msg.sender;
-            //adds to lookup table
-            //accountLookup.push() = msg.sender;
-            accountMap[msg.sender].exists = true;
-        } 
-        */
-        //new account
         if(!accountLookup2.contains(msg.sender)){
-            //TODO: DONE
             accountLookup2.add(msg.sender);
         }
         
         if(isProvider){
-        // accountMap[msg.sender].provSubs.push() = subIndex;
-            //TODO: DONE
+
             createdSubs[msg.sender].add(subIndex.id);
             
             provStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
 
         } else {
-        // accountMap[msg.sender].subscriptions.push() = subIndex;
-            //TODO: DONE
+        
             subscribedTo[msg.sender].add(subIndex.id);
             
             subStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
@@ -1030,17 +881,12 @@ contract ClockTowerSubscribe {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
-        //adds to subscriber map
-        //subscribersMap[subscription.id].push() = msg.sender;
-
-        //TODO: DONE
-        //Adds to subscriber list
+        //Adds to subscriber set
         if(!subscribersMap2[subscription.id].contains(msg.sender)) {
             subscribersMap2[subscription.id].add(msg.sender);
         }
 
-        //TODO:
-        //Removes from unsubscribed list
+        //Removes from unsubscribed set
         if(unsubscribedMap[subscription.id].contains(msg.sender)) {
             unsubscribedMap[subscription.id].remove(msg.sender);
         }
@@ -1085,22 +931,8 @@ contract ClockTowerSubscribe {
     /// @notice Unsubscribes account from subscription
     /// @param subscription Subscription struct 
     function unsubscribe(Subscription memory subscription) external {
-
-        //TODO: 
+ 
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
-
-        /*
-        //sets account subscription status as unsubscribed
-        SubIndex[] memory indexes = new SubIndex[](accountMap[msg.sender].subscriptions.length);
-        indexes = accountMap[msg.sender].subscriptions;
-        
-        uint length = accountMap[msg.sender].subscriptions.length;
-        for(uint j; j < length; j++){
-            if(indexes[j].id == subscription.id) {
-                accountMap[msg.sender].subscriptions[j].status = Status.UNSUBSCRIBED;
-            }
-        }
-        */
 
         deleteSubFromSubscription(subscription.id, msg.sender);
 
@@ -1126,7 +958,6 @@ contract ClockTowerSubscribe {
      /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
 
-        //TODO: DONE
         bool isProvider2;
         //checks msg.sender is provider of sub
         if(createdSubs[msg.sender].contains(subscription.id)){
@@ -1134,32 +965,8 @@ contract ClockTowerSubscribe {
         }
         require(isProvider2, "8");
 
-        /*
-        //checks mgs.sender is provider of sub
-        SubIndex[] memory indexes = accountMap[msg.sender].provSubs;
-        bool isProvider;
-        for(uint i; i < indexes.length; i++) {
-            if(indexes[i].id == subscription.id) {
-                isProvider = true;
-            }
-        }
-        require(isProvider, "8");
-        */
+        bool isSubscribed;
         
-        /*
-        //checks subscriber is subscribed if so marks them as unsubscribed
-        address[] memory subscribers = subscribersMap[subscription.id];
-        bool isSubscribed;
-        for(uint i; i < subscribers.length; i++) {
-            if(subscribers[i] == subscriber){
-                isSubscribed = true;
-                accountMap[subscriber].subscriptions[i].status = Status.UNSUBSCRIBED;
-            }
-        }
-        require(isSubscribed, "9");
-        */
-        bool isSubscribed;
-        //TODO: DONE
         if(subscribersMap2[subscription.id].contains(subscriber)) {
             isSubscribed = true;
             subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
@@ -1169,7 +976,6 @@ contract ClockTowerSubscribe {
         deleteSubFromSubscription(subscription.id, subscriber);
 
         //emit unsubscribe to log
-        //emit SubscriberLog(subscription.id, subscriber, subscription.provider, uint40(block.timestamp), subscription.amount, subscription.token, SubEvent.UNSUBSCRIBED);
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to subscriber
@@ -1178,7 +984,6 @@ contract ClockTowerSubscribe {
         //zeros out fee balance
         delete feeBalance[subscription.id][subscriber];
 
-        //emit SubscriberLog(subscription.id, subscriber, subscription.provider, uint40(block.timestamp), balance, subscription.token, SubEvent.REFUND);
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
 
         //Refunds fee balance
@@ -1198,87 +1003,39 @@ contract ClockTowerSubscribe {
         require(msg.sender == subscription.provider, "13");
 
         //marks provider as cancelled
-        //TODO: DONE
         provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 
 
-        /*
-        SubIndex[] memory provIndex = accountMap[msg.sender].provSubs;
-
-        uint length = accountMap[msg.sender].provSubs.length;
-
-        //marks provider index in provider account as cancelled
-        for(uint j; j < length; j++) {
-            if(provIndex[j].id == subscription.id) {
-                accountMap[msg.sender].provSubs[j].status = Status.CANCELLED;
-            }
-        }
-        */
-
         //gets list of subscribers and deletes subscriber list
-        //address[] memory subscribers = new address[](subscribersMap2[subscription.id].length());
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap2[subscription.id];
 
-        //TODO: DONE
-        //for(uint i; i < subscribers.length; i++) {
         for(uint i; i < subscribersMap2[subscription.id].length(); i++) {
 
             address subscriberAddress = subscribers2.at(i);
 
             //refunds feeBalances to subscribers
-            
-            //uint feeBal = feeBalance[subscription.id][subscribers[i]];
             uint feeBal = feeBalance[subscription.id][subscriberAddress];
 
-            //emit SubscriberLog(subscription.id, subscribers[i], subscription.provider, uint40(block.timestamp), feeBal, subscription.token, SubEvent.REFUND); 
-            //emit SubLog(subscription.id, subscription.provider, subscribers[i], uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
             emit SubLog(subscription.id, subscription.provider, subscriberAddress, uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
 
             //zeros out fee balance
-            //delete feeBalance[subscription.id][subscribers[i]];
             delete feeBalance[subscription.id][subscriberAddress];
 
             //refunds fee balance
             IERC20(subscription.token).safeTransfer(subscriberAddress, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
             
-            //TODO: DONE
             //sets status as cancelled
             subStatusMap[subscriberAddress][subscription.id] = Status.CANCELLED;
-
-            /*
-            //sets account subscription status as cancelled
-            SubIndex[] memory indexes = new SubIndex[](accountMap[subscribers[i]].subscriptions.length);
-            indexes = accountMap[subscriberAddress].subscriptions;
-            for(uint j; j < accountMap[subscriberAddress].subscriptions.length; j++){
-                if(indexes[j].id == subscription.id) {
-                    accountMap[subscriberAddress].subscriptions[j].status = Status.CANCELLED;
-                }
-            }
-            */
 
             //deletes subscriber list
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
-        //TODO: DONE
-        //sets cancelled bool to true for subscription
-        /*
-        Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
-        for(uint i; i < subscriptions.length; i++) {
-            if(subscriptions[i].id == subscription.id) {
-               subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
-               //TODO: DONE
-               idSubMap[subscription.id].cancelled = true;
-            }
-        }
-        */
-        //Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
         uint length = subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].length();
         for(uint i; i < length; i++) {
             if(subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
-            //if(subscriptions[i].id == subscription.id) {
-               //subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
-               //TODO: DONE
+
                idSubMap[subscription.id].cancelled = true;
+
             }
         }
 
@@ -1327,8 +1084,6 @@ contract ClockTowerSubscribe {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
-        //TODO:
-        //subscriptionMap[uint(frequency)][dueDay].push() = subscription;
         subscriptionMap2[uint(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
@@ -1414,8 +1169,6 @@ contract ClockTowerSubscribe {
                     timeTrigger = time.yearDay;
                 }
 
-                //TODO:
-               // uint length = subscriptionMap[f][timeTrigger].length;
                 uint length = subscriptionMap2[f][timeTrigger].length();
                 
                 
@@ -1425,28 +1178,15 @@ contract ClockTowerSubscribe {
                     //checks which subscription to start if paginated
                     if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
 
-                        //TODO:
                         //gets subscription
                         Subscription memory subscription = idSubMap[subscriptionMap2[f][timeTrigger].at(s)];
 
                         //Marks day as not empty
                         isEmptyDay = false;
 
-                        //TODO:
                         //checks if cancelled
-                        //if(!subscriptionMap[f][timeTrigger][s].cancelled) {
                         if(!subscription.cancelled) {
 
-                            /*
-                            //struct created to avoid 'stack too deep' error with too many variables
-                            Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
-                                subscriptionMap[f][timeTrigger][s].token, 
-                                subscriptionMap[f][timeTrigger][s].provider,
-                                approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals,
-                                f   
-                            );
-                            */
-                            
                              //struct created to avoid 'stack too deep' error with too many variables
                             Remit memory remitSub = Remit(subscription.id, 
                                 subscription.token, 
@@ -1455,16 +1195,12 @@ contract ClockTowerSubscribe {
                                 f   
                             );
                             
-                            //TODO:
-                            //uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
                             uint amount = convertAmount(subscription.amount, remitSub.decimals);
                         
                             //calculates fee balance
                             uint subFee = (amount * callerFee / 10000) - amount;
                             uint totalFee;
 
-                            //TODO: DONE
-                            //uint sublength = subscribersMap[remitSub.id].length;
                             uint sublength = subscribersMap2[remitSub.id].length();
                             uint lastSub;
                             
@@ -1505,12 +1241,9 @@ contract ClockTowerSubscribe {
                                 //if remits are less than max remits or beginning of next page
                                 if(!pageStart.initialized || pageGo == true) {
                                     
-                                    //TODO: DONE
                                     //checks for failure (balance and unlimited allowance)
-                                    //address subscriber = subscribersMap[remitSub.id][u];
                                     address subscriber = subscribersMap2[remitSub.id].at(u);
 
-                                    //TODO:
                                     //skips unsubscribed
                                     if(unsubscribedMap[remitSub.id].contains(subscriber)) {
                                         continue;
