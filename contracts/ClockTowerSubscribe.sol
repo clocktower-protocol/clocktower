@@ -98,7 +98,6 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev provSubs array are subscriptions the user has created
     struct Account {
         address accountAddress;
-        bool exists;
         SubIndex[] subscriptions;
         SubIndex[] provSubs;
     }
@@ -108,7 +107,6 @@ contract ClockTowerSubscribe is Ownable2Step {
         uint256 amount;
         address provider;
         address token;
-        bool exists;
         bool cancelled;
         Frequency frequency;
         uint16 dueDay;
@@ -161,9 +159,8 @@ contract ClockTowerSubscribe is Ownable2Step {
     //approved ERC20 struct
     struct ApprovedToken {
         address tokenAddress;
-        uint256 minimum;
         uint8 decimals;
-        bool exists;
+        uint256 minimum;
     }
 
     struct Details {
@@ -344,7 +341,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
 
-        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, minimum, decimals, true);
+        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, decimals, minimum);
     }
 
 
@@ -634,7 +631,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         }
 
         //creates account struct
-        Account memory accountStruct = Account(account, true, subsArray, provArray);
+        Account memory accountStruct = Account(account, subsArray, provArray);
 
         return accountStruct;
     }
@@ -775,7 +772,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     }
 
     function erc20IsApproved(address erc20Contract) private view returns(bool result) {
-       return approvedERC20[erc20Contract].exists ? true:false;
+       return approvedERC20[erc20Contract].tokenAddress != address(0);
     }
 
     //sets Subscription
@@ -790,7 +787,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //creates id hash
         bytes32 id = keccak256(abi.encodePacked(msg.sender, nonce, block.timestamp));
 
-        subscription = Subscription(id, amount, msg.sender, token, true, false, frequency, dueDay);
+        subscription = Subscription(id, amount, msg.sender, token, false, frequency, dueDay);
     }
     
     //checks subscription exists
@@ -1076,7 +1073,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //checks if msg.sender is provider
         Account memory returnedAccount = getAccount(msg.sender);
 
-        if(returnedAccount.exists) {
+        if(returnedAccount.accountAddress != address(0)) {
             //checks if subscription is part of account
             for(uint256 i; i < returnedAccount.provSubs.length; i++) {
                 if(returnedAccount.provSubs[i].id == id) {
