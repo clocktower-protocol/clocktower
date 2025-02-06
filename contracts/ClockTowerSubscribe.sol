@@ -42,13 +42,13 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Percentage of subscription given to user who calls remit as a fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
-    uint public callerFee;
+    uint256 public callerFee;
 
     /// @notice Percentage of caller fee paid to system
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
-    uint public systemFee;
+    uint256 public systemFee;
 
-    uint public maxRemits;
+    uint256 public maxRemits;
 
     /// @dev Index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
@@ -105,7 +105,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     struct Subscription {
         bytes32 id;
-        uint amount;
+        uint256 amount;
         address provider;
         address token;
         bool exists;
@@ -124,9 +124,9 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev Struct for pagination
     struct PageStart {
         bytes32 id;
-        uint subscriberIndex;
-        uint subscriptionIndex;
-        uint frequency;
+        uint256 subscriberIndex;
+        uint256 subscriptionIndex;
+        uint256 frequency;
         bool initialized;
     }
 
@@ -134,13 +134,13 @@ contract ClockTowerSubscribe is Ownable2Step {
     struct SubView {
         Subscription subscription;
         Status status;
-        uint totalSubscribers;
+        uint256 totalSubscribers;
     }
 
     ///@dev Subscriber struct for views
     struct SubscriberView {
         address subscriber;
-        uint feeBalance;
+        uint256 feeBalance;
     }
 
     struct Time {
@@ -154,14 +154,14 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     //struct for fee estimates
     struct FeeEstimate {
-        uint fee;
+        uint256 fee;
         address token;
     }
 
     //approved ERC20 struct
     struct ApprovedToken {
         address tokenAddress;
-        uint minimum;
+        uint256 minimum;
         uint8 decimals;
         bool exists;
     }
@@ -185,7 +185,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         address token;
         address provider;
         uint8 decimals;
-        uint f;
+        uint256 f;
     }
 
     //Events-------------------------------------
@@ -201,7 +201,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         address indexed provider,
         address indexed subscriber,
         uint40 timestamp,
-        uint amount,
+        uint256 amount,
         address token,
         SubscriptEvent subScriptEvent
     );
@@ -227,9 +227,9 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     event Coordinates(
         bytes32 indexed id,
-        uint subscriberIndex,
-        uint subscriptionIndex,
-        uint frequency,
+        uint256 subscriberIndex,
+        uint256 subscriptionIndex,
+        uint256 frequency,
         uint40 indexed nextUncheckedDay
     );
 
@@ -243,7 +243,7 @@ contract ClockTowerSubscribe is Ownable2Step {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
+   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
 
     //checks that admin address is not zero
     require(admin_ != address(0));
@@ -283,7 +283,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
 
     //fee balance
-    mapping(bytes32 => mapping(address => uint)) public feeBalance;
+    mapping(bytes32 => mapping(address => uint256)) public feeBalance;
 
 
     //---------------------------------------------
@@ -291,7 +291,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     //--------------Subscription mappings------------ 
 
     //Subscription master map keyed on frequency -> dueDay
-    mapping(uint => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap2;
+    mapping(uint256 => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap2;
 
     //map of subscribers by subscription id
     mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
@@ -339,7 +339,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param erc20Contract ERC20 Contract address
     /// @param minimum Token minimum in wei
     /// @param decimals Number of token decimals
-    function addERC20Contract(address erc20Contract, uint minimum, uint8 decimals) onlyOwner external {
+    function addERC20Contract(address erc20Contract, uint256 minimum, uint8 decimals) onlyOwner external {
 
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
@@ -352,20 +352,20 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param _fee New Caller fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
-    function changeCallerFee(uint _fee) onlyOwner external {
+    function changeCallerFee(uint256 _fee) onlyOwner external {
         callerFee = _fee;
     }
 
     /// @notice Change system fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @param _sys_fee New System fee
-    function changeSystemFee(uint _sys_fee) onlyOwner external {
+    function changeSystemFee(uint256 _sys_fee) onlyOwner external {
         systemFee = _sys_fee;
     }
 
     /// @notice Change max remits
     /// @param _maxRemits New number of max remits per transaction
-    function changeMaxRemits(uint _maxRemits) onlyOwner external {
+    function changeMaxRemits(uint256 _maxRemits) onlyOwner external {
         maxRemits = _maxRemits;
     }
 
@@ -389,9 +389,9 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Converts unix time number to Time struct
     /// @param unix Unix Epoch Time number
     /// @return time Time struct
-    function unixToTime(uint unix) internal pure returns (Time memory time) {
+    function unixToTime(uint256 unix) internal pure returns (Time memory time) {
        
-        uint _days = unix/86400;
+        uint256 _days = unix/86400;
         uint16 day;
         uint16 yearDay;
        
@@ -408,16 +408,16 @@ contract ClockTowerSubscribe is Ownable2Step {
         _month = _month + 2 - 12 * L;
         _year = 100 * (N - 49) + _year + L;
 
-        uint uintyear = uint(_year);
-        uint month = uint(_month);
-        uint uintday = uint(_day);
+        uint256 uintyear = uint(_year);
+        uint256 month = uint(_month);
+        uint256 uintday = uint(_day);
 
         day = uint16(uintday);        
 
-        uint dayCounter;
+        uint256 dayCounter;
 
         //loops through months to get current day of year
-        for(uint monthCounter = 1; monthCounter <= month; monthCounter++) {
+        for(uint256 monthCounter = 1; monthCounter <= month; monthCounter++) {
             if(monthCounter == month) {
                 dayCounter += day;
             } else {
@@ -439,7 +439,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Checks if year is a leap year
     /// @param year Year number
     /// @return  leapYear Boolean value. True if leap year false if not
-    function isLeapYear(uint year) internal pure returns (bool leapYear) {
+    function isLeapYear(uint256 year) internal pure returns (bool leapYear) {
         leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
     }
 
@@ -448,7 +448,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param month Number of month. 1 - 12
     /// @dev Month range is 1 - 12
     /// @return daysInMonth Number of days in the month
-    function getDaysInMonth(uint year, uint month) internal pure returns (uint daysInMonth) {
+    function getDaysInMonth(uint256 year, uint256 month) internal pure returns (uint256 daysInMonth) {
         if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
             daysInMonth = 31;
         } else if (month != 2) {
@@ -462,9 +462,9 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param unixTime Unix Epoch Time number
     /// @return dayOfWeek Returns Day of Week 
     /// @dev 1 = Monday, 7 = Sunday
-    function getDayOfWeek(uint unixTime) internal pure returns (uint16 dayOfWeek) {
-        uint _days = unixTime / 86400;
-        uint dayOfWeekuint = (_days + 3) % 7 + 1;
+    function getDayOfWeek(uint256 unixTime) internal pure returns (uint16 dayOfWeek) {
+        uint256 _days = unixTime / 86400;
+        uint256 dayOfWeekuint = (_days + 3) % 7 + 1;
         dayOfWeek = uint16(dayOfWeekuint);
 
     }
@@ -473,9 +473,9 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param yearDays Day of year
     /// @param year Number of year
     /// @return quarterDay Returns day in quarter
-    function getdayOfQuarter(uint yearDays, uint year) internal pure returns (uint16 quarterDay) {
+    function getdayOfQuarter(uint256 yearDays, uint256 year) internal pure returns (uint16 quarterDay) {
         
-        uint leapDay;
+        uint256 leapDay;
         if(isLeapYear(year)) {
             leapDay = 1;
         } else {
@@ -508,11 +508,11 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param frequency Frequency number of cycle
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @return Prorated amount
-    function prorate(uint unixTime, uint40 dueDay, uint fee, uint8 frequency) internal pure returns (uint)  {
+    function prorate(uint256 unixTime, uint40 dueDay, uint256 fee, uint8 frequency) internal pure returns (uint256)  {
         Time memory time = unixToTime(unixTime);
-        uint currentDay;
-        uint max;
-        uint lastDayOfMonth;
+        uint256 currentDay;
+        uint256 max;
+        uint256 lastDayOfMonth;
         
         //sets maximum range day amount
         if(frequency == 0) {
@@ -536,7 +536,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //monthly
         if(frequency == 1) {
-            uint dailyFee = (fee * 12 / 365);
+            uint256 dailyFee = (fee * 12 / 365);
             if(dueDay != currentDay && currentDay > dueDay){
                     //dates split months
                     fee = (dailyFee * (max - (currentDay - dueDay)));
@@ -576,7 +576,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         SubView[] memory subViews = new SubView[](ids.length);
 
-        for(uint i; i < ids.length; i++){
+        for(uint256 i; i < ids.length; i++){
 
             if(bySubscriber) {
                 subViews[i].status = subStatusMap[account][ids[i]];
@@ -594,7 +594,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     /// @return Returns total amount of subscribers
     //returns total amount of subscribers
-    function getTotalSubscribers() external view returns (uint) {
+    function getTotalSubscribers() external view returns (uint256) {
        return accountLookup2.length();
     }
     
@@ -604,13 +604,13 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @return Returns Account struct for supplied address
     function getAccount(address account) public view returns (Account memory) {
         
-        uint subsLength = subscribedTo[account].length();
-        uint provLength = createdSubs[account].length();
+        uint256 subsLength = subscribedTo[account].length();
+        uint256 provLength = createdSubs[account].length();
 
         //gets array of subs subscribed to by address
         SubIndex[] memory subsArray = new SubIndex[](subsLength);
 
-        for(uint i; i < subsLength; i++) {
+        for(uint256 i; i < subsLength; i++) {
             bytes32 id = subscribedTo[account].at(i);
 
             //gets subscription details
@@ -623,7 +623,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //gets array of subs created by address
         SubIndex[] memory provArray = new SubIndex[](subsLength);
 
-        for(uint i; i < provLength; i++) {
+        for(uint256 i; i < provLength; i++) {
             bytes32 id = createdSubs[account].at(i);
 
             //gets subscription details
@@ -644,13 +644,13 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
-        uint length = subscribersMap2[id].length();
+        uint256 length = subscribersMap2[id].length();
        
         SubscriberView[] memory scriberViews = new SubscriberView[](length);
 
-        for(uint i; i < length; i++) {
+        for(uint256 i; i < length; i++) {
 
-            uint feeBalanceTemp = feeBalance[id][subscribersMap2[id].at(i)];
+            uint256 feeBalanceTemp = feeBalance[id][subscribersMap2[id].at(i)];
             SubscriberView memory scriberView = SubscriberView(subscribersMap2[id].at(i), feeBalanceTemp);
             scriberViews[i] = scriberView;
         }
@@ -670,15 +670,15 @@ contract ClockTowerSubscribe is Ownable2Step {
         //calls time function
         Time memory time = unixToTime(block.timestamp);
 
-        uint remitCounter;
-        uint subCounter;
+        uint256 remitCounter;
+        uint256 subCounter;
 
         FeeEstimate[] memory feeArray = new FeeEstimate[](maxRemits);
     
         //gets subscriptions from mappings
        
         //loops through types
-        for(uint s; s <= 3; s++) {
+        for(uint256 s; s <= 3; s++) {
 
             uint16 timeTrigger;
             if(s == uint(Frequency.WEEKLY)){
@@ -696,7 +696,7 @@ contract ClockTowerSubscribe is Ownable2Step {
             
 
             //loops through subscriptions
-            for(uint i; i < subscriptionMap2[s][timeTrigger].length(); i++) {
+            for(uint256 i; i < subscriptionMap2[s][timeTrigger].length(); i++) {
 
                 //gets subscription
                 Subscription memory subscription = idSubMap[subscriptionMap2[s][timeTrigger].at(i)];
@@ -705,16 +705,16 @@ contract ClockTowerSubscribe is Ownable2Step {
                 if(!subscription.cancelled) {
 
                     address token = subscription.token;
-                    uint amount = subscription.amount;
+                    uint256 amount = subscription.amount;
 
                     FeeEstimate memory feeEst;
               
                     //calculates fee balance
-                    uint subFee = (amount * callerFee / 10000) - amount;
-                    uint totalFee;
+                    uint256 subFee = (amount * callerFee / 10000) - amount;
+                    uint256 totalFee;
                  
                     //loops through subscribers
-                    for(uint j; j < subscribersMap2[subscription.id].length(); j++) {
+                    for(uint256 j; j < subscribersMap2[subscription.id].length(); j++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
@@ -741,8 +741,8 @@ contract ClockTowerSubscribe is Ownable2Step {
         }
 
         //strips out unused array elements
-        uint totalSubs;
-        for(uint j; j < feeArray.length; j++) {
+        uint256 totalSubs;
+        for(uint256 j; j < feeArray.length; j++) {
             if(feeArray[j].token == address(0)){
                 totalSubs = j;
                 break;
@@ -750,7 +750,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         }
         FeeEstimate[] memory feeArray2 = new FeeEstimate[](totalSubs);
 
-        for(uint k; k < totalSubs; k++) {
+        for(uint256 k; k < totalSubs; k++) {
             feeArray2[k] = feeArray[k];
         }
         
@@ -779,7 +779,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     }
 
     //sets Subscription
-    function setSubscription(uint amount, address token, Frequency frequency, uint16 dueDay) private returns (Subscription memory subscription){
+    function setSubscription(uint256 amount, address token, Frequency frequency, uint16 dueDay) private returns (Subscription memory subscription){
 
         // Get the current nonce for the sender
         uint256 nonce = nonces[msg.sender];
@@ -833,9 +833,7 @@ contract ClockTowerSubscribe is Ownable2Step {
             subStatusMap[msg.sender][subIndex.id] = Status.ACTIVE;
         }
         
-
     }
-
 
     //EXTERNAL FUNCTIONS----------------------------------------
     
@@ -846,7 +844,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         require(subExists(subscription.id), "3");
 
-        uint convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
+        uint256 convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
         //check if there is enough allowance
         require(IERC20(subscription.token).allowance(msg.sender, address(this)) >= convertedAmount
@@ -869,8 +867,8 @@ contract ClockTowerSubscribe is Ownable2Step {
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
         
-        uint fee = subscription.amount;
-        uint multiple = 1;
+        uint256 fee = subscription.amount;
+        uint256 multiple = 1;
 
         //prorates fee amount
         
@@ -915,12 +913,11 @@ contract ClockTowerSubscribe is Ownable2Step {
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to provider
-        uint balance = feeBalance[subscription.id][msg.sender];
+        uint256 balance = feeBalance[subscription.id][msg.sender];
 
         //zeros out fee balance
         delete feeBalance[subscription.id][msg.sender];
 
-        //emit ProviderLog(subscription.id, subscription.provider, uint40(block.timestamp), balance, subscription.token, ProvEvent.REFUND);
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.PROVREFUND);
 
         //Refunds fee balance
@@ -954,7 +951,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
         //refunds fees to subscriber
-        uint balance = feeBalance[subscription.id][subscriber];
+        uint256 balance = feeBalance[subscription.id][subscriber];
 
         //zeros out fee balance
         delete feeBalance[subscription.id][subscriber];
@@ -983,12 +980,12 @@ contract ClockTowerSubscribe is Ownable2Step {
         //gets list of subscribers and deletes subscriber list
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap2[subscription.id];
 
-        for(uint i; i < subscribersMap2[subscription.id].length(); i++) {
+        for(uint256 i; i < subscribersMap2[subscription.id].length(); i++) {
 
             address subscriberAddress = subscribers2.at(i);
 
             //refunds feeBalances to subscribers
-            uint feeBal = feeBalance[subscription.id][subscriberAddress];
+            uint256 feeBal = feeBalance[subscription.id][subscriberAddress];
 
             emit SubLog(subscription.id, subscription.provider, subscriberAddress, uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
 
@@ -1005,8 +1002,8 @@ contract ClockTowerSubscribe is Ownable2Step {
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
-        uint length = subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].length();
-        for(uint i; i < length; i++) {
+        uint256 length = subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].length();
+        for(uint256 i; i < length; i++) {
             if(subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
 
                idSubMap[subscription.id].cancelled = true;
@@ -1014,7 +1011,6 @@ contract ClockTowerSubscribe is Ownable2Step {
             }
         }
 
-        //emit ProviderLog(subscription.id, msg.sender, uint40(block.timestamp), 0, subscription.token, ProvEvent.CANCEL);
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), 0, subscription.token, SubscriptEvent.CANCEL);
 
     } 
@@ -1031,7 +1027,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
     /// @param dueDay The day in the cycle the subscription is due
     /// @dev The dueDay will be within differing ranges based on frequency. 
-    function createSubscription(uint amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
+    function createSubscription(uint256 amount, address token, Details calldata details, Frequency frequency, uint16 dueDay) external {
 
         //cannot be ETH or zero address
         require(token != address(0), "4");
@@ -1059,7 +1055,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
-        subscriptionMap2[uint(frequency)][dueDay].add(subscription.id);
+        subscriptionMap2[uint256(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
@@ -1082,7 +1078,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         if(returnedAccount.exists) {
             //checks if subscription is part of account
-            for(uint i; i < returnedAccount.provSubs.length; i++) {
+            for(uint256 i; i < returnedAccount.provSubs.length; i++) {
                 if(returnedAccount.provSubs[i].id == id) {
                     emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.url, details.description);
                 }
@@ -1119,12 +1115,12 @@ contract ClockTowerSubscribe is Ownable2Step {
             time = unixToTime(block.timestamp);
         }
 
-        uint remitCounter;
+        uint256 remitCounter;
 
         //gets subscriptions from mappings
        
         //loops through types
-        for(uint f; f <= 3; f++) {
+        for(uint256 f; f <= 3; f++) {
 
             //checks which frequency to start if paginated
            if(!pageStart.initialized || (pageStart.frequency <= f && pageStart.initialized)) {
@@ -1144,11 +1140,11 @@ contract ClockTowerSubscribe is Ownable2Step {
                     timeTrigger = time.yearDay;
                 }
 
-                uint length = subscriptionMap2[f][timeTrigger].length();
+                uint256 length = subscriptionMap2[f][timeTrigger].length();
                 
                 
                 //loops through subscriptions
-                for(uint s; s < length; s++) {
+                for(uint256 s; s < length; s++) {
 
                     //checks which subscription to start if paginated
                     if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
@@ -1170,14 +1166,14 @@ contract ClockTowerSubscribe is Ownable2Step {
                                 f   
                             );
                             
-                            uint amount = convertAmount(subscription.amount, remitSub.decimals);
+                            uint256 amount = convertAmount(subscription.amount, remitSub.decimals);
                         
                             //calculates fee balance
-                            uint subFee = (amount * callerFee / 10000) - amount;
-                            uint totalFee;
+                            uint256 subFee = (amount * callerFee / 10000) - amount;
+                            uint256 totalFee;
 
-                            uint sublength = subscribersMap2[remitSub.id].length();
-                            uint lastSub;
+                            uint256 sublength = subscribersMap2[remitSub.id].length();
+                            uint256 lastSub;
                             
                             //makes sure on an empty subscription lastSub doesn't underflow
                             if(sublength > 0) {
@@ -1185,7 +1181,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                             }
                             
                             //loops through subscribers
-                            for(uint u; u < sublength; u++) {
+                            for(uint256 u; u < sublength; u++) {
 
                                 //checks for max remit and returns false if limit hit
                                 if(remitCounter == maxRemits) {
@@ -1195,7 +1191,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
                                     //if system fee is activated divides caller fee and remits portion to system
                                     if(allowSystemFee) {
-                                        uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                        uint256 sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                         totalFee -= sysAmount;
                                         //sends system fee to system
                                         IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
@@ -1261,8 +1257,8 @@ contract ClockTowerSubscribe is Ownable2Step {
                                             //adjusts feefill based on frequency
                                             
                                             //variables for feefill
-                                            uint feefill = amount;
-                                            uint multiple = 1;
+                                            uint256 feefill = amount;
+                                            uint256 multiple = 1;
 
                                             if(f == 2) {
                                                 feefill /= 3;
@@ -1294,7 +1290,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                                             //adds fee on fails
                                             totalFee += subFee;
 
-                                            uint feeRemainder = feeBalance[remitSub.id][subscriber] - subFee;
+                                            uint256 feeRemainder = feeBalance[remitSub.id][subscriber] - subFee;
 
                                             //decrease feeBalance by fee and then zeros out
                                             delete feeBalance[remitSub.id][subscriber];
@@ -1322,7 +1318,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
                                         //if system fee is activated divides caller fee and remits portion to system
                                         if(allowSystemFee) {
-                                            uint sysAmount = (totalFee * systemFee / 10000) - totalFee;
+                                            uint256 sysAmount = (totalFee * systemFee / 10000) - totalFee;
                                             totalFee -= sysAmount;
                                             //sends system fee to system
                                             IERC20(remitSub.token).safeTransfer(sysFeeReceiver, convertAmount(sysAmount, remitSub.decimals));
