@@ -29,7 +29,6 @@ export declare namespace ClockTowerSubscribe {
     amount: BigNumberish;
     provider: AddressLike;
     token: AddressLike;
-    exists: boolean;
     cancelled: boolean;
     frequency: BigNumberish;
     dueDay: BigNumberish;
@@ -40,7 +39,6 @@ export declare namespace ClockTowerSubscribe {
     amount: bigint,
     provider: string,
     token: string,
-    exists: boolean,
     cancelled: boolean,
     frequency: bigint,
     dueDay: bigint
@@ -49,7 +47,6 @@ export declare namespace ClockTowerSubscribe {
     amount: bigint;
     provider: string;
     token: string;
-    exists: boolean;
     cancelled: boolean;
     frequency: bigint;
     dueDay: bigint;
@@ -110,19 +107,16 @@ export declare namespace ClockTowerSubscribe {
 
   export type AccountStruct = {
     accountAddress: AddressLike;
-    exists: boolean;
     subscriptions: ClockTowerSubscribe.SubIndexStruct[];
     provSubs: ClockTowerSubscribe.SubIndexStruct[];
   };
 
   export type AccountStructOutput = [
     accountAddress: string,
-    exists: boolean,
     subscriptions: ClockTowerSubscribe.SubIndexStructOutput[],
     provSubs: ClockTowerSubscribe.SubIndexStructOutput[]
   ] & {
     accountAddress: string;
-    exists: boolean;
     subscriptions: ClockTowerSubscribe.SubIndexStructOutput[];
     provSubs: ClockTowerSubscribe.SubIndexStructOutput[];
   };
@@ -685,11 +679,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   approvedERC20: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, bigint, boolean] & {
+      [string, bigint, bigint] & {
         tokenAddress: string;
-        minimum: bigint;
         decimals: bigint;
-        exists: boolean;
+        minimum: bigint;
       }
     ],
     "view"
@@ -786,12 +779,11 @@ export interface ClockTowerSubscribe extends BaseContract {
   idSubMap: TypedContractMethod<
     [arg0: BytesLike],
     [
-      [string, bigint, string, string, boolean, boolean, bigint, bigint] & {
+      [string, bigint, string, string, boolean, bigint, bigint] & {
         id: string;
         amount: bigint;
         provider: string;
         token: string;
-        exists: boolean;
         cancelled: boolean;
         frequency: bigint;
         dueDay: bigint;
@@ -878,11 +870,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, bigint, boolean] & {
+      [string, bigint, bigint] & {
         tokenAddress: string;
-        minimum: bigint;
         decimals: bigint;
-        exists: boolean;
+        minimum: bigint;
       }
     ],
     "view"
@@ -979,12 +970,11 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: BytesLike],
     [
-      [string, bigint, string, string, boolean, boolean, bigint, bigint] & {
+      [string, bigint, string, string, boolean, bigint, bigint] & {
         id: string;
         amount: bigint;
         provider: string;
         token: string;
-        exists: boolean;
         cancelled: boolean;
         frequency: bigint;
         dueDay: bigint;

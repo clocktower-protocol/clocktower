@@ -188,10 +188,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[1].subscription[1],
                 provider: subscriptions[1].subscription[2],
                 token: subscriptions[1].subscription[3],
-                exists: subscriptions[1].subscription[4],
-                cancelled: subscriptions[1].subscription[5],
-                frequency: subscriptions[1].subscription[6],
-                dueDay: subscriptions[1].subscription[7]
+                //exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[1].subscription[4],
+                frequency: subscriptions[1].subscription[5],
+                dueDay: subscriptions[1].subscription[6]
             }
             
             
@@ -203,7 +203,7 @@ describe("Clocktower", function(){
             
             
             //checks input of fake subscription
-            let fakeSub = {id: "0x496e74686520517569636b2042726f776e20466f78204a6f686e204a6f686e20536d697468", amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
+            let fakeSub = {id: "0x496e74686520517569636b2042726f776e20466f78204a6f686e204a6f686e20536d697468", amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
         
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(fakeSub))
             .to.be.rejectedWith("3")
@@ -236,10 +236,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[1].subscription[1],
                 provider: subscriptions[1].subscription[2],
                 token: subscriptions[1].subscription[3],
-                exists: subscriptions[1].subscription[4],
-                cancelled: subscriptions[1].subscription[5],
-                frequency: subscriptions[1].subscription[6],
-                dueDay: subscriptions[1].subscription[7]
+                //exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[1].subscription[4],
+                frequency: subscriptions[1].subscription[5],
+                dueDay: subscriptions[1].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -281,10 +281,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -331,10 +331,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[1].subscription[1],
                 provider: subscriptions[1].subscription[2],
                 token: subscriptions[1].subscription[3],
-                exists: subscriptions[1].subscription[4],
-                cancelled: subscriptions[1].subscription[5],
-                frequency: subscriptions[1].subscription[6],
-                dueDay: subscriptions[1].subscription[7]
+                //exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[1].subscription[4],
+                frequency: subscriptions[1].subscription[5],
+                dueDay: subscriptions[1].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -342,7 +342,7 @@ describe("Clocktower", function(){
             //checks reverts
 
             //checks input of fake subscription
-            let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, exists: true, cancelled: false, frequency: 0, dueDay: 2}
+            let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(fakeSub))
             .to.be.rejectedWith("3")
 
@@ -404,10 +404,10 @@ describe("Clocktower", function(){
                     amount: subscriptions[i].subscription[1],
                     provider: subscriptions[i].subscription[2],
                     token: subscriptions[i].subscription[3],
-                    exists: subscriptions[i].subscription[4],
-                    cancelled: subscriptions[i].subscription[5],
-                    frequency: subscriptions[i].subscription[6],
-                    dueDay: subscriptions[i].subscription[7]
+                    //exists: subscriptions[i].subscription[4],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
                 })
             }
 
@@ -481,10 +481,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
             
             //checks that event emits subscribe and feefill
@@ -510,10 +510,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
              
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -588,10 +588,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -638,10 +638,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -675,10 +675,10 @@ describe("Clocktower", function(){
                 amount: subscriptions2[1].subscription[1],
                 provider: subscriptions2[1].subscription[2],
                 token: subscriptions2[1].subscription[3],
-                exists: subscriptions2[1].subscription[4],
-                cancelled: subscriptions2[1].subscription[5],
-                frequency: subscriptions2[1].subscription[6],
-                dueDay: subscriptions2[1].subscription[7]
+                //exists: subscriptions2[1].subscription[4],
+                cancelled: subscriptions2[1].subscription[4],
+                frequency: subscriptions2[1].subscription[5],
+                dueDay: subscriptions2[1].subscription[6]
             }
 
             await time.increase(dayAhead)
@@ -698,10 +698,10 @@ describe("Clocktower", function(){
                 amount: subscriptions3[2].subscription[1],
                 provider: subscriptions3[2].subscription[2],
                 token: subscriptions3[2].subscription[3],
-                exists: subscriptions3[2].subscription[4],
-                cancelled: subscriptions3[2].subscription[5],
-                frequency: subscriptions3[2].subscription[6],
-                dueDay: subscriptions3[2].subscription[7]
+                //exists: subscriptions3[2].subscription[4],
+                cancelled: subscriptions3[2].subscription[4],
+                frequency: subscriptions3[2].subscription[5],
+                dueDay: subscriptions3[2].subscription[6]
             }
 
             await time.increase(dayAhead)
@@ -738,10 +738,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -785,10 +785,10 @@ describe("Clocktower", function(){
                     amount: subscriptions2[i].subscription[1],
                     provider: subscriptions2[i].subscription[2],
                     token: subscriptions2[i].subscription[3],
-                    exists: subscriptions2[i].subscription[4],
-                    cancelled: subscriptions2[i].subscription[5],
-                    frequency: subscriptions2[i].subscription[6],
-                    dueDay: subscriptions2[i].subscription[7]
+                    //exists: subscriptions2[i].subscription[4],
+                    cancelled: subscriptions2[i].subscription[4],
+                    frequency: subscriptions2[i].subscription[5],
+                    dueDay: subscriptions2[i].subscription[6]
                 })
             }
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray2[1])
@@ -811,10 +811,10 @@ describe("Clocktower", function(){
                 amount: subscriptions3[6].subscription[1],
                 provider: subscriptions3[6].subscription[2],
                 token: subscriptions3[6].subscription[3],
-                exists: subscriptions3[6].subscription[4],
-                cancelled: subscriptions3[6].subscription[5],
-                frequency: subscriptions3[6].subscription[6],
-                dueDay: subscriptions3[6].subscription[7]
+                //exists: subscriptions3[6].subscription[4],
+                cancelled: subscriptions3[6].subscription[4],
+                frequency: subscriptions3[6].subscription[5],
+                dueDay: subscriptions3[6].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject3)
@@ -831,10 +831,10 @@ describe("Clocktower", function(){
                 amount: subscriptions4[7].subscription[1],
                 provider: subscriptions4[7].subscription[2],
                 token: subscriptions4[7].subscription[3],
-                exists: subscriptions4[7].subscription[4],
-                cancelled: subscriptions4[7].subscription[5],
-                frequency: subscriptions4[7].subscription[6],
-                dueDay: subscriptions4[7].subscription[7]
+                //exists: subscriptions4[7].subscription[4],
+                cancelled: subscriptions4[7].subscription[4],
+                frequency: subscriptions4[7].subscription[5],
+                dueDay: subscriptions4[7].subscription[6]
             }
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject4)
             
@@ -866,10 +866,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -921,10 +921,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await time.increase((dayAhead * 5))
@@ -942,10 +942,10 @@ describe("Clocktower", function(){
                 amount: subscriptions2[1].subscription[1],
                 provider: subscriptions2[1].subscription[2],
                 token: subscriptions2[1].subscription[3],
-                exists: subscriptions2[1].subscription[4],
-                cancelled: subscriptions2[1].subscription[5],
-                frequency: subscriptions2[1].subscription[6],
-                dueDay: subscriptions2[1].subscription[7]
+                //exists: subscriptions2[1].subscription[4],
+                cancelled: subscriptions2[1].subscription[4],
+                frequency: subscriptions2[1].subscription[5],
+                dueDay: subscriptions2[1].subscription[6]
             }
 
             await time.increase((dayAhead * 20))
@@ -963,10 +963,10 @@ describe("Clocktower", function(){
                 amount: subscriptions3[1].subscription[1],
                 provider: subscriptions3[1].subscription[2],
                 token: subscriptions3[1].subscription[3],
-                exists: subscriptions3[1].subscription[4],
-                cancelled: subscriptions3[1].subscription[5],
-                frequency: subscriptions3[1].subscription[6],
-                dueDay: subscriptions3[1].subscription[7]
+                //exists: subscriptions3[1].subscription[4],
+                cancelled: subscriptions3[1].subscription[4],
+                frequency: subscriptions3[1].subscription[5],
+                dueDay: subscriptions3[1].subscription[6]
             }
  
             await time.increase((dayAhead * 90))
@@ -985,10 +985,10 @@ describe("Clocktower", function(){
                 amount: subscriptions4[1].subscription[1],
                 provider: subscriptions4[1].subscription[2],
                 token: subscriptions4[1].subscription[3],
-                exists: subscriptions4[1].subscription[4],
-                cancelled: subscriptions4[1].subscription[5],
-                frequency: subscriptions4[1].subscription[6],
-                dueDay: subscriptions4[1].subscription[7]
+                //exists: subscriptions4[1].subscription[4],
+                cancelled: subscriptions4[1].subscription[4],
+                frequency: subscriptions4[1].subscription[5],
+                dueDay: subscriptions4[1].subscription[6]
             }
  
             await time.increase((dayAhead * 365))
@@ -1015,10 +1015,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
@@ -1085,10 +1085,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[0].subscription[1],
                 provider: subscriptions[0].subscription[2],
                 token: subscriptions[0].subscription[3],
-                exists: subscriptions[0].subscription[4],
-                cancelled: subscriptions[0].subscription[5],
-                frequency: subscriptions[0].subscription[6],
-                dueDay: subscriptions[0].subscription[7]
+                //exists: subscriptions[0].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
             }
 
               //creates subscribe object2
@@ -1097,10 +1097,10 @@ describe("Clocktower", function(){
                 amount: subscriptions[1].subscription[1],
                 provider: subscriptions[1].subscription[2],
                 token: subscriptions[1].subscription[3],
-                exists: subscriptions[1].subscription[4],
-                cancelled: subscriptions[1].subscription[5],
-                frequency: subscriptions[1].subscription[6],
-                dueDay: subscriptions[1].subscription[7]
+                //exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[1].subscription[4],
+                frequency: subscriptions[1].subscription[5],
+                dueDay: subscriptions[1].subscription[6]
             }
 
             //checks monthly token decimal conversion works
@@ -1156,10 +1156,10 @@ describe("Clocktower", function(){
                     amount: subscriptions[i].subscription[1],
                     provider: subscriptions[i].subscription[2],
                     token: subscriptions[i].subscription[3],
-                    exists: subscriptions[i].subscription[4],
-                    cancelled: subscriptions[i].subscription[5],
-                    frequency: subscriptions[i].subscription[6],
-                    dueDay: subscriptions[i].subscription[7]
+                    //exists: subscriptions[i].subscription[4],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
                 })
             }
 
