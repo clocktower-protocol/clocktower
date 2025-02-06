@@ -184,7 +184,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "approvedERC20"
       | "callerFee"
       | "cancelSubscription"
-      | "changeAdmin"
       | "changeCallerFee"
       | "changeMaxRemits"
       | "changeSysFeeReceiver"
@@ -242,10 +241,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   encodeFunctionData(
     functionFragment: "cancelSubscription",
     values: [ClockTowerSubscribe.SubscriptionStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "changeAdmin",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "changeCallerFee",
@@ -366,10 +361,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "cancelSubscription",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "changeAdmin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -712,12 +703,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
-  changeAdmin: TypedContractMethod<
-    [newAddress: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   changeCallerFee: TypedContractMethod<
     [_fee: BigNumberish],
     [void],
@@ -912,9 +897,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "changeAdmin"
-  ): TypedContractMethod<[newAddress: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "changeCallerFee"
   ): TypedContractMethod<[_fee: BigNumberish], [void], "nonpayable">;

@@ -63,9 +63,6 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev Variable for last checked by day
     uint40 public nextUncheckedDay;
 
-    //address for running admin functions
-    address admin;
-
     //address that receives the systemFee
     address sysFeeReceiver;
 
@@ -266,7 +263,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     ///@dev variable for last checked by day
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
 
-    admin = admin_;
+    //admin = admin_;
 
     sysFeeReceiver = admin_;
 
@@ -312,20 +309,6 @@ contract ClockTowerSubscribe is Ownable2Step {
     mapping(address => uint256) nonces;
 
     //ADMIN METHODS*************************************
-
-    /*
-    function adminRequire() private view {
-        require(msg.sender == admin, "7");
-    }
-    
-    
-    /// @notice Checks if user is admin
-    modifier isAdmin() {
-        adminRequire();
-        _;
-    }
-    */
-
     
     /// @notice Reentrancy Lock 
     modifier nonReentrant() {
@@ -335,17 +318,6 @@ contract ClockTowerSubscribe is Ownable2Step {
         locked = false;
     }
     
-    /// @notice Changes admin address
-    /// @param newAddress New admin address
-    function changeAdmin(address newAddress) onlyOwner external {
-       require((newAddress != address(0)));
-
-       //checks that address is different
-       require(newAddress != admin);
-
-        admin = newAddress;
-    }
-
     /// @notice Changes sysFeeReceiver address
     /// @param newSysFeeAddress New sysFeeReceiver address
     function changeSysFeeReceiver(address newSysFeeAddress) onlyOwner external {
