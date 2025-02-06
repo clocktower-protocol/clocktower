@@ -308,13 +308,18 @@ contract ClockTowerSubscribe {
 
     //--------------Subscription mappings------------ 
 
-    //Subscription master map keyed on type
+    //Subscription master map keyed on frequency -> dueDay
     mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
+
+    //TODO: 
+    //Subscription master map keyed on frequency -> dueDay
+    mapping(uint => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap2;
+
 
     //map of subscribers
     //mapping(bytes32 => address[]) subscribersMap;
 
-    //TODO:
+    //TODO: DONE
     //map of subscribers using enumerable set
     mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
 
@@ -752,6 +757,7 @@ contract ClockTowerSubscribe {
         return scriberViews;
     }
     
+    /*
     /// @notice Gets subscription struct by id, frequency and due day
     /// @param id Subscription id in bytes
     /// @param frequency Frequency number of cycle
@@ -761,7 +767,8 @@ contract ClockTowerSubscribe {
     /// @return subscription Subscription struct
     function getSubByIndex(bytes32 id, Frequency frequency, uint16 dueDay) view public returns(Subscription memory subscription){
 
-          Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
+        /*
+        Subscription[] memory subList = subscriptionMap[uint(frequency)][dueDay];
 
         //searches for subscription in day map
             for(uint j; j < subList.length; j++) {
@@ -769,8 +776,12 @@ contract ClockTowerSubscribe {
                         subscription = subList[j];
                 }
             }
+        
           return subscription;
-    }
+        */
+      // return idSubMap[id];
+    //}
+    
     
     
     /// @notice Function that sends back array of FeeEstimate structs per subscription
@@ -809,15 +820,27 @@ contract ClockTowerSubscribe {
                 timeTrigger = time.yearDay;
             }
             
+
             //loops through subscriptions
-            for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+            //TODO:
+            //for(uint i; i < subscriptionMap[s][timeTrigger].length; i++) {
+            for(uint i; i < subscriptionMap2[s][timeTrigger].length(); i++) {
+
+                //gets subscription
+                Subscription memory subscription = idSubMap[subscriptionMap2[s][timeTrigger].at(i)];
 
                 //checks if cancelled
-                if(!subscriptionMap[s][timeTrigger][i].cancelled) {
+                //if(!subscriptionMap[s][timeTrigger][i].cancelled) {
+                if(!subscription.cancelled) {
 
+                    /*
                     bytes32 id = subscriptionMap[s][timeTrigger][i].id;
                     address token = subscriptionMap[s][timeTrigger][i].token;
                     uint amount = subscriptionMap[s][timeTrigger][i].amount;
+                    */
+                   // bytes32 id = subscription.id;
+                    address token = subscription.token;
+                    uint amount = subscription.amount;
 
                     FeeEstimate memory feeEst;
               
@@ -826,7 +849,7 @@ contract ClockTowerSubscribe {
                     uint totalFee;
                  
                     //loops through subscribers
-                    for(uint j; j < subscribersMap2[id].length(); j++) {
+                    for(uint j; j < subscribersMap2[subscription.id].length(); j++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
@@ -1236,11 +1259,23 @@ contract ClockTowerSubscribe {
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
-        //TODO: set lookup subscription as cancelled also
+        //TODO: DONE
         //sets cancelled bool to true for subscription
+        /*
         Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
         for(uint i; i < subscriptions.length; i++) {
             if(subscriptions[i].id == subscription.id) {
+               subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
+               //TODO: DONE
+               idSubMap[subscription.id].cancelled = true;
+            }
+        }
+        */
+        //Subscription[] memory subscriptions = subscriptionMap[uint(subscription.frequency)][subscription.dueDay];
+        uint length = subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].length();
+        for(uint i; i < length; i++) {
+            if(subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
+            //if(subscriptions[i].id == subscription.id) {
                subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
                //TODO: DONE
                idSubMap[subscription.id].cancelled = true;
@@ -1292,7 +1327,9 @@ contract ClockTowerSubscribe {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
+        //TODO:
         subscriptionMap[uint(frequency)][dueDay].push() = subscription;
+        subscriptionMap2[uint(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
@@ -1396,7 +1433,7 @@ contract ClockTowerSubscribe {
                                 subscriptionMap[f][timeTrigger][s].token, 
                                 subscriptionMap[f][timeTrigger][s].provider,
                                 approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals,
-                                f
+                                f   
                             );
 
                             uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
