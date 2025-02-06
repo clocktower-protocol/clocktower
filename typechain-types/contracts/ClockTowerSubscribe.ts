@@ -195,7 +195,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "feeEstimate"
       | "getAccount"
       | "getAccountSubscriptions"
-      | "getSubByIndex"
       | "getSubscribersById"
       | "getTotalSubscribers"
       | "idSubMap"
@@ -286,10 +285,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getAccountSubscriptions",
     values: [boolean, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSubByIndex",
-    values: [BytesLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getSubscribersById",
@@ -385,10 +380,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   decodeFunctionResult(functionFragment: "getAccount", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountSubscriptions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSubByIndex",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -730,12 +721,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
 
-  getSubByIndex: TypedContractMethod<
-    [id: BytesLike, frequency: BigNumberish, dueDay: BigNumberish],
-    [ClockTowerSubscribe.SubscriptionStructOutput],
-    "view"
-  >;
-
   getSubscribersById: TypedContractMethod<
     [id: BytesLike],
     [ClockTowerSubscribe.SubscriberViewStructOutput[]],
@@ -911,13 +896,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [bySubscriber: boolean, account: AddressLike],
     [ClockTowerSubscribe.SubViewStructOutput[]],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "getSubByIndex"
-  ): TypedContractMethod<
-    [id: BytesLike, frequency: BigNumberish, dueDay: BigNumberish],
-    [ClockTowerSubscribe.SubscriptionStructOutput],
     "view"
   >;
   getFunction(
