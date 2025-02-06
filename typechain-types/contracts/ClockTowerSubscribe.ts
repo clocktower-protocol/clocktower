@@ -179,6 +179,7 @@ export declare namespace ClockTowerSubscribe {
 export interface ClockTowerSubscribeInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "acceptOwnership"
       | "addERC20Contract"
       | "approvedERC20"
       | "callerFee"
@@ -200,12 +201,16 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "idSubMap"
       | "maxRemits"
       | "nextUncheckedDay"
+      | "owner"
+      | "pendingOwner"
       | "remit"
+      | "renounceOwnership"
       | "setNextUncheckedDay"
       | "setPageStart"
       | "subscribe"
       | "systemFee"
       | "systemFeeActivate"
+      | "transferOwnership"
       | "unsubscribe"
       | "unsubscribeByProvider"
   ): FunctionFragment;
@@ -215,10 +220,16 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "CallerLog"
       | "Coordinates"
       | "DetailsLog"
+      | "OwnershipTransferStarted"
+      | "OwnershipTransferred"
       | "ProvDetailsLog"
       | "SubLog"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "addERC20Contract",
     values: [AddressLike, BigNumberish, BigNumberish]
@@ -300,7 +311,16 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "nextUncheckedDay",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "setNextUncheckedDay",
     values: [BigNumberish]
@@ -319,6 +339,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "unsubscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
@@ -327,6 +351,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [ClockTowerSubscribe.SubscriptionStruct, AddressLike]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addERC20Contract",
     data: BytesLike
@@ -396,7 +424,16 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "nextUncheckedDay",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setNextUncheckedDay",
     data: BytesLike
@@ -409,6 +446,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "systemFeeActivate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -495,6 +536,32 @@ export namespace DetailsLogEvent {
     timestamp: bigint;
     url: string;
     description: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferStartedEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -615,6 +682,8 @@ export interface ClockTowerSubscribe extends BaseContract {
   removeAllListeners<TCEvent extends TypedContractEvent>(
     event?: TCEvent
   ): Promise<this>;
+
+  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   addERC20Contract: TypedContractMethod<
     [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
@@ -750,7 +819,13 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   nextUncheckedDay: TypedContractMethod<[], [bigint], "view">;
 
+  owner: TypedContractMethod<[], [string], "view">;
+
+  pendingOwner: TypedContractMethod<[], [string], "view">;
+
   remit: TypedContractMethod<[], [void], "nonpayable">;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   setNextUncheckedDay: TypedContractMethod<
     [_nextUncheckedDay: BigNumberish],
@@ -778,6 +853,12 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   unsubscribe: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
@@ -797,6 +878,9 @@ export interface ClockTowerSubscribe extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "acceptOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "addERC20Contract"
   ): TypedContractMethod<
@@ -933,7 +1017,16 @@ export interface ClockTowerSubscribe extends BaseContract {
     nameOrSignature: "nextUncheckedDay"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "pendingOwner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "remit"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setNextUncheckedDay"
@@ -962,6 +1055,9 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "systemFeeActivate"
   ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "unsubscribe"
   ): TypedContractMethod<
@@ -1000,6 +1096,20 @@ export interface ClockTowerSubscribe extends BaseContract {
     DetailsLogEvent.InputTuple,
     DetailsLogEvent.OutputTuple,
     DetailsLogEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferStarted"
+  ): TypedContractEvent<
+    OwnershipTransferStartedEvent.InputTuple,
+    OwnershipTransferStartedEvent.OutputTuple,
+    OwnershipTransferStartedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
     key: "ProvDetailsLog"
@@ -1048,6 +1158,28 @@ export interface ClockTowerSubscribe extends BaseContract {
       DetailsLogEvent.InputTuple,
       DetailsLogEvent.OutputTuple,
       DetailsLogEvent.OutputObject
+    >;
+
+    "OwnershipTransferStarted(address,address)": TypedContractEvent<
+      OwnershipTransferStartedEvent.InputTuple,
+      OwnershipTransferStartedEvent.OutputTuple,
+      OwnershipTransferStartedEvent.OutputObject
+    >;
+    OwnershipTransferStarted: TypedContractEvent<
+      OwnershipTransferStartedEvent.InputTuple,
+      OwnershipTransferStartedEvent.OutputTuple,
+      OwnershipTransferStartedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
 
     "ProvDetailsLog(address,uint40,string,string,string,string,string,string)": TypedContractEvent<

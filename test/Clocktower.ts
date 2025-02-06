@@ -1235,6 +1235,7 @@ describe("Clocktower", function(){
             //sets coordinates within day ahead
             await hardhatClockSubscribe.connect(owner).setPageStart(pageStart)
 
+
             //balance befoe remmitance
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
@@ -1242,6 +1243,28 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(caller).remit();
            // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(hre.ethers.parseEther("73.0"))
+
+        })
+        it("Restricts the ownership functions to the owner and transfers with two step", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
+
+            //checks that admin rights are protected
+            await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+
+            //transfers ownership
+            expect(hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
+
+            //should still block 
+            await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+
+            //accepts transfer
+            expect(hardhatClockSubscribe.connect(otherAccount).acceptOwnership())
+
+            //now blocks old owner
+            await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+
+            //allows new owner to run protected functions
+            expect(hardhatClockSubscribe.connect(otherAccount).changeMaxRemits(5))
 
         })
         
