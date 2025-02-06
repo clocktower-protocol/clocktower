@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -309,7 +309,7 @@ contract ClockTowerSubscribe {
     //--------------Subscription mappings------------ 
 
     //Subscription master map keyed on frequency -> dueDay
-    mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
+    //mapping(uint => mapping(uint16 => Subscription[])) subscriptionMap;
 
     //TODO: 
     //Subscription master map keyed on frequency -> dueDay
@@ -1276,7 +1276,7 @@ contract ClockTowerSubscribe {
         for(uint i; i < length; i++) {
             if(subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
             //if(subscriptions[i].id == subscription.id) {
-               subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
+               //subscriptionMap[uint(subscription.frequency)][subscription.dueDay][i].cancelled = true;
                //TODO: DONE
                idSubMap[subscription.id].cancelled = true;
             }
@@ -1328,7 +1328,7 @@ contract ClockTowerSubscribe {
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
         //TODO:
-        subscriptionMap[uint(frequency)][dueDay].push() = subscription;
+        //subscriptionMap[uint(frequency)][dueDay].push() = subscription;
         subscriptionMap2[uint(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
@@ -1414,7 +1414,10 @@ contract ClockTowerSubscribe {
                     timeTrigger = time.yearDay;
                 }
 
-                uint length = subscriptionMap[f][timeTrigger].length;
+                //TODO:
+               // uint length = subscriptionMap[f][timeTrigger].length;
+                uint length = subscriptionMap2[f][timeTrigger].length();
+                
                 
                 //loops through subscriptions
                 for(uint s; s < length; s++) {
@@ -1422,12 +1425,19 @@ contract ClockTowerSubscribe {
                     //checks which subscription to start if paginated
                     if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
 
+                        //TODO:
+                        //gets subscription
+                        Subscription memory subscription = idSubMap[subscriptionMap2[f][timeTrigger].at(s)];
+
                         //Marks day as not empty
                         isEmptyDay = false;
 
+                        //TODO:
                         //checks if cancelled
-                        if(!subscriptionMap[f][timeTrigger][s].cancelled) {
+                        //if(!subscriptionMap[f][timeTrigger][s].cancelled) {
+                        if(!subscription.cancelled) {
 
+                            /*
                             //struct created to avoid 'stack too deep' error with too many variables
                             Remit memory remitSub = Remit(subscriptionMap[f][timeTrigger][s].id, 
                                 subscriptionMap[f][timeTrigger][s].token, 
@@ -1435,14 +1445,25 @@ contract ClockTowerSubscribe {
                                 approvedERC20[subscriptionMap[f][timeTrigger][s].token].decimals,
                                 f   
                             );
-
-                            uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
+                            */
+                            
+                             //struct created to avoid 'stack too deep' error with too many variables
+                            Remit memory remitSub = Remit(subscription.id, 
+                                subscription.token, 
+                                subscription.provider,
+                                approvedERC20[subscription.token].decimals,
+                                f   
+                            );
+                            
+                            //TODO:
+                            //uint amount = convertAmount(subscriptionMap[f][timeTrigger][s].amount, remitSub.decimals);
+                            uint amount = convertAmount(subscription.amount, remitSub.decimals);
                         
                             //calculates fee balance
                             uint subFee = (amount * callerFee / 10000) - amount;
                             uint totalFee;
 
-                            //TODO:
+                            //TODO: DONE
                             //uint sublength = subscribersMap[remitSub.id].length;
                             uint sublength = subscribersMap2[remitSub.id].length();
                             uint lastSub;
