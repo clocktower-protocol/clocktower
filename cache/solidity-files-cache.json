@@ -490,8 +490,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1738859059511,
-      "contentHash": "43b8aabc46e04929476c5b77f17b851d",
+      "lastModificationDate": 1738860009178,
+      "contentHash": "7181ac65457fd46bd549a21094bf4441",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -518,7 +518,6 @@
         }
       },
       "imports": [
-        "hardhat/console.sol",
         "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
         "@openzeppelin/contracts/utils/structs/EnumerableSet.sol"
