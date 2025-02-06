@@ -5,10 +5,11 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
-contract ClockTowerSubscribe {
+contract ClockTowerSubscribe is Ownable2Step {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -245,7 +246,7 @@ contract ClockTowerSubscribe {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) {
+   constructor(uint callerFee_, uint systemFee_, uint maxRemits_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
 
     //checks that admin address is not zero
     require(admin_ != address(0));
@@ -312,6 +313,7 @@ contract ClockTowerSubscribe {
 
     //ADMIN METHODS*************************************
 
+    /*
     function adminRequire() private view {
         require(msg.sender == admin, "7");
     }
@@ -322,6 +324,7 @@ contract ClockTowerSubscribe {
         adminRequire();
         _;
     }
+    */
 
     
     /// @notice Reentrancy Lock 
@@ -334,7 +337,7 @@ contract ClockTowerSubscribe {
     
     /// @notice Changes admin address
     /// @param newAddress New admin address
-    function changeAdmin(address newAddress) isAdmin external {
+    function changeAdmin(address newAddress) onlyOwner external {
        require((newAddress != address(0)));
 
        //checks that address is different
@@ -345,7 +348,7 @@ contract ClockTowerSubscribe {
 
     /// @notice Changes sysFeeReceiver address
     /// @param newSysFeeAddress New sysFeeReceiver address
-    function changeSysFeeReceiver(address newSysFeeAddress) isAdmin external {
+    function changeSysFeeReceiver(address newSysFeeAddress) onlyOwner external {
        require((newSysFeeAddress != address(0)));
 
        //checks that address is different
@@ -356,7 +359,7 @@ contract ClockTowerSubscribe {
 
     /// @notice Allow system fee
     /// @param status true of false
-    function systemFeeActivate(bool status) isAdmin external {
+    function systemFeeActivate(bool status) onlyOwner external {
         allowSystemFee = status;
     }
 
@@ -364,7 +367,7 @@ contract ClockTowerSubscribe {
     /// @param erc20Contract ERC20 Contract address
     /// @param minimum Token minimum in wei
     /// @param decimals Number of token decimals
-    function addERC20Contract(address erc20Contract, uint minimum, uint8 decimals) isAdmin external {
+    function addERC20Contract(address erc20Contract, uint minimum, uint8 decimals) onlyOwner external {
 
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
@@ -377,33 +380,33 @@ contract ClockTowerSubscribe {
     /// @param _fee New Caller fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
-    function changeCallerFee(uint _fee) isAdmin external {
+    function changeCallerFee(uint _fee) onlyOwner external {
         callerFee = _fee;
     }
 
     /// @notice Change system fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @param _sys_fee New System fee
-    function changeSystemFee(uint _sys_fee) isAdmin external {
+    function changeSystemFee(uint _sys_fee) onlyOwner external {
         systemFee = _sys_fee;
     }
 
     /// @notice Change max remits
     /// @param _maxRemits New number of max remits per transaction
-    function changeMaxRemits(uint _maxRemits) isAdmin external {
+    function changeMaxRemits(uint _maxRemits) onlyOwner external {
         maxRemits = _maxRemits;
     }
 
     
     /// @notice Set pageStart coordinates
     /// @param _pageStart Contains of coordinates of where next remit should start
-    function setPageStart(PageStart calldata _pageStart) isAdmin external {
+    function setPageStart(PageStart calldata _pageStart) onlyOwner external {
         pageStart = _pageStart;
     }
 
     /// @notice Set next unchecked day
     /// @param _nextUncheckedDay next day to be remitted
-    function setNextUncheckedDay(uint40 _nextUncheckedDay) isAdmin external {
+    function setNextUncheckedDay(uint40 _nextUncheckedDay) onlyOwner external {
         nextUncheckedDay = _nextUncheckedDay;
     }
     
