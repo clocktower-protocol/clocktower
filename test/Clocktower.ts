@@ -1252,19 +1252,19 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
 
             //transfers ownership
-            expect(hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
+            expect( await hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
 
             //should still block 
             await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
 
             //accepts transfer
-            expect(hardhatClockSubscribe.connect(otherAccount).acceptOwnership())
+            expect( await hardhatClockSubscribe.connect(otherAccount).acceptOwnership())
 
             //now blocks old owner
             await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
 
             //allows new owner to run protected functions
-            expect(hardhatClockSubscribe.connect(otherAccount).changeMaxRemits(5))
+            expect( await hardhatClockSubscribe.connect(otherAccount).changeMaxRemits(5))
 
         })
         
