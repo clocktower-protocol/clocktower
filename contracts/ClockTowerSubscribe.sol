@@ -53,8 +53,6 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev Index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
 
-    mapping (address => ApprovedToken) public approvedERC20;
-
     bool pageGo;
 
     /// @dev Boolean for reentrancy lock
@@ -160,6 +158,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     struct ApprovedToken {
         address tokenAddress;
         uint8 decimals;
+        bool paused;
         uint256 minimum;
     }
 
@@ -305,6 +304,12 @@ contract ClockTowerSubscribe is Ownable2Step {
     //mapping for nonces
     mapping(address => uint256) nonces;
 
+    //----------------Token mapping-----------------------
+
+    //mappping of approved Tokens
+    mapping (address => ApprovedToken) public approvedERC20;
+
+
     //ADMIN METHODS*************************************
     
     /// @notice Reentrancy Lock 
@@ -341,7 +346,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
 
-        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, decimals, minimum);
+        approvedERC20[erc20Contract] = ApprovedToken(erc20Contract, decimals, false, minimum);
     }
 
 
@@ -378,8 +383,27 @@ contract ClockTowerSubscribe is Ownable2Step {
     function setNextUncheckedDay(uint40 _nextUncheckedDay) onlyOwner external {
         nextUncheckedDay = _nextUncheckedDay;
     }
-    
 
+    /// @notice pause subscriptions that contain a certain token
+    /// @param _tokenAddress address of token to be paused
+    /// @param pause true = pause, false = unpause
+    function pauseToken(address _tokenAddress, bool pause) onlyOwner external {
+
+        //check that token is already approved
+        require(approvedERC20[_tokenAddress].tokenAddress != address(0));
+
+        //if unpausing 
+        if(!pause) {
+            require(approvedERC20[_tokenAddress].paused);
+
+            approvedERC20[_tokenAddress].paused = false;
+        } else {
+
+            approvedERC20[_tokenAddress].paused = true;
+        }
+
+    }
+    
     //-------------------------------------------------------
 
      //TIME FUNCTIONS-----------------------------------
@@ -1152,8 +1176,8 @@ contract ClockTowerSubscribe is Ownable2Step {
                         //Marks day as not empty
                         isEmptyDay = false;
 
-                        //checks if cancelled
-                        if(!subscription.cancelled) {
+                        //checks if cancelled or token paused
+                        if(!subscription.cancelled || approvedERC20[subscription.token].paused) {
 
                              //struct created to avoid 'stack too deep' error with too many variables
                             Remit memory remitSub = Remit(subscription.id, 

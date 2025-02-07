@@ -195,6 +195,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "maxRemits"
       | "nextUncheckedDay"
       | "owner"
+      | "pauseToken"
       | "pendingOwner"
       | "remit"
       | "renounceOwnership"
@@ -301,6 +302,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pauseToken",
+    values: [AddressLike, boolean]
+  ): string;
   encodeFunctionData(
     functionFragment: "pendingOwner",
     values?: undefined
@@ -410,6 +415,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pauseToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingOwner",
     data: BytesLike
@@ -679,9 +685,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   approvedERC20: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, bigint] & {
+      [string, bigint, boolean, bigint] & {
         tokenAddress: string;
         decimals: bigint;
+        paused: boolean;
         minimum: bigint;
       }
     ],
@@ -798,6 +805,12 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  pauseToken: TypedContractMethod<
+    [_tokenAddress: AddressLike, pause: boolean],
+    [void],
+    "nonpayable"
+  >;
+
   pendingOwner: TypedContractMethod<[], [string], "view">;
 
   remit: TypedContractMethod<[], [void], "nonpayable">;
@@ -870,9 +883,10 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, bigint, bigint] & {
+      [string, bigint, boolean, bigint] & {
         tokenAddress: string;
         decimals: bigint;
+        paused: boolean;
         minimum: bigint;
       }
     ],
@@ -991,6 +1005,13 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "pauseToken"
+  ): TypedContractMethod<
+    [_tokenAddress: AddressLike, pause: boolean],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "pendingOwner"
   ): TypedContractMethod<[], [string], "view">;
