@@ -1272,7 +1272,6 @@ contract ClockTowerSubscribe is Ownable2Step {
                                             delete feeBalance[remitSub.id][subscriber];
 
                                             //log as feefill
-                                            //emit SubscriberLog(id, subscriber, provider, uint40(block.timestamp), amount, token, SubEvent.FEEFILL);
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.FEEFILL);
 
                                             //adjusts feefill based on frequency
@@ -1316,7 +1315,6 @@ contract ClockTowerSubscribe is Ownable2Step {
                                             //decrease feeBalance by fee and then zeros out
                                             delete feeBalance[remitSub.id][subscriber];
 
-                                            //emit ProviderLog(id, provider, uint40(block.timestamp), feeRemainder, token, ProvEvent.REFUND);
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), feeRemainder, remitSub.token, SubscriptEvent.PROVREFUND);
 
                                             //pays remainder to provider
