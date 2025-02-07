@@ -275,7 +275,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     mapping(address => mapping(bytes32 => Status)) provStatusMap;
 
     //account lookup table using enumerable set
-    EnumerableSet.AddressSet accountLookup2;
+    EnumerableSet.AddressSet accountLookup;
 
 
     //fee balance
@@ -287,7 +287,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     //--------------Subscription mappings------------ 
 
     //Subscription master map keyed on frequency -> dueDay
-    mapping(uint256 => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap2;
+    mapping(uint256 => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap;
 
     //map of subscribers by subscription id
     mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
@@ -616,7 +616,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @return Returns total amount of subscribers
     //returns total amount of subscribers
     function getTotalSubscribers() external view returns (uint256) {
-       return accountLookup2.length();
+       return accountLookup.length();
     }
     
 
@@ -717,10 +717,10 @@ contract ClockTowerSubscribe is Ownable2Step {
             
 
             //loops through subscriptions
-            for(uint256 i; i < subscriptionMap2[s][timeTrigger].length(); i++) {
+            for(uint256 i; i < subscriptionMap[s][timeTrigger].length(); i++) {
 
                 //gets subscription
-                Subscription memory subscription = idSubMap[subscriptionMap2[s][timeTrigger].at(i)];
+                Subscription memory subscription = idSubMap[subscriptionMap[s][timeTrigger].at(i)];
 
                 //checks if cancelled
                 if(!subscription.cancelled) {
@@ -837,8 +837,8 @@ contract ClockTowerSubscribe is Ownable2Step {
     function addAccountSubscription(SubIndex memory subIndex, bool isProvider) private {
     
         //new account
-        if(!accountLookup2.contains(msg.sender)){
-            accountLookup2.add(msg.sender);
+        if(!accountLookup.contains(msg.sender)){
+            accountLookup.add(msg.sender);
         }
         
         if(isProvider){
@@ -1023,9 +1023,9 @@ contract ClockTowerSubscribe is Ownable2Step {
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
-        uint256 length = subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].length();
+        uint256 length = subscriptionMap[uint(subscription.frequency)][subscription.dueDay].length();
         for(uint256 i; i < length; i++) {
-            if(subscriptionMap2[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
+            if(subscriptionMap[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
 
                idSubMap[subscription.id].cancelled = true;
 
@@ -1076,7 +1076,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
-        subscriptionMap2[uint256(frequency)][dueDay].add(subscription.id);
+        subscriptionMap[uint256(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
@@ -1155,7 +1155,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                     timeTrigger = time.yearDay;
                 }
 
-                uint256 length = subscriptionMap2[f][timeTrigger].length();
+                uint256 length = subscriptionMap[f][timeTrigger].length();
                 
                 
                 //loops through subscriptions
@@ -1165,7 +1165,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                     if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
 
                         //gets subscription
-                        Subscription memory subscription = idSubMap[subscriptionMap2[f][timeTrigger].at(s)];
+                        Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
 
                         //Marks day as not empty
                         isEmptyDay = false;
