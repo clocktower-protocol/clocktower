@@ -1095,16 +1095,10 @@ contract ClockTowerSubscribe is Ownable2Step {
     function editDetails(Details calldata details, bytes32 id) external {
         
         //checks if msg.sender is provider
-        Account memory returnedAccount = getAccount(msg.sender);
-
-        if(returnedAccount.accountAddress != address(0)) {
-            //checks if subscription is part of account
-            for(uint256 i; i < returnedAccount.provSubs.length; i++) {
-                if(returnedAccount.provSubs[i].id == id) {
-                    emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.url, details.description);
-                }
-            }
+        if(createdSubs[msg.sender].contains(id)) {
+                emit DetailsLog(id, msg.sender, uint40(block.timestamp), details.url, details.description);
         }
+        
     }
 
     /// @notice Changes Provider details in event logs
