@@ -1177,7 +1177,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                         isEmptyDay = false;
 
                         //checks if cancelled or token paused
-                        if(!subscription.cancelled || approvedERC20[subscription.token].paused) {
+                        if(!subscription.cancelled && !approvedERC20[subscription.token].paused) {
 
                              //struct created to avoid 'stack too deep' error with too many variables
                             Remit memory remitSub = Remit(subscription.id, 
