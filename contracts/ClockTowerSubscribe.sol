@@ -925,6 +925,8 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Unsubscribes account from subscription
     /// @param subscription Subscription struct 
     function unsubscribe(Subscription memory subscription) external {
+
+        require(subExists(subscription.id), "3");
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
