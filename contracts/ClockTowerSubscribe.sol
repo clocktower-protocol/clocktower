@@ -36,6 +36,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     17 = Must be between 1 and 365
     18 = Amount below token minimum
     19 = Reentrancy attempt
+    20 = Token paused
     */
 
     
@@ -865,6 +866,9 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         require(subExists(subscription.id), "3");
 
+        //checks that token is not paused
+        require(!approvedERC20[subscription.token].paused, '20');
+
         uint256 convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
         //check if there is enough allowance
@@ -1057,6 +1061,9 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //check if token is on approved list
         require(erc20IsApproved(token),"5");
+
+        //checks that token is not paused
+        require(!approvedERC20[token].paused, '20');
 
         //validates dueDay
         if(frequency == Frequency.WEEKLY) {
