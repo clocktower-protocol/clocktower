@@ -1029,14 +1029,7 @@ contract ClockTowerSubscribe is Ownable2Step {
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
 
-        uint256 length = subscriptionMap[uint(subscription.frequency)][subscription.dueDay].length();
-        for(uint256 i; i < length; i++) {
-            if(subscriptionMap[uint(subscription.frequency)][subscription.dueDay].contains(subscription.id)) {
-
-               idSubMap[subscription.id].cancelled = true;
-
-            }
-        }
+        idSubMap[subscription.id].cancelled = true;
 
         emit SubLog(subscription.id, msg.sender, address(0), uint40(block.timestamp), 0, subscription.token, SubscriptEvent.CANCEL);
 
