@@ -883,6 +883,13 @@ contract ClockTowerSubscribe is Ownable2Step {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
+        //checks if this subscription has any subscribers
+        //if this is the first subscription it adds it the time trigger mapping
+        if(subscribersMap2[subscription.id].length() == 0) {
+            subscriptionMap[uint256(subscription.frequency)][subscription.dueDay].add(subscription.id);
+        }
+
+
         //Adds to subscriber set
         if(!subscribersMap2[subscription.id].contains(msg.sender)) {
             subscribersMap2[subscription.id].add(msg.sender);
@@ -1120,7 +1127,8 @@ contract ClockTowerSubscribe is Ownable2Step {
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
 
-        subscriptionMap[uint256(frequency)][dueDay].add(subscription.id);
+
+        //subscriptionMap[uint256(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
