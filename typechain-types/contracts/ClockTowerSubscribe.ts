@@ -176,7 +176,9 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "acceptOwnership"
       | "addERC20Contract"
       | "approvedERC20"
+      | "batchUnsubscribeByProvider"
       | "callerFee"
+      | "cancelLimit"
       | "cancelSubscription"
       | "changeCallerFee"
       | "changeMaxRemits"
@@ -232,7 +234,15 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "approvedERC20",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "batchUnsubscribeByProvider",
+    values: [ClockTowerSubscribe.SubscriptionStruct]
+  ): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "cancelLimit",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "cancelSubscription",
     values: [ClockTowerSubscribe.SubscriptionStruct]
@@ -357,7 +367,15 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "approvedERC20",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "batchUnsubscribeByProvider",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelLimit",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "cancelSubscription",
     data: BytesLike
@@ -695,7 +713,15 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
 
+  batchUnsubscribeByProvider: TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "nonpayable"
+  >;
+
   callerFee: TypedContractMethod<[], [bigint], "view">;
+
+  cancelLimit: TypedContractMethod<[], [bigint], "view">;
 
   cancelSubscription: TypedContractMethod<
     [subscription: ClockTowerSubscribe.SubscriptionStruct],
@@ -893,7 +919,17 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "batchUnsubscribeByProvider"
+  ): TypedContractMethod<
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "callerFee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "cancelLimit"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "cancelSubscription"

@@ -51,6 +51,8 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     uint256 public maxRemits;
 
+    uint256 public cancelLimit;
+
     /// @dev Index if transaction pagination needed due to remit amount being larger than block
     PageStart pageStart;
 
@@ -240,7 +242,7 @@ contract ClockTowerSubscribe is Ownable2Step {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
+   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, uint256 cancelLimit_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
 
     //checks that admin address is not zero
     require(admin_ != address(0));
@@ -252,6 +254,8 @@ contract ClockTowerSubscribe is Ownable2Step {
     callerFee = callerFee_;
 
     systemFee = systemFee_;
+
+    cancelLimit = cancelLimit_;
 
     maxRemits = maxRemits_;
 
@@ -955,14 +959,17 @@ contract ClockTowerSubscribe is Ownable2Step {
      /// @notice Allows provider to unsubscribe a subscriber by address
      /// @param subscription Subscription struct
      /// @param subscriber Subscriber address
-    function unsubscribeByProvider(Subscription memory subscription, address subscriber) external {
+    function unsubscribeByProvider(Subscription memory subscription, address subscriber) public {
 
+        /*
         bool isProvider2;
         //checks msg.sender is provider of sub
         if(createdSubs[msg.sender].contains(subscription.id)){
             isProvider2 = true;
         }
         require(isProvider2, "8");
+        */
+        require(createdSubs[msg.sender].contains(subscription.id), "8");
 
         bool isSubscribed;
         
@@ -989,6 +996,39 @@ contract ClockTowerSubscribe is Ownable2Step {
         IERC20(subscription.token).safeTransfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals));
         
     }
+
+    /// @notice Function that allows provider to unsubscribe users in batches. Should only be used when cancelling large subscriptions
+    /// @dev Will cancel subscriptions up to cancel limit
+    /// @param subscription Subscription struct
+    function batchUnsubscribeByProvider(Subscription memory subscription) external {
+
+        //checks provider has created this subscription
+        require(createdSubs[msg.sender].contains(subscription.id), "8");
+
+        //gets total subscribed subscribers
+        uint256 remainingSubs = (subscribersMap2[subscription.id].length() - unsubscribedMap[subscription.id].length());
+
+        //can't have zero subscribers
+        require(remainingSubs > 0);
+
+        uint256 loops;
+
+        if(remainingSubs < cancelLimit){
+            loops = remainingSubs;
+        } else {
+            loops = cancelLimit;
+        }
+
+        //loops through remaining subs or max amount
+        for(uint256 i; i < loops; i++) {
+
+            //gets address
+            address subAddress = subscribersMap2[subscription.id].at(i);
+
+            //unsubscribes
+            unsubscribeByProvider(subscription, subAddress);
+        }
+    }
         
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
@@ -1000,6 +1040,8 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //require user be provider
         require(msg.sender == subscription.provider, "13");
+
+        require(!subscription.cancelled);
 
         //marks provider as cancelled
         provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 

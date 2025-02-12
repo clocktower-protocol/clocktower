@@ -51,7 +51,7 @@ describe("Clocktower", function(){
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
-        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 
         await hardhatCLOCKToken.waitForDeployment();
         await hardhatClockSubscribe.waitForDeployment();
