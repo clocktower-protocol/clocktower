@@ -360,6 +360,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
     function changeCallerFee(uint256 _fee) onlyOwner external {
+        require(_fee >= 10000 && _fee <= 10833);
         callerFee = _fee;
     }
 
@@ -367,6 +368,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @param _sys_fee New System fee
     function changeSystemFee(uint256 _sys_fee) onlyOwner external {
+        //require(_sys_fee >= 10000 && _sys_fee <= 19999);
         systemFee = _sys_fee;
     }
 
