@@ -1328,7 +1328,39 @@ describe("Clocktower", function(){
 
 
         })
-        
+        it("Allows for batch unsubscribing by provider", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            //creates subscriptions
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+
+            let subArray =[]
+
+            //subscriptions
+            for (let i = 0; i < subscriptions.length; i++) {
+                subArray.push({
+                    id: subscriptions[i].subscription[0],
+                    amount: subscriptions[i].subscription[1],
+                    provider: subscriptions[i].subscription[2],
+                    token: subscriptions[i].subscription[3],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
+                })
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[1])
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[2])
+        })
     })
  
 })
