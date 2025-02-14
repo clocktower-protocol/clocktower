@@ -609,7 +609,6 @@ contract ClockTowerSubscribe is Ownable2Step {
         if(bySubscriber) {
             ids = subscribedTo[account].values();
         } else {
-           // indexes = accountMap[msg.sender].provSubs;
            ids = createdSubs[account].values();
         }
 
@@ -651,9 +650,6 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         for(uint256 i; i < subsLength; i++) {
             bytes32 id = subscribedTo[account].at(i);
-
-            //doesn't include unsubscribed
-            //if(!unsubscribedMap[id].contains(account)) {
 
             //gets subscription details
             Subscription memory tempSub = idSubMap[id];
@@ -1140,9 +1136,6 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //creates subscription
         Subscription memory subscription = setSubscription(amount,token, frequency, dueDay);
-
-
-        //subscriptionMap[uint256(frequency)][dueDay].add(subscription.id);
 
         //adds it to account
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), true);
