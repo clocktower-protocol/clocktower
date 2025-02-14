@@ -368,7 +368,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @param _sys_fee New System fee
     function changeSystemFee(uint256 _sys_fee) onlyOwner external {
-        //require(_sys_fee >= 10000 && _sys_fee <= 19999);
+        require(_sys_fee >= 10000 && _sys_fee <= 19999);
         systemFee = _sys_fee;
     }
 
@@ -1053,15 +1053,20 @@ contract ClockTowerSubscribe is Ownable2Step {
         
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
+    /// @dev Will revert if number of subscribers is greater than cancelLimit
     /// @param subscription Subscription struct
     function cancelSubscription(Subscription calldata subscription) external {
 
         //checks subscription exists
         require(subExists(subscription.id), "3");
 
+        //TODO: add require check that total subscribers are not above limit
+        require(subscribersMap2[subscription.id].length() <= cancelLimit, "21");
+
         //require user be provider
         require(msg.sender == subscription.provider, "13");
 
+        //require subscription is not cancelled
         require(!subscription.cancelled);
 
         //marks provider as cancelled
