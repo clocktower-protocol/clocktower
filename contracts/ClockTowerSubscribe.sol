@@ -650,14 +650,14 @@ contract ClockTowerSubscribe is Ownable2Step {
             bytes32 id = subscribedTo[account].at(i);
 
             //doesn't include unsubscribed
-            if(!unsubscribedMap[id].contains(account)) {
+            //if(!unsubscribedMap[id].contains(account)) {
 
             //gets subscription details
             Subscription memory tempSub = idSubMap[id];
 
             //creates SubIndex
             subsArray[i] = SubIndex(id, tempSub.dueDay, tempSub.frequency, subStatusMap[account][id]);
-            }
+            //}
         }
 
         //gets array of subs created by address

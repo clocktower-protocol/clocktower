@@ -1390,13 +1390,16 @@ describe("Clocktower", function(){
 
             let account2 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
 
-            expect(account2.subscriptions[0].dueDay).to.be.equal(1n)
+            expect(account2.subscriptions[0].status).to.be.equal(0)
 
             expect( await hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0]))
 
             let account = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
+            let account3 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
 
-            expect(account.subscriptions[0].dueDay).to.be.equal(0)
+            //checks that it unsubscribes
+            expect(account.subscriptions[0].status).to.be.equal(2n)
+            expect(account3.subscriptions[0].status).to.be.equal(2n)
         })
     })
  
