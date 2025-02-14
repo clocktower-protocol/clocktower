@@ -39,6 +39,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     20 = Token paused
     21 = Above Cancel Subscriber Limit
     22 = No Subscribers
+    23 = Subscription is already cancelled
     */
 
     
@@ -891,7 +892,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         uint256 convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
-        //check if there is enough allowance
+        //check if there is enough allowance and balance
         require(IERC20(subscription.token).allowance(msg.sender, address(this)) >= convertedAmount
                 &&
                 IERC20(subscription.token).balanceOf(msg.sender) >= convertedAmount, "10");
@@ -984,14 +985,6 @@ contract ClockTowerSubscribe is Ownable2Step {
      /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) public {
 
-        /*
-        bool isProvider2;
-        //checks msg.sender is provider of sub
-        if(createdSubs[msg.sender].contains(subscription.id)){
-            isProvider2 = true;
-        }
-        require(isProvider2, "8");
-        */
         require(createdSubs[msg.sender].contains(subscription.id), "8");
 
         bool isSubscribed;
@@ -1069,7 +1062,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         require(msg.sender == subscription.provider, "13");
 
         //require subscription is not cancelled
-        require(!subscription.cancelled);
+        require(!subscription.cancelled, "23");
 
         //marks provider as cancelled
         provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 
