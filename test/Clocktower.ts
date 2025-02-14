@@ -312,8 +312,9 @@ describe("Clocktower", function(){
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("1"))
 
         })
+        //TODO: add check that cancelSubscription checks cancelLimit
         it("Should cancel subscription", async function(){
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
             const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             
@@ -338,8 +339,18 @@ describe("Clocktower", function(){
             }
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subscribeObject)
     
             //checks reverts
+
+            //checks for being over the max subscriber limit
+            await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
+
+            await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
+            .to.be.rejectedWith("21")
+
+            await hardhatClockSubscribe.connect(owner).setCancelLimit(5n)
+
 
             //checks input of fake subscription
             let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
@@ -1358,6 +1369,7 @@ describe("Clocktower", function(){
 
 
         })
+        //TODO: add more checks
         it("Allows to batch unsubscribe by provider", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
