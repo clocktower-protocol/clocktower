@@ -630,7 +630,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Gets account struct by address
     /// @param account Account address
     /// @return Returns Account struct for supplied address
-    function getAccount(address account) public view returns (Account memory) {
+    function getAccount(address account) external view returns (Account memory) {
         
         uint256 subsLength = subscribedTo[account].length();
         uint256 provLength = createdSubs[account].length();
