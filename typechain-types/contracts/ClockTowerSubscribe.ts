@@ -201,6 +201,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "pendingOwner"
       | "remit"
       | "renounceOwnership"
+      | "setCancelLimit"
       | "setNextUncheckedDay"
       | "setPageStart"
       | "subscribe"
@@ -326,6 +327,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setCancelLimit",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setNextUncheckedDay",
     values: [BigNumberish]
   ): string;
@@ -441,6 +446,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setCancelLimit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -843,6 +852,12 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
+  setCancelLimit: TypedContractMethod<
+    [_cancelLimit: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   setNextUncheckedDay: TypedContractMethod<
     [_nextUncheckedDay: BigNumberish],
     [void],
@@ -1057,6 +1072,9 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setCancelLimit"
+  ): TypedContractMethod<[_cancelLimit: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setNextUncheckedDay"
   ): TypedContractMethod<

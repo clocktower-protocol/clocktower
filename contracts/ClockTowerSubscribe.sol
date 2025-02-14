@@ -410,6 +410,14 @@ contract ClockTowerSubscribe is Ownable2Step {
         }
 
     }
+
+    /// @notice sets cancel limit
+    /// @param _cancelLimit amount of unsubscribes that can be done by batchUnsubscribeByProvider
+    function setCancelLimit(uint256 _cancelLimit) onlyOwner external {
+
+        cancelLimit = _cancelLimit;
+
+    }
     
     //-------------------------------------------------------
 
@@ -607,7 +615,11 @@ contract ClockTowerSubscribe is Ownable2Step {
         for(uint256 i; i < ids.length; i++){
 
             if(bySubscriber) {
-                subViews[i].status = subStatusMap[account][ids[i]];
+                //doesn't include unsubscribed
+                //TODO: 
+                //if(!unsubscribedMap[ids[i]].contains(account)) {
+                    subViews[i].status = subStatusMap[account][ids[i]];
+               // }
             } else {
                  subViews[i].status = provStatusMap[account][ids[i]];
             }
@@ -641,11 +653,15 @@ contract ClockTowerSubscribe is Ownable2Step {
         for(uint256 i; i < subsLength; i++) {
             bytes32 id = subscribedTo[account].at(i);
 
+            //doesn't include unsubscribed
+            if(!unsubscribedMap[id].contains(account)) {
+
             //gets subscription details
             Subscription memory tempSub = idSubMap[id];
 
             //creates SubIndex
             subsArray[i] = SubIndex(id, tempSub.dueDay, tempSub.frequency, subStatusMap[account][id]);
+            }
         }
 
         //gets array of subs created by address
