@@ -615,11 +615,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         for(uint256 i; i < ids.length; i++){
 
             if(bySubscriber) {
-                //doesn't include unsubscribed
-                //TODO: 
-                //if(!unsubscribedMap[ids[i]].contains(account)) {
-                    subViews[i].status = subStatusMap[account][ids[i]];
-               // }
+                subViews[i].status = subStatusMap[account][ids[i]];
             } else {
                  subViews[i].status = provStatusMap[account][ids[i]];
             }
