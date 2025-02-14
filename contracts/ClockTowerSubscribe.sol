@@ -298,7 +298,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     mapping(uint256 => mapping(uint16 => EnumerableSet.Bytes32Set)) subscriptionMap;
 
     //map of subscribers by subscription id
-    mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap2;
+    mapping(bytes32 => EnumerableSet.AddressSet) subscribersMap;
 
     //mapping of subscriptions by id
     mapping(bytes32 => Subscription) public idSubMap;
@@ -623,7 +623,7 @@ contract ClockTowerSubscribe is Ownable2Step {
             }
             
             subViews[i].subscription = idSubMap[ids[i]];
-            subViews[i].totalSubscribers = subscribersMap2[subViews[i].subscription.id].length(); 
+            subViews[i].totalSubscribers = subscribersMap[subViews[i].subscription.id].length(); 
             
         }
            
@@ -683,14 +683,14 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
-        uint256 length = subscribersMap2[id].length();
+        uint256 length = subscribersMap[id].length();
        
         SubscriberView[] memory scriberViews = new SubscriberView[](length);
 
         for(uint256 i; i < length; i++) {
 
-            uint256 feeBalanceTemp = feeBalance[id][subscribersMap2[id].at(i)];
-            SubscriberView memory scriberView = SubscriberView(subscribersMap2[id].at(i), feeBalanceTemp);
+            uint256 feeBalanceTemp = feeBalance[id][subscribersMap[id].at(i)];
+            SubscriberView memory scriberView = SubscriberView(subscribersMap[id].at(i), feeBalanceTemp);
             scriberViews[i] = scriberView;
         }
 
@@ -753,7 +753,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                     uint256 totalFee;
                  
                     //loops through subscribers
-                    for(uint256 j; j < subscribersMap2[subscription.id].length(); j++) {
+                    for(uint256 j; j < subscribersMap[subscription.id].length(); j++) {
 
                         //checks for max remit and returns false if limit hit
                         if(remitCounter == maxRemits) {
@@ -898,14 +898,14 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //checks if this subscription has any subscribers
         //if this is the first subscription it adds it the time trigger mapping
-        if(subscribersMap2[subscription.id].length() == 0) {
+        if(subscribersMap[subscription.id].length() == 0) {
             subscriptionMap[uint256(subscription.frequency)][subscription.dueDay].add(subscription.id);
         }
 
 
         //Adds to subscriber set
-        if(!subscribersMap2[subscription.id].contains(msg.sender)) {
-            subscribersMap2[subscription.id].add(msg.sender);
+        if(!subscribersMap[subscription.id].contains(msg.sender)) {
+            subscribersMap[subscription.id].add(msg.sender);
         }
 
         //Removes from unsubscribed set
@@ -985,7 +985,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         bool isSubscribed;
         
-        if(subscribersMap2[subscription.id].contains(subscriber)) {
+        if(subscribersMap[subscription.id].contains(subscriber)) {
             isSubscribed = true;
             subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
         } 
@@ -1018,7 +1018,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         require(createdSubs[msg.sender].contains(subscription.id), "8");
 
         //gets total subscribed subscribers
-        uint256 remainingSubs = (subscribersMap2[subscription.id].length() - unsubscribedMap[subscription.id].length());
+        uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
 
         //can't have zero subscribers
         require(remainingSubs > 0, "22");
@@ -1035,7 +1035,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         for(uint256 i; i < loops; i++) {
 
             //gets address
-            address subAddress = subscribersMap2[subscription.id].at(i);
+            address subAddress = subscribersMap[subscription.id].at(i);
 
             //unsubscribes
             unsubscribeByProvider(subscription, subAddress);
@@ -1052,7 +1052,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         require(subExists(subscription.id), "3");
 
         //require check total subscribers are not above limit
-        require(subscribersMap2[subscription.id].length() <= cancelLimit, "21");
+        require(subscribersMap[subscription.id].length() <= cancelLimit, "21");
 
         //require user be provider
         require(msg.sender == subscription.provider, "13");
@@ -1064,9 +1064,9 @@ contract ClockTowerSubscribe is Ownable2Step {
         provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 
 
         //gets list of subscribers and deletes subscriber list
-        EnumerableSet.AddressSet storage subscribers2 = subscribersMap2[subscription.id];
+        EnumerableSet.AddressSet storage subscribers2 = subscribersMap[subscription.id];
 
-        for(uint256 i; i < subscribersMap2[subscription.id].length(); i++) {
+        for(uint256 i; i < subscribersMap[subscription.id].length(); i++) {
 
             address subscriberAddress = subscribers2.at(i);
 
@@ -1246,7 +1246,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                             uint256 subFee = (amount * callerFee / 10000) - amount;
                             uint256 totalFee;
 
-                            uint256 sublength = subscribersMap2[remitSub.id].length();
+                            uint256 sublength = subscribersMap[remitSub.id].length();
                             uint256 lastSub;
                             
                             //makes sure on an empty subscription lastSub doesn't underflow
@@ -1287,7 +1287,7 @@ contract ClockTowerSubscribe is Ownable2Step {
                                 if(!pageStart.initialized || pageGo == true) {
                                     
                                     //checks for failure (balance and unlimited allowance)
-                                    address subscriber = subscribersMap2[remitSub.id].at(u);
+                                    address subscriber = subscribersMap[remitSub.id].at(u);
 
                                     //skips unsubscribed
                                     if(unsubscribedMap[remitSub.id].contains(subscriber)) {
