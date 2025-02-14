@@ -312,7 +312,6 @@ describe("Clocktower", function(){
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("1"))
 
         })
-        //TODO: add check that cancelSubscription checks cancelLimit
         it("Should cancel subscription", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
@@ -350,7 +349,6 @@ describe("Clocktower", function(){
             .to.be.rejectedWith("21")
 
             await hardhatClockSubscribe.connect(owner).setCancelLimit(5n)
-
 
             //checks input of fake subscription
             let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
@@ -1396,9 +1394,15 @@ describe("Clocktower", function(){
                     dueDay: subscriptions[i].subscription[6]
                 })
             }
+            
+            //checks if there are no subscribers
+            await expect(hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0])).to.be.rejectedWith("22")
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
+
+            //checks that its actually the provider
+            await expect(hardhatClockSubscribe.connect(subscriber).batchUnsubscribeByProvider(subArray[0])).to.be.rejectedWith("8")
 
             let account2 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
 
@@ -1412,6 +1416,22 @@ describe("Clocktower", function(){
             //checks that it unsubscribes
             expect(account.subscriptions[0].status).to.be.equal(2n)
             expect(account3.subscriptions[0].status).to.be.equal(2n)
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
+
+            //sets cancel limit lower than subscribers
+            await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
+
+            expect( await hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0]))
+
+            let account4 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
+            let account5 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
+
+            //checks that it unsubscribes only one
+            expect(account4.subscriptions[0].status).to.be.equal(2n)
+            expect(account5.subscriptions[0].status).to.be.equal(0)
+
         })
     })
  
