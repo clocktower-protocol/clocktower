@@ -37,6 +37,8 @@ contract ClockTowerSubscribe is Ownable2Step {
     18 = Amount below token minimum
     19 = Reentrancy attempt
     20 = Token paused
+    21 = Above Cancel Subscriber Limit
+    22 = No Subscribers
     */
 
     
@@ -1030,7 +1032,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         uint256 remainingSubs = (subscribersMap2[subscription.id].length() - unsubscribedMap[subscription.id].length());
 
         //can't have zero subscribers
-        require(remainingSubs > 0);
+        require(remainingSubs > 0, "22");
 
         uint256 loops;
 
@@ -1060,7 +1062,7 @@ contract ClockTowerSubscribe is Ownable2Step {
         //checks subscription exists
         require(subExists(subscription.id), "3");
 
-        //TODO: add require check that total subscribers are not above limit
+        //require check total subscribers are not above limit
         require(subscribersMap2[subscription.id].length() <= cancelLimit, "21");
 
         //require user be provider
