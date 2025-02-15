@@ -248,7 +248,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, uint256 cancelLimit_, bool allowSystemFee_, address admin_, address janitor_) AccessControlDefaultAdminRules(
+   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, uint256 cancelLimit_, bool allowSystemFee_, address admin_, address janitor_) 
+   AccessControlDefaultAdminRules(
     1 days,
     admin_
    ) 
@@ -430,6 +431,44 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     function setCancelLimit(uint256 _cancelLimit) external  onlyRole(DEFAULT_ADMIN_ROLE) {
 
         cancelLimit = _cancelLimit;
+
+    }
+
+    /// @notice cleans up subscibers in cancelled subscriptions
+    function cleanupCancelledSubscribers(address receiver, bytes32 id) external onlyRole(JANITOR_ROLE) {
+
+        require(receiver != address(0));
+
+        //checks that subscription is cancelled and has subscribers to clean up
+        require(idSubMap[id].cancelled && (subscribersMap[id].length() > 0));
+
+        Subscription memory subscription = idSubMap[id];
+
+         //gets list of subscribers and deletes subscriber list
+        EnumerableSet.AddressSet storage subscribers2 = subscribersMap[id];
+
+        for(uint256 i; i < subscribersMap[id].length(); i++) {
+
+            address subscriberAddress = subscribers2.at(i);
+
+            //refunds feeBalances to subscribers
+            uint256 feeBal = feeBalance[subscription.id][subscriberAddress];
+
+            emit SubLog(subscription.id, subscription.provider, subscriberAddress, uint40(block.timestamp), feeBal, subscription.token, SubscriptEvent.SUBREFUND);  
+
+            //zeros out fee balance
+            delete feeBalance[subscription.id][subscriberAddress];
+
+            //refunds fee balance
+            IERC20(subscription.token).safeTransfer(receiver, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
+            
+            //sets status as cancelled
+            subStatusMap[subscriberAddress][subscription.id] = Status.CANCELLED;
+
+            //deletes subscriber list
+            deleteSubFromSubscription(subscription.id, subscriberAddress);
+        }
+
 
     }
     
@@ -1074,10 +1113,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //marks provider as cancelled
         provStatusMap[msg.sender][subscription.id] = Status.CANCELLED; 
 
+        /*
         //gets list of subscribers and deletes subscriber list
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap[subscription.id];
-
-
 
         for(uint256 i; i < subscribersMap[subscription.id].length(); i++) {
 
@@ -1100,6 +1138,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //deletes subscriber list
             deleteSubFromSubscription(subscription.id, subscriberAddress);
         }
+        */
 
         idSubMap[subscription.id].cancelled = true;
 

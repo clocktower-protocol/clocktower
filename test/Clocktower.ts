@@ -360,14 +360,16 @@ describe("Clocktower", function(){
 
             //checks balances and emits
 
-            await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
+            /*
+            //await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
             //.to.changeTokenBalance(hardhatCLOCKToken, subscriber, "51851851851851851")
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscribeObject.provider, subscriber.address, anyValue, "51851851851851851", clockTokenAddress, 9)
+            //.to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscribeObject.provider, subscriber.address, anyValue, "51851851851851851", clockTokenAddress, 9)
 
             //checks token balance
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, "51851851851851851")
+            */
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
@@ -376,7 +378,7 @@ describe("Clocktower", function(){
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
 
-            expect(result[0].status).to.equal(1);
+            //expect(result[0].status).to.equal(1);
             expect(result[0].subscription.cancelled).to.equal(true)
         })
         it("Should paginate remit transactions", async function(){
