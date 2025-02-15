@@ -434,17 +434,16 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
     }
 
+    /*
     /// @notice cleans up subscibers in cancelled subscriptions
-    function cleanupCancelledSubscribers(address receiver, bytes32 id) external onlyRole(JANITOR_ROLE) {
-
-        require(receiver != address(0));
+    function cleanupCancelledSubscribers(bytes32 id) external onlyRole(JANITOR_ROLE) {
 
         //checks that subscription is cancelled and has subscribers to clean up
         require(idSubMap[id].cancelled && (subscribersMap[id].length() > 0));
 
         Subscription memory subscription = idSubMap[id];
 
-         //gets list of subscribers and deletes subscriber list
+        //gets list of subscribers and deletes subscriber list
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap[id];
 
         for(uint256 i; i < subscribersMap[id].length(); i++) {
@@ -460,7 +459,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             delete feeBalance[subscription.id][subscriberAddress];
 
             //refunds fee balance
-            IERC20(subscription.token).safeTransfer(receiver, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
+            IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(feeBal, approvedERC20[subscription.token].decimals));
             
             //sets status as cancelled
             subStatusMap[subscriberAddress][subscription.id] = Status.CANCELLED;
@@ -470,6 +469,39 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         }
 
 
+    }
+    */
+    /// @notice Function that allows provider to unsubscribe users in batches. Should only be used when cancelling large subscriptions
+    /// @dev Will cancel subscriptions up to cancel limit
+    /// @param subscription Subscription struct
+    function cleanupCancelledSubscribers(Subscription memory subscription) external onlyRole(JANITOR_ROLE) {
+
+        //checks provider has created this subscription
+        //require(createdSubs[msg.sender].contains(subscription.id), "8");
+
+        //gets total subscribed subscribers
+        uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
+
+        //can't have zero subscribers
+        require(remainingSubs > 0, "22");
+
+        uint256 loops;
+
+        if(remainingSubs < cancelLimit){
+            loops = remainingSubs;
+        } else {
+            loops = cancelLimit;
+        }
+
+        //loops through remaining subs or max amount
+        for(uint256 i; i < loops; i++) {
+
+            //gets address
+            address subAddress = subscribersMap[subscription.id].at(i);
+
+            //unsubscribes
+            unsubscribeByProvider(subscription, subAddress);
+        }
     }
     
     //-------------------------------------------------------
@@ -1031,7 +1063,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
      /// @param subscriber Subscriber address
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) public {
 
-        require(createdSubs[msg.sender].contains(subscription.id), "8");
+        //allows provider or janitor to call function
+        require(createdSubs[msg.sender].contains(subscription.id) || (hasRole(JANITOR_ROLE, msg.sender)), "8");
 
         bool isSubscribed;
         
@@ -1046,19 +1079,20 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //emit unsubscribe to log
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
-        //refunds fees to subscriber
+        //pays remaining balance to system
         uint256 balance = feeBalance[subscription.id][subscriber];
 
         //zeros out fee balance
         delete feeBalance[subscription.id][subscriber];
 
-        emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
+        //emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), balance, subscription.token, SubscriptEvent.SUBREFUND);
 
         //Refunds fee balance
-        IERC20(subscription.token).safeTransfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals));
+        IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(balance, approvedERC20[subscription.token].decimals));
         
     }
 
+    /*
     /// @notice Function that allows provider to unsubscribe users in batches. Should only be used when cancelling large subscriptions
     /// @dev Will cancel subscriptions up to cancel limit
     /// @param subscription Subscription struct
@@ -1091,6 +1125,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             unsubscribeByProvider(subscription, subAddress);
         }
     }
+    */
         
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
