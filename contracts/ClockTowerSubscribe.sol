@@ -5,11 +5,13 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
+//import "@openzeppelin/contracts/access/Ownable2Step.sol";
+//import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
-contract ClockTowerSubscribe is Ownable2Step {
+contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -42,6 +44,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     23 = Subscription is already cancelled
     */
 
+    bytes32 public constant JANITOR_ROLE = keccak256("JANITOR_ROLE");
     
     /// @notice Percentage of subscription given to user who calls remit as a fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
@@ -245,7 +248,11 @@ contract ClockTowerSubscribe is Ownable2Step {
    /// @param allowSystemFee_ Is the system fee turned on?
    /// @param admin_ The admin address
 
-   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, uint256 cancelLimit_, bool allowSystemFee_, address admin_) Ownable(admin_)  {
+   constructor(uint256 callerFee_, uint256 systemFee_, uint256 maxRemits_, uint256 cancelLimit_, bool allowSystemFee_, address admin_, address janitor_) AccessControlDefaultAdminRules(
+    1 days,
+    admin_
+   ) 
+   {
 
     //checks that admin address is not zero
     require(admin_ != address(0));
@@ -253,6 +260,12 @@ contract ClockTowerSubscribe is Ownable2Step {
     //checks that caller and system fees are within bounds
     require(callerFee_ >= 10000 && callerFee_ <= 10833);
     require(systemFee_ >= 10000 && systemFee_ <= 19999);
+
+    //sets admin account for roles
+    //_grantRole(DEFAULT_ADMIN_ROLE, admin_);
+
+    //sets janitor role
+    _grantRole(JANITOR_ROLE, janitor_);
         
     callerFee = callerFee_;
 
@@ -266,8 +279,6 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     ///@dev variable for last checked by day
     nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
-
-    //admin = admin_;
 
     sysFeeReceiver = admin_;
 
@@ -330,7 +341,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     
     /// @notice Changes sysFeeReceiver address
     /// @param newSysFeeAddress New sysFeeReceiver address
-    function changeSysFeeReceiver(address newSysFeeAddress) onlyOwner external {
+    function changeSysFeeReceiver(address newSysFeeAddress) external onlyRole(DEFAULT_ADMIN_ROLE) {
        require((newSysFeeAddress != address(0)));
 
        //checks that address is different
@@ -341,7 +352,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     /// @notice Allow system fee
     /// @param status true of false
-    function systemFeeActivate(bool status) onlyOwner external {
+    function systemFeeActivate(bool status) external onlyRole(DEFAULT_ADMIN_ROLE) {
         allowSystemFee = status;
     }
 
@@ -349,7 +360,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param erc20Contract ERC20 Contract address
     /// @param minimum Token minimum in wei
     /// @param decimals Number of token decimals
-    function addERC20Contract(address erc20Contract, uint256 minimum, uint8 decimals) onlyOwner external {
+    function addERC20Contract(address erc20Contract, uint256 minimum, uint8 decimals) external onlyRole(DEFAULT_ADMIN_ROLE) {
 
         require(erc20Contract != address(0));
         require(!erc20IsApproved(erc20Contract), "1");
@@ -362,7 +373,7 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @param _fee New Caller fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @dev If caller fee is above 8.33% because then a second feefill would happen on annual subs
-    function changeCallerFee(uint256 _fee) onlyOwner external {
+    function changeCallerFee(uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_fee >= 10000 && _fee <= 10833);
         callerFee = _fee;
     }
@@ -370,34 +381,34 @@ contract ClockTowerSubscribe is Ownable2Step {
     /// @notice Change system fee
     /// @dev 10000 = No fee, 10100 = 1%, 10001 = 0.01%
     /// @param _sys_fee New System fee
-    function changeSystemFee(uint256 _sys_fee) onlyOwner external {
+    function changeSystemFee(uint256 _sys_fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_sys_fee >= 10000 && _sys_fee <= 19999);
         systemFee = _sys_fee;
     }
 
     /// @notice Change max remits
     /// @param _maxRemits New number of max remits per transaction
-    function changeMaxRemits(uint256 _maxRemits) onlyOwner external {
+    function changeMaxRemits(uint256 _maxRemits) external onlyRole(DEFAULT_ADMIN_ROLE) {
         maxRemits = _maxRemits;
     }
 
     
     /// @notice Set pageStart coordinates
     /// @param _pageStart Contains of coordinates of where next remit should start
-    function setPageStart(PageStart calldata _pageStart) onlyOwner external {
+    function setPageStart(PageStart calldata _pageStart) external onlyRole(DEFAULT_ADMIN_ROLE) {
         pageStart = _pageStart;
     }
 
     /// @notice Set next unchecked day
     /// @param _nextUncheckedDay next day to be remitted
-    function setNextUncheckedDay(uint40 _nextUncheckedDay) onlyOwner external {
+    function setNextUncheckedDay(uint40 _nextUncheckedDay) external onlyRole(DEFAULT_ADMIN_ROLE) {
         nextUncheckedDay = _nextUncheckedDay;
     }
 
     /// @notice pause subscriptions that contain a certain token
     /// @param _tokenAddress address of token to be paused
     /// @param pause true = pause, false = unpause
-    function pauseToken(address _tokenAddress, bool pause) onlyOwner external {
+    function pauseToken(address _tokenAddress, bool pause) external onlyRole(DEFAULT_ADMIN_ROLE) {
 
         //check that token is already approved
         require(approvedERC20[_tokenAddress].tokenAddress != address(0));
@@ -416,7 +427,7 @@ contract ClockTowerSubscribe is Ownable2Step {
 
     /// @notice sets cancel limit
     /// @param _cancelLimit amount of unsubscribes that can be done by batchUnsubscribeByProvider
-    function setCancelLimit(uint256 _cancelLimit) onlyOwner external {
+    function setCancelLimit(uint256 _cancelLimit) external  onlyRole(DEFAULT_ADMIN_ROLE) {
 
         cancelLimit = _cancelLimit;
 
@@ -1065,6 +1076,8 @@ contract ClockTowerSubscribe is Ownable2Step {
 
         //gets list of subscribers and deletes subscriber list
         EnumerableSet.AddressSet storage subscribers2 = subscribersMap[subscription.id];
+
+
 
         for(uint256 i; i < subscribersMap[subscription.id].length(); i++) {
 
