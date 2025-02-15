@@ -173,41 +173,55 @@ export declare namespace ClockTowerSubscribe {
 export interface ClockTowerSubscribeInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "acceptOwnership"
+      | "DEFAULT_ADMIN_ROLE"
+      | "JANITOR_ROLE"
+      | "acceptDefaultAdminTransfer"
       | "addERC20Contract"
       | "approvedERC20"
       | "batchUnsubscribeByProvider"
+      | "beginDefaultAdminTransfer"
       | "callerFee"
+      | "cancelDefaultAdminTransfer"
       | "cancelLimit"
       | "cancelSubscription"
       | "changeCallerFee"
+      | "changeDefaultAdminDelay"
       | "changeMaxRemits"
       | "changeSysFeeReceiver"
       | "changeSystemFee"
       | "createSubscription"
+      | "defaultAdmin"
+      | "defaultAdminDelay"
+      | "defaultAdminDelayIncreaseWait"
       | "editDetails"
       | "editProvDetails"
       | "feeBalance"
       | "feeEstimate"
       | "getAccount"
       | "getAccountSubscriptions"
+      | "getRoleAdmin"
       | "getSubscribersById"
       | "getTotalSubscribers"
+      | "grantRole"
+      | "hasRole"
       | "idSubMap"
       | "maxRemits"
       | "nextUncheckedDay"
       | "owner"
       | "pauseToken"
-      | "pendingOwner"
+      | "pendingDefaultAdmin"
+      | "pendingDefaultAdminDelay"
       | "remit"
-      | "renounceOwnership"
+      | "renounceRole"
+      | "revokeRole"
+      | "rollbackDefaultAdminDelay"
       | "setCancelLimit"
       | "setNextUncheckedDay"
       | "setPageStart"
       | "subscribe"
+      | "supportsInterface"
       | "systemFee"
       | "systemFeeActivate"
-      | "transferOwnership"
       | "unsubscribe"
       | "unsubscribeByProvider"
   ): FunctionFragment;
@@ -216,15 +230,28 @@ export interface ClockTowerSubscribeInterface extends Interface {
     nameOrSignatureOrTopic:
       | "CallerLog"
       | "Coordinates"
+      | "DefaultAdminDelayChangeCanceled"
+      | "DefaultAdminDelayChangeScheduled"
+      | "DefaultAdminTransferCanceled"
+      | "DefaultAdminTransferScheduled"
       | "DetailsLog"
-      | "OwnershipTransferStarted"
-      | "OwnershipTransferred"
       | "ProvDetailsLog"
+      | "RoleAdminChanged"
+      | "RoleGranted"
+      | "RoleRevoked"
       | "SubLog"
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "acceptOwnership",
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "JANITOR_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptDefaultAdminTransfer",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -239,7 +266,15 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "batchUnsubscribeByProvider",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "beginDefaultAdminTransfer",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "callerFee", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "cancelDefaultAdminTransfer",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "cancelLimit",
     values?: undefined
@@ -250,6 +285,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "changeCallerFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "changeDefaultAdminDelay",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -273,6 +312,18 @@ export interface ClockTowerSubscribeInterface extends Interface {
       BigNumberish,
       BigNumberish
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "defaultAdmin",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "defaultAdminDelay",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "defaultAdminDelayIncreaseWait",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "editDetails",
@@ -299,12 +350,24 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [boolean, AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getSubscribersById",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getTotalSubscribers",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "idSubMap", values: [BytesLike]): string;
   encodeFunctionData(functionFragment: "maxRemits", values?: undefined): string;
@@ -318,12 +381,24 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "pendingOwner",
+    functionFragment: "pendingDefaultAdmin",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pendingDefaultAdminDelay",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "remit", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
+    functionFragment: "renounceRole",
+    values: [BytesLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rollbackDefaultAdminDelay",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -342,14 +417,14 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "subscribe",
     values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "systemFee", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "systemFeeActivate",
     values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "unsubscribe",
@@ -361,7 +436,15 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "acceptOwnership",
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "JANITOR_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptDefaultAdminTransfer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -376,7 +459,15 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "batchUnsubscribeByProvider",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "beginDefaultAdminTransfer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "callerFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelDefaultAdminTransfer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "cancelLimit",
     data: BytesLike
@@ -387,6 +478,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "changeCallerFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "changeDefaultAdminDelay",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -403,6 +498,18 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "createSubscription",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "defaultAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "defaultAdminDelay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "defaultAdminDelayIncreaseWait",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -424,6 +531,10 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getSubscribersById",
     data: BytesLike
   ): Result;
@@ -431,6 +542,8 @@ export interface ClockTowerSubscribeInterface extends Interface {
     functionFragment: "getTotalSubscribers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "idSubMap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxRemits", data: BytesLike): Result;
   decodeFunctionResult(
@@ -440,12 +553,21 @@ export interface ClockTowerSubscribeInterface extends Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pauseToken", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingOwner",
+    functionFragment: "pendingDefaultAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingDefaultAdminDelay",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "remit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "rollbackDefaultAdminDelay",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -461,13 +583,13 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "subscribe", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "systemFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "systemFeeActivate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -533,6 +655,58 @@ export namespace CoordinatesEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace DefaultAdminDelayChangeCanceledEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DefaultAdminDelayChangeScheduledEvent {
+  export type InputTuple = [
+    newDelay: BigNumberish,
+    effectSchedule: BigNumberish
+  ];
+  export type OutputTuple = [newDelay: bigint, effectSchedule: bigint];
+  export interface OutputObject {
+    newDelay: bigint;
+    effectSchedule: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DefaultAdminTransferCanceledEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DefaultAdminTransferScheduledEvent {
+  export type InputTuple = [
+    newAdmin: AddressLike,
+    acceptSchedule: BigNumberish
+  ];
+  export type OutputTuple = [newAdmin: string, acceptSchedule: bigint];
+  export interface OutputObject {
+    newAdmin: string;
+    acceptSchedule: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace DetailsLogEvent {
   export type InputTuple = [
     id: BytesLike,
@@ -554,32 +728,6 @@ export namespace DetailsLogEvent {
     timestamp: bigint;
     url: string;
     description: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace OwnershipTransferStartedEvent {
-  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-  export type OutputTuple = [previousOwner: string, newOwner: string];
-  export interface OutputObject {
-    previousOwner: string;
-    newOwner: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace OwnershipTransferredEvent {
-  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-  export type OutputTuple = [previousOwner: string, newOwner: string];
-  export interface OutputObject {
-    previousOwner: string;
-    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -617,6 +765,64 @@ export namespace ProvDetailsLogEvent {
     domain: string;
     email: string;
     misc: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RoleAdminChangedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    previousAdminRole: BytesLike,
+    newAdminRole: BytesLike
+  ];
+  export type OutputTuple = [
+    role: string,
+    previousAdminRole: string,
+    newAdminRole: string
+  ];
+  export interface OutputObject {
+    role: string;
+    previousAdminRole: string;
+    newAdminRole: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RoleGrantedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike
+  ];
+  export type OutputTuple = [role: string, account: string, sender: string];
+  export interface OutputObject {
+    role: string;
+    account: string;
+    sender: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RoleRevokedEvent {
+  export type InputTuple = [
+    role: BytesLike,
+    account: AddressLike,
+    sender: AddressLike
+  ];
+  export type OutputTuple = [role: string, account: string, sender: string];
+  export interface OutputObject {
+    role: string;
+    account: string;
+    sender: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -701,7 +907,11 @@ export interface ClockTowerSubscribe extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], "view">;
+
+  JANITOR_ROLE: TypedContractMethod<[], [string], "view">;
+
+  acceptDefaultAdminTransfer: TypedContractMethod<[], [void], "nonpayable">;
 
   addERC20Contract: TypedContractMethod<
     [erc20Contract: AddressLike, minimum: BigNumberish, decimals: BigNumberish],
@@ -728,7 +938,15 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
+  beginDefaultAdminTransfer: TypedContractMethod<
+    [newAdmin: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   callerFee: TypedContractMethod<[], [bigint], "view">;
+
+  cancelDefaultAdminTransfer: TypedContractMethod<[], [void], "nonpayable">;
 
   cancelLimit: TypedContractMethod<[], [bigint], "view">;
 
@@ -740,6 +958,12 @@ export interface ClockTowerSubscribe extends BaseContract {
 
   changeCallerFee: TypedContractMethod<
     [_fee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  changeDefaultAdminDelay: TypedContractMethod<
+    [newDelay: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -773,6 +997,12 @@ export interface ClockTowerSubscribe extends BaseContract {
     [void],
     "nonpayable"
   >;
+
+  defaultAdmin: TypedContractMethod<[], [string], "view">;
+
+  defaultAdminDelay: TypedContractMethod<[], [bigint], "view">;
+
+  defaultAdminDelayIncreaseWait: TypedContractMethod<[], [bigint], "view">;
 
   editDetails: TypedContractMethod<
     [details: ClockTowerSubscribe.DetailsStruct, id: BytesLike],
@@ -810,6 +1040,8 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
 
+  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], "view">;
+
   getSubscribersById: TypedContractMethod<
     [id: BytesLike],
     [ClockTowerSubscribe.SubscriberViewStructOutput[]],
@@ -817,6 +1049,18 @@ export interface ClockTowerSubscribe extends BaseContract {
   >;
 
   getTotalSubscribers: TypedContractMethod<[], [bigint], "view">;
+
+  grantRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  hasRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    "view"
+  >;
 
   idSubMap: TypedContractMethod<
     [arg0: BytesLike],
@@ -846,11 +1090,33 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
-  pendingOwner: TypedContractMethod<[], [string], "view">;
+  pendingDefaultAdmin: TypedContractMethod<
+    [],
+    [[string, bigint] & { newAdmin: string; schedule: bigint }],
+    "view"
+  >;
+
+  pendingDefaultAdminDelay: TypedContractMethod<
+    [],
+    [[bigint, bigint] & { newDelay: bigint; schedule: bigint }],
+    "view"
+  >;
 
   remit: TypedContractMethod<[], [void], "nonpayable">;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  revokeRole: TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  rollbackDefaultAdminDelay: TypedContractMethod<[], [void], "nonpayable">;
 
   setCancelLimit: TypedContractMethod<
     [_cancelLimit: BigNumberish],
@@ -876,16 +1142,16 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
 
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    "view"
+  >;
+
   systemFee: TypedContractMethod<[], [bigint], "view">;
 
   systemFeeActivate: TypedContractMethod<
     [status: boolean],
-    [void],
-    "nonpayable"
-  >;
-
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -910,7 +1176,13 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "acceptOwnership"
+    nameOrSignature: "DEFAULT_ADMIN_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "JANITOR_ROLE"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "acceptDefaultAdminTransfer"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "addERC20Contract"
@@ -941,8 +1213,14 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "beginDefaultAdminTransfer"
+  ): TypedContractMethod<[newAdmin: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "callerFee"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "cancelDefaultAdminTransfer"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "cancelLimit"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -956,6 +1234,9 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "changeCallerFee"
   ): TypedContractMethod<[_fee: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "changeDefaultAdminDelay"
+  ): TypedContractMethod<[newDelay: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "changeMaxRemits"
   ): TypedContractMethod<[_maxRemits: BigNumberish], [void], "nonpayable">;
@@ -978,6 +1259,15 @@ export interface ClockTowerSubscribe extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "defaultAdmin"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "defaultAdminDelay"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "defaultAdminDelayIncreaseWait"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "editDetails"
   ): TypedContractMethod<
@@ -1021,6 +1311,9 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getRoleAdmin"
+  ): TypedContractMethod<[role: BytesLike], [string], "view">;
+  getFunction(
     nameOrSignature: "getSubscribersById"
   ): TypedContractMethod<
     [id: BytesLike],
@@ -1030,6 +1323,20 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "getTotalSubscribers"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "grantRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "hasRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [boolean],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "idSubMap"
   ): TypedContractMethod<
@@ -1064,13 +1371,38 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "pendingOwner"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "pendingDefaultAdmin"
+  ): TypedContractMethod<
+    [],
+    [[string, bigint] & { newAdmin: string; schedule: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "pendingDefaultAdminDelay"
+  ): TypedContractMethod<
+    [],
+    [[bigint, bigint] & { newDelay: bigint; schedule: bigint }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "remit"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "renounceOwnership"
+    nameOrSignature: "renounceRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "revokeRole"
+  ): TypedContractMethod<
+    [role: BytesLike, account: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "rollbackDefaultAdminDelay"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setCancelLimit"
@@ -1097,14 +1429,14 @@ export interface ClockTowerSubscribe extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "systemFee"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "systemFeeActivate"
   ): TypedContractMethod<[status: boolean], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "unsubscribe"
   ): TypedContractMethod<
@@ -1138,6 +1470,34 @@ export interface ClockTowerSubscribe extends BaseContract {
     CoordinatesEvent.OutputObject
   >;
   getEvent(
+    key: "DefaultAdminDelayChangeCanceled"
+  ): TypedContractEvent<
+    DefaultAdminDelayChangeCanceledEvent.InputTuple,
+    DefaultAdminDelayChangeCanceledEvent.OutputTuple,
+    DefaultAdminDelayChangeCanceledEvent.OutputObject
+  >;
+  getEvent(
+    key: "DefaultAdminDelayChangeScheduled"
+  ): TypedContractEvent<
+    DefaultAdminDelayChangeScheduledEvent.InputTuple,
+    DefaultAdminDelayChangeScheduledEvent.OutputTuple,
+    DefaultAdminDelayChangeScheduledEvent.OutputObject
+  >;
+  getEvent(
+    key: "DefaultAdminTransferCanceled"
+  ): TypedContractEvent<
+    DefaultAdminTransferCanceledEvent.InputTuple,
+    DefaultAdminTransferCanceledEvent.OutputTuple,
+    DefaultAdminTransferCanceledEvent.OutputObject
+  >;
+  getEvent(
+    key: "DefaultAdminTransferScheduled"
+  ): TypedContractEvent<
+    DefaultAdminTransferScheduledEvent.InputTuple,
+    DefaultAdminTransferScheduledEvent.OutputTuple,
+    DefaultAdminTransferScheduledEvent.OutputObject
+  >;
+  getEvent(
     key: "DetailsLog"
   ): TypedContractEvent<
     DetailsLogEvent.InputTuple,
@@ -1145,25 +1505,32 @@ export interface ClockTowerSubscribe extends BaseContract {
     DetailsLogEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferStarted"
-  ): TypedContractEvent<
-    OwnershipTransferStartedEvent.InputTuple,
-    OwnershipTransferStartedEvent.OutputTuple,
-    OwnershipTransferStartedEvent.OutputObject
-  >;
-  getEvent(
-    key: "OwnershipTransferred"
-  ): TypedContractEvent<
-    OwnershipTransferredEvent.InputTuple,
-    OwnershipTransferredEvent.OutputTuple,
-    OwnershipTransferredEvent.OutputObject
-  >;
-  getEvent(
     key: "ProvDetailsLog"
   ): TypedContractEvent<
     ProvDetailsLogEvent.InputTuple,
     ProvDetailsLogEvent.OutputTuple,
     ProvDetailsLogEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleAdminChanged"
+  ): TypedContractEvent<
+    RoleAdminChangedEvent.InputTuple,
+    RoleAdminChangedEvent.OutputTuple,
+    RoleAdminChangedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleGranted"
+  ): TypedContractEvent<
+    RoleGrantedEvent.InputTuple,
+    RoleGrantedEvent.OutputTuple,
+    RoleGrantedEvent.OutputObject
+  >;
+  getEvent(
+    key: "RoleRevoked"
+  ): TypedContractEvent<
+    RoleRevokedEvent.InputTuple,
+    RoleRevokedEvent.OutputTuple,
+    RoleRevokedEvent.OutputObject
   >;
   getEvent(
     key: "SubLog"
@@ -1196,6 +1563,50 @@ export interface ClockTowerSubscribe extends BaseContract {
       CoordinatesEvent.OutputObject
     >;
 
+    "DefaultAdminDelayChangeCanceled()": TypedContractEvent<
+      DefaultAdminDelayChangeCanceledEvent.InputTuple,
+      DefaultAdminDelayChangeCanceledEvent.OutputTuple,
+      DefaultAdminDelayChangeCanceledEvent.OutputObject
+    >;
+    DefaultAdminDelayChangeCanceled: TypedContractEvent<
+      DefaultAdminDelayChangeCanceledEvent.InputTuple,
+      DefaultAdminDelayChangeCanceledEvent.OutputTuple,
+      DefaultAdminDelayChangeCanceledEvent.OutputObject
+    >;
+
+    "DefaultAdminDelayChangeScheduled(uint48,uint48)": TypedContractEvent<
+      DefaultAdminDelayChangeScheduledEvent.InputTuple,
+      DefaultAdminDelayChangeScheduledEvent.OutputTuple,
+      DefaultAdminDelayChangeScheduledEvent.OutputObject
+    >;
+    DefaultAdminDelayChangeScheduled: TypedContractEvent<
+      DefaultAdminDelayChangeScheduledEvent.InputTuple,
+      DefaultAdminDelayChangeScheduledEvent.OutputTuple,
+      DefaultAdminDelayChangeScheduledEvent.OutputObject
+    >;
+
+    "DefaultAdminTransferCanceled()": TypedContractEvent<
+      DefaultAdminTransferCanceledEvent.InputTuple,
+      DefaultAdminTransferCanceledEvent.OutputTuple,
+      DefaultAdminTransferCanceledEvent.OutputObject
+    >;
+    DefaultAdminTransferCanceled: TypedContractEvent<
+      DefaultAdminTransferCanceledEvent.InputTuple,
+      DefaultAdminTransferCanceledEvent.OutputTuple,
+      DefaultAdminTransferCanceledEvent.OutputObject
+    >;
+
+    "DefaultAdminTransferScheduled(address,uint48)": TypedContractEvent<
+      DefaultAdminTransferScheduledEvent.InputTuple,
+      DefaultAdminTransferScheduledEvent.OutputTuple,
+      DefaultAdminTransferScheduledEvent.OutputObject
+    >;
+    DefaultAdminTransferScheduled: TypedContractEvent<
+      DefaultAdminTransferScheduledEvent.InputTuple,
+      DefaultAdminTransferScheduledEvent.OutputTuple,
+      DefaultAdminTransferScheduledEvent.OutputObject
+    >;
+
     "DetailsLog(bytes32,address,uint40,string,string)": TypedContractEvent<
       DetailsLogEvent.InputTuple,
       DetailsLogEvent.OutputTuple,
@@ -1207,28 +1618,6 @@ export interface ClockTowerSubscribe extends BaseContract {
       DetailsLogEvent.OutputObject
     >;
 
-    "OwnershipTransferStarted(address,address)": TypedContractEvent<
-      OwnershipTransferStartedEvent.InputTuple,
-      OwnershipTransferStartedEvent.OutputTuple,
-      OwnershipTransferStartedEvent.OutputObject
-    >;
-    OwnershipTransferStarted: TypedContractEvent<
-      OwnershipTransferStartedEvent.InputTuple,
-      OwnershipTransferStartedEvent.OutputTuple,
-      OwnershipTransferStartedEvent.OutputObject
-    >;
-
-    "OwnershipTransferred(address,address)": TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
-    >;
-    OwnershipTransferred: TypedContractEvent<
-      OwnershipTransferredEvent.InputTuple,
-      OwnershipTransferredEvent.OutputTuple,
-      OwnershipTransferredEvent.OutputObject
-    >;
-
     "ProvDetailsLog(address,uint40,string,string,string,string,string,string)": TypedContractEvent<
       ProvDetailsLogEvent.InputTuple,
       ProvDetailsLogEvent.OutputTuple,
@@ -1238,6 +1627,39 @@ export interface ClockTowerSubscribe extends BaseContract {
       ProvDetailsLogEvent.InputTuple,
       ProvDetailsLogEvent.OutputTuple,
       ProvDetailsLogEvent.OutputObject
+    >;
+
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >;
+    RoleAdminChanged: TypedContractEvent<
+      RoleAdminChangedEvent.InputTuple,
+      RoleAdminChangedEvent.OutputTuple,
+      RoleAdminChangedEvent.OutputObject
+    >;
+
+    "RoleGranted(bytes32,address,address)": TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >;
+    RoleGranted: TypedContractEvent<
+      RoleGrantedEvent.InputTuple,
+      RoleGrantedEvent.OutputTuple,
+      RoleGrantedEvent.OutputObject
+    >;
+
+    "RoleRevoked(bytes32,address,address)": TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
+    >;
+    RoleRevoked: TypedContractEvent<
+      RoleRevokedEvent.InputTuple,
+      RoleRevokedEvent.OutputTuple,
+      RoleRevokedEvent.OutputObject
     >;
 
     "SubLog(bytes32,address,address,uint40,uint256,address,uint8)": TypedContractEvent<

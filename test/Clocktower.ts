@@ -51,7 +51,7 @@ describe("Clocktower", function(){
         const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
 
         const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
-        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+        const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", otherAccount.address);
 
         await hardhatCLOCKToken.waitForDeployment();
         await hardhatClockSubscribe.waitForDeployment();
@@ -1291,13 +1291,18 @@ describe("Clocktower", function(){
             await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
 
             //transfers ownership
-            expect( await hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
+            //expect( await hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
+            //expect( await hardhatClockSubscribe.connect(owner).grantRole(await hardhatClockSubscribe.DEFAULT_ADMIN_ROLE(), otherAccount))
+            expect( await hardhatClockSubscribe.connect(owner).beginDefaultAdminTransfer(otherAccount))
+
+            //moves forward time a day
+            await time.increase((dayAhead * 2))
 
             //should still block 
             await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
 
             //accepts transfer
-            expect( await hardhatClockSubscribe.connect(otherAccount).acceptOwnership())
+            expect( await hardhatClockSubscribe.connect(otherAccount).acceptDefaultAdminTransfer())
 
             //now blocks old owner
             await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
@@ -1367,7 +1372,6 @@ describe("Clocktower", function(){
 
 
         })
-        //TODO: add more checks
         it("Allows to batch unsubscribe by provider", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
