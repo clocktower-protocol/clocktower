@@ -178,7 +178,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "acceptDefaultAdminTransfer"
       | "addERC20Contract"
       | "approvedERC20"
-      | "batchUnsubscribeByProvider"
       | "beginDefaultAdminTransfer"
       | "callerFee"
       | "cancelDefaultAdminTransfer"
@@ -264,10 +263,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "batchUnsubscribeByProvider",
-    values: [ClockTowerSubscribe.SubscriptionStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "beginDefaultAdminTransfer",
     values: [AddressLike]
   ): string;
@@ -306,7 +301,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "cleanupCancelledSubscribers",
-    values: [AddressLike, BytesLike]
+    values: [ClockTowerSubscribe.SubscriptionStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "createSubscription",
@@ -458,10 +453,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "approvedERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "batchUnsubscribeByProvider",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -941,12 +932,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
 
-  batchUnsubscribeByProvider: TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
-    [void],
-    "nonpayable"
-  >;
-
   beginDefaultAdminTransfer: TypedContractMethod<
     [newAdmin: AddressLike],
     [void],
@@ -996,7 +981,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   >;
 
   cleanupCancelledSubscribers: TypedContractMethod<
-    [receiver: AddressLike, id: BytesLike],
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
@@ -1221,13 +1206,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "batchUnsubscribeByProvider"
-  ): TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "beginDefaultAdminTransfer"
   ): TypedContractMethod<[newAdmin: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -1264,7 +1242,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "cleanupCancelledSubscribers"
   ): TypedContractMethod<
-    [receiver: AddressLike, id: BytesLike],
+    [subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;

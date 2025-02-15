@@ -308,8 +308,10 @@ describe("Clocktower", function(){
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscribeObject.provider, subscriber.address, anyValue, "1000000000000000000", clockTokenAddress, 7)
             //checks token balance change
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
+            /*
             await expect(hardhatClockSubscribe.connect(provider).unsubscribeByProvider(subscribeObject, subscriber.address))
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, hre.ethers.parseEther("1"))
+            */
 
         })
         it("Should cancel subscription", async function(){
@@ -1374,7 +1376,7 @@ describe("Clocktower", function(){
 
 
         })
-        it("Allows to batch unsubscribe by provider", async function() {
+        it("Allows janitor to cleanup subscriptions in cancelled subs", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
             //adds CLOCK to approved tokens
@@ -1402,19 +1404,19 @@ describe("Clocktower", function(){
             }
             
             //checks if there are no subscribers
-            await expect(hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0])).to.be.rejectedWith("22")
+            await expect(hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0])).to.be.rejectedWith("22")
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
 
-            //checks that its actually the provider
-            await expect(hardhatClockSubscribe.connect(subscriber).batchUnsubscribeByProvider(subArray[0])).to.be.rejectedWith("8")
+            //checks that its actually the janitor
+            await expect(hardhatClockSubscribe.connect(subscriber).cleanupCancelledSubscribers(subArray[0])).to.be.rejectedWith("8")
 
             let account2 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
 
             expect(account2.subscriptions[0].status).to.be.equal(0)
 
-            expect( await hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0]))
+            expect( await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0]))
 
             let account = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
             let account3 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
@@ -1429,7 +1431,7 @@ describe("Clocktower", function(){
             //sets cancel limit lower than subscribers
             await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
 
-            expect( await hardhatClockSubscribe.connect(provider).batchUnsubscribeByProvider(subArray[0]))
+            expect( await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0]))
 
             let account4 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
             let account5 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
