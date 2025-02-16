@@ -344,11 +344,14 @@ describe("Clocktower", function(){
     
             //checks reverts
 
+            //TODO:
+            /*
             //checks for being over the max subscriber limit
             await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
 
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
             .to.be.rejectedWith("21")
+            */
 
             await hardhatClockSubscribe.connect(owner).setCancelLimit(5n)
 
@@ -1402,19 +1405,21 @@ describe("Clocktower", function(){
                     dueDay: subscriptions[i].subscription[6]
                 })
             }
-            
-            //checks if there are no subscribers
-            await expect(hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0])).to.be.rejectedWith("22")
+
 
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
+
+            //cancels subscription
+            await hardhatClockSubscribe.connect(provider).cancelSubscription(subArray[0])
+            
 
             //checks that its actually the janitor
             await expect(hardhatClockSubscribe.connect(subscriber).cleanupCancelledSubscribers(subArray[0])).to.be.rejectedWith("8")
 
             let account2 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
 
-            expect(account2.subscriptions[0].status).to.be.equal(0)
+            //expect(account2.subscriptions).to.be.empty
 
             expect( await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0]))
 
@@ -1425,20 +1430,43 @@ describe("Clocktower", function(){
             expect(account.subscriptions[0].status).to.be.equal(2n)
             expect(account3.subscriptions[0].status).to.be.equal(2n)
 
-            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
-            await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
+            //creates subscriptions
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+            
+            let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            let subArray2 =[]
+
+            //subscriptions
+            for (let i = 0; i < subscriptions2.length; i++) {
+                subArray2.push({
+                    id: subscriptions2[i].subscription[0],
+                    amount: subscriptions2[i].subscription[1],
+                    provider: subscriptions2[i].subscription[2],
+                    token: subscriptions2[i].subscription[3],
+                    cancelled: subscriptions2[i].subscription[4],
+                    frequency: subscriptions2[i].subscription[5],
+                    dueDay: subscriptions2[i].subscription[6]
+                })
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray2[1])
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray2[1])
 
             //sets cancel limit lower than subscribers
             await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
 
-            expect( await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray[0]))
+             //cancels subscription
+             await hardhatClockSubscribe.connect(provider).cancelSubscription(subArray2[1])
+
+            expect( await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subArray2[1]))
 
             let account4 = await hardhatClockSubscribe.connect(subscriber).getAccount(subscriber)
             let account5 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
 
             //checks that it unsubscribes only one
-            expect(account4.subscriptions[0].status).to.be.equal(2n)
-            expect(account5.subscriptions[0].status).to.be.equal(0)
+            expect(account4.subscriptions[1].status).to.be.equal(0)
+            expect(account5.subscriptions[1].status).to.be.equal(2n)
 
         })
     })

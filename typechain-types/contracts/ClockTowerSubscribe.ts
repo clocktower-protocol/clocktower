@@ -1137,7 +1137,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   >;
 
   subscribe: TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
@@ -1424,7 +1424,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "subscribe"
   ): TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
