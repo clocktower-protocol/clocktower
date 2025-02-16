@@ -429,7 +429,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     }
 
     /// @notice sets cancel limit
-    /// @param _cancelLimit amount of unsubscribes that can be done by batchUnsubscribeByProvider
+    /// @param _cancelLimit amount of unsubscribes that can be janitor per transaction
     function setCancelLimit(uint256 _cancelLimit) external  onlyRole(DEFAULT_ADMIN_ROLE) {
 
         cancelLimit = _cancelLimit;
@@ -810,6 +810,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         return scriberViews;
     }
     
+    
     /// @notice Function that sends back array of FeeEstimate structs per subscription
     /// @return Array of FeeEstimate structs
     function feeEstimate() external view returns(FeeEstimate[] memory) {
@@ -908,6 +909,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         
         return feeArray2;
     }
+    
 
     
    
@@ -1073,12 +1075,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     /// @param _subscription Subscription struct 
     function unsubscribe(Subscription calldata _subscription) external {
 
-        require(subExists(_subscription.id), "3");
+        require(subExists(_subscription.id) && subStatusMap[msg.sender][_subscription.id] != Status.UNSUBSCRIBED, "3");
 
         Subscription memory subscription = idSubMap[_subscription.id];
-
-        //checks that subscription is not cancelled
-        require(!subscription.cancelled, "23");
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
@@ -1103,15 +1102,12 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
      /// @notice Allows provider to unsubscribe a subscriber by address
      /// @param _subscription Subscription struct
      /// @param subscriber Subscriber address
-    function unsubscribeByProvider(Subscription calldata _subscription, address subscriber) public {
+    function unsubscribeByProvider(Subscription calldata _subscription, address subscriber) external {
 
         //checks subscription exists
-        require(subExists(_subscription.id), "3");
+        require(subExists(_subscription.id) && (subStatusMap[subscriber][_subscription.id] != Status.UNSUBSCRIBED), "3");
 
         Subscription memory subscription = idSubMap[_subscription.id];
-
-        //checks that subscription is not cancelled
-        require(!subscription.cancelled, "23");
 
         //TODO:
         //allows provider or janitor to call function
