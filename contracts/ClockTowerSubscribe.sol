@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 //import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
 
+import "hardhat/console.sol";
+
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
 contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
@@ -27,7 +29,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     6 = Time already checked
     7 = Must have admin privileges
     8 = Must be provider of subscription
-    9 = Subscriber not subscribed
+    9 = Subscriber not subscribed or aleady unsubscribed
     10 = Either token allowance or balance insufficient
     11 = Problem sending refund
     12 = Problem sending fees
@@ -41,7 +43,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     20 = Token paused
     21 = Above Cancel Subscriber Limit
     22 = No Subscribers
-    23 = Subscription is already cancelled
+    23 = Subscription is cancelled
     */
 
     bytes32 public constant JANITOR_ROLE = keccak256("JANITOR_ROLE");
@@ -476,32 +478,61 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     /// @param subscription Subscription struct
     function cleanupCancelledSubscribers(Subscription memory subscription) external onlyRole(JANITOR_ROLE) {
 
-        //checks provider has created this subscription
-        //require(createdSubs[msg.sender].contains(subscription.id), "8");
+        //requires that subscription exists and is cancelled
+        //checks subscription exists
+        require(subExists(subscription.id), "3");
+
+        //checks that it is already cancelled
+        require(idSubMap[subscription.id].cancelled);
 
         //gets total subscribed subscribers
-        uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
+        //uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
+        uint256 length = subscribersMap[subscription.id].length();
+
+        uint256 remainingSubs = length;
 
         //can't have zero subscribers
         require(remainingSubs > 0, "22");
 
-        uint256 loops;
+        
+        //sets number of loops based on if amount is below limit or not
+        uint256 loops = remainingSubs < cancelLimit ? remainingSubs : cancelLimit;
+        
 
-        if(remainingSubs < cancelLimit){
-            loops = remainingSubs;
-        } else {
-            loops = cancelLimit;
-        }
-
-        //loops through remaining subs or max amount
-        for(uint256 i; i < loops; i++) {
-
+        uint256 balance;        
+        
+        //loops backward through remaining subs or max amount
+        for(uint256 i = length; i > (length - loops); i--) {
+            
             //gets address
-            address subAddress = subscribersMap[subscription.id].at(i);
+            address subscriber = subscribersMap[subscription.id].at(i - 1);
+           
+            //checks if subscriber is already unsubscribed 
+            if(!unsubscribedMap[subscription.id].contains(subscriber)) {
 
-            //unsubscribes
-            unsubscribeByProvider(subscription, subAddress);
+                subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
+
+                //deleteSubFromSubscription(subscription.id, subscriber);
+
+                //emit unsubscribe to log
+                emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
+
+                //pays remaining balance to system
+                balance += feeBalance[subscription.id][subscriber];
+
+                //zeros out fee balance
+                delete feeBalance[subscription.id][subscriber];
+            }
+
+            //removes from set
+            subscribersMap[subscription.id].remove(subscriber);            
         }
+
+        //Refunds fee balance
+        IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(balance, approvedERC20[subscription.token].decimals));
+        
+
+        
     }
     
     //-------------------------------------------------------
@@ -959,11 +990,14 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     //EXTERNAL FUNCTIONS----------------------------------------
     
     /// @notice Function that subscribes subscriber to subscription
-    /// @param subscription Subscription struct
+    /// @param _subscription Subscription struct
     /// @dev Requires ERC20 allowance to be set before function is called
-    function subscribe(Subscription calldata subscription) external {
+    function subscribe(Subscription calldata _subscription) external {
 
-        require(subExists(subscription.id), "3");
+        require(subExists(_subscription.id), "3");
+
+        //gets saved subscription 
+        Subscription memory subscription = idSubMap[_subscription.id];
 
         //checks that token is not paused
         require(!approvedERC20[subscription.token].paused, '20');
@@ -977,6 +1011,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
+
+        //checks that subscription is not cancelled
+        require(!subscription.cancelled, "23");
 
         //checks if this subscription has any subscribers
         //if this is the first subscription it adds it the time trigger mapping
@@ -1064,15 +1101,15 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     function unsubscribeByProvider(Subscription memory subscription, address subscriber) public {
 
         //allows provider or janitor to call function
-        require(createdSubs[msg.sender].contains(subscription.id) || (hasRole(JANITOR_ROLE, msg.sender)), "8");
+        require(createdSubs[msg.sender].contains(subscription.id) 
+        //|| (hasRole(JANITOR_ROLE, msg.sender))
+        , "8");
 
-        bool isSubscribed;
-        
-        if(subscribersMap[subscription.id].contains(subscriber)) {
-            isSubscribed = true;
-            subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
-        } 
-        require(isSubscribed, "9");
+
+        //requires subscriber to be part of subscription and not already unsubscribed
+        require(subscribersMap[subscription.id].contains(subscriber) && !unsubscribedMap[subscription.id].contains(subscriber), "9");
+       
+        subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
 
         deleteSubFromSubscription(subscription.id, subscriber);
 
@@ -1136,13 +1173,21 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //checks subscription exists
         require(subExists(subscription.id), "3");
 
+        //gets total subscribed subscribers
+        //uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
+
         //require check total subscribers are not above limit
-        require(subscribersMap[subscription.id].length() <= cancelLimit, "21");
+        //require(remainingSubs <= cancelLimit, "21");
+
+
+        //sets number of loops based on if amount is below limit or not
+        //uint256 loops = remainingSubs < cancelLimit ? remainingSubs : cancelLimit;
+        
 
         //require user be provider
         require(msg.sender == subscription.provider, "13");
 
-        //require subscription is not cancelled
+        //require subscription is not alerady cancelled
         require(!subscription.cancelled, "23");
 
         //marks provider as cancelled
