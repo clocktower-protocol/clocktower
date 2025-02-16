@@ -1076,6 +1076,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         require(subExists(_subscription.id), "3");
 
         Subscription memory subscription = idSubMap[_subscription.id];
+
+        //checks that subscription is not cancelled
+        require(!subscription.cancelled, "23");
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
@@ -1106,6 +1109,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         require(subExists(_subscription.id), "3");
 
         Subscription memory subscription = idSubMap[_subscription.id];
+
+        //checks that subscription is not cancelled
+        require(!subscription.cancelled, "23");
 
         //TODO:
         //allows provider or janitor to call function
