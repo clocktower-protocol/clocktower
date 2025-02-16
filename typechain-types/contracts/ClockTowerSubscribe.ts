@@ -945,7 +945,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   cancelLimit: TypedContractMethod<[], [bigint], "view">;
 
   cancelSubscription: TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
@@ -1157,14 +1157,14 @@ export interface ClockTowerSubscribe extends BaseContract {
   >;
 
   unsubscribe: TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
 
   unsubscribeByProvider: TypedContractMethod<
     [
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
+      _subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: AddressLike
     ],
     [void],
@@ -1220,7 +1220,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "cancelSubscription"
   ): TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
@@ -1440,7 +1440,7 @@ export interface ClockTowerSubscribe extends BaseContract {
   getFunction(
     nameOrSignature: "unsubscribe"
   ): TypedContractMethod<
-    [subscription: ClockTowerSubscribe.SubscriptionStruct],
+    [_subscription: ClockTowerSubscribe.SubscriptionStruct],
     [void],
     "nonpayable"
   >;
@@ -1448,7 +1448,7 @@ export interface ClockTowerSubscribe extends BaseContract {
     nameOrSignature: "unsubscribeByProvider"
   ): TypedContractMethod<
     [
-      subscription: ClockTowerSubscribe.SubscriptionStruct,
+      _subscription: ClockTowerSubscribe.SubscriptionStruct,
       subscriber: AddressLike
     ],
     [void],

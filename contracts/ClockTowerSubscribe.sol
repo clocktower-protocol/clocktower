@@ -1070,10 +1070,12 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     }
     
     /// @notice Unsubscribes account from subscription
-    /// @param subscription Subscription struct 
-    function unsubscribe(Subscription memory subscription) external {
+    /// @param _subscription Subscription struct 
+    function unsubscribe(Subscription calldata _subscription) external {
 
-        require(subExists(subscription.id), "3");
+        require(subExists(_subscription.id), "3");
+
+        Subscription memory subscription = idSubMap[_subscription.id];
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
@@ -1096,10 +1098,16 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     }
 
      /// @notice Allows provider to unsubscribe a subscriber by address
-     /// @param subscription Subscription struct
+     /// @param _subscription Subscription struct
      /// @param subscriber Subscriber address
-    function unsubscribeByProvider(Subscription memory subscription, address subscriber) public {
+    function unsubscribeByProvider(Subscription calldata _subscription, address subscriber) public {
 
+        //checks subscription exists
+        require(subExists(_subscription.id), "3");
+
+        Subscription memory subscription = idSubMap[_subscription.id];
+
+        //TODO:
         //allows provider or janitor to call function
         require(createdSubs[msg.sender].contains(subscription.id) 
         //|| (hasRole(JANITOR_ROLE, msg.sender))
@@ -1167,11 +1175,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
     /// @dev Will revert if number of subscribers is greater than cancelLimit
-    /// @param subscription Subscription struct
-    function cancelSubscription(Subscription calldata subscription) external {
+    /// @param _subscription Subscription struct
+    function cancelSubscription(Subscription calldata _subscription) external {
 
         //checks subscription exists
-        require(subExists(subscription.id), "3");
+        require(subExists(_subscription.id), "3");
+
+        Subscription memory subscription = idSubMap[_subscription.id];
 
         //gets total subscribed subscribers
         //uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
