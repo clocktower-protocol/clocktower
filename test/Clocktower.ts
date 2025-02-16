@@ -344,19 +344,10 @@ describe("Clocktower", function(){
     
             //checks reverts
 
-            //TODO:
-            /*
-            //checks for being over the max subscriber limit
-            await hardhatClockSubscribe.connect(owner).setCancelLimit(1n)
-
-            await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(subscribeObject))
-            .to.be.rejectedWith("21")
-            */
-
             await hardhatClockSubscribe.connect(owner).setCancelLimit(5n)
 
             //checks input of fake subscription
-            let fakeSub = {id: subscribeObject.id, amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
+            let fakeSub = {id: "7a8b9c1d2e3f4a5b6c7d8e9f0a1b2c3d", amount: 5, provider: caller.address, token: clockTokenAddress, cancelled: false, frequency: 0, dueDay: 2}
             await expect(hardhatClockSubscribe.connect(provider).cancelSubscription(fakeSub))
             .to.be.rejectedWith("3")
 
