@@ -957,7 +957,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     }
 
     //deletes subscribers from Subscription
-    function deleteSubFromSubscription(bytes32 id, address account) private {
+    function addToUnsubscribeList(bytes32 id, address account) private {
         
         //adds unsubscribed address to set
         if(!unsubscribedMap[id].contains(account)) {
@@ -1077,7 +1077,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
-        deleteSubFromSubscription(subscription.id, msg.sender);
+        addToUnsubscribeList(subscription.id, msg.sender);
 
         //emit unsubscribe to log
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
@@ -1111,7 +1111,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
        
         subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
 
-        deleteSubFromSubscription(subscription.id, subscriber);
+        addToUnsubscribeList(subscription.id, subscriber);
 
         //emit unsubscribe to log
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
@@ -1507,7 +1507,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         }
 
                                         //unsubscribes on failure
-                                        deleteSubFromSubscription(remitSub.id, subscriber);
+                                        addToUnsubscribeList(remitSub.id, subscriber);
 
                                         //emit unsubscribe to log
                                         emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
