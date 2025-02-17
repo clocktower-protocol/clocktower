@@ -1421,7 +1421,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                             }
                         } else {
                             //turns off pagination coordinates if subscription is cancelled or paused
-                            pageStart.initialized = (pageStart.initialized && (pageStart.id == subscription.id)) ? false : true;
+                            if(pageStart.initialized && (pageStart.id == subscription.id)) {
+                                pageStart.initialized = false;
+                            }
                         }
                     } 
                 }
