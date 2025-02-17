@@ -5,11 +5,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-//import "@openzeppelin/contracts/access/Ownable2Step.sol";
-//import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
-
-import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
@@ -447,7 +443,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         require(idSubMap[subscription.id].cancelled);
 
         //gets total subscribed subscribers
-        //uint256 remainingSubs = (subscribersMap[subscription.id].length() - unsubscribedMap[subscription.id].length());
         uint256 length = subscribersMap[subscription.id].length();
 
         uint256 remainingSubs = length;
@@ -1424,8 +1419,11 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                     }
                                 }
                             }
+                        } else {
+                            //turns off pagination coordinates if subscription is cancelled or paused
+                            pageStart.initialized = (pageStart.initialized && (pageStart.id == subscription.id)) ? false : true;
                         }
-                    }
+                    } 
                 }
             }
         }
