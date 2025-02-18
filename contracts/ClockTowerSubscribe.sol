@@ -455,7 +455,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         uint256 loops = remainingSubs < cancelLimit ? remainingSubs : cancelLimit;
         
 
-        uint256 balance;        
+        uint256 sysbalance;        
         
         //loops backward through remaining subs or max amount
         for(uint256 i = length; i > (length - loops); i--) {
@@ -471,8 +471,18 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                 //emit unsubscribe to log
                 emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
 
-                //pays remaining balance to system
-                balance += feeBalance[subscription.id][subscriber];
+                uint256 subBalance = feeBalance[subscription.id][subscriber];
+
+                if(allowSystemFee) {
+                    uint256 sysAmount = (subBalance * systemFee / 10000) - subBalance;
+                    subBalance -= sysAmount;
+
+                    //pays remaining balance to system
+                    sysbalance += sysAmount;
+                }
+
+                //sends remainder to subscriber
+                IERC20(subscription.token).safeTransfer(subscriber, convertAmount(subBalance, approvedERC20[subscription.token].decimals));
 
                 //zeros out fee balance
                 delete feeBalance[subscription.id][subscriber];
@@ -482,8 +492,10 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             subscribersMap[subscription.id].remove(subscriber);            
         }
 
-        //Refunds fee balance
-        IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(balance, approvedERC20[subscription.token].decimals));
+        if(allowSystemFee) {
+            //Refunds fee to protocol
+            IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(sysbalance, approvedERC20[subscription.token].decimals));
+        }
         
     }
     
@@ -762,7 +774,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         return scriberViews;
     }
     
-    
+    /*
     /// @notice Function that sends back array of FeeEstimate structs per subscription
     /// @return Array of FeeEstimate structs
     function feeEstimate() external view returns(FeeEstimate[] memory) {
@@ -861,6 +873,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         
         return feeArray2;
     }
+    */
     
 
     
@@ -1082,7 +1095,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         delete feeBalance[subscription.id][subscriber];
 
         //Refunds fee balance
-        IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(balance, approvedERC20[subscription.token].decimals));
+        IERC20(subscription.token).safeTransfer(subscriber, convertAmount(balance, approvedERC20[subscription.token].decimals));
         
     }
         
