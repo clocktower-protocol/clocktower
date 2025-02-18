@@ -84,13 +84,6 @@ export declare namespace ClockTowerSubscribe {
     misc: string;
   };
 
-  export type FeeEstimateStruct = { fee: BigNumberish; token: AddressLike };
-
-  export type FeeEstimateStructOutput = [fee: bigint, token: string] & {
-    fee: bigint;
-    token: string;
-  };
-
   export type SubIndexStruct = {
     id: BytesLike;
     dueDay: BigNumberish;
@@ -196,7 +189,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "editDetails"
       | "editProvDetails"
       | "feeBalance"
-      | "feeEstimate"
       | "getAccount"
       | "getAccountSubscriptions"
       | "getRoleAdmin"
@@ -336,10 +328,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
   encodeFunctionData(
     functionFragment: "feeBalance",
     values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "feeEstimate",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getAccount",
@@ -521,10 +509,6 @@ export interface ClockTowerSubscribeInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "feeBalance", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "feeEstimate",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getAccount", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAccountSubscriptions",
@@ -1022,12 +1006,6 @@ export interface ClockTowerSubscribe extends BaseContract {
     "view"
   >;
 
-  feeEstimate: TypedContractMethod<
-    [],
-    [ClockTowerSubscribe.FeeEstimateStructOutput[]],
-    "view"
-  >;
-
   getAccount: TypedContractMethod<
     [account: AddressLike],
     [ClockTowerSubscribe.AccountStructOutput],
@@ -1287,13 +1265,6 @@ export interface ClockTowerSubscribe extends BaseContract {
   ): TypedContractMethod<
     [arg0: BytesLike, arg1: AddressLike],
     [bigint],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "feeEstimate"
-  ): TypedContractMethod<
-    [],
-    [ClockTowerSubscribe.FeeEstimateStructOutput[]],
     "view"
   >;
   getFunction(
