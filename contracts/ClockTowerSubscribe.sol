@@ -676,6 +676,20 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
     //VIEW FUNCTIONS ----------------------------------------
 
+    ///@notice Get subscription id by time
+    ///@param frequency 0 to 3 number for frequency. O = weekly, 1 = monthly, 2 quarterly, 3 yearly
+    ///@param dueDay day in proper range for frequency when subscription is paid
+    ///@return Set of ids
+    function getIdByTime(uint256 frequency, uint16 dueDay) external view returns (bytes32[] memory) {
+
+        bytes32[] memory subs;
+        //iterates through set to create array
+        for(uint256 i; i < subscriptionMap[frequency][dueDay].length(); i++){
+            subs[i] = subscriptionMap[frequency][dueDay].at(i);
+        }
+        return subs;
+    }
+
     /// @notice Get subscriptions by account address and type (provider or subscriber)
     /// @param bySubscriber If true then get subscriptions user is subscribed to. If false get subs user created
     /// @param account Account address 
@@ -773,110 +787,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         return scriberViews;
     }
-    
-    /*
-    /// @notice Function that sends back array of FeeEstimate structs per subscription
-    /// @return Array of FeeEstimate structs
-    function feeEstimate() external view returns(FeeEstimate[] memory) {
-        
-        //gets current time slot based on day
-        uint40 _currentTimeSlot = unixToDays(uint40(block.timestamp));
-
-        require(_currentTimeSlot > nextUncheckedDay, "6");
-
-        //calls time function
-        Time memory time = unixToTime(block.timestamp);
-
-        uint256 remitCounter;
-        uint256 subCounter;
-
-        FeeEstimate[] memory feeArray = new FeeEstimate[](maxRemits);
-    
-        //gets subscriptions from mappings
-       
-        //loops through types
-        for(uint256 s; s <= 3; s++) {
-
-            uint16 timeTrigger;
-            if(s == uint(Frequency.WEEKLY)){
-                timeTrigger = time.weekDay;
-            } 
-            if(s == uint(Frequency.MONTHLY)) {
-                timeTrigger = time.dayOfMonth;
-            } 
-            if(s == uint(Frequency.QUARTERLY)) {
-                timeTrigger = time.quarterDay;
-            } 
-            if(s == uint(Frequency.YEARLY)) {
-                timeTrigger = time.yearDay;
-            }
-            
-
-            //loops through subscriptions
-            for(uint256 i; i < subscriptionMap[s][timeTrigger].length(); i++) {
-
-                //gets subscription
-                Subscription memory subscription = idSubMap[subscriptionMap[s][timeTrigger].at(i)];
-
-                //checks if cancelled
-                if(!subscription.cancelled) {
-
-                    address token = subscription.token;
-                    uint256 amount = subscription.amount;
-
-                    FeeEstimate memory feeEst;
-              
-                    //calculates fee balance
-                    uint256 subFee = (amount * callerFee / 10000) - amount;
-                    uint256 totalFee;
-                 
-                    //loops through subscribers
-                    for(uint256 j; j < subscribersMap[subscription.id].length(); j++) {
-
-                        //checks for max remit and returns false if limit hit
-                        if(remitCounter == maxRemits) {
-                       
-                            return feeArray;
-                        }
-
-                        //if remits are less than max remits
-                        if(!pageStart.initialized || pageGo == true) {
-                        
-                            remitCounter++;
-                                
-                            //adds fee 
-                            totalFee += subFee;
-                          
-                           
-                            feeEst = FeeEstimate(totalFee, token);
-                            feeArray[subCounter] = feeEst;
-                            subCounter++;
-                        }
-                    }
-                }
-            }
-        }
-
-        //strips out unused array elements
-        uint256 totalSubs;
-        for(uint256 j; j < feeArray.length; j++) {
-            if(feeArray[j].token == address(0)){
-                totalSubs = j;
-                break;
-            }
-        }
-        FeeEstimate[] memory feeArray2 = new FeeEstimate[](totalSubs);
-
-        for(uint256 k; k < totalSubs; k++) {
-            feeArray2[k] = feeArray[k];
-        }
-        
-        return feeArray2;
-    }
-    */
-    
-
-    
+   
    
     //PRIVATE FUNCTIONS----------------------------------------------
     function convertAmount(uint256 amount, uint8 tokenDecimals) private pure returns (uint256) {
