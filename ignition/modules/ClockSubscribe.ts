@@ -22,8 +22,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
             callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
             systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
             maxRemits: BigInt(process.env.HARDHAT_MAX_REMITS),
+            cancelLimit: BigInt(process.env.HARDHAT_CANCEL_LIMIT),
             allowSystemFee: convertENVBool(process.env.HARDHAT_ALLOW_SYSTEM_FEE),
             admin: process.env.HARDHAT_ADMIN_ADDRESS,
+            janitor: process.env.HARDHAT_JANITOR_ADDRESS,
             erc20: [
                 {
                     name: 'Clocktower Token',
@@ -37,8 +39,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
             callerFee: ((BigInt(process.env.SEPOLIA_CALLER_FEE) * 100n) + 10000n),
             systemFee: ((BigInt(process.env.SEPOLIA_SYSTEM_FEE) * 100n) + 10000n),
             maxRemits: BigInt(process.env.SEPOLIA_MAX_REMITS),
+            cancelLimit: BigInt(process.env.SEPOLIA_CANCEL_LIMIT),
             allowSystemFee: convertENVBool(process.env.SEPOLIA_ALLOW_SYSTEM_FEE),
             admin: process.env.SEPOLIA_ADMIN_ADDRESS,
+            janitor: process.env.SEPOLIA_JANITOR_ADDRESS,
             erc20: [
                 {
                     name: 'USDC',
@@ -65,18 +69,21 @@ export default buildModule("ClocktowerHardhat", (m) => {
     //hardhat deployment 
         const clockSubscribe = m.contract(
             "ClockTowerSubscribe", 
-            [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin]
+            [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.cancelLimit, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin, chainObjects.hardhat.janitor]
         )
 
     //sepolia deployment
-        /*
-        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepolia.callerFee, chainObjects.sepolia.systemFee, chainObjects.sepolia.maxRemits, chainObjects.sepolia.allowSystemFee, chainObjects.sepolia.admin])
+        
+    /*
+        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepolia.callerFee, chainObjects.sepolia.systemFee, chainObjects.sepolia.maxRemits, chainObjects.sepolia.cancelLimit, chainObjects.sepolia.allowSystemFee, chainObjects.sepolia.admin, chainObjects.sepolia.janitor])
 
         //adds ERC20 tokens
         for( let i = 0; i < chainObjects.sepolia.erc20.length; i++) {
             m.call(clockSubscribe, "addERC20Contract", [chainObjects.sepolia.erc20[i].address, chainObjects.sepolia.erc20[i].tokenMinimum])
         }
-        */
+
+    */
+        
 
 
     return { clockSubscribe }
