@@ -40,8 +40,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1733787709973,
-      "contentHash": "38910c3dfa5e3778fac8888b1d714084",
+      "lastModificationDate": 1740087591794,
+      "contentHash": "227a6eb2225701c12d9c959b758b6333",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -376,8 +376,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
-      "lastModificationDate": 1733787710144,
-      "contentHash": "effe88dd27f56305c4513f7aa9970ec9",
+      "lastModificationDate": 1740087592361,
+      "contentHash": "b6c6348d1c4d3e890f8d8a885b2477c0",
       "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -405,8 +405,7 @@
       },
       "imports": [
         "../IERC20.sol",
-        "../../../interfaces/IERC1363.sol",
-        "../../../utils/Address.sol"
+        "../../../interfaces/IERC1363.sol"
       ],
       "versionPragmas": [
         "^0.8.20"
@@ -490,7 +489,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1739994957606,
+      "lastModificationDate": 1739995089254,
       "contentHash": "46aa2f7d30c2379a9a8adc3ddadc05ec",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
