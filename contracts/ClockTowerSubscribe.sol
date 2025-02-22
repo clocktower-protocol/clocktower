@@ -1187,6 +1187,12 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                         //Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
                         Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s - 1)];
 
+                        //deletes out of time map if empty
+                        if(subscribersMap[subscription.id].length() == 0) {
+                            subscriptionMap[f][timeTrigger].remove(subscription.id);
+                            continue;
+                        }
+
                         //Marks day as not empty
                         isEmptyDay = false;
 
@@ -1376,6 +1382,11 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                 }
                             }
                         } else {
+                            //TODO:
+                            //deletes subscription from time maps if cancelled
+                            if(subscription.cancelled) {
+                                subscriptionMap[f][timeTrigger].remove(subscription.id);
+                            }
                             //turns off pagination coordinates if subscription is cancelled or paused
                             if(pageStart.initialized && (pageStart.id == subscription.id)) {
                                 pageStart.initialized = false;
