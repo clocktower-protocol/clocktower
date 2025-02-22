@@ -1295,9 +1295,9 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(owner).setNextUncheckedDay(coordinateDay)
 
             const pageStart = {
-                id: subArray[1].id,
+                id: subArray[5].id,
                 subscriberIndex: 1,
-                subscriptionIndex: 0,
+                subscriptionIndex: 7,
                 frequency: 1,
                 initialized: true
             }
@@ -1305,7 +1305,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(owner).setPageStart(pageStart)
 
 
-            //balance befoe remmitance
+            //balance before remmitance
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
@@ -1532,15 +1532,15 @@ describe("Clocktower", function(){
             
             //checks that it emits the first three coordinates
             const tx = await hardhatClockSubscribe.connect(caller).remit()
-            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 5, 0, 1, anyValue)
-            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 4, 0, 1, anyValue)
-            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 0, 1, anyValue)
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 5, 1, 1, anyValue)
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 4, 1, 1, anyValue)
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 1, 1, anyValue)
             
 
             //await hardhatClockSubscribe.connect(caller).remit();
             const tx2 = await hardhatClockSubscribe.connect(caller).remit()
-            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 0, 1, anyValue)
-            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 0, 1, anyValue)
+            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 1, 1, anyValue)
+            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
 
             //unsubscribed
             expect(await hardhatCLOCKToken.balanceOf(subscriber3.address)).to.be.equal(hre.ethers.parseEther("99"))
@@ -1550,9 +1550,9 @@ describe("Clocktower", function(){
             await time.increase((dayAhead * 40))
 
             const tx3 = await hardhatClockSubscribe.connect(caller).remit();
-            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 0, 1, anyValue)
-            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 0, 1, anyValue)
-            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 0, 1, anyValue)
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 1, 1, anyValue)
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 1, 1, anyValue)
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
 
            // await hardhatClockSubscribe.connect(caller).remit();
 

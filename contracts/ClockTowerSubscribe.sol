@@ -1169,17 +1169,23 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                     timeTrigger = time.yearDay;
                 }
 
-                uint256 length = subscriptionMap[f][timeTrigger].length();
+                //uint256 length = subscriptionMap[f][timeTrigger].length();
                 
                 
                 //loops through subscriptions
-                for(uint256 s; s < length; s++) {
+                //TODO:
+                for(uint256 s = subscriptionMap[f][timeTrigger].length(); s > 0; s--) {
+                //for(uint256 s; s < length; s++) {
 
                     //checks which subscription to start if paginated
-                    if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
+                    //TODO:
+                    //if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
+                    if(!pageStart.initialized || (pageStart.subscriptionIndex >= s && pageStart.initialized)) {
 
                         //gets subscription
-                        Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
+                        //TODO:
+                        //Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
+                        Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s - 1)];
 
                         //Marks day as not empty
                         isEmptyDay = false;
