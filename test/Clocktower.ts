@@ -1492,7 +1492,7 @@ describe("Clocktower", function(){
             expect(account5.subscriptions[1].status).to.be.equal(2n)
 
         })
-        it("Order the subscriptions correctly when remitting", async function() {
+        it("Order the subscribers correctly when remitting", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
 
             //adds CLOCK to approved tokens
@@ -1553,8 +1553,6 @@ describe("Clocktower", function(){
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 1, 1, anyValue)
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 1, 1, anyValue)
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
-
-           // await hardhatClockSubscribe.connect(caller).remit();
 
         })
     })
