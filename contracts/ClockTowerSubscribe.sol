@@ -1354,6 +1354,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         //unsubscribes on failure
                                         //TODO:
                                         //addToUnsubscribeList(remitSub.id, subscriber);
+                                        subStatusMap[subscriber][remitSub.id] = Status.UNSUBSCRIBED;
                                         subscribersMap[remitSub.id].remove(subscriber);
 
                                         //emit unsubscribe to log
