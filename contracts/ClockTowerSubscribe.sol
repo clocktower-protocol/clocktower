@@ -1265,6 +1265,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         //SUCCESS
                                         remitCounter++;
 
+                                        emit Coordinates(remitSub.id, u, s, remitSub.f, nextUncheckedDay);
+
                                         //checks feeBalance. If positive it decreases balance. 
                                         //If fee balance < fee amount it sends subscription amount to contract as fee payment.
                                         if(feeBalance[remitSub.id][subscriber] > subFee) {
@@ -1276,7 +1278,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             //log as succeeded
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
-                                            emit Coordinates(remitSub.id, u, s, remitSub.f, nextUncheckedDay);
 
                                             //remits from subscriber to provider
                                             IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);

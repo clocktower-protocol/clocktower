@@ -48,7 +48,7 @@ describe("Clocktower", function(){
         //const ClockSubscribeFactory = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
         const ClockSubscribeFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe")
 
-        const [owner, otherAccount, subscriber, provider, caller] = await ethers.getSigners();
+        const [owner, otherAccount, subscriber, provider, caller, subscriber2, subscriber3, subscriber4, subscriber5] = await ethers.getSigners();
 
         const hardhatCLOCKToken = await ClockToken.deploy(hre.ethers.parseEther("100100"));
         const hardhatClockSubscribe = await ClockSubscribeFactory.deploy(10200n, 11000n, 5n, 5n, false, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", otherAccount.address);
@@ -56,17 +56,45 @@ describe("Clocktower", function(){
         await hardhatCLOCKToken.waitForDeployment();
         await hardhatClockSubscribe.waitForDeployment();
       
-        //funds other account with eth
+        //funds other accounts with eth
         const paramsOther = {
             from: owner.address,
             to: otherAccount.address,
             value: centEth
         };
+        const paramsOther2 = {
+            from: owner.address,
+            to: subscriber2.address,
+            value: centEth
+        };
+        const paramsOther3 = {
+            from: owner.address,
+            to: subscriber3.address,
+            value: centEth
+        };
+        const paramsOther4 = {
+            from: owner.address,
+            to: subscriber4.address,
+            value: centEth
+        };
+        const paramsOther5 = {
+            from: owner.address,
+            to: subscriber5.address,
+            value: centEth
+        };
         await owner.sendTransaction(paramsOther)
-        
+        await owner.sendTransaction(paramsOther2)
+        await owner.sendTransaction(paramsOther3)
+        await owner.sendTransaction(paramsOther4)
+        await owner.sendTransaction(paramsOther5)
+
         await hardhatCLOCKToken.approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
         await hardhatCLOCKToken.connect(otherAccount).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
         await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber2).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber3).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber4).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
+        await hardhatCLOCKToken.connect(subscriber5).approve(await hardhatClockSubscribe.getAddress(), infiniteApproval)
 
         /*
         console.log("HERE")
@@ -74,13 +102,17 @@ describe("Clocktower", function(){
         console.log(otherAccount.address)
         console.log(subscriber.address)
         */
-         //sends 100 clocktoken to other account
+         //sends 100 clocktoken to other accounts
         await hardhatCLOCKToken.transfer(otherAccount.address, centEth)
         await hardhatCLOCKToken.transfer(subscriber.address, centEth)
         await hardhatCLOCKToken.transfer(provider.address, centEth)
         await hardhatCLOCKToken.transfer(caller.address, centEth)
+        await hardhatCLOCKToken.transfer(subscriber2.address, centEth)
+        await hardhatCLOCKToken.transfer(subscriber3.address, centEth)
+        await hardhatCLOCKToken.transfer(subscriber4.address, centEth)
+        await hardhatCLOCKToken.transfer(subscriber5.address, centEth)
 
-        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe} ;
+        return {owner, otherAccount, subscriber, provider, caller, hardhatCLOCKToken, hardhatClockSubscribe, subscriber2, subscriber3, subscriber4, subscriber5} ;
     }
     describe("Subscriptions", function() {
         const testParams = {
@@ -1458,6 +1490,71 @@ describe("Clocktower", function(){
             //checks that it unsubscribes only one
             expect(account4.subscriptions[1].status).to.be.equal(0)
             expect(account5.subscriptions[1].status).to.be.equal(2n)
+
+        })
+        it("Order the subscriptions correctly when remitting", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            //creates subscriptions
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            let subArray =[]
+
+            //subscriptions
+            for (let i = 0; i < subscriptions.length; i++) {
+                subArray.push({
+                    id: subscriptions[i].subscription[0],
+                    amount: subscriptions[i].subscription[1],
+                    provider: subscriptions[i].subscription[2],
+                    token: subscriptions[i].subscription[3],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
+                })
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber2).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber3).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber4).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber5).subscribe(subArray[0])
+
+            await hardhatClockSubscribe.connect(owner).changeMaxRemits(3n)
+
+            //revokes approval in subscriber 2 and 3
+            await hardhatCLOCKToken.connect(subscriber3).approve(hardhatClockSubscribe.getAddress(), 0n)
+            await hardhatCLOCKToken.connect(subscriber2).approve(hardhatClockSubscribe.getAddress(), 0n)
+            
+            //checks that it emits the first three coordinates
+            const tx = await hardhatClockSubscribe.connect(caller).remit()
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 5, 0, 1, anyValue)
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 4, 0, 1, anyValue)
+            await expect(tx).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 0, 1, anyValue)
+            
+
+            //await hardhatClockSubscribe.connect(caller).remit();
+            const tx2 = await hardhatClockSubscribe.connect(caller).remit()
+            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 0, 1, anyValue)
+            await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 0, 1, anyValue)
+
+            //unsubscribed
+            expect(await hardhatCLOCKToken.balanceOf(subscriber3.address)).to.be.equal(hre.ethers.parseEther("99"))
+            //normal
+            expect(await hardhatCLOCKToken.balanceOf(subscriber4.address)).to.be.equal(hre.ethers.parseEther("98"))
+
+            await time.increase((dayAhead * 40))
+
+            const tx3 = await hardhatClockSubscribe.connect(caller).remit();
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 0, 1, anyValue)
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 0, 1, anyValue)
+            await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 0, 1, anyValue)
+
+           // await hardhatClockSubscribe.connect(caller).remit();
 
         })
     })
