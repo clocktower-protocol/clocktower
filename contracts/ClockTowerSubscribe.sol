@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
+import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
@@ -1200,16 +1201,23 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                             uint256 subFee = (amount * callerFee / 10000) - amount;
                             uint256 totalFee;
 
-                            uint256 sublength = subscribersMap[remitSub.id].length();
-                            uint256 lastSub;
+                            //TODO:
+                            //uint256 sublength = subscribersMap[remitSub.id].length();
+                            //uint256 lastSub = 1;
                             
                             //makes sure on an empty subscription lastSub doesn't underflow
+                            /*
                             if(sublength > 0) {
                                 lastSub = sublength - 1;
                             }
+                            */
+                            //TODO:
+                            uint256 startLength = (subscribersMap[remitSub.id].length() - unsubscribedMap[remitSub.id].length());
                             
-                            //loops through subscribers
-                            for(uint256 u; u < sublength; u++) {
+                            //decrements through subscribers
+                            //for(uint256 u; u < sublength; u++) {
+                            //TODO:
+                            for(uint256 u = subscribersMap[remitSub.id].length(); u > 0; u--) {
 
                                 //checks for max remit and returns false if limit hit
                                 if(remitCounter == maxRemits) {
@@ -1241,7 +1249,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                 if(!pageStart.initialized || pageGo == true) {
                                     
                                     //checks for failure (balance and unlimited allowance)
-                                    address subscriber = subscribersMap[remitSub.id].at(u);
+                                    //address subscriber = subscribersMap[remitSub.id].at(u);
+                                    //TODO:
+                                    address subscriber = subscribersMap[remitSub.id].at(u - 1);
 
                                     //skips unsubscribed
                                     if(unsubscribedMap[remitSub.id].contains(subscriber)) {
@@ -1329,7 +1339,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         }
 
                                         //unsubscribes on failure
-                                        addToUnsubscribeList(remitSub.id, subscriber);
+                                        //TODO:
+                                        //addToUnsubscribeList(remitSub.id, subscriber);
+                                        subscribersMap[remitSub.id].remove(subscriber);
 
                                         //emit unsubscribe to log
                                         emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
@@ -1340,7 +1352,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                     
                                     }
                                     //sends fees to caller on last subscriber in list (unless there are no subscribers)
-                                    if(u == lastSub && sublength > 0) {
+                                    //TODO:
+                                    if(u == 1 && startLength > 0) {
 
                                         //if system fee is activated divides caller fee and remits portion to system
                                         if(allowSystemFee) {

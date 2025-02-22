@@ -1264,7 +1264,7 @@ describe("Clocktower", function(){
 
             const pageStart = {
                 id: subArray[1].id,
-                subscriberIndex: 0,
+                subscriberIndex: 1,
                 subscriptionIndex: 0,
                 frequency: 1,
                 initialized: true
