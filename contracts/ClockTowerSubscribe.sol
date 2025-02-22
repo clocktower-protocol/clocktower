@@ -957,7 +957,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
  
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
-        addToUnsubscribeList(subscription.id, msg.sender);
+        //if paginating add to unsubscribe list otherwise delete
+        if(pageStart.initialized) {
+            addToUnsubscribeList(subscription.id, msg.sender);
+        } else {
+            //TODO:
+            subscribersMap[subscription.id].remove(msg.sender);
+        }
 
         //emit unsubscribe to log
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
@@ -994,7 +1000,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
        
         subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
 
-        addToUnsubscribeList(subscription.id, subscriber);
+        //if paginating add to unsubscribe list otherwise delete
+        if(pageStart.initialized) {
+            addToUnsubscribeList(subscription.id, subscriber);
+        } else {
+            //TODO:
+            subscribersMap[subscription.id].remove(msg.sender);
+        }
 
         //emit unsubscribe to log
         emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);
