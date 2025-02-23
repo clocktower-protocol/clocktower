@@ -469,7 +469,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
                 //FIXME:
                 //Change status to cancelled
-                subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
+                subStatusMap[subscriber][subscription.id] = Status.CANCELLED;
 
                 //emit unsubscribe to log
                 emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.UNSUBSCRIBED);

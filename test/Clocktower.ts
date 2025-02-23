@@ -1450,8 +1450,8 @@ describe("Clocktower", function(){
             let account3 = await hardhatClockSubscribe.connect(otherAccount).getAccount(otherAccount)
 
             //checks that it unsubscribes
-            expect(account.subscriptions[0].status).to.be.equal(2n)
-            expect(account3.subscriptions[0].status).to.be.equal(2n)
+            expect(account.subscriptions[0].status).to.be.equal(1n)
+            expect(account3.subscriptions[0].status).to.be.equal(1n)
 
             //creates subscriptions
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
@@ -1489,7 +1489,7 @@ describe("Clocktower", function(){
 
             //checks that it unsubscribes only one
             expect(account4.subscriptions[1].status).to.be.equal(0)
-            expect(account5.subscriptions[1].status).to.be.equal(2n)
+            expect(account5.subscriptions[1].status).to.be.equal(1n)
 
         })
         it("Order the subscribers correctly when remitting", async function() {
