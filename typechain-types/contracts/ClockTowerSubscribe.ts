@@ -233,6 +233,7 @@ export interface ClockTowerSubscribeInterface extends Interface {
       | "RoleGranted"
       | "RoleRevoked"
       | "SubLog"
+      | "UList"
   ): EventFragment;
 
   encodeFunctionData(
@@ -850,6 +851,24 @@ export namespace SubLogEvent {
     amount: bigint;
     token: string;
     subScriptEvent: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace UListEvent {
+  export type InputTuple = [
+    timestamp: BigNumberish,
+    id: BytesLike,
+    subscriber: AddressLike
+  ];
+  export type OutputTuple = [timestamp: bigint, id: string, subscriber: string];
+  export interface OutputObject {
+    timestamp: bigint;
+    id: string;
+    subscriber: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -1532,6 +1551,13 @@ export interface ClockTowerSubscribe extends BaseContract {
     SubLogEvent.OutputTuple,
     SubLogEvent.OutputObject
   >;
+  getEvent(
+    key: "UList"
+  ): TypedContractEvent<
+    UListEvent.InputTuple,
+    UListEvent.OutputTuple,
+    UListEvent.OutputObject
+  >;
 
   filters: {
     "CallerLog(uint40,uint40,address,bool)": TypedContractEvent<
@@ -1664,6 +1690,17 @@ export interface ClockTowerSubscribe extends BaseContract {
       SubLogEvent.InputTuple,
       SubLogEvent.OutputTuple,
       SubLogEvent.OutputObject
+    >;
+
+    "UList(uint40,bytes32,address)": TypedContractEvent<
+      UListEvent.InputTuple,
+      UListEvent.OutputTuple,
+      UListEvent.OutputObject
+    >;
+    UList: TypedContractEvent<
+      UListEvent.InputTuple,
+      UListEvent.OutputTuple,
+      UListEvent.OutputObject
     >;
   };
 }
