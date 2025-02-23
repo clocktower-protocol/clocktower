@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
+import "./ClockTowerTimeLibrary.sol";
 import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
@@ -282,7 +283,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     allowSystemFee = allowSystemFee_;
 
     ///@dev variable for last checked by day
-    nextUncheckedDay = (unixToDays(uint40(block.timestamp)) - 2);
+    nextUncheckedDay = (ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp)) - 2);
 
     sysFeeReceiver = admin_;
 
@@ -510,9 +511,45 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         }
         
     }
+
+    /// @notice function that cleans up subscribers on unsubscribed list 
+    /// @dev will process up to cancelLimit
+    /// @param id of subscription
+    function cleanUnsubscribeList(bytes32 id) external onlyRole(JANITOR_ROLE) {
+
+        require(subExists(id), "3");
+
+        //cant be in pagination
+        require(id != pageStart.id);
+
+        //gets total subscribed subscribers
+        uint256 length = subscribersMap[id].length();
+
+        uint256 remainingSubs = length;
+
+        //can't have zero subscribers
+        require(remainingSubs > 0, "22");
+
+        
+        //sets number of loops based on if amount is below limit or not
+        uint256 loops = remainingSubs < cancelLimit ? remainingSubs : cancelLimit;
+
+        //decrements through subscribers to delete
+        for(uint256 i = unsubscribedMap[id].length(); i > (length - loops); i--) {
+
+            //gets address
+            address subscriber = unsubscribedMap[id].at(i - 1);
+
+            //deletes subscriber from subscriber list and unsubscribed list
+            subscribersMap[id].remove(subscriber);
+            unsubscribedMap[id].remove(subscriber);
+
+        }
+
+    }
     
     //-------------------------------------------------------
-
+/*
      //TIME FUNCTIONS-----------------------------------
     /// @notice Converts unix time number to Time struct
     /// @param unix Unix Epoch Time number
@@ -684,6 +721,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
        
         return fee;
     }
+*/
 
 
     //VIEW FUNCTIONS ----------------------------------------
@@ -936,15 +974,15 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //prorates fee amount
         
         if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
-            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         } 
         else if(subscription.frequency == Frequency.QUARTERLY) {
-            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 3;
             multiple = 2;
         }
         else if(subscription.frequency == Frequency.YEARLY) {
-            fee = prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
         } 
@@ -1145,19 +1183,19 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     function remit() public nonReentrant{
 
         //gets current time slot based on day
-        uint40 currentDay = unixToDays(uint40(block.timestamp));
+        uint40 currentDay = ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp));
 
         require(currentDay >= nextUncheckedDay, "6");
 
         bool isEmptyDay = true;
 
-        Time memory time;
+        ClockTowerTimeLibrary.Time memory time;
 
         //checks if day is current day or a past date 
         if(currentDay != nextUncheckedDay) {
-           time = unixToTime(nextUncheckedDay * 86400);
+           time = ClockTowerTimeLibrary.unixToTime(nextUncheckedDay * 86400);
         }  else {
-            time = unixToTime(block.timestamp);
+            time = ClockTowerTimeLibrary.unixToTime(block.timestamp);
         }
 
         uint256 remitCounter;

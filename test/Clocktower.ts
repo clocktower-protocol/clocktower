@@ -42,11 +42,21 @@ describe("Clocktower", function(){
         //sets time to 2028/01/01 1:00
         await time.increaseTo(currentTime);
 
+        const ClockLibrary = await hre.ethers.getContractFactory("ClockTowerTimeLibrary");
+        const hardhatClockLibrary = await ClockLibrary.deploy()
+        await hardhatClockLibrary.waitForDeployment()
+
+        const timeLibAddress = await hardhatClockLibrary.getAddress()
+
         const ClockToken = await hre.ethers.getContractFactory("CLOCKToken");
 
         //const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
         //const ClockSubscribeFactory = await hre.ethers.getContractFactory("contracts/ClockTowerSubscribe.sol:ClockTowerSubscribe", {})
-        const ClockSubscribeFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe")
+        const ClockSubscribeFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe", {
+            libraries: {
+                ClockTowerTimeLibrary: timeLibAddress
+            },
+        })
 
         const [owner, otherAccount, subscriber, provider, caller, subscriber2, subscriber3, subscriber4, subscriber5] = await ethers.getSigners();
 

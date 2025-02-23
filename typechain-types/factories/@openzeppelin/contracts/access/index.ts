@@ -4,5 +4,3 @@
 export * as extensions from "./extensions";
 export { AccessControl__factory } from "./AccessControl__factory";
 export { IAccessControl__factory } from "./IAccessControl__factory";
-export { Ownable__factory } from "./Ownable__factory";
-export { Ownable2Step__factory } from "./Ownable2Step__factory";

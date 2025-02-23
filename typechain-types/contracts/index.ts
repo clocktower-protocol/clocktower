@@ -4,3 +4,4 @@
 import type * as clocKtokenSol from "./CLOCKtoken.sol";
 export type { clocKtokenSol };
 export type { ClockTowerSubscribe } from "./ClockTowerSubscribe";
+export type { ClockTowerTimeLibrary } from "./ClockTowerTimeLibrary";

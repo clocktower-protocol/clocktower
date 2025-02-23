@@ -3,3 +3,4 @@
 /* eslint-disable */
 export * as clocKtokenSol from "./CLOCKtoken.sol";
 export { ClockTowerSubscribe__factory } from "./ClockTowerSubscribe__factory";
+export { ClockTowerTimeLibrary__factory } from "./ClockTowerTimeLibrary__factory";
