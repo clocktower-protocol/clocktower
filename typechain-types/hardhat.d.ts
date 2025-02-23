@@ -30,14 +30,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccessControl__factory>;
     getContractFactory(
-      name: "Ownable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Ownable__factory>;
-    getContractFactory(
-      name: "Ownable2Step",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Ownable2Step__factory>;
-    getContractFactory(
       name: "IERC1155Errors",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC1155Errors__factory>;
@@ -74,14 +66,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SafeERC20__factory>;
     getContractFactory(
-      name: "Address",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Address__factory>;
-    getContractFactory(
-      name: "Errors",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Errors__factory>;
-    getContractFactory(
       name: "ERC165",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC165__factory>;
@@ -101,6 +85,10 @@ declare module "hardhat/types/runtime" {
       name: "ClockTowerSubscribe",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ClockTowerSubscribe__factory>;
+    getContractFactory(
+      name: "ClockTowerTimeLibrary",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ClockTowerTimeLibrary__factory>;
 
     getContractAt(
       name: "AccessControl",
@@ -122,16 +110,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccessControl>;
-    getContractAt(
-      name: "Ownable",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Ownable>;
-    getContractAt(
-      name: "Ownable2Step",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Ownable2Step>;
     getContractAt(
       name: "IERC1155Errors",
       address: string | ethers.Addressable,
@@ -178,16 +156,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SafeERC20>;
     getContractAt(
-      name: "Address",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Address>;
-    getContractAt(
-      name: "Errors",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Errors>;
-    getContractAt(
       name: "ERC165",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -212,6 +180,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.ClockTowerSubscribe>;
+    getContractAt(
+      name: "ClockTowerTimeLibrary",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ClockTowerTimeLibrary>;
 
     deployContract(
       name: "AccessControl",
@@ -229,14 +202,6 @@ declare module "hardhat/types/runtime" {
       name: "IAccessControl",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IAccessControl>;
-    deployContract(
-      name: "Ownable",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Ownable>;
-    deployContract(
-      name: "Ownable2Step",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Ownable2Step>;
     deployContract(
       name: "IERC1155Errors",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -274,14 +239,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeERC20>;
     deployContract(
-      name: "Address",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Address>;
-    deployContract(
-      name: "Errors",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Errors>;
-    deployContract(
       name: "ERC165",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC165>;
@@ -301,6 +258,10 @@ declare module "hardhat/types/runtime" {
       name: "ClockTowerSubscribe",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ClockTowerSubscribe>;
+    deployContract(
+      name: "ClockTowerTimeLibrary",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ClockTowerTimeLibrary>;
 
     deployContract(
       name: "AccessControl",
@@ -322,16 +283,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IAccessControl>;
-    deployContract(
-      name: "Ownable",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Ownable>;
-    deployContract(
-      name: "Ownable2Step",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Ownable2Step>;
     deployContract(
       name: "IERC1155Errors",
       args: any[],
@@ -378,16 +329,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SafeERC20>;
     deployContract(
-      name: "Address",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Address>;
-    deployContract(
-      name: "Errors",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Errors>;
-    deployContract(
       name: "ERC165",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -412,6 +353,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ClockTowerSubscribe>;
+    deployContract(
+      name: "ClockTowerTimeLibrary",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ClockTowerTimeLibrary>;
 
     // default types
     getContractFactory(
