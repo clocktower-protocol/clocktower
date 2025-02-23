@@ -41,6 +41,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     21 = Above Cancel Subscriber Limit
     22 = No Subscribers
     23 = Subscription is cancelled
+    24 = Cant subscribe while paginating
     */
 
     bytes32 public constant JANITOR_ROLE = keccak256("JANITOR_ROLE");
@@ -193,6 +194,12 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     }
 
     //Events-------------------------------------
+    event UList(
+        uint40 indexed timestamp,
+        bytes32 indexed id, 
+        address indexed subscriber
+    );
+
     event CallerLog(
         uint40 indexed timestamp,
         uint40 indexed checkedDay,
@@ -467,7 +474,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //checks if subscriber is already unsubscribed 
             if(!unsubscribedMap[subscription.id].contains(subscriber)) {
 
-                //FIXME:
+                //TODO:
                 //Change status to cancelled
                 subStatusMap[subscriber][subscription.id] = Status.CANCELLED;
 
@@ -483,6 +490,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                     //pays remaining balance to system
                     sysbalance += sysAmount;
                 }
+
+                emit SubLog(subscription.id, subscription.provider, subscriber, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBREFUND);
 
                 //sends remainder to subscriber
                 IERC20(subscription.token).safeTransfer(subscriber, convertAmount(subBalance, approvedERC20[subscription.token].decimals));
@@ -842,6 +851,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         
         //adds unsubscribed address to set
         if(!unsubscribedMap[id].contains(account)) {
+            emit UList(uint40(block.timestamp), id, account);
             unsubscribedMap[id].add(account);
         }
     }
@@ -882,6 +892,10 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         //checks that token is not paused
         require(!approvedERC20[subscription.token].paused, '20');
+
+        //TODO:
+        //cant subscribe while subscription is pagination checkpoint
+        require(_subscription.id != pageStart.id, "24");
 
         uint256 convertedAmount = convertAmount(subscription.amount, approvedERC20[subscription.token].decimals);
 
