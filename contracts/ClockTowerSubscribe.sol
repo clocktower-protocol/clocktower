@@ -467,6 +467,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //checks if subscriber is already unsubscribed 
             if(!unsubscribedMap[subscription.id].contains(subscriber)) {
 
+                //FIXME:
+                //Change status to cancelled
                 subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
 
                 //emit unsubscribe to log
@@ -959,7 +961,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         subStatusMap[msg.sender][subscription.id] = Status.UNSUBSCRIBED;
 
         //if paginating add to unsubscribe list otherwise delete
-        if(pageStart.initialized) {
+        if(pageStart.id == _subscription.id) {
             addToUnsubscribeList(subscription.id, msg.sender);
         } else {
             //TODO:
@@ -1002,7 +1004,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         subStatusMap[subscriber][subscription.id] = Status.UNSUBSCRIBED;
 
         //if paginating add to unsubscribe list otherwise delete
-        if(pageStart.initialized) {
+        if(pageStart.id == _subscription.id) {
             addToUnsubscribeList(subscription.id, subscriber);
         } else {
             //TODO:
