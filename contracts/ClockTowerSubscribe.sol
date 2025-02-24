@@ -509,6 +509,14 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //Refunds fee to protocol
             IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(sysbalance, approvedERC20[subscription.token].decimals));
         }
+
+        //TODO:
+        /*
+        //if subscription is empty removes it from the time mappings
+        if(subscribersMap[subscription.id].length() == 0) {
+            subscriptionMap[uint256(subscription.frequency)][subscription.dueDay].remove(subscription.id);
+        }
+        */
         
     }
 
@@ -732,7 +740,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     ///@return Set of ids
     function getIdByTime(uint256 frequency, uint16 dueDay) external view returns (bytes32[] memory) {
 
-        bytes32[] memory subs;
+        bytes32[] memory subs = new bytes32[](subscriptionMap[frequency][dueDay].length());
         //iterates through set to create array
         for(uint256 i; i < subscriptionMap[frequency][dueDay].length(); i++){
             subs[i] = subscriptionMap[frequency][dueDay].at(i);
@@ -1185,6 +1193,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //gets current time slot based on day
         uint40 currentDay = ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp));
 
+        //console.log(nextUncheckedDay);
+
         require(currentDay >= nextUncheckedDay, "6");
 
         bool isEmptyDay = true;
@@ -1241,11 +1251,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                         //Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
                         Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s - 1)];
 
+                        
                         //deletes out of time map if empty
                         if(subscribersMap[subscription.id].length() == 0) {
                             subscriptionMap[f][timeTrigger].remove(subscription.id);
                             continue;
                         }
+                        
 
                         //Marks day as not empty
                         isEmptyDay = false;

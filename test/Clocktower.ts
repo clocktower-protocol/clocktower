@@ -366,11 +366,12 @@ describe("Clocktower", function(){
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,15)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,2,15)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,2,16)
 
             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
 
              //creates subscribe object
-             const subscribeObject = {
+            const subscribeObject = {
                 id: subscriptions[1].subscription[0],
                 amount: subscriptions[1].subscription[1],
                 provider: subscriptions[1].subscription[2],
@@ -381,8 +382,19 @@ describe("Clocktower", function(){
                 dueDay: subscriptions[1].subscription[6]
             }
 
+            const subscribeObject2 = {
+                id: subscriptions[0].subscription[0],
+                amount: subscriptions[0].subscription[1],
+                provider: subscriptions[0].subscription[2],
+                token: subscriptions[0].subscription[3],
+                //exists: subscriptions[1].subscription[4],
+                cancelled: subscriptions[0].subscription[4],
+                frequency: subscriptions[0].subscription[5],
+                dueDay: subscriptions[0].subscription[6]
+            }
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
             await hardhatClockSubscribe.connect(otherAccount).subscribe(subscribeObject)
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
     
             //checks reverts
 
@@ -418,6 +430,36 @@ describe("Clocktower", function(){
 
             //expect(result[0].status).to.equal(1);
             expect(result[0].subscription.cancelled).to.equal(true)
+
+            //checks that subscription is NOT added to time mappings if there are no subscribers (done only with first subscriber)
+            let ids = await hardhatClockSubscribe.connect(owner).getIdByTime(2, 16)
+            expect(ids.length).to.equal(0)
+
+            //sees if remit cleans the subscription from the time mapping
+
+            //subscription is in timetable
+            let ids2 = await hardhatClockSubscribe.connect(owner).getIdByTime(2, 15)
+            expect(ids2.length).to.equal(1)
+            //has one subscriber
+            let subs = await hardhatClockSubscribe.connect(owner).getSubscribersById(ids2[0])
+            expect(subs.length).to.equal(2)
+            //cleans up subscribers
+            await hardhatClockSubscribe.connect(otherAccount).cleanupCancelledSubscribers(subscribeObject)
+            //should have no subscribers now
+            let subs2 = await hardhatClockSubscribe.connect(owner).getSubscribersById(ids2[0])
+            expect(subs2.length).to.equal(0)
+
+            
+            //remits subscriptions and should remove cancelled subscription
+            let block = await hre.ethers.provider.getBlock("latest")
+            
+            await time.increase(dayAhead * 100)
+            await hardhatClockSubscribe.connect(owner).remit()
+            let ids3 = await hardhatClockSubscribe.connect(owner).getIdByTime(2, 15)
+            expect(ids3.length).to.be.equal(0)
+            
+            
+            
         })
         it("Should paginate remit transactions", async function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, owner, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
