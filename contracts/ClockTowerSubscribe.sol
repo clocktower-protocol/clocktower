@@ -158,6 +158,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         uint16 month;
     }
 
+
     //struct for fee estimates
     struct FeeEstimate {
         uint256 fee;
@@ -509,14 +510,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //Refunds fee to protocol
             IERC20(subscription.token).safeTransfer(sysFeeReceiver, convertAmount(sysbalance, approvedERC20[subscription.token].decimals));
         }
-
-        //TODO:
-        /*
-        //if subscription is empty removes it from the time mappings
-        if(subscribersMap[subscription.id].length() == 0) {
-            subscriptionMap[uint256(subscription.frequency)][subscription.dueDay].remove(subscription.id);
-        }
-        */
         
     }
 
@@ -832,15 +825,18 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     /// @return Returns array of subscribers in SubscriberView struct form
     function getSubscribersById(bytes32 id) external view returns (SubscriberView[] memory) {
 
-        uint256 length = subscribersMap[id].length();
+        uint256 length = subscribersMap[id].length() - unsubscribedMap[id].length();
        
         SubscriberView[] memory scriberViews = new SubscriberView[](length);
 
-        for(uint256 i; i < length; i++) {
+        for(uint256 i; i < subscribersMap[id].length(); i++) {
 
-            uint256 feeBalanceTemp = feeBalance[id][subscribersMap[id].at(i)];
-            SubscriberView memory scriberView = SubscriberView(subscribersMap[id].at(i), feeBalanceTemp);
-            scriberViews[i] = scriberView;
+            //doesnt count subscribers in unsubscribed list
+            if(!unsubscribedMap[id].contains(subscribersMap[id].at(i))) {
+                uint256 feeBalanceTemp = feeBalance[id][subscribersMap[id].at(i)];
+                SubscriberView memory scriberView = SubscriberView(subscribersMap[id].at(i), feeBalanceTemp);
+                scriberViews[i] = scriberView;
+            }
         }
 
         return scriberViews;
