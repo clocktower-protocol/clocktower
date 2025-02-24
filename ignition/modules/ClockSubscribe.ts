@@ -66,16 +66,30 @@ export default buildModule("ClocktowerHardhat", (m) => {
 
     //****comment out deployments not currently being used****
 
+    
     //hardhat deployment 
+        //time library
+        const timeLibrary = m.contract("ClockTowerTimeLibrary")
         const clockSubscribe = m.contract(
             "ClockTowerSubscribe", 
-            [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.cancelLimit, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin, chainObjects.hardhat.janitor]
+            [chainObjects.hardhat.callerFee, chainObjects.hardhat.systemFee, chainObjects.hardhat.maxRemits, chainObjects.hardhat.cancelLimit, chainObjects.hardhat.allowSystemFee, chainObjects.hardhat.admin, chainObjects.hardhat.janitor], {
+                libraries: {
+                    ClockTowerTimeLibrary: timeLibrary
+                }
+            }
+
         )
+    
 
     //sepolia deployment
         
     /*
-        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepolia.callerFee, chainObjects.sepolia.systemFee, chainObjects.sepolia.maxRemits, chainObjects.sepolia.cancelLimit, chainObjects.sepolia.allowSystemFee, chainObjects.sepolia.admin, chainObjects.sepolia.janitor])
+        const timeLibrary = m.contract("ClockTowerTimeLibrary")
+        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepolia.callerFee, chainObjects.sepolia.systemFee, chainObjects.sepolia.maxRemits, chainObjects.sepolia.cancelLimit, chainObjects.sepolia.allowSystemFee, chainObjects.sepolia.admin, chainObjects.sepolia.janitor], {
+            libraries: {
+                ClockTowerTimeLibrary: timeLibrary
+            }
+        })
 
         //adds ERC20 tokens
         for( let i = 0; i < chainObjects.sepolia.erc20.length; i++) {
@@ -83,8 +97,9 @@ export default buildModule("ClocktowerHardhat", (m) => {
         }
 
     */
+    
         
 
 
-    return { clockSubscribe }
+    return { timeLibrary, clockSubscribe }
 })
