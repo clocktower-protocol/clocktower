@@ -260,7 +260,7 @@ describe("Clocktower", function(){
             */
         })
         it("Should allow user to unsubscribe", async function() {
-            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller} = await loadFixture(deployClocktowerFixture);
+            const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller, owner} = await loadFixture(deployClocktowerFixture);
 
             const clockTokenAddress = await hardhatCLOCKToken.getAddress()
             
@@ -289,11 +289,43 @@ describe("Clocktower", function(){
             //check emits and balances
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscribeObject))
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, subscribeObject.provider, subscriber.address, anyValue, eth, clockTokenAddress, 7)
+
+            //checks that when you unsubscribe not in pagination the subscriber is deleted from subscription list
+            const ids = await hardhatClockSubscribe.connect(subscriber).getSubscribersById(subscribeObject.id)
+            expect(ids.length).to.be.equal(0)
             
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
+            const pageStart = {
+                id: subscribeObject.id,
+                subscriberIndex: 1,
+                subscriptionIndex: 1,
+                frequency: 2,
+                initialized: true
+            }
+
+            //checks that in a paginated state the subscriber stays in the list but is added to the unsubscribe map
+            await hardhatClockSubscribe.connect(owner).setPageStart(pageStart)
+
+
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscribeObject))
             .to.changeTokenBalance(hardhatCLOCKToken, provider, "51851851851851851")
+
+            const ids2 = await hardhatClockSubscribe.connect(subscriber).getSubscribersById(subscribeObject.id)
+
+            expect(ids2.length).to.be.equal(0)
+           
+
+            const pageStart2 = {
+                id: hre.ethers.ZeroHash,
+                subscriberIndex: 0,
+                subscriptionIndex: 0,
+                frequency: 0,
+                initialized: false
+            }
+
+            //turns off pagination
+            await hardhatClockSubscribe.connect(owner).setPageStart(pageStart2)
 
             let result = await hardhatClockSubscribe.connect(subscriber).getAccountSubscriptions(true, subscriber.address)
             
