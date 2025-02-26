@@ -320,7 +320,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     //mapping of subscriptions by id
     mapping(bytes32 => Subscription) public idSubMap;
 
-    //mapping of unsubscribed addresses per subscription
+    //mapping of unsubscribed addresses per subscription made during pagination
     mapping(bytes32 => EnumerableSet.AddressSet) unsubscribedMap;
 
 
@@ -524,14 +524,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         require(id != pageStart.id);
 
         //gets total subscribed subscribers
-        uint256 length = subscribersMap[id].length();
+        uint256 length = unsubscribedMap[id].length();
 
         uint256 remainingSubs = length;
 
         //can't have zero subscribers
         require(remainingSubs > 0, "22");
 
-        
         //sets number of loops based on if amount is below limit or not
         uint256 loops = remainingSubs < cancelLimit ? remainingSubs : cancelLimit;
 
@@ -544,7 +543,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //deletes subscriber from subscriber list and unsubscribed list
             subscribersMap[id].remove(subscriber);
             unsubscribedMap[id].remove(subscriber);
-
         }
 
     }
@@ -726,6 +724,14 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
 
     //VIEW FUNCTIONS ----------------------------------------
+
+    /// @notice gets length of unsubcribed list by id
+    /// @param id subscription id
+    /// @return length of enumerable set
+    /// @dev unsubscribed list is not the total list of unsubscribed users but only those done during pagination. 
+    function getUnsubscribedLength(bytes32 id) external view returns (uint256) {
+        return unsubscribedMap[id].length();
+    } 
 
     ///@notice Get subscription id by time
     ///@param frequency 0 to 3 number for frequency. O = weekly, 1 = monthly, 2 quarterly, 3 yearly

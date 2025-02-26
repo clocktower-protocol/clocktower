@@ -314,6 +314,9 @@ describe("Clocktower", function(){
             const ids2 = await hardhatClockSubscribe.connect(subscriber).getSubscribersById(subscribeObject.id)
 
             expect(ids2.length).to.be.equal(0)
+
+            //expects unsubscribed list to be increased
+            expect(await hardhatClockSubscribe.connect(owner).getUnsubscribedLength(subscribeObject.id)).to.equal(1)
            
 
             const pageStart2 = {
@@ -1574,6 +1577,79 @@ describe("Clocktower", function(){
             //checks that it unsubscribes only one
             expect(account4.subscriptions[1].status).to.be.equal(0)
             expect(account5.subscriptions[1].status).to.be.equal(1n)
+
+        })
+        it("Allows janitor to cleanup unsubscribed mapping", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            //creates subscriptions
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,1)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            let subArray =[]
+
+            //subscriptions
+            for (let i = 0; i < subscriptions.length; i++) {
+                subArray.push({
+                    id: subscriptions[i].subscription[0],
+                    amount: subscriptions[i].subscription[1],
+                    provider: subscriptions[i].subscription[2],
+                    token: subscriptions[i].subscription[3],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
+                })
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber2).subscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber3).subscribe(subArray[0])
+
+            //unsubscribes during pagination
+            const pageStart = {
+                id: subArray[0].id,
+                subscriberIndex: 3,
+                subscriptionIndex: 1,
+                frequency: 1,
+                initialized: true
+            }
+
+            //checks that in a paginated state the subscriber stays in the list but is added to the unsubscribe map
+            await hardhatClockSubscribe.connect(owner).setPageStart(pageStart)
+
+            await hardhatClockSubscribe.connect(subscriber).unsubscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber2).unsubscribe(subArray[0])
+            await hardhatClockSubscribe.connect(subscriber3).unsubscribe(subArray[0])
+
+            expect(await hardhatClockSubscribe.getUnsubscribedLength(subArray[0].id)).to.be.equal(3)
+
+            //sets cancelLimit to 2
+            await hardhatClockSubscribe.connect(owner).setCancelLimit(2n)
+
+            //still paginating so it wont work
+            await expect(hardhatClockSubscribe.connect(otherAccount).cleanUnsubscribeList(subArray[0].id)).to.be.reverted
+
+            //turns off pagination
+            const pageStart2 = {
+                id: hre.ethers.ZeroHash,
+                subscriberIndex: 0,
+                subscriptionIndex: 0,
+                frequency: 0,
+                initialized: false
+            }
+            await hardhatClockSubscribe.connect(owner).setPageStart(pageStart2)
+
+            await hardhatClockSubscribe.connect(otherAccount).cleanUnsubscribeList(subArray[0].id)
+            
+            expect(await hardhatClockSubscribe.getUnsubscribedLength(subArray[0].id)).to.be.equal(1)
+
+            await hardhatClockSubscribe.connect(otherAccount).cleanUnsubscribeList(subArray[0].id)
+
+            expect(await hardhatClockSubscribe.getUnsubscribedLength(subArray[0].id)).to.be.equal(0)
 
         })
         it("Order the subscribers correctly when remitting", async function() {
