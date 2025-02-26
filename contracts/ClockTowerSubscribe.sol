@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
 import "./ClockTowerTimeLibrary.sol";
-import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
@@ -476,7 +475,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             //checks if subscriber is already unsubscribed 
             if(!unsubscribedMap[subscription.id].contains(subscriber)) {
 
-                //TODO:
                 //Change status to cancelled
                 subStatusMap[subscriber][subscription.id] = Status.CANCELLED;
 
@@ -546,182 +544,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         }
 
     }
-    
-    //-------------------------------------------------------
-/*
-     //TIME FUNCTIONS-----------------------------------
-    /// @notice Converts unix time number to Time struct
-    /// @param unix Unix Epoch Time number
-    /// @return time Time struct
-    function unixToTime(uint256 unix) internal pure returns (Time memory time) {
-       
-        uint256 _days = unix/86400;
-        uint16 day;
-        uint16 yearDay;
-       
-        int256 __days = int(_days);
-
-        int256 L = __days + 68569 + 2440588;
-        int256 N = 4 * L / 146097;
-        L = L - (146097 * N + 3) / 4;
-        int256 _year = 4000 * (L + 1) / 1461001;
-        L = L - 1461 * _year / 4 + 31;
-        int256 _month = 80 * L / 2447;
-        int256 _day = L - 2447 * _month / 80;
-        L = _month / 11;
-        _month = _month + 2 - 12 * L;
-        _year = 100 * (N - 49) + _year + L;
-
-        uint256 uintyear = uint(_year);
-        uint256 month = uint(_month);
-        uint256 uintday = uint(_day);
-
-        day = uint16(uintday);        
-
-        uint256 dayCounter;
-
-        //loops through months to get current day of year
-        for(uint256 monthCounter = 1; monthCounter <= month; monthCounter++) {
-            if(monthCounter == month) {
-                dayCounter += day;
-            } else {
-                dayCounter += getDaysInMonth(uintyear, monthCounter);
-            }
-        }
-
-        yearDay = uint16(dayCounter);
-
-        //gets day of quarter
-        time.quarterDay = getdayOfQuarter(yearDay, uintyear);
-        time.weekDay = getDayOfWeek(unix);
-        time.dayOfMonth = day;
-        time.yearDay = yearDay;
-        time.year = uint16(uintyear);
-        time.month = uint16(month);
-    }
-
-    /// @notice Checks if year is a leap year
-    /// @param year Year number
-    /// @return  leapYear Boolean value. True if leap year false if not
-    function isLeapYear(uint256 year) internal pure returns (bool leapYear) {
-        leapYear = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-    }
-
-    /// @notice Returns number of days in month 
-    /// @param year Number of year
-    /// @param month Number of month. 1 - 12
-    /// @dev Month range is 1 - 12
-    /// @return daysInMonth Number of days in the month
-    function getDaysInMonth(uint256 year, uint256 month) internal pure returns (uint256 daysInMonth) {
-        if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
-            daysInMonth = 31;
-        } else if (month != 2) {
-            daysInMonth = 30;
-        } else {
-            daysInMonth = isLeapYear(year) ? 29 : 28;
-        }
-    }
-
-    /// @notice Gets numberical day of week from Unixtime number
-    /// @param unixTime Unix Epoch Time number
-    /// @return dayOfWeek Returns Day of Week 
-    /// @dev 1 = Monday, 7 = Sunday
-    function getDayOfWeek(uint256 unixTime) internal pure returns (uint16 dayOfWeek) {
-        uint256 _days = unixTime / 86400;
-        uint256 dayOfWeekuint = (_days + 3) % 7 + 1;
-        dayOfWeek = uint16(dayOfWeekuint);
-
-    }
-
-    /// @notice Gets day of quarter
-    /// @param yearDays Day of year
-    /// @param year Number of year
-    /// @return quarterDay Returns day in quarter
-    function getdayOfQuarter(uint256 yearDays, uint256 year) internal pure returns (uint16 quarterDay) {
-        
-        uint256 leapDay;
-        if(isLeapYear(year)) {
-            leapDay = 1;
-        } else {
-            leapDay = 0;
-        }
-
-        if(yearDays <= (90 + leapDay)) {
-            quarterDay = uint16(yearDays);
-        } else if((90 + leapDay) < yearDays && yearDays <= (181 + leapDay)) {
-            quarterDay = uint16(yearDays - (90 + leapDay));
-        } else if((181 + leapDay) < yearDays && yearDays <= (273 + leapDay)) {
-            quarterDay = uint16(yearDays - (181 + leapDay));
-        } else {
-            quarterDay = uint16(yearDays - (273 + leapDay));
-        }
-    }
-
-    /// @notice Converts unix time to number of days past Jan 1st 1970
-    /// @param unixTime Number in Unix Epoch Time
-    /// @return dayCount Number of days since Jan. 1st 1970
-    function unixToDays(uint40 unixTime) internal pure returns(uint40 dayCount) {
-        dayCount = unixTime/86400;
-    }
-
-    /// @notice Prorates amount based on days remaining in subscription cycle
-    /// @param unixTime Current time in Unix Epoch Time
-    /// @param dueDay The day in the cycle the subscription is due
-    /// @dev The dueDay will be within differing ranges based on frequency. 
-    /// @param fee Amount to be prorated
-    /// @param frequency Frequency number of cycle
-    /// @dev 0 = Weekly, 1 = Monthly, 2 = Quarterly, 3 = Yearly
-    /// @return Prorated amount
-    function prorate(uint256 unixTime, uint40 dueDay, uint256 fee, uint8 frequency) internal pure returns (uint256)  {
-        Time memory time = unixToTime(unixTime);
-        uint256 currentDay;
-        uint256 max;
-        uint256 lastDayOfMonth;
-        
-        //sets maximum range day amount
-        if(frequency == 0) {
-            currentDay = time.weekDay;
-            max = 7;
-        //monthly
-        } else if (frequency == 1){
-            //calculates maximum days in current month
-            lastDayOfMonth = getDaysInMonth(time.year, time.month);
-            currentDay = time.dayOfMonth;
-            max = lastDayOfMonth;
-        //quarterly and yearly
-        } else if (frequency == 2) {
-            currentDay = getdayOfQuarter(time.yearDay, time.year);
-            max = 90;
-        //yearly
-        } else if (frequency == 3) {
-            currentDay = time.yearDay;
-            max = 365;
-        }
-
-        //monthly
-        if(frequency == 1) {
-            uint256 dailyFee = (fee * 12 / 365);
-            if(dueDay != currentDay && currentDay > dueDay){
-                    //dates split months
-                    fee = (dailyFee * (max - (currentDay - dueDay)));
-            } else if (dueDay != currentDay && currentDay < dueDay) {
-                    //both dates are in the same month
-                    fee = (dailyFee * (dueDay - currentDay));
-            }
-        }
-        //weekly quarterly and yearly
-        else if(frequency == 0 || frequency == 2 || frequency == 3) {
-            if(dueDay != currentDay && currentDay > dueDay){
-                    fee = (fee / max) * (max - (currentDay - dueDay));
-            } else if (dueDay != currentDay && currentDay < dueDay) {
-                    fee = (fee / max) * (dueDay - currentDay);
-            }
-        }  
-       
-        return fee;
-    }
-*/
-
 
     //VIEW FUNCTIONS ----------------------------------------
 
@@ -941,7 +763,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //checks that token is not paused
         require(!approvedERC20[subscription.token].paused, '20');
 
-        //TODO:
         //cant subscribe while subscription is pagination checkpoint
         require(_subscription.id != pageStart.id, "24");
 
@@ -1026,7 +847,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         if(pageStart.id == _subscription.id) {
             addToUnsubscribeList(subscription.id, msg.sender);
         } else {
-            //TODO:
             subscribersMap[subscription.id].remove(msg.sender);
         }
 
@@ -1069,7 +889,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         if(pageStart.id == _subscription.id) {
             addToUnsubscribeList(subscription.id, subscriber);
         } else {
-            //TODO:
             subscribersMap[subscription.id].remove(msg.sender);
         }
 
@@ -1195,8 +1014,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //gets current time slot based on day
         uint40 currentDay = ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp));
 
-        //console.log(nextUncheckedDay);
-
         require(currentDay >= nextUncheckedDay, "6");
 
         bool isEmptyDay = true;
@@ -1234,23 +1051,15 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                 if(f == uint(Frequency.YEARLY)) {
                     timeTrigger = time.yearDay;
                 }
-
-                //uint256 length = subscriptionMap[f][timeTrigger].length();
                 
                 
                 //loops through subscriptions
-                //TODO:
                 for(uint256 s = subscriptionMap[f][timeTrigger].length(); s > 0; s--) {
-                //for(uint256 s; s < length; s++) {
 
                     //checks which subscription to start if paginated
-                    //TODO:
-                    //if(!pageStart.initialized || (pageStart.subscriptionIndex <= s && pageStart.initialized)) {
                     if(!pageStart.initialized || (pageStart.subscriptionIndex >= s && pageStart.initialized)) {
 
                         //gets subscription
-                        //TODO:
-                        //Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s)];
                         Subscription memory subscription = idSubMap[subscriptionMap[f][timeTrigger].at(s - 1)];
 
                         
@@ -1281,22 +1090,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                             uint256 subFee = (amount * callerFee / 10000) - amount;
                             uint256 totalFee;
 
-                            //TODO:
-                            //uint256 sublength = subscribersMap[remitSub.id].length();
-                            //uint256 lastSub = 1;
-                            
-                            //makes sure on an empty subscription lastSub doesn't underflow
-                            /*
-                            if(sublength > 0) {
-                                lastSub = sublength - 1;
-                            }
-                            */
-                            //TODO:
                             uint256 startLength = (subscribersMap[remitSub.id].length() - unsubscribedMap[remitSub.id].length());
                             
                             //decrements through subscribers
-                            //for(uint256 u; u < sublength; u++) {
-                            //TODO:
                             for(uint256 u = subscribersMap[remitSub.id].length(); u > 0; u--) {
 
                                 //checks for max remit and returns false if limit hit
@@ -1329,8 +1125,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                 if(!pageStart.initialized || pageGo == true) {
                                     
                                     //checks for failure (balance and unlimited allowance)
-                                    //address subscriber = subscribersMap[remitSub.id].at(u);
-                                    //TODO:
                                     address subscriber = subscribersMap[remitSub.id].at(u - 1);
 
                                     //skips unsubscribed
@@ -1420,8 +1214,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         }
 
                                         //unsubscribes on failure
-                                        //TODO:
-                                        //addToUnsubscribeList(remitSub.id, subscriber);
                                         subStatusMap[subscriber][remitSub.id] = Status.UNSUBSCRIBED;
                                         subscribersMap[remitSub.id].remove(subscriber);
 
@@ -1434,7 +1226,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                     
                                     }
                                     //sends fees to caller on last subscriber in list (unless there are no subscribers)
-                                    //TODO:
                                     if(u == 1 && startLength > 0) {
 
                                         //if system fee is activated divides caller fee and remits portion to system
@@ -1451,14 +1242,14 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                 }
                             }
                         } else {
-                            //TODO:
                             //deletes subscription from time maps if cancelled
                             if(subscription.cancelled) {
                                 subscriptionMap[f][timeTrigger].remove(subscription.id);
                             }
                             //turns off pagination coordinates if subscription is cancelled or paused
                             if(pageStart.initialized && (pageStart.id == subscription.id)) {
-                                pageStart.initialized = false;
+                               delete pageStart;
+                               pageGo = false;
                             }
                         }
                     } 
