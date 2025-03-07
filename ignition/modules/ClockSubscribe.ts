@@ -31,7 +31,7 @@ export default buildModule("ClocktowerHardhat", (m) => {
                     name: 'Clocktower Token',
                     ticker: 'CLOCK',
                     address: '',
-                    tokenMinimum: hre.ethers.parseEther("0.01")
+                    tokenMinimum: hre.ethers.parseEther("5")
                 }
             ]
         },
@@ -58,6 +58,24 @@ export default buildModule("ClocktowerHardhat", (m) => {
                 }, 
             ]
         },
+        sepoliaBase: {
+            callerFee: ((BigInt(process.env.SEPOLIA_BASE_CALLER_FEE) * 100n) + 10000n),
+            systemFee: ((BigInt(process.env.SEPOLIA_BASE_SYSTEM_FEE) * 100n) + 10000n),
+            maxRemits: BigInt(process.env.SEPOLIA_BASE_MAX_REMITS),
+            cancelLimit: BigInt(process.env.SEPOLIA_BASE_CANCEL_LIMIT),
+            allowSystemFee: convertENVBool(process.env.SEPOLIA_BASE_ALLOW_SYSTEM_FEE),
+            admin: process.env.SEPOLIA_BASE_ADMIN_ADDRESS,
+            janitor: process.env.SEPOLIA_BASE_JANITOR_ADDRESS,
+            erc20: [
+                {
+                    name: 'USDC',
+                    ticker: 'USDC',
+                    address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+                    tokenMinimum: hre.ethers.parseEther("5")
+                }, 
+            ]
+        },
+
 
         
     }
@@ -97,6 +115,23 @@ export default buildModule("ClocktowerHardhat", (m) => {
         }
 
     */
+
+     //sepolia base deployment
+        
+    /*
+        const timeLibrary = m.contract("ClockTowerTimeLibrary")
+        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepoliaBase.callerFee, chainObjects.sepoliaBase.systemFee, chainObjects.sepoliaBase.maxRemits, chainObjects.sepoliaBase.cancelLimit, chainObjects.sepoliaBase.allowSystemFee, chainObjects.sepoliaBase.admin, chainObjects.sepoliaBase.janitor], {
+            libraries: {
+                ClockTowerTimeLibrary: timeLibrary
+            }
+        })
+
+        //adds ERC20 tokens
+        for( let i = 0; i < chainObjects.sepoliaBase.erc20.length; i++) {
+            m.call(clockSubscribe, "addERC20Contract", [chainObjects.sepoliaBase.erc20[i].address, chainObjects.sepoliaBase.erc20[i].tokenMinimum])
+        }
+    */
+    
     
         
 
