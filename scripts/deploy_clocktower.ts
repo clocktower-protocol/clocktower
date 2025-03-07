@@ -22,10 +22,10 @@ async function main() {
 
     //const { clockSubscribe } = await hre.ignition.deploy(ClockSubscribe)
     // Get the contract factory
-    const subFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe");
+    //const subFactory = await hre.ethers.getContractFactory("ClockTowerSubscribe");
     
     // Connect to the existing contract
-    let clockSubscribe = await hre.ethers.getContractAt("ClockTowerSubscribe", '0x69f94e46cbc82ab02781ac4fafc3580d21f1a888');
+    let clockSubscribe = await hre.ethers.getContractAt("ClockTowerSubscribe", '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512');
 
     //console.log("Clocktower deployed...");
     
