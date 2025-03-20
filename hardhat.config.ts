@@ -44,19 +44,20 @@ const config: HardhatUserConfig = {
     /*
     sepolia: {
       url: process.env.ALCHEMY_SEPOLIA_URL,
-      chainId: 11155111
+      chainId: 11155111,
       ledgerAccounts: [
         process.env.SEPOLIA_DEPLOYER_ADDRESS,
       ],
     },
+    */
     sepoliaBase: {
       url: process.env.ALCHEMY_SEPOLIA_BASE_URL,
-      chainId: 84532
+      chainId: 84532,
       ledgerAccounts: [
         process.env.SEPOLIA_BASE_DEPLOYER_ADDRESS,
       ],
     }
-    */
+    
   },
   gasReporter: {
     enabled: true,
