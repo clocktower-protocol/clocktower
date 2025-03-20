@@ -2,7 +2,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import "@nomicfoundation/hardhat-ledger";
 import hre from "hardhat"
 
-export default buildModule("ClocktowerHardhat", (m) => {
+export default buildModule("ClocktowerSepoliaBase", (m) => {
 
     const customMaxFeePerGas = 50_000_000_000n
     const custommaxPriorityFeePerGas = 3_000_000_000n
@@ -19,8 +19,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
     //(xX100)+10000
     const chainObjects = {
         hardhat: {
-            callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
-            systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
+            //callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
+            //systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
+            callerFee: BigInt(process.env.HARDHAT_CALLER_FEE),
+            systemFee: BigInt(process.env.HARDHAT_SYSTEM_FEE),
             maxRemits: BigInt(process.env.HARDHAT_MAX_REMITS),
             cancelLimit: BigInt(process.env.HARDHAT_CANCEL_LIMIT),
             allowSystemFee: convertENVBool(process.env.HARDHAT_ALLOW_SYSTEM_FEE),
@@ -36,8 +38,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
             ]
         },
         sepolia: {
-            callerFee: ((BigInt(process.env.SEPOLIA_CALLER_FEE) * 100n) + 10000n),
-            systemFee: ((BigInt(process.env.SEPOLIA_SYSTEM_FEE) * 100n) + 10000n),
+            //callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
+            //systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
+            callerFee: BigInt(process.env.HARDHAT_CALLER_FEE),
+            systemFee: BigInt(process.env.HARDHAT_SYSTEM_FEE),
             maxRemits: BigInt(process.env.SEPOLIA_MAX_REMITS),
             cancelLimit: BigInt(process.env.SEPOLIA_CANCEL_LIMIT),
             allowSystemFee: convertENVBool(process.env.SEPOLIA_ALLOW_SYSTEM_FEE),
@@ -59,8 +63,10 @@ export default buildModule("ClocktowerHardhat", (m) => {
             ]
         },
         sepoliaBase: {
-            callerFee: ((BigInt(process.env.SEPOLIA_BASE_CALLER_FEE) * 100n) + 10000n),
-            systemFee: ((BigInt(process.env.SEPOLIA_BASE_SYSTEM_FEE) * 100n) + 10000n),
+            //callerFee: ((BigInt(process.env.HARDHAT_CALLER_FEE) * 100n) + 10000n),
+            //systemFee: ((BigInt(process.env.HARDHAT_SYSTEM_FEE) * 100n) + 10000n),
+            callerFee: BigInt(process.env.SEPOLIA_BASE_CALLER_FEE),
+            systemFee: BigInt(process.env.SEPOLIA_BASE_SYSTEM_FEE),
             maxRemits: BigInt(process.env.SEPOLIA_BASE_MAX_REMITS),
             cancelLimit: BigInt(process.env.SEPOLIA_BASE_CANCEL_LIMIT),
             allowSystemFee: convertENVBool(process.env.SEPOLIA_BASE_ALLOW_SYSTEM_FEE),
@@ -86,7 +92,9 @@ export default buildModule("ClocktowerHardhat", (m) => {
 
     
     //hardhat deployment 
+    /*
         //time library
+        console.log(chainObjects.hardhat.systemFee)
         const timeLibrary = m.contract("ClockTowerTimeLibrary")
         const clockSubscribe = m.contract(
             "ClockTowerSubscribe", 
@@ -97,7 +105,7 @@ export default buildModule("ClocktowerHardhat", (m) => {
             }
 
         )
-    
+    */
 
     //sepolia deployment
         
@@ -118,19 +126,18 @@ export default buildModule("ClocktowerHardhat", (m) => {
 
      //sepolia base deployment
         
-    /*
+    
         const timeLibrary = m.contract("ClockTowerTimeLibrary")
-        const clockSubscribe = m.contract("ClockTowerSubscribe", [chainObjects.sepoliaBase.callerFee, chainObjects.sepoliaBase.systemFee, chainObjects.sepoliaBase.maxRemits, chainObjects.sepoliaBase.cancelLimit, chainObjects.sepoliaBase.allowSystemFee, chainObjects.sepoliaBase.admin, chainObjects.sepoliaBase.janitor], {
+        const clockSubscribe = m.contract("ClockTowerSubscribe", 
+            [chainObjects.sepoliaBase.callerFee, chainObjects.sepoliaBase.systemFee, chainObjects.sepoliaBase.maxRemits, chainObjects.sepoliaBase.cancelLimit, chainObjects.sepoliaBase.allowSystemFee, chainObjects.sepoliaBase.admin, chainObjects.sepoliaBase.janitor], {
             libraries: {
                 ClockTowerTimeLibrary: timeLibrary
-            }
+            },
+            id: "ClocktowerSepoliaBase" // Ensures uniqueness
         })
-
-        //adds ERC20 tokens
-        for( let i = 0; i < chainObjects.sepoliaBase.erc20.length; i++) {
-            m.call(clockSubscribe, "addERC20Contract", [chainObjects.sepoliaBase.erc20[i].address, chainObjects.sepoliaBase.erc20[i].tokenMinimum])
-        }
-    */
+    
+    
+    
     
     
         

@@ -1084,10 +1084,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                 f   
                             );
                             
-                            uint256 amount = convertAmount(subscription.amount, remitSub.decimals);
+                            uint256 convertedAmount = convertAmount(subscription.amount, remitSub.decimals);
                         
                             //calculates fee balance
-                            uint256 subFee = (amount * callerFee / 10000) - amount;
+                            //FIXME: subfee is based on converted amount
+                            //TODO:
+                            //uint256 subFee = (amount * callerFee / 10000) - amount;
+                            uint256 subFee = (subscription.amount * callerFee / 10000) - subscription.amount;
                             uint256 totalFee;
 
                             uint256 startLength = (subscribersMap[remitSub.id].length() - unsubscribedMap[remitSub.id].length());
@@ -1133,9 +1136,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                     }
 
                                     //check if there is enough allowance and balance
-                                    if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= amount
+                                    if(IERC20(remitSub.token).allowance(subscriber, address(this)) >= convertedAmount
                                     && 
-                                    IERC20(remitSub.token).balanceOf(subscriber) >= amount) {
+                                    IERC20(remitSub.token).balanceOf(subscriber) >= convertedAmount) {
                                         //SUCCESS
                                         remitCounter++;
 
@@ -1150,11 +1153,11 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             feeBalance[remitSub.id][subscriber] -= subFee;
                                     
                                             //log as succeeded
-                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.SUBPAID);
-                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.PROVPAID);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.SUBPAID);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.PROVPAID);
 
                                             //remits from subscriber to provider
-                                            IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, amount);
+                                            IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, convertedAmount);
                                         } else {
 
                                             //FEEFILL
@@ -1164,12 +1167,14 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             delete feeBalance[remitSub.id][subscriber];
 
                                             //log as feefill
-                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.FEEFILL);
+                                            emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.FEEFILL);
 
                                             //adjusts feefill based on frequency
                                             
                                             //variables for feefill
-                                            uint256 feefill = amount;
+                                            //TODO:
+                                            //uint256 feefill = amount;
+                                            uint256 feefill = subscription.amount;
                                             uint256 multiple = 1;
 
                                             if(f == 2) {
@@ -1218,7 +1223,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                         subscribersMap[remitSub.id].remove(subscriber);
 
                                         //emit unsubscribe to log
-                                        emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
+                                        emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.UNSUBSCRIBED);
 
                                         //log as failed
                                         emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), 0, remitSub.token, SubscriptEvent.FAILED);

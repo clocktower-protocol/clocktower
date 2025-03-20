@@ -965,7 +965,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject4)
             
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, 0, clockTokenAddress, 2)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, anyValue, clockTokenAddress, 2)
         })  
         it("Should remit transactions PART 2", async function() {
 
