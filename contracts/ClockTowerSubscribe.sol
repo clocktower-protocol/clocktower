@@ -1087,9 +1087,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                             uint256 convertedAmount = convertAmount(subscription.amount, remitSub.decimals);
                         
                             //calculates fee balance
-                            //FIXME: subfee is based on converted amount
-                            //TODO:
-                            //uint256 subFee = (amount * callerFee / 10000) - amount;
                             uint256 subFee = (subscription.amount * callerFee / 10000) - subscription.amount;
                             uint256 totalFee;
 
@@ -1172,8 +1169,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             //adjusts feefill based on frequency
                                             
                                             //variables for feefill
-                                            //TODO:
-                                            //uint256 feefill = amount;
                                             uint256 feefill = subscription.amount;
                                             uint256 multiple = 1;
 
