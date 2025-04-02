@@ -2,6 +2,7 @@
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -42,6 +43,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     22 = No Subscribers
     23 = Subscription is cancelled
     24 = Cant subscribe while paginating
+    25 = Already subscribed
     */
 
     bytes32 public constant JANITOR_ROLE = keccak256("JANITOR_ROLE");
@@ -776,6 +778,9 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
+         //can't subscribe to same subscription multiple times
+        require(!subscribersMap[subscription.id].contains(msg.sender) || unsubscribedMap[subscription.id].contains(msg.sender), "25");
+
         //checks that subscription is not cancelled
         require(!subscription.cancelled, "23");
 
@@ -803,17 +808,48 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         uint256 multiple = 1;
 
         //prorates fee amount
+
+        //TODO: checks edge case of subscription on current day before remit
+        //gets current time slot based on day
+        uint40 currentDay = ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp));
+
+        /*
+        console.log("---");
+        console.log(currentDay);
+        console.log(nextUncheckedDay);
+        console.log("---");
+        */
+
+        bool isBeforeRemit;
+
+        if(nextUncheckedDay == currentDay) {
+            isBeforeRemit = true;
+        }
+
+        fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
         
-        if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
-            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
-        } 
-        else if(subscription.frequency == Frequency.QUARTERLY) {
-            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+       // if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
+            //fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+            
+        //sets fee to zero if subscriber subscribes on due date before remittance. 
+        if(fee == subscription.amount && isBeforeRemit) {
+            fee = 0;
+           // console.log(fee);
+        }
+           // console.log(fee);
+           // console.log(subscription.amount);
+        //} 
+        //else if(subscription.frequency == Frequency.QUARTERLY) {
+        if(subscription.frequency == Frequency.QUARTERLY) {
+           // fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+           // console.log(fee);
             fee /= 3;
+            //console.log(fee);
             multiple = 2;
         }
-        else if(subscription.frequency == Frequency.YEARLY) {
-            fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+        //else if(subscription.frequency == Frequency.YEARLY) {
+        if(subscription.frequency == Frequency.YEARLY) {
+           // fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
         } 
@@ -889,7 +925,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         if(pageStart.id == _subscription.id) {
             addToUnsubscribeList(subscription.id, subscriber);
         } else {
-            subscribersMap[subscription.id].remove(msg.sender);
+            subscribersMap[subscription.id].remove(subscriber);
         }
 
         //emit unsubscribe to log
