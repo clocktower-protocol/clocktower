@@ -778,7 +778,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
-         //can't subscribe to same subscription multiple times
+        //TODO:
+        //can't subscribe to same subscription multiple times
         require(!subscribersMap[subscription.id].contains(msg.sender) || unsubscribedMap[subscription.id].contains(msg.sender), "25");
 
         //checks that subscription is not cancelled
@@ -1197,7 +1198,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
                                             //Caller gets paid remainder of feeBalance
                                             totalFee += feeBalance[remitSub.id][subscriber];
-                                            delete feeBalance[remitSub.id][subscriber];
+                                            //delete feeBalance[remitSub.id][subscriber];
 
                                             //log as feefill
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.FEEFILL);
@@ -1217,8 +1218,13 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                                 multiple = 11;
                                             }
                                         
-                                            //remits to contract to refill fee balance
+                                            //remits to contract to refill fee balance and pays caller fee
                                             feeBalance[remitSub.id][subscriber] += feefill;
+
+                                            //TODO:
+                                            totalFee += subFee;
+                                            feeBalance[remitSub.id][subscriber] -= subFee;
+
                                             IERC20(remitSub.token).safeTransferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals));
 
                                             if(f == 2 || f == 3) {
