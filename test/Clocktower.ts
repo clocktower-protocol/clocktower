@@ -1021,7 +1021,7 @@ describe("Clocktower", function(){
             //checks subscriber is not double charged
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("89.769868")
             //checks fee balance has been increased
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("2.070132")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("2.050132")
 
         })  
         it("Should remit transactions PART 2", async function() {
@@ -1109,12 +1109,12 @@ describe("Clocktower", function(){
             await expect(tx).to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject.id, subscribeObject.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 8)
 
             
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("101.0")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("101.24")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(subscriber.address))).to.equal("91.0")
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("82.0")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(provider.address))).to.equal("107.0")
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("116.0")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("1.0") 
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.76") 
         })
         it("Prorate when subscribing", async function() { 
 
