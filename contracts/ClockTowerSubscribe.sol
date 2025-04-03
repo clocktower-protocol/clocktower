@@ -2,7 +2,7 @@
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -827,16 +827,38 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             isBeforeRemit = true;
         }
 
-        fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
+        uint256 offset;
+
+        //offsets proration back a day if subscriber subscribes on due date before remittance
+        if(fee == subscription.amount && isBeforeRemit) {
+            offset = 86400;
+        }
+
+        fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
         
        // if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
             //fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             
+        
         //sets fee to zero if subscriber subscribes on due date before remittance. 
-        if(fee == subscription.amount && isBeforeRemit) {
+        //if(fee == subscription.amount && isBeforeRemit) {
+
+            //sets to previous day proration to avoid double charge
+            //fee = ClockTowerTimeLibrary.prorate((block.timestamp - 86400), subscription.dueDay, fee, uint8(subscription.frequency));
+            /*
             fee = 0;
+
+            //charges daily amount in half day case
+            if(subscription.frequency == Frequency.WEEKLY) {
+                fee /= 7;
+            }
+            else {
+                fee /= 30;
+            }
+            */
            // console.log(fee);
-        }
+        //}
+        
            // console.log(fee);
            // console.log(subscription.amount);
         //} 
