@@ -559,7 +559,7 @@ describe("Clocktower", function(){
             let subscribersId = await hardhatClockSubscribe.getSubscribersById(subArray[0].id)
 
             expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
-            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("1.0")
+            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("0.032876712328767123")
 
             let isFinished = false
             let pageCounter = 0
@@ -583,6 +583,8 @@ describe("Clocktower", function(){
             //balance befoe remmitance
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
+            let subscribersId2 = await hardhatClockSubscribe.getSubscribersById(subArray[0].id)
+            console.log(hre.ethers.formatEther(subscribersId2[0].feeBalance))
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
@@ -1056,6 +1058,7 @@ describe("Clocktower", function(){
                 dueDay: subscriptions[0].subscription[6]
             }
 
+            console.log("here")
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
             
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("97.0")
@@ -1820,6 +1823,51 @@ describe("Clocktower", function(){
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 3, 1, 1, anyValue)
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 2, 1, 1, anyValue)
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
+
+        })
+        it("Should do offset proration of payment day before remit", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            const latestTimestamp = await time.latest();
+            const date = new Date(latestTimestamp * 1000);
+            const currentDay = date.getDay();
+
+            console.log(currentDay)
+
+            //starts on Saturday
+
+            //creates subscriptions
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,0,6)
+
+            let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+            let subArray =[]
+
+            //subscriptions
+            for (let i = 0; i < subscriptions.length; i++) {
+                subArray.push({
+                    id: subscriptions[i].subscription[0],
+                    amount: subscriptions[i].subscription[1],
+                    provider: subscriptions[i].subscription[2],
+                    token: subscriptions[i].subscription[3],
+                    cancelled: subscriptions[i].subscription[4],
+                    frequency: subscriptions[i].subscription[5],
+                    dueDay: subscriptions[i].subscription[6]
+                })
+            }
+
+            await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+
+            await hardhatClockSubscribe.connect(caller).remit()
+
+            await time.increase(dayAhead * 7)
+
+            await hardhatClockSubscribe.connect(otherAccount).subscribe(subArray[0])
+
+
 
         })
     })

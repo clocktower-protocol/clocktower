@@ -2,7 +2,7 @@
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -823,18 +823,32 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         bool isBeforeRemit;
 
-        if(nextUncheckedDay == currentDay) {
+
+        if(nextUncheckedDay <= currentDay) {
             isBeforeRemit = true;
         }
 
+        /*
+        console.log(nextUncheckedDay);
+        console.log(currentDay);
+        console.log("--------");
+        */
+
         uint256 offset;
+
+        fee = ClockTowerTimeLibrary.prorate((block.timestamp), subscription.dueDay, fee, uint8(subscription.frequency));
 
         //offsets proration back a day if subscriber subscribes on due date before remittance
         if(fee == subscription.amount && isBeforeRemit) {
             offset = 86400;
+            fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
+            //console.log("here");
         }
 
-        fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
+        
+
+
+        //console.log(fee);
         
        // if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
             //fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
