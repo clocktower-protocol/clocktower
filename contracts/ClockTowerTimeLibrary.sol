@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
-
+import "hardhat/console.sol";
 
 library ClockTowerTimeLibrary {
 
@@ -161,6 +161,13 @@ library ClockTowerTimeLibrary {
         } else if (frequency == 2) {
             currentDay = getdayOfQuarter(time.yearDay, time.year);
             max = 90;
+            //adjusts for different sized quarters
+            if(currentDay == 92) {
+                max = 92;
+            }
+            if(currentDay == 91) {
+                max = 91;
+            }
         //yearly
         } else if (frequency == 3) {
             currentDay = time.yearDay;
