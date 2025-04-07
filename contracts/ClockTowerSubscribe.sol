@@ -2,7 +2,6 @@
 // Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -778,7 +777,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //cant subscribe to subscription you own
         require(msg.sender != subscription.provider, "0");
 
-        //TODO:
         //can't subscribe to same subscription multiple times
         require(!subscribersMap[subscription.id].contains(msg.sender) || unsubscribedMap[subscription.id].contains(msg.sender), "25");
 
@@ -810,16 +808,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         //prorates fee amount
 
-        //TODO: checks edge case of subscription on current day before remit
         //gets current time slot based on day
         uint40 currentDay = ClockTowerTimeLibrary.unixToDays(uint40(block.timestamp));
-
-        /*
-        console.log("---");
-        console.log(currentDay);
-        console.log(nextUncheckedDay);
-        console.log("---");
-        */
 
         bool isBeforeRemit;
 
@@ -827,12 +817,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         if(nextUncheckedDay <= currentDay) {
             isBeforeRemit = true;
         }
-
-        /*
-        console.log(nextUncheckedDay);
-        console.log(currentDay);
-        console.log("--------");
-        */
 
         uint256 offset;
 
@@ -842,51 +826,15 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         if(fee == subscription.amount && isBeforeRemit) {
             offset = 86400;
             fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
-            //console.log("here");
         }
 
-        
-
-
-        //console.log(fee);
-        
-       // if(subscription.frequency == Frequency.MONTHLY || subscription.frequency == Frequency.WEEKLY){
-            //fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
-            
-        
-        //sets fee to zero if subscriber subscribes on due date before remittance. 
-        //if(fee == subscription.amount && isBeforeRemit) {
-
-            //sets to previous day proration to avoid double charge
-            //fee = ClockTowerTimeLibrary.prorate((block.timestamp - 86400), subscription.dueDay, fee, uint8(subscription.frequency));
-            /*
-            fee = 0;
-
-            //charges daily amount in half day case
-            if(subscription.frequency == Frequency.WEEKLY) {
-                fee /= 7;
-            }
-            else {
-                fee /= 30;
-            }
-            */
-           // console.log(fee);
-        //}
-        
-           // console.log(fee);
-           // console.log(subscription.amount);
-        //} 
-        //else if(subscription.frequency == Frequency.QUARTERLY) {
+    
         if(subscription.frequency == Frequency.QUARTERLY) {
-           // fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
-           // console.log(fee);
             fee /= 3;
-            //console.log(fee);
             multiple = 2;
         }
-        //else if(subscription.frequency == Frequency.YEARLY) {
+    
         if(subscription.frequency == Frequency.YEARLY) {
-           // fee = ClockTowerTimeLibrary.prorate(block.timestamp, subscription.dueDay, fee, uint8(subscription.frequency));
             fee /= 12;
             multiple = 11;
         } 
@@ -1257,7 +1205,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             //remits to contract to refill fee balance and pays caller fee
                                             feeBalance[remitSub.id][subscriber] += feefill;
 
-                                            //TODO:
+                                            //pays the caller the full fee
                                             totalFee += subFee;
                                             feeBalance[remitSub.id][subscriber] -= subFee;
 
