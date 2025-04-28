@@ -918,7 +918,6 @@ describe("Clocktower", function(){
             .to.be.rejectedWith("6")
 
             //moves to next day and sets 5 new subscriptions
-            //TODO:
             //await time.increase(dayAhead)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2)
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2)
@@ -956,7 +955,6 @@ describe("Clocktower", function(){
             await expect(tx).to.emit(hardhatClockSubscribe, "CallerLog").withArgs(anyValue, 21185, caller.address, true)
 
             //checks that successful transfer with enough fee balance
-            //TODO:
             //await time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,3)
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -979,7 +977,6 @@ describe("Clocktower", function(){
             await expect(tx2).to.changeTokenBalance(hardhatCLOCKToken, provider, convert(hre.ethers.parseEther("1")))
             await expect(tx2).to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject3.id, subscribeObject3.provider, subscriber.address, anyValue, subscribeObject3.amount, clockTokenAddress, 5)
 
-            //TODO:
             //await time.increase((dayAhead))
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,4)
             let subscriptions4 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -1034,7 +1031,7 @@ describe("Clocktower", function(){
             await time.increase((dayAhead * 32))
             await hardhatClockSubscribe.connect(caller).remit()
             //checks fee balance has been increased
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("1.083008")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("1.095884")
 
         })  
         it("Should remit transactions PART 2", async function() {
@@ -1083,15 +1080,15 @@ describe("Clocktower", function(){
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("96.967392")
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("102.021739")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.9")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("100.250869")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("100.24")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))).to.equal("0.1")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.76")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.770869")
             
             await time.increase((dayAhead * 95))
 
             //********** */
 
-            //TODO: fee fill has already been checked 
+            // fee fill has already been checked 
 
             /*
             //loops through remittances until fee balance is empty
@@ -1251,7 +1248,7 @@ describe("Clocktower", function(){
             .to.changeTokenBalance(hardhatCLOCKToken, subscriber, convert(hre.ethers.parseEther("-0.698629")))
 
             /*
-            //TODO: need to cehck that proration is zero if duedate == subsscribe date and remit has not been called. 
+            //need to cehck that proration is zero if duedate == subsscribe date and remit has not been called. 
             console.log(await hardhatClockSubscribe.connect(provider).nextUncheckedDay())
 
             await hardhatClockSubscribe.connect(provider).createSubscription(hre.ethers.parseEther("7"), clockTokenAddress, details,0,3)

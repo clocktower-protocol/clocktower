@@ -171,6 +171,10 @@ library ClockTowerTimeLibrary {
         } else if (frequency == 3) {
             currentDay = time.yearDay;
             max = 365;
+            //adjusts for leap year
+            if(currentDay == 366) {
+                max = 366;
+            }
         }
 
         //monthly

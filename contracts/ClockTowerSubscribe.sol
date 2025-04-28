@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
 import "./ClockTowerTimeLibrary.sol";
+import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
@@ -813,6 +814,10 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         bool isBeforeRemit;
 
+        //checks if prorated amount is below caller fee
+        bool tooLow;
+        uint callerAmount = (subscription.amount * callerFee / 10000) - subscription.amount;
+
 
         if(nextUncheckedDay <= currentDay) {
             isBeforeRemit = true;
@@ -822,19 +827,29 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         fee = ClockTowerTimeLibrary.prorate((block.timestamp), subscription.dueDay, fee, uint8(subscription.frequency));
 
+        //checks if prorated fee is too low
+        if(fee < callerAmount) {
+            tooLow = true;
+            fee = callerAmount;
+        }
+
         //offsets proration back a day if subscriber subscribes on due date before remittance
         if(fee == subscription.amount && isBeforeRemit) {
             offset = 86400;
             fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
+            //fee = callerAmount;
         }
 
+        //-----check if prorated amount is > or < a weeks worth for month and quarter
     
-        if(subscription.frequency == Frequency.QUARTERLY) {
+        //charges a third's worth of the amount to the contract 
+        if(subscription.frequency == Frequency.QUARTERLY && !tooLow) {
             fee /= 3;
             multiple = 2;
         }
-    
-        if(subscription.frequency == Frequency.YEARLY) {
+               
+        //charges a twelth of the amount to the contract
+        if(subscription.frequency == Frequency.YEARLY && !tooLow) {
             fee /= 12;
             multiple = 11;
         } 
@@ -848,7 +863,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
         //funds cost with fee balance
         IERC20(subscription.token).safeTransferFrom(msg.sender, address(this), convertAmount(fee, approvedERC20[subscription.token].decimals));
-        if(subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) {
+        if((subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) && !tooLow) {
             //funds the remainder to the provider
             IERC20(subscription.token).safeTransferFrom(msg.sender, subscription.provider, convertAmount((fee * multiple), approvedERC20[subscription.token].decimals));
         }
@@ -929,7 +944,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         
     /// @notice Function that provider uses to cancel subscription
     /// @dev Will cancel all subscriptions 
-    /// @dev Will revert if number of subscribers is greater than cancelLimit
     /// @param _subscription Subscription struct
     function cancelSubscription(Subscription calldata _subscription) external {
 
@@ -1181,7 +1195,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             //FEEFILL
 
                                             //Caller gets paid remainder of feeBalance
-                                            totalFee += feeBalance[remitSub.id][subscriber];
+                                            //totalFee += feeBalance[remitSub.id][subscriber];
                                             //delete feeBalance[remitSub.id][subscriber];
 
                                             //log as feefill
@@ -1193,11 +1207,19 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             uint256 feefill = subscription.amount;
                                             uint256 multiple = 1;
 
+                                            
                                             if(f == 2) {
                                                 feefill /= 3;
                                                 multiple = 2;
                                             }
-                                            else if(f == 3) {
+                                            
+                                            /*
+                                            if(f == 1) {
+                                                feefill /= 4;
+                                                multiple = 3;
+                                            }
+                                            */
+                                            else if(f == 2 || f == 3) {
                                                 feefill /= 12;
                                                 multiple = 11;
                                             }
