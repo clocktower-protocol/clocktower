@@ -717,8 +717,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1744061062917,
-      "contentHash": "c45d84c387864eb629e3d6ea00edfec6",
+      "lastModificationDate": 1745867173183,
+      "contentHash": "3748f88ef6b75dd9a1021e00158ad885",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -749,7 +749,8 @@
         "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
         "@openzeppelin/contracts/utils/structs/EnumerableSet.sol",
         "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol",
-        "./ClockTowerTimeLibrary.sol"
+        "./ClockTowerTimeLibrary.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.8.28"
@@ -759,8 +760,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerTimeLibrary.sol": {
-      "lastModificationDate": 1744061082268,
-      "contentHash": "2b7da521134be2164837be0db5b5f131",
+      "lastModificationDate": 1745858251373,
+      "contentHash": "116409c787b8f47c830d7e09843ba231",
       "sourceName": "contracts/ClockTowerTimeLibrary.sol",
       "solcConfig": {
         "version": "0.8.28",
