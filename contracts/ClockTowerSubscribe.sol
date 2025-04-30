@@ -805,7 +805,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
         
         uint256 fee = subscription.amount;
-        uint256 multiple = 1;
+        //uint256 multiple = 1;
 
         //prorates fee amount
 
@@ -817,31 +817,48 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         //checks if prorated amount is below caller fee
         bool tooLow;
         uint callerAmount = (subscription.amount * callerFee / 10000) - subscription.amount;
-
-
+        
         if(nextUncheckedDay <= currentDay) {
             isBeforeRemit = true;
         }
 
-        uint256 offset;
+        //uint256 offset;
 
         fee = ClockTowerTimeLibrary.prorate((block.timestamp), subscription.dueDay, fee, uint8(subscription.frequency));
 
-        //checks if prorated fee is too low
-        if(fee < callerAmount) {
+        //checks if prorated fee is too low or if subscriber subscribes on due date before remittance
+        if(fee < callerAmount || (fee == subscription.amount && isBeforeRemit)) {
             tooLow = true;
             fee = callerAmount;
         }
 
+        /*
         //offsets proration back a day if subscriber subscribes on due date before remittance
         if(fee == subscription.amount && isBeforeRemit) {
             offset = 86400;
             fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
-            //fee = callerAmount;
+        }
+        */
+
+        uint remainder;
+        uint fillAmount = fee;
+        
+        //checks if prorated amount is over a weeks worth.
+        if(subscription.frequency == Frequency.MONTHLY && !tooLow) {
+            if((fee * 100) / subscription.amount >= 25) {
+                fillAmount = subscription.amount * 25 / 100;
+                remainder = fee - fillAmount;
+            }
         }
 
-        //-----check if prorated amount is > or < a weeks worth for month and quarter
+        if((subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY)  && !tooLow) {
+            if((fee * 1000) / subscription.amount >= 83) {
+                fillAmount = subscription.amount * 83 / 1000;
+                remainder = fee - fillAmount;
+            }
+        }
     
+        /*
         //charges a third's worth of the amount to the contract 
         if(subscription.frequency == Frequency.QUARTERLY && !tooLow) {
             fee /= 3;
@@ -854,18 +871,37 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             multiple = 11;
         } 
         
+        
         //pays first subscription to fee balance
         feeBalance[subscription.id][msg.sender] += fee;
+        
 
         //emit subscription to log
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBSCRIBED);
         emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fee, subscription.token, SubscriptEvent.FEEFILL);
+
 
         //funds cost with fee balance
         IERC20(subscription.token).safeTransferFrom(msg.sender, address(this), convertAmount(fee, approvedERC20[subscription.token].decimals));
         if((subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) && !tooLow) {
             //funds the remainder to the provider
             IERC20(subscription.token).safeTransferFrom(msg.sender, subscription.provider, convertAmount((fee * multiple), approvedERC20[subscription.token].decimals));
+        }
+        */
+
+        //pays first subscription to fee balance
+        feeBalance[subscription.id][msg.sender] += fillAmount;
+
+        //emit subscription to log
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBSCRIBED);
+        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fillAmount, subscription.token, SubscriptEvent.FEEFILL);
+
+         //funds cost with fee balance
+        IERC20(subscription.token).safeTransferFrom(msg.sender, address(this), convertAmount(fillAmount, approvedERC20[subscription.token].decimals));
+        if((remainder > 0) && !tooLow) {
+            emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), remainder, subscription.token, SubscriptEvent.PROVPAID);
+            //funds the remainder to the provider
+            IERC20(subscription.token).safeTransferFrom(msg.sender, subscription.provider, convertAmount(remainder, approvedERC20[subscription.token].decimals));
         }
     }
     
@@ -1208,17 +1244,18 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             uint256 multiple = 1;
 
                                             
+                                            /*
                                             if(f == 2) {
                                                 feefill /= 3;
                                                 multiple = 2;
                                             }
+                                            */
                                             
-                                            /*
+                                            //fills a weeks worth of amount
                                             if(f == 1) {
                                                 feefill /= 4;
                                                 multiple = 3;
                                             }
-                                            */
                                             else if(f == 2 || f == 3) {
                                                 feefill /= 12;
                                                 multiple = 11;
@@ -1233,7 +1270,8 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
                                             IERC20(remitSub.token).safeTransferFrom(subscriber, address(this), convertAmount(feefill, remitSub.decimals));
 
-                                            if(f == 2 || f == 3) {
+                                            if(f == 1 || f == 2 || f == 3) {
+                                                emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), (feefill * multiple), remitSub.token, SubscriptEvent.PROVPAID);
                                                 //funds the remainder to the provider
                                                 IERC20(remitSub.token).safeTransferFrom(subscriber, remitSub.provider, convertAmount((feefill * multiple), remitSub.decimals));
                                             }

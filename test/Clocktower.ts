@@ -320,8 +320,7 @@ describe("Clocktower", function(){
             //console.log(Math.floor(Number(hre.ethers.formatEther("51851851851851851")) * 10 ** ClockDecimals))
 
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscribeObject))
-            .to.changeTokenBalance(hardhatCLOCKToken, provider, convert(51851851851851851n))
-
+            .to.changeTokenBalance(hardhatCLOCKToken, provider, convert(83000000000000000n))
 
             const ids2 = await hardhatClockSubscribe.connect(subscriber).getSubscribersById(subscribeObject.id)
 
@@ -350,7 +349,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
             await expect(hardhatClockSubscribe.connect(subscriber).unsubscribe(subscribeObject))
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, "51851851851851851", clockTokenAddress, 4)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, subscriber.address, anyValue, "83000000000000000", clockTokenAddress, 4)
         })
         it("Should allow provider to unsubscribe sub", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, provider, subscriber, caller, otherAccount} = await loadFixture(deployClocktowerFixture);
@@ -559,7 +558,7 @@ describe("Clocktower", function(){
             let subscribersId = await hardhatClockSubscribe.getSubscribersById(subArray[0].id)
 
             expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
-            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("0.032876712328767123")
+            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("0.02")
 
             let isFinished = false
             let pageCounter = 0
@@ -593,10 +592,10 @@ describe("Clocktower", function(){
 
             //console.log(otherBalance)
 
-            let expected = convert(hre.ethers.parseEther("92.769868"));
+            let expected = convert(hre.ethers.parseEther("92.86"));
 
             //gets fee balance
-            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subArray[0].id,subscriber.address))).to.equal("0.012876712328767123")
+            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subArray[0].id,subscriber.address))).to.equal("0.25")
 
             expect(otherBalance).to.equal(expected)
             
@@ -811,9 +810,9 @@ describe("Clocktower", function(){
             //checks caller
             let callerAmount = await hardhatCLOCKToken.balanceOf(caller.address)
 
-            expect(hre.ethers.formatEther(convertToWei(subAmount))).to.equal("99.967124")
-            expect(hre.ethers.formatEther(convertToWei(provAmount))).to.equal("100.012876")    
-            expect(hre.ethers.formatEther(convertToWei(callerAmount))).to.equal("100.02")  
+            expect(hre.ethers.formatEther(convertToWei(subAmount))).to.equal("99.98")
+            expect(hre.ethers.formatEther(convertToWei(provAmount))).to.equal("100.0")    
+            expect(hre.ethers.formatEther(convertToWei(callerAmount))).to.equal("100.0")  
             
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, clockTokenAddress, details,1,2)
             let subscriptions2 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -1027,11 +1026,11 @@ describe("Clocktower", function(){
             //console.log(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))))
 
             //checks subscriber is not double charged
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("90.704116")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("90.729868")
             await time.increase((dayAhead * 32))
             await hardhatClockSubscribe.connect(caller).remit()
             //checks fee balance has been increased
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("1.095884")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.570132")
 
         })  
         it("Should remit transactions PART 2", async function() {
@@ -1066,23 +1065,23 @@ describe("Clocktower", function(){
                 dueDay: subscriptions[0].subscription[6]
             }
 
-            //console.log("here")
+    
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
             
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("99.967392")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("100.021739")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("99.76")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("100.0")
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("100.0")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.010869")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.24")
 
             //feefill
             expect(await hardhatClockSubscribe.connect(caller).remit())
 
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("96.967392")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("102.021739")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(subscriber.address)))).to.equal("96.76")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(provider.address)))).to.equal("102.75")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(caller.address))).to.equal("100.9")
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(caller.address)))).to.equal("100.24")
             //expect(hre.ethers.formatEther(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress))).to.equal("0.1")
-            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.770869")
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubsribeAddress)))).to.equal("0.25")
             
             await time.increase((dayAhead * 95))
 
@@ -1245,7 +1244,7 @@ describe("Clocktower", function(){
             //checks 225 days remaining in year 365 - (25 + 90)
             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject4))
             //.to.changeTokenBalance(hardhatCLOCKToken, subscriber, convert(hre.ethers.parseEther("-0.32876712328767123")))
-            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, convert(hre.ethers.parseEther("-0.698629")))
+            .to.changeTokenBalance(hardhatCLOCKToken, subscriber, convert(hre.ethers.parseEther("-0.698630")))
 
             /*
             //need to cehck that proration is zero if duedate == subsscribe date and remit has not been called. 
@@ -1394,9 +1393,9 @@ describe("Clocktower", function(){
 
             //test quarterly token decimal conversion works and takes from subscriber and funds both contract and provider
             const tx = hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
-            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, subscriber.address, -155554n)
-            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, await hardhatClockSubscribe.getAddress(), 51851n)
-            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, provider.address, 103703n)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, subscriber.address, -155555n)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, await hardhatClockSubscribe.getAddress(), 83000n)
+            await expect(tx).to.changeTokenBalance(hardhatCLOCKToken, provider.address, 72555n)
 
             let balance3 = await hardhatCLOCKToken.balanceOf(subscriber.address)
             //console.log(balance3)
@@ -1467,7 +1466,7 @@ describe("Clocktower", function(){
             let subscribersId = await hardhatClockSubscribe.getSubscribersById(subArray[0].id)
 
             expect(subscribersId[0].subscriber).to.equal("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC")
-            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("0.032876712328767123")
+            expect(hre.ethers.formatEther(subscribersId[0].feeBalance)).to.equal("0.02")
 
             let isFinished = false
             let pageCounter = 0
@@ -1485,10 +1484,10 @@ describe("Clocktower", function(){
 
             let otherBalance = await hardhatCLOCKToken.balanceOf(subscriber.address)
 
-            let expected = hre.ethers.parseEther("92.769868");
+            let expected = hre.ethers.parseEther("92.86");
 
             //gets fee balance
-            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subArray[0].id,subscriber.address))).to.equal("0.012876712328767123")
+            expect(hre.ethers.formatEther(await hardhatClockSubscribe.feeBalance(subArray[0].id,subscriber.address))).to.equal("0.25")
 
             expect(otherBalance).to.equal(convert(expected))
 
@@ -1501,7 +1500,7 @@ describe("Clocktower", function(){
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
            // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
-            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(convert(hre.ethers.parseEther("85.769868")))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(convert(hre.ethers.parseEther("85.86")))
 
             //resets remittance to beginning
             await hardhatClockSubscribe.connect(owner).setNextUncheckedDay(coordinateDay)
@@ -1523,7 +1522,7 @@ describe("Clocktower", function(){
             //console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
             await hardhatClockSubscribe.connect(caller).remit();
            // console.log(await hardhatCLOCKToken.balanceOf(subscriber.address))
-            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(convert(hre.ethers.parseEther("79.769868")))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber.address)).to.equal(convert(hre.ethers.parseEther("79.86")))
 
         })
         it("Restricts the ownership functions to the owner and transfers with two step", async function() {
@@ -1610,7 +1609,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(caller).remit();
 
             //subscriber balance to decrease
-            expect( await hardhatCLOCKToken.balanceOf(subscriber.address)).to.be.equal(convert(hre.ethers.parseEther("96.901372")));
+            expect( await hardhatCLOCKToken.balanceOf(subscriber.address)).to.be.equal(convert(hre.ethers.parseEther("96.94")));
 
 
         })
@@ -1828,9 +1827,9 @@ describe("Clocktower", function(){
             await expect(tx2).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
 
             //unsubscribed
-            expect(await hardhatCLOCKToken.balanceOf(subscriber3.address)).to.be.equal(convert(hre.ethers.parseEther("99.967124")))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber3.address)).to.be.equal(convert(hre.ethers.parseEther("99.98")))
             //normal
-            expect(await hardhatCLOCKToken.balanceOf(subscriber4.address)).to.be.equal(convert(hre.ethers.parseEther("98.967124")))
+            expect(await hardhatCLOCKToken.balanceOf(subscriber4.address)).to.be.equal(convert(hre.ethers.parseEther("98.98")))
 
             await time.increase((dayAhead * 40))
 
@@ -1840,6 +1839,7 @@ describe("Clocktower", function(){
             await expect(tx3).to.emit(hardhatClockSubscribe, "Coordinates").withArgs(subArray[0].id, 1, 1, 1, anyValue)
 
         })
+        /*
         it("Should do offset proration of payment day before remit", async function() {
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
 
@@ -1885,6 +1885,71 @@ describe("Clocktower", function(){
 
 
         })
+        */
+        it("Should feefill correctly on subscribing", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
+
+            //adds CLOCK to approved tokens
+            await hardhatClockSubscribe.addERC20Contract(await hardhatCLOCKToken.getAddress(), hre.ethers.parseEther(".01"), ClockDecimals)
+
+            //creates subscriptions (yearly with low proration amount)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,3,3)
+            //creates subscriptions (prorated)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,3,15)
+            //creates subscriptions (maxed out and divided)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,3,250)
+
+            //creates subscriptions (prorated)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,4)
+            //creates subscriptions (maxed out and divided)
+            await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,20)
+
+             let subscriptions = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
+
+             let subArray =[]
+ 
+             //subscriptions
+             for (let i = 0; i < subscriptions.length; i++) {
+                 subArray.push({
+                     id: subscriptions[i].subscription[0],
+                     amount: subscriptions[i].subscription[1],
+                     provider: subscriptions[i].subscription[2],
+                     token: subscriptions[i].subscription[3],
+                     cancelled: subscriptions[i].subscription[4],
+                     frequency: subscriptions[i].subscription[5],
+                     dueDay: subscriptions[i].subscription[6]
+                 })
+             }
+
+             const clockSubscribeAddress = await hardhatClockSubscribe.getAddress()
+
+             //checks that prorated amount below caller fee will feefill to caller fee
+             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[0])
+
+             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.02")
+
+             //checks that amount is prorated
+             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[1])
+
+             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.058356")
+
+             //checks that amount is equal to 8% (a week)
+             await expect(hardhatClockSubscribe.connect(subscriber).subscribe(subArray[2]))
+             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, provider.address, anyValue, anyValue, "599191780821917740", await hardhatCLOCKToken.getAddress(), 2)
+
+             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.141356")
+
+             //checks that amount is prorated
+             await hardhatClockSubscribe.connect(subscriber2).subscribe(subArray[3])
+
+             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.239986")
+
+            //checks that amount is equal to 25%
+            await hardhatClockSubscribe.connect(subscriber2).subscribe(subArray[4])
+
+            expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.489986")
+
+        })   
     })
  
 })
