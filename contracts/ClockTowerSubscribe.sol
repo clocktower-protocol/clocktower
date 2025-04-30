@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol";
 import "./ClockTowerTimeLibrary.sol";
-import "hardhat/console.sol";
 
 /// @title Clocktower Subscription Protocol
 /// @author Hugo Marx
@@ -805,7 +804,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         addAccountSubscription(SubIndex(subscription.id, subscription.dueDay, subscription.frequency, Status.ACTIVE), false);
         
         uint256 fee = subscription.amount;
-        //uint256 multiple = 1;
 
         //prorates fee amount
 
@@ -822,8 +820,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             isBeforeRemit = true;
         }
 
-        //uint256 offset;
-
         fee = ClockTowerTimeLibrary.prorate((block.timestamp), subscription.dueDay, fee, uint8(subscription.frequency));
 
         //checks if prorated fee is too low or if subscriber subscribes on due date before remittance
@@ -831,14 +827,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
             tooLow = true;
             fee = callerAmount;
         }
-
-        /*
-        //offsets proration back a day if subscriber subscribes on due date before remittance
-        if(fee == subscription.amount && isBeforeRemit) {
-            offset = 86400;
-            fee = ClockTowerTimeLibrary.prorate((block.timestamp - offset), subscription.dueDay, fee, uint8(subscription.frequency));
-        }
-        */
 
         uint remainder;
         uint fillAmount = fee;
@@ -857,37 +845,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                 remainder = fee - fillAmount;
             }
         }
-    
-        /*
-        //charges a third's worth of the amount to the contract 
-        if(subscription.frequency == Frequency.QUARTERLY && !tooLow) {
-            fee /= 3;
-            multiple = 2;
-        }
-               
-        //charges a twelth of the amount to the contract
-        if(subscription.frequency == Frequency.YEARLY && !tooLow) {
-            fee /= 12;
-            multiple = 11;
-        } 
-        
-        
-        //pays first subscription to fee balance
-        feeBalance[subscription.id][msg.sender] += fee;
-        
-
-        //emit subscription to log
-        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), subscription.amount, subscription.token, SubscriptEvent.SUBSCRIBED);
-        emit SubLog(subscription.id, subscription.provider, msg.sender, uint40(block.timestamp), fee, subscription.token, SubscriptEvent.FEEFILL);
-
-
-        //funds cost with fee balance
-        IERC20(subscription.token).safeTransferFrom(msg.sender, address(this), convertAmount(fee, approvedERC20[subscription.token].decimals));
-        if((subscription.frequency == Frequency.QUARTERLY || subscription.frequency == Frequency.YEARLY) && !tooLow) {
-            //funds the remainder to the provider
-            IERC20(subscription.token).safeTransferFrom(msg.sender, subscription.provider, convertAmount((fee * multiple), approvedERC20[subscription.token].decimals));
-        }
-        */
 
         //pays first subscription to fee balance
         feeBalance[subscription.id][msg.sender] += fillAmount;
@@ -1230,10 +1187,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
 
                                             //FEEFILL
 
-                                            //Caller gets paid remainder of feeBalance
-                                            //totalFee += feeBalance[remitSub.id][subscriber];
-                                            //delete feeBalance[remitSub.id][subscriber];
-
                                             //log as feefill
                                             emit SubLog(remitSub.id, remitSub.provider, subscriber, uint40(block.timestamp), subscription.amount, remitSub.token, SubscriptEvent.FEEFILL);
 
@@ -1242,14 +1195,6 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
                                             //variables for feefill
                                             uint256 feefill = subscription.amount;
                                             uint256 multiple = 1;
-
-                                            
-                                            /*
-                                            if(f == 2) {
-                                                feefill /= 3;
-                                                multiple = 2;
-                                            }
-                                            */
                                             
                                             //fills a weeks worth of amount
                                             if(f == 1) {
