@@ -230,7 +230,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     event ProvDetailsLog(
         address indexed provider,
         uint40 indexed timestamp,
-        string indexed description,
+        string description,
         string company, 
         string url, 
         string domain,

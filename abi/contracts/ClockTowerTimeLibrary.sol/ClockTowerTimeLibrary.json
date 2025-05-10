@@ -1,0 +1,106 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "unixTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint40",
+        "name": "dueDay",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "frequency",
+        "type": "uint8"
+      }
+    ],
+    "name": "prorate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint40",
+        "name": "unixTime",
+        "type": "uint40"
+      }
+    ],
+    "name": "unixToDays",
+    "outputs": [
+      {
+        "internalType": "uint40",
+        "name": "dayCount",
+        "type": "uint40"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "unix",
+        "type": "uint256"
+      }
+    ],
+    "name": "unixToTime",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "dayOfMonth",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "weekDay",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "quarterDay",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "yearDay",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "year",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "month",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ClockTowerTimeLibrary.Time",
+        "name": "time",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

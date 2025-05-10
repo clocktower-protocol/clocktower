@@ -1950,6 +1950,22 @@ describe("Clocktower", function(){
             expect(hre.ethers.formatEther(convertToWei(await hardhatCLOCKToken.balanceOf(clockSubscribeAddress)))).to.equal("0.489986")
 
         })   
+        it("Should set provider details", async function() {
+            const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner, subscriber2, subscriber3, subscriber4, subscriber5} = await loadFixture(deployClocktowerFixture);
+
+            const provDetails = {
+                description : "testDescription",
+                company: "testCompany",
+                url: "testUrl",
+                domain: "testDomain",
+                email: "testEmail",
+                misc: "testMisc"
+
+            }
+
+            await expect(hardhatClockSubscribe.connect(provider).editProvDetails(provDetails))
+            .to.emit(hardhatClockSubscribe, "ProvDetailsLog").withArgs(provider.address, anyValue, "testDescription", "testCompany", "testUrl", "testDomain", "testEmail", "testMisc")
+        })
     })
  
 })
