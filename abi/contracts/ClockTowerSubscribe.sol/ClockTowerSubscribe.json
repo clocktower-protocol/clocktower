@@ -286,7 +286,7 @@
         "type": "uint40"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "string",
         "name": "description",
         "type": "string"
