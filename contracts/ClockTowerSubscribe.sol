@@ -631,7 +631,7 @@ contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
         }
 
         //gets array of subs created by address
-        SubIndex[] memory provArray = new SubIndex[](subsLength);
+        SubIndex[] memory provArray = new SubIndex[](provLength);
 
         for(uint256 i; i < provLength; i++) {
             bytes32 id = createdSubs[account].at(i);
