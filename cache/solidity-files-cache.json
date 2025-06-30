@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/CLOCKtoken.sol": {
-      "lastModificationDate": 1724797246806,
+      "lastModificationDate": 1750690457386,
       "contentHash": "feab5e2d41113e76604440c6371723b1",
       "sourceName": "contracts/CLOCKtoken.sol",
       "solcConfig": {
@@ -40,8 +40,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1740087591794,
-      "contentHash": "227a6eb2225701c12d9c959b758b6333",
+      "lastModificationDate": 1750690460228,
+      "contentHash": "57d79df281f57bbb1b09214c7914f877",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -414,8 +414,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/access/AccessControl.sol": {
-      "lastModificationDate": 1740087591543,
-      "contentHash": "4c80b7fdf559a9a348e832a57d072a0b",
+      "lastModificationDate": 1750690460198,
+      "contentHash": "849b15469d8e2bd01b49e6c632e448e7",
       "sourceName": "@openzeppelin/contracts/access/AccessControl.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -454,8 +454,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/access/IAccessControl.sol": {
-      "lastModificationDate": 1740087591944,
-      "contentHash": "6f7fac9fa0df6004375e18b7ff7edf4e",
+      "lastModificationDate": 1750690460203,
+      "contentHash": "80621031deacf7066ec81277f9b1463a",
       "sourceName": "@openzeppelin/contracts/access/IAccessControl.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -490,7 +490,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/access/extensions/IAccessControlDefaultAdminRules.sol": {
-      "lastModificationDate": 1740087591949,
+      "lastModificationDate": 1750690460200,
       "contentHash": "b739b4d082b34dfa4e68a4531fdb60d8",
       "sourceName": "@openzeppelin/contracts/access/extensions/IAccessControlDefaultAdminRules.sol",
       "solcConfig": {
@@ -528,7 +528,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol": {
-      "lastModificationDate": 1740087591552,
+      "lastModificationDate": 1750690460199,
       "contentHash": "d765bf467430909a9687b336bb946d78",
       "sourceName": "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules.sol",
       "solcConfig": {
@@ -642,8 +642,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/math/Math.sol": {
-      "lastModificationDate": 1740087592298,
-      "contentHash": "2b2665ae9bdb1af440658741a77fe213",
+      "lastModificationDate": 1750690460215,
+      "contentHash": "5ec781e33d3a9ac91ffdc83d94420412",
       "sourceName": "@openzeppelin/contracts/utils/math/Math.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -717,7 +717,7 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/contracts/ClockTowerSubscribe.sol": {
-      "lastModificationDate": 1747418953753,
+      "lastModificationDate": 1750690457386,
       "contentHash": "c108bac1cd8c54851b33aaac8e4a160d",
       "sourceName": "contracts/ClockTowerSubscribe.sol",
       "solcConfig": {
@@ -831,8 +831,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/structs/EnumerableSet.sol": {
-      "lastModificationDate": 1740087591706,
-      "contentHash": "872d28bbdd394a6754df33e82eaf1474",
+      "lastModificationDate": 1750690460208,
+      "contentHash": "9dea2f1d2615534fb7e64833ae92b7c3",
       "sourceName": "@openzeppelin/contracts/utils/structs/EnumerableSet.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -858,7 +858,9 @@
           }
         }
       },
-      "imports": [],
+      "imports": [
+        "../Arrays.sol"
+      ],
       "versionPragmas": [
         "^0.8.20"
       ],
@@ -867,8 +869,8 @@
       ]
     },
     "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
-      "lastModificationDate": 1740087592361,
-      "contentHash": "b6c6348d1c4d3e890f8d8a885b2477c0",
+      "lastModificationDate": 1750690460228,
+      "contentHash": "1fb9edee1d763745a62d0b1954998792",
       "sourceName": "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol",
       "solcConfig": {
         "version": "0.8.28",
@@ -903,6 +905,155 @@
       ],
       "artifacts": [
         "SafeERC20"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Arrays.sol": {
+      "lastModificationDate": 1750690460205,
+      "contentHash": "87b3640dbda6477c44a91647d48ff29c",
+      "sourceName": "@openzeppelin/contracts/utils/Arrays.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Comparators.sol",
+        "./SlotDerivation.sol",
+        "./StorageSlot.sol",
+        "./math/Math.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Arrays"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/Comparators.sol": {
+      "lastModificationDate": 1750690460210,
+      "contentHash": "0e57405a6f979853cbfeb0df3546c3a3",
+      "sourceName": "@openzeppelin/contracts/utils/Comparators.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Comparators"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/StorageSlot.sol": {
+      "lastModificationDate": 1750690460218,
+      "contentHash": "e656d64c4ce918f3d13030b91c935134",
+      "sourceName": "@openzeppelin/contracts/utils/StorageSlot.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "StorageSlot"
+      ]
+    },
+    "/home/hugo/Documents/Crypto/dev/clocktower/node_modules/@openzeppelin/contracts/utils/SlotDerivation.sol": {
+      "lastModificationDate": 1750690460218,
+      "contentHash": "43950136ee6a1761d2cbed39d16bb1e0",
+      "sourceName": "@openzeppelin/contracts/utils/SlotDerivation.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 500
+          },
+          "evmVersion": "cancun",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "SlotDerivation"
       ]
     }
   }

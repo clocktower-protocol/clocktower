@@ -81,6 +81,15 @@ export default buildModule("ClocktowerSepoliaBase", (m) => {
                 }, 
             ]
         },
+        base: {
+            callerFee: BigInt(process.env.BASE_CALLER_FEE),
+            systemFee: BigInt(process.env.BASE_SYSTEM_FEE),
+            maxRemits: BigInt(process.env.BASE_MAX_REMITS),
+            cancelLimit: BigInt(process.env.BASE_CANCEL_LIMIT),
+            allowSystemFee: convertENVBool(process.env.BASE_ALLOW_SYSTEM_FEE),
+            admin: process.env.BASE_ADMIN_ADDRESS,
+            janitor: process.env.BASE_JANITOR_ADDRESS
+        },
 
 
         
@@ -136,7 +145,20 @@ export default buildModule("ClocktowerSepoliaBase", (m) => {
             id: "ClocktowerSepoliaBase" // Ensures uniqueness
         })
     
+    //base deployment
+    /*
+        const timeLibrary = m.contract("ClockTowerTimeLibrary")
+        const clockSubscribe = m.contract("ClockTowerSubscribe", 
+            [chainObjects.base.callerFee, chainObjects.base.systemFee, chainObjects.base.maxRemits, chainObjects.base.cancelLimit, chainObjects.base.allowSystemFee, chainObjects.base.admin, chainObjects.base.janitor], {
+            libraries: {
+                ClockTowerTimeLibrary: timeLibrary
+            },
+            id: "ClocktowerBase" // Ensures uniqueness
+        })
+
+    */
     
+
     
     
     
