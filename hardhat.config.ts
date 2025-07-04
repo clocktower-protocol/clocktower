@@ -56,8 +56,14 @@ const config: HardhatUserConfig = {
       ledgerAccounts: [
         process.env.SEPOLIA_BASE_DEPLOYER_ADDRESS,
       ],
+    },
+    base: {
+      url: process.env.ALCHEMY_BASE_URL,
+      chainId: 8453,
+      ledgerAccounts: [
+        process.env.BASE_DEPLOYER_ADDRESS,
+      ],
     }
-    
   },
   gasReporter: {
     enabled: true,

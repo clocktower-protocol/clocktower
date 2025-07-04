@@ -135,7 +135,7 @@ export default buildModule("ClocktowerSepoliaBase", (m) => {
 
      //sepolia base deployment
         
-    
+    /*
         const timeLibrary = m.contract("ClockTowerTimeLibrary")
         const clockSubscribe = m.contract("ClockTowerSubscribe", 
             [chainObjects.sepoliaBase.callerFee, chainObjects.sepoliaBase.systemFee, chainObjects.sepoliaBase.maxRemits, chainObjects.sepoliaBase.cancelLimit, chainObjects.sepoliaBase.allowSystemFee, chainObjects.sepoliaBase.admin, chainObjects.sepoliaBase.janitor], {
@@ -144,9 +144,10 @@ export default buildModule("ClocktowerSepoliaBase", (m) => {
             },
             id: "ClocktowerSepoliaBase" // Ensures uniqueness
         })
+    */
     
     //base deployment
-    /*
+    
         const timeLibrary = m.contract("ClockTowerTimeLibrary")
         const clockSubscribe = m.contract("ClockTowerSubscribe", 
             [chainObjects.base.callerFee, chainObjects.base.systemFee, chainObjects.base.maxRemits, chainObjects.base.cancelLimit, chainObjects.base.allowSystemFee, chainObjects.base.admin, chainObjects.base.janitor], {
@@ -156,7 +157,7 @@ export default buildModule("ClocktowerSepoliaBase", (m) => {
             id: "ClocktowerBase" // Ensures uniqueness
         })
 
-    */
+    
     
 
     
