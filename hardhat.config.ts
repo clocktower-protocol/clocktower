@@ -72,8 +72,9 @@ const config: HardhatUserConfig = {
     currencyDisplayPrecision: 5,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
     //gasPriceApi: process.env.ETHERSCAN_GAS_LOOKUP_URL,
-    L2Etherscan: process.env.BASESCAN_KEY,
-    L1Etherscan: process.env.ETHERSCAN_KEY
+    //L2Etherscan: process.env.BASESCAN_KEY,
+    //L1Etherscan: process.env.ETHERSCAN_KEY
+    etherscan: process.env.ETHERSCAN_KEY
   },
   
 };
