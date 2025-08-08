@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
-// Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
+/// @title Clocktower Time Library
 library ClockTowerTimeLibrary {
 
 /// @title Clocktower Time Library
-/// @author Hugo Marx
 
  struct Time {
         uint16 dayOfMonth;

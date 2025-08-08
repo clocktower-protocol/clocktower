@@ -65,6 +65,9 @@ const config: HardhatUserConfig = {
       ],
     }
   },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_KEY,
+  },
   gasReporter: {
     enabled: true,
     L2: "base",

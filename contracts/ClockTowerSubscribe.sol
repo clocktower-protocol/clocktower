@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: BUSL-1.1
-// Copyright Clocktower LLC 2025
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -9,7 +8,6 @@ import "@openzeppelin/contracts/access/extensions/AccessControlDefaultAdminRules
 import "./ClockTowerTimeLibrary.sol";
 
 /// @title Clocktower Subscription Protocol
-/// @author Hugo Marx
 contract ClockTowerSubscribe is AccessControlDefaultAdminRules {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
