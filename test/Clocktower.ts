@@ -3,12 +3,13 @@
 //import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-//import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+
 const anyValue = () => true;
 
 // Get ethers from network connection for Hardhat 3
 const { ethers, networkHelpers } = await hre.network.connect();
 const { loadFixture, time } = networkHelpers;
+
 
 //Written by Hugo Marx
 
@@ -625,7 +626,7 @@ describe("Clocktower", function(){
                 dueDay: subscriptions[0].subscription[6]
             }
 
-            const tx = hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
+            const tx = await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject)
 
             expect(tx).to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, await hardhatCLOCKToken.getAddress(), 6)
             expect(tx).to.emit(hardhatClockSubscribe, "SubLog").withArgs(anyValue, anyValue, anyValue, anyValue, anyValue, await hardhatCLOCKToken.getAddress(), 8)
@@ -802,7 +803,7 @@ describe("Clocktower", function(){
             //console.log(await hardhatCLOCKToken.balanceOf(await hardhatClockSubscribe.getAddress()))
 
             //FAILED remit
-            expect(await hardhatClockSubscribe.connect(caller).remit())
+            await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject.id, subscribeObject.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 7)
 
             //console.log(await hardhatCLOCKToken.balanceOf(await hardhatClockSubscribe.getAddress()))
@@ -837,7 +838,7 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
-            expect(await hardhatClockSubscribe.connect(caller).remit())
+            await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject2.id, subscribeObject2.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 3)
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,3)
@@ -860,7 +861,7 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject3)
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
-            expect(await hardhatClockSubscribe.connect(caller).remit())
+            await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject3.id, provider.address, subscriber.address, anyValue, 0, clockTokenAddress, 3)
 
         })
