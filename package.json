@@ -14,5 +14,8 @@
     "eth-permit": "^0.2.3"
   },
   "overrides": {},
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "hardhat": "^3.0.6"
+  }
 }
