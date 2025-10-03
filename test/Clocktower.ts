@@ -1,12 +1,13 @@
 //import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
-import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+//import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 //import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 
 // Get ethers from network connection for Hardhat 3
-const { ethers } = await hre.network.connect();
+const { ethers, networkHelpers } = await hre.network.connect();
+const { loadFixture, time } = networkHelpers;
 
 //Written by Hugo Marx
 
