@@ -3,9 +3,9 @@ import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-help
 //import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import hre from "hardhat"
-//import { ethers } from "hardhat";
+import ethers from "hardhat";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-const { ethers } = require("hardhat");
+//const { ethers } = require("hardhat");
 
 //Written by Hugo Marx
 
