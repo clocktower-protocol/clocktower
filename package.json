@@ -16,6 +16,7 @@
   "overrides": {},
   "type": "module",
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.0",
     "hardhat": "^3.0.6"
   }
 }
