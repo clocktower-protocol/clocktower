@@ -164,7 +164,7 @@ describe("Clocktower", function(){
 
             //checks that too low an amount gets reverted
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(ethers.parseEther(".001"), await hardhatCLOCKToken.getAddress(), details ,1,15))
-            .to.be.reverted
+            .to.be.revertedWith("18")
 
             await expect(hardhatClockSubscribe.connect(provider).createSubscription(eth, ethers.ZeroAddress, details,1,15))
             .to.be.revertedWith("4")
@@ -1533,7 +1533,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
             //checks that admin rights are protected
-            await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+            await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWith("1");
 
             //transfers ownership
             //expect( await hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
