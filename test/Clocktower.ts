@@ -838,8 +838,10 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
+            
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject2.id, subscribeObject2.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 3)
+            
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,3)
             let subscriptions3 = await hardhatClockSubscribe.connect(provider).getAccountSubscriptions(false, provider.address);
@@ -861,8 +863,11 @@ describe("Clocktower", function(){
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), ethers.parseEther("100"))
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject3)
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
+
+            
             await expect(hardhatClockSubscribe.connect(caller).remit())
             .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject3.id, provider.address, subscriber.address, anyValue, 0, clockTokenAddress, 3)
+            
 
         })
         it("Should add and remove ERC20 Tokens", async function() {
@@ -1533,7 +1538,7 @@ describe("Clocktower", function(){
             const {hardhatCLOCKToken, hardhatClockSubscribe, subscriber, caller, provider, otherAccount, owner} = await loadFixture(deployClocktowerFixture);
 
             //checks that admin rights are protected
-            await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWith("1");
+            await expect(hardhatClockSubscribe.connect(subscriber).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "AccessControlUnauthorizedAccount");
 
             //transfers ownership
             //expect( await hardhatClockSubscribe.connect(owner).transferOwnership(otherAccount))
@@ -1544,13 +1549,13 @@ describe("Clocktower", function(){
             await time.increase((dayAhead * 2))
 
             //should still block 
-            await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+            await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "1");
 
             //accepts transfer
             expect( await hardhatClockSubscribe.connect(otherAccount).acceptDefaultAdminTransfer())
 
             //now blocks old owner
-            await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.reverted;
+            await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "1");
 
             //allows new owner to run protected functions
             expect( await hardhatClockSubscribe.connect(otherAccount).changeMaxRemits(5))
@@ -1590,7 +1595,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subArray[2])
             
             //tries to unpause token that isn't paused
-            await expect(hardhatClockSubscribe.connect(owner).pauseToken(hardhatCLOCKToken.getAddress(), false)).to.be.reverted;
+            await expect(hardhatClockSubscribe.connect(owner).pauseToken(hardhatCLOCKToken.getAddress(), false)).to.be.revertedWithoutReason(ethers);
 
             //pauses token 
             expect( await hardhatClockSubscribe.connect(owner).pauseToken(hardhatCLOCKToken.getAddress(), true))
@@ -1759,7 +1764,7 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(owner).setCancelLimit(2n)
 
             //still paginating so it wont work
-            await expect(hardhatClockSubscribe.connect(otherAccount).cleanUnsubscribeList(subArray[0].id)).to.be.reverted
+            await expect(hardhatClockSubscribe.connect(otherAccount).cleanUnsubscribeList(subArray[0].id)).to.be.revertedWithoutReason(ethers)
 
             //turns off pagination
             const pageStart2 = {
