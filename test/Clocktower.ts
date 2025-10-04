@@ -839,8 +839,10 @@ describe("Clocktower", function(){
             await hardhatClockSubscribe.connect(subscriber).subscribe(subscribeObject2)
             await hardhatCLOCKToken.connect(subscriber).approve(await hardhatClockSubscribe.getAddress(), 0)
             
+            await time.increase(dayAhead)
+            
             await expect(hardhatClockSubscribe.connect(caller).remit())
-            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject2.id, subscribeObject2.provider, subscriber.address, anyValue, subscribeObject.amount, clockTokenAddress, 3)
+            .to.emit(hardhatClockSubscribe, "SubLog").withArgs(subscribeObject2.id, subscribeObject2.provider, subscriber.address, anyValue, 0, clockTokenAddress, 3)
             
 
             await hardhatClockSubscribe.connect(provider).createSubscription(eth, await hardhatCLOCKToken.getAddress(), details,1,3)
@@ -1549,13 +1551,13 @@ describe("Clocktower", function(){
             await time.increase((dayAhead * 2))
 
             //should still block 
-            await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "1");
+            await expect(hardhatClockSubscribe.connect(otherAccount).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "AccessControlUnauthorizedAccount");
 
             //accepts transfer
             expect( await hardhatClockSubscribe.connect(otherAccount).acceptDefaultAdminTransfer())
 
             //now blocks old owner
-            await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "1");
+            await expect(hardhatClockSubscribe.connect(owner).addERC20Contract(await hardhatCLOCKToken.getAddress(), ethers.parseEther(".01"), ClockDecimals)).to.be.revertedWithCustomError(hardhatClockSubscribe, "AccessControlUnauthorizedAccount");
 
             //allows new owner to run protected functions
             expect( await hardhatClockSubscribe.connect(otherAccount).changeMaxRemits(5))
