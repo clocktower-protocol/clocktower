@@ -1,106 +1,96 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "unixTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint40",
-        "name": "dueDay",
-        "type": "uint40"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "frequency",
-        "type": "uint8"
-      }
-    ],
+    "type": "function",
     "name": "prorate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "constant": true,
     "stateMutability": "pure",
-    "type": "function"
-  },
-  {
+    "payable": false,
     "inputs": [
       {
-        "internalType": "uint40",
-        "name": "unixTime",
-        "type": "uint40"
+        "type": "uint256",
+        "name": "unixTime"
+      },
+      {
+        "type": "uint40",
+        "name": "dueDay"
+      },
+      {
+        "type": "uint256",
+        "name": "fee"
+      },
+      {
+        "type": "uint8",
+        "name": "frequency"
       }
     ],
+    "outputs": [
+      {
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "function",
     "name": "unixToDays",
-    "outputs": [
-      {
-        "internalType": "uint40",
-        "name": "dayCount",
-        "type": "uint40"
-      }
-    ],
+    "constant": true,
     "stateMutability": "pure",
-    "type": "function"
-  },
-  {
+    "payable": false,
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "unix",
-        "type": "uint256"
+        "type": "uint40",
+        "name": "unixTime"
       }
     ],
-    "name": "unixToTime",
     "outputs": [
       {
+        "type": "uint40",
+        "name": "dayCount"
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "name": "unixToTime",
+    "constant": true,
+    "stateMutability": "pure",
+    "payable": false,
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "unix"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "tuple",
+        "name": "time",
         "components": [
           {
-            "internalType": "uint16",
-            "name": "dayOfMonth",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "dayOfMonth"
           },
           {
-            "internalType": "uint16",
-            "name": "weekDay",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "weekDay"
           },
           {
-            "internalType": "uint16",
-            "name": "quarterDay",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "quarterDay"
           },
           {
-            "internalType": "uint16",
-            "name": "yearDay",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "yearDay"
           },
           {
-            "internalType": "uint16",
-            "name": "year",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "year"
           },
           {
-            "internalType": "uint16",
-            "name": "month",
-            "type": "uint16"
+            "type": "uint16",
+            "name": "month"
           }
-        ],
-        "internalType": "struct ClockTowerTimeLibrary.Time",
-        "name": "time",
-        "type": "tuple"
+        ]
       }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
+    ]
   }
 ]
