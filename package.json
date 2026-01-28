@@ -13,7 +13,11 @@
     "dotenv": "^17.0.0",
     "eth-permit": "^0.2.3"
   },
-  "overrides": {},
+  "overrides": {
+    "elliptic": "6.6.1",
+    "lodash": ">=4.17.23",
+    "lodash-es": ">=4.17.23"
+  },
   "type": "module",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.0",
