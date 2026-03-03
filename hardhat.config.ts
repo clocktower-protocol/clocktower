@@ -1,10 +1,10 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import hardhatToolboxMochaEthers from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import HardhatContractSizer from '@solidstate/hardhat-contract-sizer';
-import HardhatAbiExporter from '@solidstate/hardhat-abi-exporter';
+//import HardhatAbiExporter from '@solidstate/hardhat-abi-exporter';
 
 const config: HardhatUserConfig = {
-    plugins: [hardhatToolboxMochaEthers, HardhatContractSizer, HardhatAbiExporter],
+    plugins: [hardhatToolboxMochaEthers, HardhatContractSizer],
     solidity: {
         compilers: [
         {
@@ -23,10 +23,6 @@ const config: HardhatUserConfig = {
         runOnCompile: true,
         strict: true
       },
-      abiExporter: {
-        runOnCompile: true,
-        clear: true
-      }
 };
 
 export default config;

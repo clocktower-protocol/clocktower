@@ -127,7 +127,6 @@ For detailed smart contract documentation, including function signatures, events
 The project uses Hardhat with the following plugins:
 
 - **@nomicfoundation/hardhat-toolbox** - Development tools
-- **hardhat-abi-exporter** - ABI export functionality
 - **hardhat-contract-sizer** - Contract size analysis
 - **solidity-docgen** - Documentation generation
 

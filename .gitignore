@@ -16,6 +16,7 @@ cache/
 artifacts/
 ignition/deployments/
 typechain-types/
+abi/
 
 
 
