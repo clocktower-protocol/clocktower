@@ -1,0 +1,26 @@
+# --- Secrets (hard block; do not rely on .gitignore alone) ---
+.env
+.env.*
+!.env.example
+# --- Dependencies & VCS ---
+node_modules/
+.git/
+# --- Hardhat build outputs (already in .gitignore; repeat for clarity) ---
+artifacts/
+cache/
+typechain-types/
+# --- Generated / analysis (not abi or deployments) ---
+types/
+crytic-export/
+# --- Lockfiles & logs ---
+package-lock.json
+*.log
+hardhat-node.log
+# --- Binaries & stale config ---
+*.png
+hardhat.config.old.ts
+# --- IDE / OS noise ---
+.vscode/
+.idea/
+.DS_Store
+.VSCodeCounter/
