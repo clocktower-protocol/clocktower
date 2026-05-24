@@ -1,0 +1,11 @@
+node_modules/
+artifacts/
+cache/
+typechain-types/
+types/
+crytic-export/
+package-lock.json
+*.log
+hardhat-node.log
+*.png
+hardhat.config.old.ts
