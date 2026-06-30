@@ -7,7 +7,7 @@ import hre from "hardhat";
 const anyValue = () => true;
 
 // Get ethers from network connection for Hardhat 3
-const { ethers, networkHelpers } = await hre.network.connect();
+const { ethers, networkHelpers } = await hre.network.getOrCreate();
 const { loadFixture, time } = networkHelpers;
 
 
