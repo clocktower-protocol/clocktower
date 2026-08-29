@@ -51,8 +51,11 @@ describe("Clocktower", function(){
     //fixture to deploy contract
     async function deployClocktowerFixture() {
 
-        //sets time to 2028/01/01 1:00
-        await time.increaseTo(currentTime);
+        //sets time to 2028/01/01 1:00 (skip if another file already passed this)
+        const latest = await time.latest();
+        if (latest < currentTime) {
+            await time.increaseTo(currentTime);
+        }
 
         const ClockLibrary = await ethers.getContractFactory("ClockTowerTimeLibrary");
         const hardhatClockLibrary = await ClockLibrary.deploy()
