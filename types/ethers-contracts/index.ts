@@ -7,6 +7,6 @@ export type { ClockTowerSubscribe } from './ClockTowerSubscribe.js';
 export type { ClockTowerTimeLibrary } from './ClockTowerTimeLibrary.js';
 export * as factories from './factories/index.js';
 export { ClockTowerSubscribe__factory } from './factories/ClockTowerSubscribe__factory.js';
+export { ClockTowerTimeLibrary__factory } from './factories/ClockTowerTimeLibrary__factory.js';
 export type { CLOCKToken } from './CLOCKtoken.sol/CLOCKToken.js';
 export { CLOCKToken__factory } from './factories/CLOCKtoken.sol/CLOCKToken__factory.js';
-export { ClockTowerTimeLibrary__factory } from './factories/ClockTowerTimeLibrary__factory.js';
