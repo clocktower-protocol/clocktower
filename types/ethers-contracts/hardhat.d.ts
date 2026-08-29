@@ -10,21 +10,21 @@ import * as Contracts from "./index.js";
 
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
-  getContractFactory(name: 'ClockTowerSubscribe', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ClockTowerSubscribe__factory>
+  getContractFactory(name: 'CLOCKToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.CLOCKToken__factory>
 getContractFactory(name: 'ClockTowerTimeLibrary', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ClockTowerTimeLibrary__factory>
-getContractFactory(name: 'CLOCKToken', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.CLOCKToken__factory>
+getContractFactory(name: 'ClockTowerSubscribe', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ClockTowerSubscribe__factory>
 
-  getContractAt(name: 'ClockTowerSubscribe', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ClockTowerSubscribe>
+  getContractAt(name: 'CLOCKToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.CLOCKToken>
 getContractAt(name: 'ClockTowerTimeLibrary', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ClockTowerTimeLibrary>
-getContractAt(name: 'CLOCKToken', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.CLOCKToken>
+getContractAt(name: 'ClockTowerSubscribe', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ClockTowerSubscribe>
 
-  deployContract(name: 'ClockTowerSubscribe', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerSubscribe>
+  deployContract(name: 'CLOCKToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CLOCKToken>
 deployContract(name: 'ClockTowerTimeLibrary', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerTimeLibrary>
-deployContract(name: 'CLOCKToken', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CLOCKToken>
+deployContract(name: 'ClockTowerSubscribe', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerSubscribe>
 
-  deployContract(name: 'ClockTowerSubscribe', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerSubscribe>
+  deployContract(name: 'CLOCKToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CLOCKToken>
 deployContract(name: 'ClockTowerTimeLibrary', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerTimeLibrary>
-deployContract(name: 'CLOCKToken', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CLOCKToken>
+deployContract(name: 'ClockTowerSubscribe', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ClockTowerSubscribe>
 
     // default types
     getContractFactory(
